@@ -1,0 +1,51 @@
+﻿@model ForQab.DataAccess.Models.Expert
+
+@{
+    ViewData["Title"] = "Ekspert Detalları";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">Ekspert Detalları</h3>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-center mb-4">Detallı informasiya</h4>
+
+                    <dl class="row">
+                        <dt class="col-sm-4 font-weight-bold">Ad, soyad:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.Name) @Html.DisplayFor(model => model.Surname)</dd>
+
+                        <dt class="col-sm-4 font-weight-bold">Ata adı:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.Fname)</dd>
+
+                        <dt class="col-sm-4 font-weight-bold">Bölmə:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.Section.Name)</dd>
+
+                        <dt class="col-sm-4 font-weight-bold">İxtisas:</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.SubProfessions != null && Model.SubProfessions.Any())
+                            {
+                                @string.Join(", ", Model.SubProfessions.Select(sp => sp.Name))
+                            }
+                            else
+                            {
+                                <span>---</span>
+                            }
+                        </dd>
+                    </dl>
+
+                    <div class="mt-4 text-center">
+                        <form asp-action="Delete">
+                            <input type="hidden" asp-for="Id" />
+                            <button type="submit" class="btn btn-danger btn-lg px-4">Sil</button>
+                            <a asp-action="Index" class="btn btn-dark btn-lg px-4 ml-3">Siyahıya qayıt</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

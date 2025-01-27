@@ -1,0 +1,122 @@
+﻿.modern-select {
+    background-color: #23272a;
+    color: #ffffff;
+    border: 1px solid #7289da;
+    border-radius: 5px;
+    padding: 10px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+    .modern-select:focus {
+        border-color: #99aab5;
+        outline: none;
+        box-shadow: 0 0 4px #7289da;
+    }
+
+    .modern-select option {
+        background-color: #23272a;
+        color: #ffffff;
+    }
+
+        .modern-select option:hover {
+            background-color: #2c2f33;
+            color: #7289da;
+        }
+
+/* Styling for Multiple Select */
+.multiple-select {
+    height: auto;
+    min-height: 100px;
+    padding: 8px;
+}
+
+/* Hover Effect */
+.modern-select:hover {
+    border-color: #99aab5;
+    background-color: #2c2f33;
+    cursor: pointer;
+}
+
+/* Placeholder option styling */
+.modern-select option:disabled {
+    color: #7289da;
+    font-style: italic;
+}
+/* Modern Multiple Select Styling */
+.multiple-modern-select {
+    background-color: #23272a;
+    color: #ffffff;
+    border: 1px solid #7289da;
+    border-radius: 5px;
+    padding: 10px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    height: auto;
+    min-height: 100px;
+    line-height: 1.5;
+    overflow-y: auto;
+}
+
+    .multiple-modern-select:focus {
+        border-color: #99aab5;
+        outline: none;
+        box-shadow: 0 0 4px #7289da;
+    }
+
+    .multiple-modern-select option {
+        background-color: #23272a;
+        color: #ffffff;
+        padding: 8px;
+        transition: background-color 0.2s ease;
+    }
+
+        .multiple-modern-select option:hover {
+            background-color: #2c2f33;
+            color: #7289da;
+        }
+
+        .multiple-modern-select option:checked {
+            background-color: #7289da;
+            color: #ffffff;
+        }
+
+    /* Styling for selected tags (chips) */
+    .multiple-modern-select[multiple] {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        border: 1px solid #7289da;
+        padding: 10px;
+        height: auto;
+    }
+
+
+
+        .multiple-modern-select[multiple]::after {
+            content: attr(data-placeholder);
+            color: #7289da;
+            font-style: italic;
+        }
+
+        .multiple-modern-select[multiple] .selected-tag {
+            background-color: #7289da;
+            color: #ffffff;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            position: relative;
+            font-size: 0.9rem;
+        }
+
+            .multiple-modern-select[multiple] .selected-tag .remove-tag {
+                color: #ffffff;
+                margin-left: 10px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+
+                .multiple-modern-select[multiple] .selected-tag .remove-tag:hover {
+                    color: #ff4d4d;
+                }

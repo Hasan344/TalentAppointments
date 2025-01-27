@@ -1,0 +1,88 @@
+﻿@model ForQab.DataAccess.Models.Monitor
+
+@{
+    ViewData["Title"] = "Könüllünü sil";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">Könüllü Sil</h3>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-center text-danger">Bu könüllünü silməyə əminsiniz?</h4>
+
+                    <div class="mt-4">
+                        <h5>Könüllü Məlumatları</h5>
+                        <hr />
+                        <dl class="row">
+                            <dt class="col-sm-4 font-weight-bold">Ad:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Name)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Soyad:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Surname)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Ata Adı:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Fname)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Region:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Region)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Arxiv:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Archive)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">VNum:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.VNum)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Peşə:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Profession)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">İş Yeri:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Workplace)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Vəzifə:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Position)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Yaş:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Age)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Şəkil:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Foto)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Ev Telefonu:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.TelEv)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">İş Telefonu:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.TelIs)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Maliyyə Kodu:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.FinCode)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Seriya:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Serial)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Cinsiyyət:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.GenderNavigation.Id)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Vəzifə:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.RoleNavigation.Id)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Şöbə:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Section.Id)</dd>
+                        </dl>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <form asp-action="Delete">
+                            <input type="hidden" asp-for="Id" />
+                            <button type="submit" class="btn btn-danger btn-lg px-4">Sil</button>
+                            <a asp-action="Index" class="btn btn-secondary btn-lg px-4 ml-3">Siyahıya Qayıt</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

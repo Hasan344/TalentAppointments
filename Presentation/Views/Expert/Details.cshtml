@@ -1,0 +1,87 @@
+﻿@model ForQab.DataAccess.Models.Expert
+
+@{
+    ViewData["Title"] = "Detallar";
+    string primaryColor = "#0056b3"; // Official primary color
+    string secondaryColor = "#6c757d"; // Official secondary color
+}
+
+<div class="container py-5" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+    <h1 class="text-center mb-4" style="color: @primaryColor; font-weight: bold;">Ekspert Detalları</h1>
+    <hr class="mb-4" />
+
+    <div class="row">
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Ad:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Name)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Soyad:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Surname)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Ata adı:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Fname)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Bölmə:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Section.Name)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Doğum tarixi:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.BirthDate)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Fin Kodu:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.FinCode)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İxtisas:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Profession)</dd>
+        </div>
+
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İxtisas:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">
+                    @if (Model.SubProfessions != null && Model.SubProfessions.Any())
+                    {
+                        @string.Join(", ", Model.SubProfessions.Select(sp => sp.Name))
+                    }
+                    else
+                    {
+                        <span style="color: @secondaryColor;">---</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Rekvizit:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Rekvizit)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Bank filialı:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.BankFilial)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Bank filial kodu:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.BankFilialCode)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Hesablaşma hesabı:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.HesablashmaH)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">VÖEN:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Voen)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">SSN:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.SSN)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="Edit" asp-route-id="@Model?.Id">
+            <i class="bi bi-pencil"></i> Düzəliş et
+        </a>
+        <a class="btn btn-secondary px-4 py-2 mx-2" style="background-color: @secondaryColor; border: none;" asp-action="Index">
+            <i class="bi bi-arrow-left"></i> Siyahıya qayıt
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Əlavə skriptlər üçün bölmə
+    </script>
+}

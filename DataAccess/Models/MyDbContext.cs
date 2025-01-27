@@ -1,0 +1,298 @@
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
+namespace ForQab.DataAccess.Models;
+
+public partial class MyDbContext : DbContext
+{
+    private readonly IConfiguration _configuration;
+    public MyDbContext(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
+    public MyDbContext(DbContextOptions<MyDbContext> options, IConfiguration configuration)
+        : base(options)
+    {
+        _configuration = configuration;
+    }
+
+    public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
+
+    public virtual DbSet<AspNetRoleClaim> AspNetRoleClaims { get; set; }
+
+    public virtual DbSet<AspNetUser> AspNetUsers { get; set; }
+
+    public virtual DbSet<AspNetUserClaim> AspNetUserClaims { get; set; }
+
+    public virtual DbSet<AspNetUserLogin> AspNetUserLogins { get; set; }
+
+    public virtual DbSet<AspNetUserToken> AspNetUserTokens { get; set; }
+
+    public virtual DbSet<Commission> Commissions { get; set; }
+
+    public virtual DbSet<DimRepresentative> DimRepresentatives { get; set; }
+
+    public virtual DbSet<District> Districts { get; set; }
+
+    public virtual DbSet<Exam> Exams { get; set; }
+
+    public virtual DbSet<ExamBuilding> ExamBuildings { get; set; }
+
+    public virtual DbSet<Expert> Experts { get; set; }
+
+    public virtual DbSet<Gender> Genders { get; set; }
+
+    public virtual DbSet<Monitor> Monitors { get; set; }
+
+    public virtual DbSet<MonitorLog> MonitorLogs { get; set; }
+
+    public virtual DbSet<Profession> Professions { get; set; }
+
+    public virtual DbSet<Region> Regions { get; set; }
+
+    public virtual DbSet<Role> Roles { get; set; }
+
+    public virtual DbSet<Section> Sections { get; set; }
+
+    public virtual DbSet<SubCommission> SubCommissions { get; set; }
+
+    public virtual DbSet<SubProfession> SubProfessions { get; set; }
+
+    public virtual DbSet<User> Users { get; set; }
+
+    
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        var connectionString = _configuration.GetConnectionString("DefaultConnection");
+        optionsBuilder.UseSqlServer(connectionString);
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<AspNetRole>(entity =>
+        {
+            entity.HasIndex(e => e.NormalizedName, "RoleNameIndex")
+                .IsUnique()
+                .HasFilter("([NormalizedName] IS NOT NULL)");
+        });
+
+        modelBuilder.Entity<AspNetUser>(entity =>
+        {
+            entity.HasIndex(e => e.NormalizedUserName, "UserNameIndex")
+                .IsUnique()
+                .HasFilter("([NormalizedUserName] IS NOT NULL)");
+
+            entity.HasMany(d => d.Roles).WithMany(p => p.Users)
+                .UsingEntity<Dictionary<string, object>>(
+                    "AspNetUserRole",
+                    r => r.HasOne<AspNetRole>().WithMany().HasForeignKey("RoleId"),
+                    l => l.HasOne<AspNetUser>().WithMany().HasForeignKey("UserId"),
+                    j =>
+                    {
+                        j.HasKey("UserId", "RoleId");
+                        j.ToTable("AspNetUserRoles");
+                        j.HasIndex(new[] { "RoleId" }, "IX_AspNetUserRoles_RoleId");
+                    });
+        });
+
+        modelBuilder.Entity<Commission>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__commissi__3213E83F3B4ABE27");
+
+            entity.HasOne(d => d.Section).WithMany(p => p.Commissions)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__commissio__secti__5441852A");
+        });
+
+        modelBuilder.Entity<DimRepresentative>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__dim_repr__3213E83F4D403BCE");
+        });
+
+        modelBuilder.Entity<District>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__district__3213E83F8DDCBF8C");
+
+            entity.HasOne(d => d.Region).WithMany(p => p.Districts)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__districts__regio__0E6E26BF");
+        });
+
+        modelBuilder.Entity<Exam>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__exams__3213E83F47E1B267");
+
+            entity.HasOne(d => d.Commission).WithMany(p => p.Exams).HasConstraintName("FK__exams__commissio__57DD0BE4");
+
+            entity.HasOne(d => d.ExamBulding).WithMany(p => p.Exams)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__exams__exam_buld__59C55456");
+
+            entity.HasOne(d => d.Section).WithMany(p => p.Exams)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__exams__section_i__56E8E7AB");
+
+            entity.HasOne(d => d.SubCommission).WithMany(p => p.Exams).HasConstraintName("FK__exams__sub_commi__58D1301D");
+
+            entity.HasMany(d => d.Experts).WithMany(p => p.Exams)
+                .UsingEntity<Dictionary<string, object>>(
+                    "ExamExpert",
+                    r => r.HasOne<Expert>().WithMany()
+                        .HasForeignKey("ExpertId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_Exam_Experts_2"),
+                    l => l.HasOne<Exam>().WithMany()
+                        .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_Exam_Experts"),
+                    j =>
+                    {
+                        j.HasKey("ExamId", "ExpertId");
+                        j.ToTable("Exam_Experts");
+                    });
+
+            entity.HasMany(d => d.Monitors).WithMany(p => p.Exams)
+                .UsingEntity<Dictionary<string, object>>(
+                    "ExamMonitor",
+                    r => r.HasOne<Monitor>().WithMany()
+                        .HasForeignKey("MonitorId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_Exam_Monitors_2"),
+                    l => l.HasOne<Exam>().WithMany()
+                        .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_Exam_Monitors"),
+                    j =>
+                    {
+                        j.HasKey("ExamId", "MonitorId");
+                        j.ToTable("Exam_Monitors");
+                    });
+        });
+
+        modelBuilder.Entity<ExamBuilding>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__exam_bui__3213E83FF7187075");
+
+            entity.HasOne(d => d.Section).WithMany(p => p.ExamBuildings)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__exam_buil__secti__5165187F");
+        });
+
+        modelBuilder.Entity<Expert>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__experts__3213E83FCCBE8A03");
+
+            entity.HasOne(d => d.Section).WithMany(p => p.Experts).HasConstraintName("FK_Experts_Sections");
+
+            entity.HasMany(d => d.SubProfessions).WithMany(p => p.Experts)
+                .UsingEntity<Dictionary<string, object>>(
+                    "ExpertsProfession",
+                    r => r.HasOne<SubProfession>().WithMany()
+                        .HasForeignKey("SubProfessionId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK__experts_professions"),
+                    l => l.HasOne<Expert>().WithMany()
+                        .HasForeignKey("ExpertId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK__experts_professions__60A75C0F"),
+                    j =>
+                    {
+                        j.HasKey("ExpertId", "SubProfessionId");
+                        j.ToTable("experts_professions");
+                        j.IndexerProperty<int>("ExpertId").HasColumnName("expert_id");
+                        j.IndexerProperty<int>("SubProfessionId").HasColumnName("sub_profession_id");
+                    });
+        });
+
+        modelBuilder.Entity<Gender>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__genders__3213E83FC52E1E40");
+        });
+
+        modelBuilder.Entity<Monitor>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__supervis__3213E83FAB6F6A67");
+
+            entity.HasOne(d => d.DistrictNavigation).WithMany(p => p.Monitors).HasConstraintName("FK__monitor_district");
+
+            entity.HasOne(d => d.GenderNavigation).WithMany(p => p.Monitors).HasConstraintName("FK__monitor_genders");
+
+            entity.HasOne(d => d.RoleNavigation).WithMany(p => p.Monitors).HasConstraintName("FK__monitor_role");
+
+            entity.HasOne(d => d.Section).WithMany(p => p.Monitors).HasConstraintName("FK__superviso__secti__60A75C0F");
+        });
+
+        modelBuilder.Entity<MonitorLog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__supervis__3213E83F0BEE1DF8");
+
+            entity.HasOne(d => d.Supervisor).WithMany(p => p.MonitorLogs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__superviso__super__6B24EA82");
+        });
+
+        modelBuilder.Entity<Profession>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__professi__3213E83FCA289D09");
+
+            entity.HasOne(d => d.Section).WithMany(p => p.Professions)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Professions_Sections");
+        });
+
+        modelBuilder.Entity<Region>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__regions__3213E83F8E8C9763");
+        });
+
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__roles__3213E83F4B5228FB");
+        });
+
+        modelBuilder.Entity<Section>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__sections__3213E83F295BA8C8");
+        });
+
+        modelBuilder.Entity<SubCommission>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__sub_comm__3213E83FFB765CF8");
+
+            entity.HasOne(d => d.Commission).WithMany(p => p.SubCommissions)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__sub_commi__commi__5812160E");
+
+            entity.HasOne(d => d.Section).WithMany(p => p.SubCommissions)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__sub_commi__secti__571DF1D5");
+        });
+
+        modelBuilder.Entity<SubProfession>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__sub_prof__3213E83F14C802DD");
+
+            entity.HasOne(d => d.Profession).WithMany(p => p.SubProfessions)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Professions_Sub_Professions");
+
+            entity.HasOne(d => d.Section).WithMany(p => p.SubProfessions)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Sub_Professions_Sections");
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Users__3213E83FD3D6EAF2");
+
+            entity.HasOne(d => d.Section).WithMany(p => p.Users).HasConstraintName("FK_Users_Sections");
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}

@@ -1,0 +1,82 @@
+﻿@model ForQab.DataAccess.Models.Monitor
+
+@{
+    ViewData["Title"] = "Monitoru Sil";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">Monitoru Sil</h3>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-center text-danger">Bu monitoru silmək istədiyinizdən əminsiniz?</h4>
+
+                    <div class="mt-4">
+                        <h5>Monitor Detalları</h5>
+                        <hr />
+                        <dl class="row">
+                            <dt class="col-sm-4 font-weight-bold">Ad:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Name)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Soyad:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Surname)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Ata adı:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Fname)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Cins:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Gender)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Rol:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Role)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">VNum:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.VNum)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Peşə:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Profession)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">İş yeri:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Workplace)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Vəzifə:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Position)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Yaş:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Age)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Şəkil:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Foto)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Ev telefonu:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.TelEv)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">İş telefonu:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.TelIs)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">FİN Kodu:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.FinCode)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Seriya:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Serial)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Bölmə ID:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Section.Name)</dd>
+                        </dl>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <form asp-action="Delete">
+                            <input type="hidden" asp-for="Id" />
+                            <button type="submit" class="btn btn-danger btn-lg px-4">Bəli, Sil</button>
+                            <a asp-action="Index" class="btn btn-secondary btn-lg px-4 ml-3">Siyahıya Qayıt</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

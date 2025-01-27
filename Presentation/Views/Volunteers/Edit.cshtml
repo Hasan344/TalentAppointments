@@ -1,0 +1,67 @@
+﻿@model ForQab.DataAccess.Models.Monitor
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div class="container py-4" style="background-color: #2c2f33; border-radius: 10px; color: #ffffff;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="text-center mb-4">@ViewData["Title"]</h1>
+            <h4 class="text-center mb-4">Könüllüdə düzəliş etmək</h4>
+            <hr style="border-color: #7289da;" />
+
+            <form asp-action="Edit" method="post" class="p-3">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+
+                <!-- Personal Details -->
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">Ad</label>
+                    <input asp-for="Name" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Surname" class="form-label">Soyad</label>
+                    <input asp-for="Surname" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Surname" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Fname" class="form-label">Ata adı</label>
+                    <input asp-for="Fname" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Fname" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Gender" class="form-label">Cinsiyyət</label>
+                    <select asp-for="Gender" class="form-select" asp-items="ViewBag.Gender" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Cins seçin</option>
+                    </select>
+                    <span asp-validation-for="Gender" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Role" class="form-label">Vəzifə</label>
+                    <select asp-for="Role" class="form-select" asp-items="ViewBag.Role" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Vəzifə seçin</option>
+                    </select>
+                    <span asp-validation-for="Role" class="text-danger"></span>
+                </div>
+
+                <!-- Submit -->
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-action="Index" class="btn btn-secondary" style="background-color: #2f3136; color: #ffffff;">Siyahıya qayıt</a>
+                    <button type="submit" class="btn btn-primary" style="background-color: #7289da; border-color: #7289da;">Yadda saxla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

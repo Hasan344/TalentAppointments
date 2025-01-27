@@ -1,0 +1,116 @@
+﻿
+.container {
+    max-width: 4000px;
+}
+
+/* Table Styling */
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+
+.table-responsive {
+    max-height: 650px; /* Yüksekliği ayarlayın */
+    overflow-y: auto;
+}
+.sticky-header th {
+    position: sticky;
+    top: 0;
+    z-index: 1020; /* Üstte görünmesi için yüksek z-index */
+    background-color: #343a40; /* Başlık rengi (table-dark ile uyumlu) */
+    color: white; /* Yazı rengi */
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Hafif gölge */
+}
+.table-bordered th, .table-bordered td {
+    border: 1px solid #dee2e6;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f7f7f7;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table-light th {
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+/* Button Styling */
+.btn-group .btn {
+    margin-right: 8px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+}
+
+.btn-outline-warning {
+    border-color: #ffc107;
+    color: #ffc107;
+}
+
+    .btn-outline-warning:hover {
+        background-color: #ffc107;
+        color: #fff;
+    }
+
+.btn-outline-info {
+    border-color: #17a2b8;
+    color: #17a2b8;
+}
+
+    .btn-outline-info:hover {
+        background-color: #17a2b8;
+        color: #fff;
+    }
+
+.btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
+/* Header and Text Styles */
+.text-primary {
+    color: #0d6efd !important;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 30px;
+}
+
+.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.btn-sm {
+    padding: 0.25rem 1rem;
+    font-size: 1rem;
+}
+
+.btn-outline-warning, .btn-outline-info, .btn-outline-danger {
+    padding: 0.25rem 1rem;
+    font-size: 1rem;
+}
+
+.btn-group .btn {
+    font-size: 1rem;
+}
+
+.btn-sm i {
+    font-size: 1rem;
+}

@@ -1,0 +1,68 @@
+﻿@model ForQab.DataAccess.Models.Exam
+
+@{
+    ViewData["Title"] = "Delete Exam";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">Silinməni təsdiqləyin</h3>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-center text-danger">Silməyə əminsiniz?</h4>
+
+                    <div class="mt-4">
+                        <h5>İmtahan Detalları</h5>
+                        <hr />
+                        <dl class="row">
+                            <dt class="col-sm-4 font-weight-bold">İmtahan adı:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Name)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">İmtahan Tarixi:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.ExamDate)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Müddət:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Duration)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Su:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Water)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Yemək:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Food)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Əlavə qeydlər:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Notes)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Daşınma ilə bağlı inventar:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.InventoryTransport)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Komissiya:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Commission.CommissionNo)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">İmtahan Binası:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.ExamBulding.Name)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Bölmə:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Section.Name)</dd>
+@* 
+                            <dt class="col-sm-4 font-weight-bold">Sub-Commission ID:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.SubCommission.Id)</dd> *@
+                        </dl>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <form asp-action="Delete">
+                            <input type="hidden" asp-for="Id" />
+                            <button type="submit" class="btn btn-danger btn-lg px-4">Təsdiqlə</button>
+                            <a asp-action="Index" class="btn btn-secondary btn-lg px-4 ml-3">İmtina</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

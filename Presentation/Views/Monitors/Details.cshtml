@@ -1,0 +1,95 @@
+﻿@model ForQab.DataAccess.Models.Monitor
+
+@{
+    ViewData["Title"] = "Nəzarətçi detalları";
+    string primaryColor = "#0056b3"; // Official primary color
+    string secondaryColor = "#6c757d"; // Official secondary color
+}
+
+<div class="container py-5" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+    <h1 class="text-center mb-4" style="color: @primaryColor; font-weight: bold;">Nəzarətçi Detalları</h1>
+    <hr class="mb-4" />
+
+    <div class="row">
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Ad:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Name)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Soyad:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Surname)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Ata adı:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Fname)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Region:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Region)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Arxiv:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Archive)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Cins:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.GenderNavigation.Name)</dd>
+            </dl>
+        </div>
+
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Rol:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.RoleNavigation.Name)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Rayon:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.DistrictNavigation.Name)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Vətəndaşlıq Nömrəsi:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.VNum)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Peşə:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Profession)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İş yeri:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Workplace)</dd>
+@* 
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Vəzifə:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Position)</dd> *@
+            </dl>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Foto:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Foto)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Telefon (Ev):</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.TelEv)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Telefon (İş):</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.TelIs)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Fin Kod:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.FinCode)</dd>
+            </dl>
+        </div>
+
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Seriya:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Serial)</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Bölmə:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Section.Name)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="Edit" asp-route-id="@Model?.Id">
+            <i class="bi bi-pencil"></i> Düzəliş et
+        </a>
+        <a class="btn btn-secondary px-4 py-2 mx-2" style="background-color: @secondaryColor; border: none;" asp-action="Index">
+            <i class="bi bi-arrow-left"></i> Siyahıya qayıt
+        </a>
+    </div>
+</div>

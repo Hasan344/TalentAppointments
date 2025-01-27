@@ -1,0 +1,124 @@
+﻿@using ForQab.Data_Access.ViewModel
+@model ExpertViewModel
+
+@{
+    ViewData["Title"] = "Ekspert Yarat";
+}
+
+<div class="container py-4" style="background-color: #174D38; border-radius: 10px; color: #ffffff;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="text-center mb-4">@ViewData["Title"]</h1>
+            <hr style="border-color: #7289da;" />
+
+            <form asp-action="Create" method="post" class="p-3">
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">Ad</label>
+                    <input asp-for="Name" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Surname" class="form-label">Soyad</label>
+                    <input asp-for="Surname" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Surname" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Fname" class="form-label">Ata Adı</label>
+                    <input asp-for="Fname" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Fname" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="FinCode" class="form-label">Fin kod</label>
+                    <input asp-for="FinCode" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="FinCode" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Profession" class="form-label">İxtisas</label>
+                    <input asp-for="Profession" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Profession" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SectionId" class="form-label">Bölmə</label>
+                    <select asp-for="SectionId" class="form-select" asp-items="ViewBag.SectionList" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Bölmə Seçin</option>
+                    </select>
+                    <span asp-validation-for="SectionId" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <input type="hidden" asp-for="Kons" value="False" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="HesablashmaH" class="form-label">Hesablashma Hesabı</label>
+                    <input asp-for="HesablashmaH" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="HesablashmaH" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="BirthDate" class="form-label">Doğum tarixi</label>
+                    <input asp-for="BirthDate" type="date" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="BirthDate" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SSN" class="form-label">SSN</label>
+                    <input asp-for="SSN" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="SSN" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Rekvizit" class="form-label">Rekvizit</label>
+                    <input asp-for="Rekvizit" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Rekvizit" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Voen" class="form-label">VÖEN</label>
+                    <input asp-for="Voen" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Voen" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="BankFilial" class="form-label">Bank Filialı</label>
+                    <input asp-for="BankFilial" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="BankFilial" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="BankFilialCode" class="form-label">Bank Filial kodu</label>
+                    <input asp-for="BankFilialCode" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="BankFilialCode" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Alt Peşələr</label>
+                    <select asp-for="SelectedSubProfessions" class="form-select" asp-items="Model.SubProfessions" multiple style="background-color: #23272a; color: #ffffff;">
+                    </select>
+                    <span asp-validation-for="SelectedSubProfessions" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">Geri</a>
+                    <button type="submit" class="btn btn-primary" style="background-color: #7289da; border-color: #7289da;">Yarat</button>
+                </div>
+            </form>
+        </div>
+        <form asp-controller="Expert" asp-action="ImportFromExcel" enctype="multipart/form-data" method="post">
+            <div class="mb-3">
+                <label for="excelFile" class="form-label">Excel Faylı Yükləyin</label>
+                <input type="file" name="excelFile" id="excelFile" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary">İdxal Et</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

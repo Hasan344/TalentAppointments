@@ -1,0 +1,91 @@
+﻿/* Genel Ayarlar */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6; /* Soft gri arka plan */
+    color: #333; /* Ana metin rengi */
+}
+
+
+.calendar-container {
+    max-width: 1200px;
+    margin: 40px auto; /* Sayfanın ortasına al */
+    padding: 20px;
+    background-color: #ffffff; /* Beyaz arka plan */
+    border-radius: 12px; /* Yuvarlak köşeler */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Hafif gölge efekti */
+    overflow: hidden;
+}
+
+/* FullCalendar Header Toolbar */
+.fc .fc-toolbar {
+    background-color: #2e7d32; /* Koyu yeşil header */
+    color: #ffffff; /* Beyaz metin */
+    padding: 10px;
+    border-radius: 12px 12px 0 0; /* Üst kenar yuvarlak */
+    text-transform: uppercase; /* Yazı büyütme */
+}
+
+    .fc .fc-toolbar .fc-button {
+        background-color: #388e3c; /* Daha koyu yeşil buton */
+        border: none;
+        color: white;
+        margin: 0 5px;
+        padding: 8px 12px;
+        border-radius: 6px; /* Buton köşeleri yuvarlatılmış */
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+    }
+
+        .fc .fc-toolbar .fc-button:hover {
+            background-color: #1b5e20; /* En koyu yeşil hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Hover'da hafif gölge */
+        }
+
+/* Günlük Hücreler */
+.fc .fc-daygrid-day {
+    border: 1px solid #e0e0e0; /* İnce gri grid çizgileri */
+    background-color: #fafafa; /* Hafif beyaz-gri hücreler */
+    transition: background-color 0.3s ease-in-out;
+}
+
+    .fc .fc-daygrid-day:hover {
+        background-color: #e8f5e9; /* Hafif yeşil hover efekti */
+    }
+
+/* Bugün'ü Vurgula */
+.fc .fc-day-today {
+    background-color: #c8e6c9; /* Soft yeşil arkaplan */
+    border: 1px solid #81c784; /* Yeşil kenarlık */
+}
+
+/* Eventler */
+.fc-event {
+    background-color: #43a047; /* Yeşil event */
+    color: white;
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+    .fc-event:hover {
+        transform: scale(1.015); /* Hover'da hafif büyüme */
+        background-color: #2e7d32; /* Koyu yeşil hover */
+    }
+
+/* Footer */
+footer {
+    background-color: #2c3e50; /* Koyu gri footer */
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    font-size: 14px;
+    margin-top: 40px;
+    position: relative;
+    z-index: 10;
+}

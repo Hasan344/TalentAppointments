@@ -1,0 +1,72 @@
+﻿/* General Styling */
+body.bg-light {
+    background-color: #D9D9D9; /* Kurumsal açık ton */
+}
+
+.bg-main {
+    background-color: #F2F2F2;
+}
+
+.bg-navbar {
+    background-color: #325e61;
+}
+
+.bg-second {
+    background-color: #174D38;
+}
+
+.bg-card {
+    background-color: #323861;
+}
+
+/* Navbar Styling */
+.navbar.bg-primary {
+    background-color: #898989; /* Lacivert */
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+/* Hero Section Styling */
+.bg-primary {
+    background-color: #898989; /* Lacivert */
+}
+
+/* Cards Styling */
+.hover-card {
+    transition: all 0.3s ease-in-out;
+    border-radius: 8px;
+}
+
+    .hover-card:hover {
+        background-color: #F5F5F5; /* Hafif gri */
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+/* Button Styling */
+.btn-outline-primary {
+    color: #1A237E;
+    border-color: #1A237E;
+    font-weight: bold;
+}
+
+    .btn-outline-primary:hover {
+        background-color: #FFC107; /* Altın Sarısı */
+        border-color: #FFC107;
+        color: #1A237E;
+    }
+
+/* Typography */
+.text-light {
+    color: #FAFAFA !important;
+}
+
+.text-dark {
+    color: #424242 !important;
+}
+
+.text-muted {
+    color: #757575 !important;
+}

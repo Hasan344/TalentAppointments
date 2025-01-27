@@ -1,0 +1,28 @@
+﻿@model IEnumerable<ForQab.DataAccess.Models.ExamBuilding>
+
+<h2>İmtahan Binaları</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Bina Adı</th>
+            <th>Bölmə</th>
+            <th>Əməliyyatlar</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Section.Name</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Redaktə</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Sil</a>
+                    </td>
+                </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create" class="btn btn-primary">Yeni Bina Əlavə Et</a>

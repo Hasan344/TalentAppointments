@@ -1,0 +1,105 @@
+﻿@model ForQab.DataAccess.Models.Exam
+
+@{
+    ViewData["Title"] = "İmtahan Yarat";
+}
+
+<div class="container py-4" style="background-color: #174D38; border-radius: 10px; color: #ffffff;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="text-center mb-4">@ViewData["Title"]</h1>
+            <hr style="border-color: #7289da;" />
+
+            <form asp-action="Create" method="post" class="p-3">
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">İmtahanın Adı</label>
+                    <input asp-for="Name" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SectionId" class="form-label">Bölmə</label>
+                    <select asp-for="SectionId" class="form-select" asp-items="ViewBag.SectionList" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Bölmə Seçin</option>
+                    </select>
+                    <span asp-validation-for="SectionId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ExamBuldingId" class="form-label">İmtahan Binasi</label>
+                    <select asp-for="ExamBuldingId" class="form-select" asp-items="ViewBag.ExamBuildingList" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>İmtahan Binasi Seçin</option>
+                    </select>
+                    <span asp-validation-for="ExamBuldingId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CommissionId" class="form-label">Komissiya</label>
+                    <select asp-for="CommissionId" class="form-select" asp-items="ViewBag.CommissionList" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Komissiya Seçin</option>
+                    </select>
+                    <span asp-validation-for="CommissionId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SubCommissionId" class="form-label">Alt Komissiya</label>
+                    <select asp-for="SubCommissionId" class="form-select" asp-items="ViewBag.SubCommissionList" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Alt Komissiya Seçin</option>
+                    </select>
+                    <span asp-validation-for="SubCommissionId" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ExamDate" class="form-label">İmtahan Tarixi</label>
+                        <input asp-for="ExamDate" type="date" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                        <span asp-validation-for="ExamDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Duration" class="form-label">Müddət (saat)</label>
+                        <input asp-for="Duration" type="number" step="0.5" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                        <span asp-validation-for="Duration" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Water" class="form-label">Su Şüşələri</label>
+                        <input asp-for="Water" type="number" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                        <span asp-validation-for="Water" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Food" class="form-label">Yemək Paketləri</label>
+                        <input asp-for="Food" type="number" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                        <span asp-validation-for="Food" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Notes" class="form-label">Qeydlər</label>
+                    <textarea asp-for="Notes" class="form-control" rows="3" style="background-color: #23272a; color: #ffffff;"></textarea>
+                    <span asp-validation-for="Notes" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="InventoryTransport" class="form-label">İnventar Daşıma</label>
+                    <textarea asp-for="InventoryTransport" class="form-control" rows="3" style="background-color: #23272a; color: #ffffff;"></textarea>
+                    <span asp-validation-for="InventoryTransport" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">Geri</a>
+                    <button type="submit" class="btn btn-primary" style="background-color: #7289da; border-color: #7289da;">Yarat</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

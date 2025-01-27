@@ -1,0 +1,114 @@
+﻿using ForQab.Data_Access.ViewModel;
+using ForQab.Data_Access.ViewModel.Expert;
+using ForQab.DataAccess.Models;
+using ForQab.Repository;
+
+namespace ForQab.Service
+{
+    public class ExpertService : IExpertService
+    {
+        private readonly IExpertRepository _expertRepository;
+
+        public ExpertService(IExpertRepository expertRepository)
+        {
+            _expertRepository = expertRepository;
+        }
+
+        public async Task<IEnumerable<Expert>> GetAllExpertsAsync()
+        {
+            var experts = await _expertRepository.GetAllAsync();
+            // Biznes qaydaları: Məsələn, boş siyahını yoxlamaq və ya log yazmaq
+            if (experts == null)
+                throw new Exception("No experts found.");
+            return experts;
+        }
+
+        public async Task<Expert?> GetExpertByIdAsync(int id)
+        {
+            var expert = await _expertRepository.GetByIdAsync(id);
+            if (expert == null)
+                throw new Exception($"Expert with ID {id} not found.");
+            return expert;
+        }
+
+        public async Task AddExpertAsync(ExpertViewModel expertViewModel)
+        {
+            // Biznes qaydaları: Ekspert adının boş olmaması
+            if (string.IsNullOrWhiteSpace(expertViewModel.Name))
+                throw new ArgumentException("Expert name cannot be empty.");
+
+            await _expertRepository.AddAsync(expertViewModel);
+        }
+
+        public async Task UpdateExpertAsync(ExpertEditViewModel expert)
+        {
+            // Biznes qaydaları: Ekspert ID-si yoxlanılır
+            if (expert.Id <= 0)
+                throw new ArgumentException("Invalid expert ID.");
+
+            var existingExpert = await _expertRepository.GetByIdAsync(expert.Id);
+            if (existingExpert == null)
+                throw new Exception($"Expert with ID {expert.Id} not found.");
+
+            await _expertRepository.UpdateAsync(expert);
+        }
+
+        public async Task DeleteExpertAsync(int id)
+        {
+            var expert = await _expertRepository.GetByIdAsync(id);
+            if (expert == null)
+                throw new Exception($"Expert with ID {id} not found.");
+
+            await _expertRepository.DeleteAsync(id);
+        }
+
+        public async Task AddSubProfessionToExpertAsync(int expertId, SubProfession subProfession)
+        {
+            // Biznes qaydaları: SubProfession adı yoxlanılır
+            if (string.IsNullOrWhiteSpace(subProfession.Name))
+                throw new ArgumentException("SubProfession name cannot be empty.");
+
+            var expert = await _expertRepository.GetByIdAsync(expertId);
+            if (expert == null)
+                throw new Exception($"Expert with ID {expertId} not found.");
+
+            await _expertRepository.AddSubProfessionToExpertAsync(expertId, subProfession);
+        }
+
+        public async Task RemoveSubProfessionFromExpertAsync(int expertId, int subProfessionId)
+        {
+            var expert = await _expertRepository.GetByIdAsync(expertId);
+            if (expert == null)
+                throw new Exception($"Expert with ID {expertId} not found.");
+
+            await _expertRepository.RemoveSubProfessionFromExpertAsync(expertId, subProfessionId);
+        }
+
+        public async Task<IEnumerable<Expert>> SearchExpertsByNameAsync(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Search term cannot be empty.");
+
+            return await _expertRepository.SearchByNameAsync(name);
+        }
+        public async Task<List<Section>> GetSectionsAsync(int? sectionId)
+        {
+            return await _expertRepository.GetSectionsAsync(sectionId);  
+        }
+
+        public Task<IEnumerable<SubProfession>> GetSubProfessionsAsync(int? sectionId)
+        {
+            return _expertRepository.GetSubProfessionsAsync(sectionId);
+        }
+        public async Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId)
+        {
+            var includes = new string[] { "SubProfessions", "Section" };
+            return await _expertRepository.GetAllAsync(sectionId,null,includes);
+        }
+
+        public async Task BulkAddAsync(IEnumerable<Expert> experts)
+        {
+            await _expertRepository.BulkAddAsync(experts);
+        }
+    }
+}

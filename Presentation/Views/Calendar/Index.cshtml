@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "Təqvim";
+}
+
+<link rel="stylesheet" href="~/css/Calendar/Index.css" />
+<div class="calendar-container">
+    <div id="calendar"></div>
+</div>
+
+<script src="~/lib/fullcalendar/main.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                start: 'prev,next today',
+                center: 'title',
+                end: 'dayGridMonth,dayGridWeek,dayGridDay'
+            },
+            events: '/Calendar/GetCalendarEvents', // Backend'den eventleri çekiyor
+            eventClick: function (info) {
+                // Detay sayfasına yönlendirme
+                var examId = info.event.id; // Backend'den dönen sınav ID'si
+                window.location.href = '/Exam/Details/' + examId;
+            },
+                eventContent: function (arg) {
+                return {
+                    html: '<b>' + arg.event.title + '</b>'
+                };
+            }
+        });
+        
+        calendar.render();
+    });
+    
+</script>

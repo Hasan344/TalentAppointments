@@ -1,0 +1,30 @@
+﻿@model IEnumerable<ForQab.DataAccess.Models.Commission>
+
+<h2>Commissions</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Komissiya nömrəsi</th>
+            <th>Name</th>
+            <th>Section Id</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CommissionNo</td>
+                <td>@item.Name</td>
+                <td>@item.Section.Name</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create" class="btn btn-primary">Create New Commission</a>

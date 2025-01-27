@@ -1,0 +1,29 @@
+﻿@using ForQab.DataAccess.ViewModel.Exam
+@model AssignMonitorsToExamViewModel
+
+<p>Bu imtahana Nəzarətçi təyin et: @ViewBag.ExamName</p>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<form asp-action="AssignMonitors" method="post">
+    <input type="hidden" asp-for="ExamId" />
+    <input type="hidden" asp-for="SectionId" />
+    <div class="form-group">
+        <label asp-for="NumberOfMonitors" class="control-label"></label>
+        <input asp-for="NumberOfMonitors" class="form-control" />
+        <span asp-validation-for="NumberOfMonitors" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Nəzarətçi təyin et</button>
+</form>

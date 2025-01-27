@@ -1,0 +1,26 @@
+﻿@model IEnumerable<ForQab.DataAccess.Models.District>
+
+<h2>Rayonlar</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Adı</th>
+            <th>Əməliyyatlar</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Redaktə et</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Sil</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create" class="btn btn-primary">Yenisini yarat</a>
