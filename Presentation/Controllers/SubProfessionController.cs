@@ -45,6 +45,7 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> Create(SubProfession subProfession)
         {
             var sectionId = await GetCurrentSectionIdAsync();
+
             if (ModelState.IsValid)
             {
                 await _subProfessionService.AddSubProfessionAsync(subProfession);

@@ -9,6 +9,8 @@ using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Expert;
 using System.Data;
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Math;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -25,10 +27,16 @@ namespace ForQab.Presentation.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId)
         {
+            var genders = _context.Genders.ToList();
+            var districts = _context.Districts.ToList();
             var sectionId = await GetCurrentSectionIdAsync();
-            var experts = await _konsService.GetAllAsync(sectionId);
+            var subProfessions = await _subProfessionService.GetAllSubProfessionsAsync(sectionId);
+            var experts = await _konsService.GetAllAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, subProfessionId);
+            ViewBag.SubProfessions = subProfessions;
+            ViewBag.Genders = genders;
+            ViewBag.Districts = districts;
             return View(experts);
         }
         [HttpGet]

@@ -79,11 +79,15 @@ namespace ForQab.Repository
             }
 
             // Random seçilen uzmanları ilişkilendirme
-            var selectedExperts = experts.OrderBy(x => Guid.NewGuid()).Take(numberOfExperts).ToList();
+            var selectedExperts = experts
+        .OrderBy(e => e.AssignmentCount) // En az atanmış olanları önce al
+        .Take(numberOfExperts) // İstenen sayıda Expert seç
+        .ToList();
 
             foreach (var expert in selectedExperts)
             {
                 exam.Experts.Add(expert); // Exam'a expert ekleme işlemi
+                expert.AssignmentCount++;
             }
 
             await _context.SaveChangesAsync();

@@ -18,18 +18,18 @@ public partial class SubProfession
     public string Name { get; set; } = null!;
 
     [Column("section_id")]
-    public int SectionId { get; set; }
+    public int? SectionId { get; set; }
 
     [Column("profession_id")]
-    public int ProfessionId { get; set; }
+    public int? ProfessionId { get; set; }
 
     [ForeignKey("ProfessionId")]
     [InverseProperty("SubProfessions")]
-    public virtual Profession Profession { get; set; } = null!;
+    public virtual Profession? Profession { get; set; } 
 
     [ForeignKey("SectionId")]
     [InverseProperty("SubProfessions")]
-    public virtual Section Section { get; set; } = null!;
+    public virtual Section? Section { get; set; } = null!;
 
     [ForeignKey("SubProfessionId")]
     [InverseProperty("SubProfessions")]

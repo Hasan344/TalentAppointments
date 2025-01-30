@@ -28,10 +28,16 @@ namespace ForQab.Presentation.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear,int? subProfessionId)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var experts = await _expertService.GetExpertsBySectionIdAsync(sectionId);
+            var genders = _context.Genders.ToList();
+            var districts = _context.Districts.ToList();
+            var subProfessions = await _subProfessionService.GetAllSubProfessionsAsync(sectionId);
+            var experts = await _expertService.GetExpertsBySectionIdAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, subProfessionId);
+            ViewBag.SubProfessions = subProfessions;
+            ViewBag.Genders = genders;
+            ViewBag.Districts = districts;
             return View(experts);
         }
         [HttpGet]

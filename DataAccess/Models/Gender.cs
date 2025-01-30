@@ -19,4 +19,6 @@ public partial class Gender
 
     [InverseProperty("GenderNavigation")]
     public virtual ICollection<Monitor> Monitors { get; set; } = new List<Monitor>();
+    [InverseProperty("GenderNavigation")]
+    public virtual ICollection<Expert> Experts { get; set; } = new List<Expert>();
 }
