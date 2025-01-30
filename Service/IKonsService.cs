@@ -9,7 +9,7 @@ namespace ForQab.Service
     {
         Task<Expert> GetByIdAsync(int id);
         Task<IEnumerable<Expert>> GetAllAsync(int? sectionId);
-       // Task<IEnumerable<Expert>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear);
+        Task<IEnumerable<Expert>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId);
         Task AddAsync(KonsViewModel entity);
         Task UpdateAsync(KonsEditViewModel entity);
         Task DeleteAsync(int id);

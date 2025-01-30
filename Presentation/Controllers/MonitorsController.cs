@@ -30,7 +30,6 @@ namespace ForQab.Presentation.Controllers
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
             var model = await _monitorService.GetAllAsync(currentUserSection,searchName,genderId,finCode,serial,district, startYear, endYear);
-
             ViewBag.Genders = genders;
             ViewBag.Districts = districts;
             return View(model);

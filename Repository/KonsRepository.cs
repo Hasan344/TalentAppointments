@@ -1,6 +1,4 @@
-﻿using DocumentFormat.OpenXml.InkML;
-using ForQab.Data_Access.ViewModel;
-using ForQab.DataAccess.Models;
+﻿using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Expert;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -28,7 +26,7 @@ namespace ForQab.Repository
             {
                 foreach (var item in includes)
                 {
-                    query = query.Include(item);  // Ensure the paths are valid
+                    query = query.Include(item);
                 }
             }
             return query;
@@ -100,12 +98,16 @@ namespace ForQab.Repository
                 return await _dbContext.Experts
                 .Include(e => e.Section)
                 .Include(e => e.SubProfessions)
+                .Include(e => e.DistrictNavigation)
+                .Include(e => e.GenderNavigation)
                 .Where(e=>e.Kons==true)
                 .ToListAsync();
             }
             return await _dbContext.Experts
                 .Include(e => e.Section)
                 .Include(e => e.SubProfessions)
+                .Include(e => e.DistrictNavigation)
+                .Include(e => e.GenderNavigation)
                 .Where(e=>e.SectionId == sectionId)
                 .Where(e => e.Kons == true)
                 .ToListAsync();
@@ -152,6 +154,8 @@ namespace ForQab.Repository
         {
             var expert = await _dbContext.Experts
                .Include(e => e.SubProfessions)
+                .Include(e => e.DistrictNavigation)
+                .Include(e => e.GenderNavigation)
                .FirstOrDefaultAsync(e => e.Id == id);
 
             if (expert != null)

@@ -30,6 +30,15 @@
                     </select>
                 </div>
 
+                <div class="mb-3">
+                    <label asp-for="SectionId" class="form-label">Bölmə</label>
+                    <select asp-for="SectionId"
+                            class="form-select modern-select"
+                            asp-items="ViewBag.SectionList">
+                        <option value="" disabled selected>Bölmə Seçin</option>
+                    </select>
+                </div>
+
                 <div class="d-flex justify-content-between">
                     <a asp-action="Index" class="btn btn-secondary" style="background-color: #2f3136; color: #ffffff;">Geri</a>
                     <button type="submit" class="btn btn-primary" style="background-color: #7289da; border-color: #7289da;">Yarat</button>

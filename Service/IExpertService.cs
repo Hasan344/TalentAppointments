@@ -18,6 +18,7 @@ namespace ForQab.Service
         Task<List<Section>> GetSectionsAsync(int? sectionId);
         Task<IEnumerable<SubProfession>> GetSubProfessionsAsync(int? sectionId);
         Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId);
+        Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId);
         public Task BulkAddAsync(IEnumerable<Expert> experts);
     }
 }

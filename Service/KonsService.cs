@@ -35,45 +35,48 @@ namespace ForQab.Service
         {
             return _konsRepository.GetSubProfessionsAsync(sectionId);
         }
-        //public async Task<IEnumerable<Expert>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
-        //{
-        //    var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
+        public async Task<IEnumerable<Expert>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId)
+        {
+            //var includes = new string[] { "DistrictNavigation", "SubProfessions", "Section", "GenderNavigation" };
 
-        //    var query = await _konsRepository.GetAllAsync(sectionId, 2, null, includes);
-        //    if (genderId.HasValue && genderId > 0)
-        //    {
-        //        query = query.Where(m => m.Gender == genderId.Value).ToList();
-        //    }
-        //    if (!string.IsNullOrEmpty(searchName))
-        //    {
-        //        query = query.Where(m =>
-        //     m.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase) ||
-        //     m.Surname.Contains(searchName, StringComparison.OrdinalIgnoreCase))
-        //      .ToList();
-        //    }
-        //    // FinCode filtresi
-        //    if (!string.IsNullOrEmpty(finCode))
-        //    {
-        //        query = query.Where(m => m.FinCode.Contains(finCode, StringComparison.OrdinalIgnoreCase)).ToList();
-        //    }
+            var query = await _konsRepository.GetAllAsync(sectionId);
+            if (genderId.HasValue && genderId > 0)
+            {
+                query = query.Where(m => m.Gender == genderId.Value).ToList();
+            }
+            if (!string.IsNullOrEmpty(searchName))
+            {
+                query = query.Where(m =>
+             m.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase) ||
+             m.Surname.Contains(searchName, StringComparison.OrdinalIgnoreCase))
+              .ToList();
+            }
+            // FinCode filtresi
+            if (!string.IsNullOrEmpty(finCode))
+            {
+                query = query.Where(m => m.FinCode.Contains(finCode, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
 
-        //    // Serial filtresi
-        //    if (!string.IsNullOrEmpty(serial))
-        //    {
-        //        query = query.Where(m => m.Serial.Contains(serial, StringComparison.OrdinalIgnoreCase)).ToList();
-        //    }
-        //    // District filtresi
-        //    if (district.HasValue && district > 0)
-        //    {
-        //        query = query.Where(m => m.District == district.Value).ToList();
-        //    }
-        //    if (startYear.HasValue)
-        //        query = query.Where(m => m.BirthDate.Value.Year >= startYear.Value).ToList(); // Tarixi ilin başlanğıcına çeviririk.
-        //    if (endYear.HasValue)
-        //        query = query.Where(m => m.BirthDate.Value.Year <= endYear.Value).ToList();
-
-        //    return query;
-        //}
+            // Serial filtresi
+            if (!string.IsNullOrEmpty(serial))
+            {
+                query = query.Where(m => m.Serial.Contains(serial, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            // District filtresi
+            if (district.HasValue && district > 0)
+            {
+                query = query.Where(m => m.District == district.Value).ToList();
+            }
+            if (startYear.HasValue)
+                query = query.Where(m => m.BirthDate.Value.Year >= startYear.Value).ToList(); // Tarixi ilin başlanğıcına çeviririk.
+            if (endYear.HasValue)
+                query = query.Where(m => m.BirthDate.Value.Year <= endYear.Value).ToList();
+            if (subProfessionId.HasValue && subProfessionId > 0)
+            {
+                query = query.Where(m => m.SubProfessions.Any(sp => sp.Id == subProfessionId.Value)).ToList();
+            }
+            return query;
+        }
 
         public async Task<Expert> GetByIdAsync(int id)
         {

@@ -74,4 +74,23 @@ public partial class Expert
     [Column("profession")]
     [StringLength(400)]
     public string? Profession { get; set; }
+    [Column("gender")]
+    public byte? Gender { get; set; }
+    [ForeignKey("Gender")]
+    [InverseProperty("Experts")]
+    public virtual Gender? GenderNavigation { get; set; }
+
+    [Column("serial")]
+    [StringLength(15)]
+    public string? Serial { get; set; }
+
+    [Column("district")]
+    public int? District { get; set; }
+
+    [ForeignKey("District")]
+    [InverseProperty("Experts")]
+    public virtual District? DistrictNavigation { get; set; }
+
+    [Column("AssignmentCount")]
+    public int? AssignmentCount { get; set; }
 }

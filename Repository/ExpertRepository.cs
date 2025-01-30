@@ -17,8 +17,10 @@ namespace ForQab.Repository
         public async Task<IEnumerable<Expert>> GetAllAsync()
         {
             return await _context.Experts
-                .Include(e => e.Section) // Section məlumatını da daxil edir
-                .Include(e => e.SubProfessions) // SubProfessions məlumatını da daxil edir
+                .Include(e => e.Section)
+                .Include(e => e.SubProfessions)
+                .Include(e => e.DistrictNavigation)
+                .Include(e => e.GenderNavigation)
                 .ToListAsync();
         }
 
@@ -27,6 +29,8 @@ namespace ForQab.Repository
             return await _context.Experts
                 .Include(e => e.Section)
                 .Include(e => e.SubProfessions)
+                .Include(e => e.DistrictNavigation)
+                .Include(e => e.GenderNavigation)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
@@ -71,6 +75,8 @@ namespace ForQab.Repository
         {
             var existingExpert = await _context.Experts
                 .Include(e => e.SubProfessions)
+                .Include(e => e.DistrictNavigation)
+                .Include(e => e.GenderNavigation)
                 .FirstOrDefaultAsync(e => e.Id == expert.Id);
 
             if (existingExpert != null)
@@ -113,6 +119,8 @@ namespace ForQab.Repository
         {
             var expert = await _context.Experts
                 .Include(e => e.SubProfessions)
+                .Include(e => e.DistrictNavigation)
+                .Include(e => e.GenderNavigation)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             if (expert != null)
