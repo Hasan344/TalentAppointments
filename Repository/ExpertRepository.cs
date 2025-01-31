@@ -98,6 +98,10 @@ namespace ForQab.Repository
                 existingExpert.HesablashmaH = expert.HesablashmaH;
 
                 // SubProfessions yeniləməsi
+                if (existingExpert.SubProfessions != null)
+                {
+                    existingExpert.SubProfessions.Clear();
+                }
                 if (expert.SelectedSubProfessions != null)
                 {
                     foreach (var subProfessionId in expert.SelectedSubProfessions)

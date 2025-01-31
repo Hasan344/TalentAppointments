@@ -218,43 +218,25 @@ namespace ForQab.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> AssignExperts(AssignExpertToExamViewModel model)
         {
-            int sectionId = _context.Exams
-                                    .Where(e => e.Id == model.ExamId)
-                                    .Select(i => i.SectionId)
-                                    .FirstOrDefault();
-            // var sectionId = await _context.Sections.Where(e=>e.Id=model.ExamId);
-            var availableSubProfessions = await _examService.GetSubprofessionsBySectionIdAsync(sectionId);
-
-            if (ModelState.IsValid)
+            try
             {
-                try
+                bool success = await _examService.AssignExpertsAsync(model);
+                if (success)
                 {
-                    foreach (var assignment in model.Assignments)
-                    {
-                        await _examService.AssignRandomExpertsToExamAsync(
-                            model.ExamId,
-                            assignment.NumberOfExperts,
-                            assignment.SelectedSubProfessions);
-                    }
+                    TempData["SuccessMessage"] = "Ekspertlər uğurla təyin edildi!";
                     return RedirectToAction(nameof(Details), new { id = model.ExamId });
                 }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", ex.Message);
-                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
             }
 
-            model.SubProfessions = availableSubProfessions.Select(sp => new SelectListItem
-            {
-                Text = sp.Name,
-                Value = sp.Id.ToString()
-            }).ToList();
-
-            var exam = await _examService.GetExamByIdAsync(model.ExamId);
-            if (exam != null)
-            {
-                ViewBag.ExamName = exam.Name;
-            }
+            // Hata durumunda, SubProfessions verisini tekrar yükleyelim
+            var sectionId = await _examService.GetSectionIdByExamIdAsync(model.ExamId);
+            model.SubProfessions = (await _examService.GetSubprofessionsBySectionIdAsync(sectionId))
+                .Select(sp => new SelectListItem { Value = sp.Id.ToString(), Text = sp.Name })
+                .ToList();
 
             return View(model);
         }
@@ -291,7 +273,7 @@ namespace ForQab.Presentation.Controllers
             var availableMonitors = await _context.Monitors.Where(e => e.SectionId == model.SectionId).ToListAsync();
             if (model.NumberOfMonitors > availableMonitors.Count)
             {
-                TempData["ErrorMessage"] = "Təyin etmək istədiyiniz Nəzarətçi sayı mövcud nəzarətçi sayını aşır!";
+                ViewBag.ErrorMessage = "Təyin etmək istədiyiniz Nəzarətçi sayı mövcud nəzarətçi sayını aşır!";
                 return RedirectToAction("AssignMonitors", new { id = model.ExamId });
             }
            
@@ -300,11 +282,12 @@ namespace ForQab.Presentation.Controllers
                 try
                 {
                     await _examService.AssignRandomMonitorsToExamAsync(model.ExamId, model.NumberOfMonitors);
+                    TempData["SuccessMessage"] = "Ekspert uğurla təyin edildi!";
                     return RedirectToAction(nameof(Details), new { id = model.ExamId });
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", ex.Message);
+                    ViewBag.ErrorMessage = "Xəta baş verdi: " + ex.Message;
                 }
             }
 

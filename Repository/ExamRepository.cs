@@ -18,33 +18,6 @@ namespace ForQab.Repository
             await _context.SaveChangesAsync();
         }
 
-        //public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts)
-        //{
-        //    var exam = await _context.Exams
-        //        .Include(e => e.Experts)
-        //        .FirstOrDefaultAsync(e => e.Id == examId);
-
-        //    if (exam == null)
-        //        throw new ArgumentException("Exam not found");
-
-        //    // Fetch all experts
-        //    var allExperts = await _context.Experts.Where(e => e.SectionId == exam.SectionId).ToListAsync();
-        
-        //    if (allExperts.Count < numberOfExperts)
-        //        throw new ArgumentException("Not enough experts available");
-
-        //    // Select random experts
-        //    Random rng = new Random();
-        //    var shuffledExperts = allExperts.OrderBy(x => rng.Next()).Take(numberOfExperts).ToList();
-
-        //    // Assign experts to the exam
-        //    foreach (var expert in shuffledExperts)
-        //    {
-        //        exam.Experts.Add(expert);
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //}
 
         public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions)
         {
@@ -185,6 +158,20 @@ namespace ForQab.Repository
             _context.Exams.Update(entity);
             await _context.SaveChangesAsync();
         }
+        public async Task<int?> GetSectionIdByExamIdAsync(int examId)
+        {
+            return await _context.Exams
+                .Where(e => e.Id == examId)
+                .Select(e => e.SectionId)
+                .FirstOrDefaultAsync();
+        }
 
+        public async Task<int> GetAvailableExpertsCountAsync(int sectionId, int[] selectedSubProfessions)
+        {
+            return await _context.Experts
+                .Where(e => e.SectionId == sectionId)
+                .Where(e => e.SubProfessions.Any(sp => selectedSubProfessions.Contains(sp.Id)))
+                .CountAsync();
+        }
     }
 }

@@ -71,3 +71,14 @@
         container.appendChild(newForm); // Yeni formu ekle
     });
 </script>
+<script>
+    document.querySelector("form").addEventListener("submit", function (event) {
+        var assignedCount = parseInt(document.getElementById("AssignedMonitorsCount").value);
+        var availableCount = parseInt(document.getElementById("AvailableMonitorsCount").value);
+
+        if (assignedCount > availableCount) {
+            alert("Təyin etmək istədiyiniz Nəzarətçi sayı mövcud nəzarətçi sayını aşır!");
+            event.preventDefault(); // Formun gönderilmesini engelle
+        }
+    });
+</script>

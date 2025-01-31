@@ -1,4 +1,5 @@
 ﻿using ForQab.DataAccess.Models;
+using ForQab.DataAccess.ViewModel.Exam;
 
 namespace ForQab.Service
 {
@@ -13,5 +14,7 @@ namespace ForQab.Service
         Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors);
         Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId);
         Task<IEnumerable<SubProfession>> GetSubprofessionsBySectionIdAsync(int? sectionId);
+        public Task<bool> AssignExpertsAsync(AssignExpertToExamViewModel model);
+        public Task<int?> GetSectionIdByExamIdAsync(int examId);
     }
 }
