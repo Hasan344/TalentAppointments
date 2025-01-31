@@ -159,6 +159,7 @@ namespace ForQab.Presentation.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             var sectionId = await GetCurrentSectionIdAsync();
             var sections = await _expertService.GetSectionsAsync(sectionId);
             ViewData["SectionId"] = new SelectList(sections, "Id", "Name");

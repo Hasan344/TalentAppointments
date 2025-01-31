@@ -1,5 +1,7 @@
 ﻿@model ForQab.DataAccess.Models.Exam
 
+
+
 @{
     ViewData["Title"] = "İmtahan Detalları";
     string primaryColor = "#0056b3"; // Official primary color
@@ -64,7 +66,7 @@
                 @foreach (var expert in Model.Experts)
                 {
                     <li class="list-group-item">
-                        @expert.Name @expert.Surname
+                        @expert.Name @expert.Surname @expert.FinCode
                     </li>
                 }
             </ul>

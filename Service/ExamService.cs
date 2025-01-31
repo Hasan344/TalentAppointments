@@ -1,4 +1,5 @@
 ﻿using ForQab.DataAccess.Models;
+using ForQab.DataAccess.ViewModel.Exam;
 using ForQab.Repository;
 
 namespace ForQab.Service
@@ -21,6 +22,39 @@ namespace ForQab.Service
         {
             await _examRepository.AssignRandomExpertsToExamAsync(examId, numberOfExperts,  selectedSubProfessions);
         }
+        public async Task<bool> AssignExpertsAsync(AssignExpertToExamViewModel model)
+        {
+            // 1️⃣ Exam üzerinden SectionId al
+            var sectionId = await _examRepository.GetSectionIdByExamIdAsync(model.ExamId);
+            if (sectionId == null)
+                throw new Exception("İmtahan tapılmadı");
+
+            // 2️⃣ Tüm atamaları kontrol et
+            foreach (var assignment in model.Assignments)
+            {
+                if (assignment.SelectedSubProfessions == null || !assignment.SelectedSubProfessions.Any())
+                    throw new Exception("Alt ixtisas sahəsi seçilməyib!");
+
+                var availableExpertsCount = await _examRepository.GetAvailableExpertsCountAsync(
+                    sectionId.Value, assignment.SelectedSubProfessions);
+
+                if (assignment.NumberOfExperts > availableExpertsCount)
+                    throw new Exception(
+                        $"{assignment.NumberOfExperts} sayda ekspert təyin etmək istədiniz, " +
+                        $"lakin mövcud ekspert sayı {availableExpertsCount}-dır!"
+                    );
+            }
+
+            // 3️⃣ Ekspertleri ata
+            foreach (var assignment in model.Assignments)
+            {
+                await _examRepository.AssignRandomExpertsToExamAsync(
+                    model.ExamId, assignment.NumberOfExperts, assignment.SelectedSubProfessions);
+            }
+
+            return true;
+        }
+
 
         public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors)
         {
@@ -56,6 +90,10 @@ namespace ForQab.Service
         {
             await _examRepository.UpdateAsync(exam);
         }
-        
+
+        public async Task<int?> GetSectionIdByExamIdAsync(int examId)
+        {
+           return await _examRepository.GetSectionIdByExamIdAsync(examId);
+        }
     }
 }
