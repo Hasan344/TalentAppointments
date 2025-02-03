@@ -1,4 +1,4 @@
-﻿@model ForQab.DataAccess.Models.Exam
+﻿@model ForQab.DataAccess.ViewModel.Exam.EditExamViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -40,11 +40,10 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="CommissionId" class="form-label">Komissiya</label>
-                    <select asp-for="CommissionId" class="form-select" asp-items="ViewBag.CommissionList" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>Komissiya seçin</option>
+                    <label class="form-label">Kommissiyalar</label>
+                    <select asp-for="SelectedCommissions" class="form-select" asp-items="Model.Commissions" multiple style="background-color: #23272a; color: #ffffff;">
                     </select>
-                    <span asp-validation-for="CommissionId" class="text-danger"></span>
+                    <span asp-validation-for="SelectedCommissions" class="text-danger"></span>
                 </div>
 @* 
                 <div class="mb-3">

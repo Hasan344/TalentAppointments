@@ -1,6 +1,13 @@
-﻿using ForQab.Data_Access.ViewModel;
+﻿using DocumentFormat.OpenXml.ExtendedProperties;
+using DocumentFormat.OpenXml.Vml.Office;
+using DocumentFormat.OpenXml.Wordprocessing;
+using ForQab.Data_Access.ViewModel;
 using ForQab.DataAccess.Models;
+using ForQab.DataAccess.ViewModel.Exam;
+using ForQab.Migrations;
+using ForQab.Presentation.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Packaging;
 
 namespace ForQab.Repository
 {
@@ -12,9 +19,35 @@ namespace ForQab.Repository
         {
             _context = context;
         }
-        public async Task AddAsync(Exam entity)
+        public async Task AddAsync(CreateExamViewModel entity)
         {
-            await _context.Exams.AddAsync(entity);
+            var exam = new Exam
+            {
+                Name = entity.Name,
+                SectionId = entity.SectionId,
+                ExamBuldingId = entity.ExamBuldingId,
+                ExamDate = entity.ExamDate,
+                Duration = entity.Duration,
+                Food = entity.Food,
+                Notes = entity.Notes,
+                Water = entity.Water,
+                InventoryTransport = entity.InventoryTransport,
+            };
+
+            // Link selected SubProfessions
+            if (entity.SelectedCommissions != null)
+            {
+                foreach (var commissionId in entity.SelectedCommissions)
+                {
+                    var commission = await _context.Commissions.FindAsync(commissionId);
+                    if (commission != null)
+                    {
+                        exam.Commissions.Add(commission);
+                    }
+                }
+            }
+
+            await _context.Exams.AddAsync(exam);
             await _context.SaveChangesAsync();
         }
 
@@ -22,7 +55,7 @@ namespace ForQab.Repository
         public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions)
         {
             var exam = await _context.Exams
-            .Include(e => e.Experts) // Experts ilişkisini dahil et
+            .Include(e => e.Experts) // exams ilişkisini dahil et
             .FirstOrDefaultAsync(e => e.Id == examId);
 
             if (exam == null)
@@ -54,12 +87,12 @@ namespace ForQab.Repository
             // Random seçilen uzmanları ilişkilendirme
             var selectedExperts = experts
         .OrderBy(e => e.AssignmentCount) // En az atanmış olanları önce al
-        .Take(numberOfExperts) // İstenen sayıda Expert seç
+        .Take(numberOfExperts) // İstenen sayıda exam seç
         .ToList();
 
             foreach (var expert in selectedExperts)
             {
-                exam.Experts.Add(expert); // Exam'a expert ekleme işlemi
+                exam.Experts.Add(expert); // Exam'a exam ekleme işlemi
                 expert.AssignmentCount++;
             }
 
@@ -78,7 +111,7 @@ namespace ForQab.Repository
             var allMonitors = await _context.Monitors.Where(e => e.SectionId == exam.SectionId).ToListAsync();
 
             if (allMonitors.Count < numberOfMonitors)
-                throw new ArgumentException("Not enough experts available");
+                throw new ArgumentException("Not enough exams available");
 
             Random rng = new Random();
             var shuffledMonitors = allMonitors.OrderBy(x => rng.Next()).Take(numberOfMonitors).ToList();
@@ -106,8 +139,7 @@ namespace ForQab.Repository
             return await _context.Exams
                 .Include(e => e.Section)
                 .Include(e => e.ExamBulding)
-                .Include(e => e.Commission)
-                .Include(e => e.SubCommission)
+                .Include(e => e.Commissions)
                 .Include(e => e.Experts)
                 .Include(e => e.Monitors)
                 .ToListAsync();
@@ -118,8 +150,7 @@ namespace ForQab.Repository
             return await _context.Exams
                 .Include(e => e.Section)
                 .Include(e => e.ExamBulding)
-                .Include(e => e.Commission)
-                .Include(e => e.SubCommission)
+                .Include(e => e.Commissions)
                 .Include(e => e.Experts)
                 .Include(e => e.Monitors)
                 .FirstOrDefaultAsync(e => e.Id == id);
@@ -131,16 +162,14 @@ namespace ForQab.Repository
                ? await _context.Exams
                                    .Include(e => e.Section)
                                    .Include(e => e.ExamBulding)
-                                   .Include(e => e.Commission)
-                                   .Include(e => e.SubCommission)
+                                   .Include(e => e.Commissions)
                                    .Include(e => e.Experts)
                                    .Include(e => e.Monitors)
                                    .ToListAsync()
             :    await _context.Exams
                                    .Include(e => e.Section)
                                    .Include(e => e.ExamBulding)
-                                   .Include(e => e.Commission)
-                                   .Include(e => e.SubCommission)
+                                   .Include(e => e.Commissions)
                                    .Include(e => e.Experts)
                                    .Include(e => e.Monitors)
                                    .Where(e => e.SectionId == sectionId)
@@ -173,5 +202,74 @@ namespace ForQab.Repository
                 .Where(e => e.SubProfessions.Any(sp => selectedSubProfessions.Contains(sp.Id)))
                 .CountAsync();
         }
+
+        public async Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds)
+        {
+            
+                var existingExam = await _context.Exams
+                .Include(e => e.Commissions)
+                .Include(e => e.ExamBulding)
+                .Include(e => e.Section)
+                .FirstOrDefaultAsync(e => e.Id == exam.Id);
+
+                if (existingExam == null)
+                    throw new ArgumentException("Exam not found");
+                if (existingExam != null)
+                {
+                    existingExam.Id = exam.Id;
+                    existingExam.Name = exam.Name;
+                    existingExam.InventoryTransport = exam.InventoryTransport;
+                    existingExam.SectionId = exam.SectionId;
+                    existingExam.ExamBuldingId = exam.ExamBuldingId;
+                    existingExam.Duration = exam.Duration;
+                    existingExam.Food = exam.Food;
+                    existingExam.Notes = exam.Notes;
+                    existingExam.Water = exam.Water;
+
+                    if (existingExam.Commissions != null)
+                    {
+                        existingExam.Commissions.Clear();
+                    }
+                    if (exam.SelectedCommissions != null)
+                    {
+                        foreach (var commissionId in exam.SelectedCommissions)
+                        {
+                            var commissions = await _context.Commissions.FindAsync(commissionId);
+                            if (commissions != null)
+                            {
+                                existingExam.Commissions.Add(commissions);
+                            }
+                        }
+                    }
+
+                    _context.Exams.Update(existingExam);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            
+        
+
+        //private async Task UpdateCommissionsAsync(Exam exam, int[] commissionIds)
+        //{
+        //    exam.Commissions.Clear();
+
+        //    if (commissionIds?.Any() == true)
+        //    {
+        //        var commissions = await _context.Commissions
+        //            .Where(c => commissionIds.Contains(c.Id))
+        //            .ToListAsync();
+
+        //        exam.Commissions.AddRange(commissions);
+        //    }
+        //}
+        public async Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId)
+        {
+            if (sectionId == null)
+            {
+                return _context.Commissions.ToList();
+            }
+            return _context.Commissions.Where(e => e.SectionId == sectionId).ToList();
+        }
+
     }
 }

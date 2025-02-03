@@ -1,5 +1,6 @@
 ﻿using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Exam;
+using ForQab.Presentation.ViewModels;
 using ForQab.Repository;
 
 namespace ForQab.Service
@@ -13,7 +14,7 @@ namespace ForQab.Service
             _examRepository = examRepository;
         }
 
-        public async Task AddExamAsync(Exam exam)
+        public async Task AddExamAsync(CreateExamViewModel exam)
         {
             await _examRepository.AddAsync(exam);
         }
@@ -94,6 +95,16 @@ namespace ForQab.Service
         public async Task<int?> GetSectionIdByExamIdAsync(int examId)
         {
            return await _examRepository.GetSectionIdByExamIdAsync(examId);
+        }
+
+        public async Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds)
+        {
+            await _examRepository.UpdateExamAsync(exam, commissionIds);
+        }
+
+        public async Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId)
+        {
+           return await _examRepository.GetCommissionsAsync(sectionId);
         }
     }
 }

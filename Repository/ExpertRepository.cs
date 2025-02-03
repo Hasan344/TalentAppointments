@@ -134,7 +134,7 @@ namespace ForQab.Repository
             }
         }
 
-        public async Task<IEnumerable<SubProfession>> GetSubProfessionsByExpertIdAsync(int? sectionId)
+        public async Task<IEnumerable<SubProfession>> GetSubProfessionsBySectionIdAsync(int? sectionId)
         {
             return await _context.SubProfessions
                                    .Where(e => e.SectionId == sectionId)

@@ -23,8 +23,6 @@ public partial class Commission
 
     [Column("section_id")]
     public int SectionId { get; set; }
-
-    [InverseProperty("Commission")]
     public virtual ICollection<Exam>? Exams { get; set; } = new List<Exam>();
 
     [ForeignKey("SectionId")]
@@ -33,4 +31,5 @@ public partial class Commission
 
     [InverseProperty("Commission")]
     public virtual ICollection<SubCommission>? SubCommissions { get; set; } = new List<SubCommission>();
+
 }

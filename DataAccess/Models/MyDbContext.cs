@@ -78,8 +78,25 @@ public partial class MyDbContext : DbContext
                 .IsUnique()
                 .HasFilter("([NormalizedName] IS NOT NULL)");
         });
+        modelBuilder.Entity<Exam>()
+            .HasMany(e => e.Commissions)
+            .WithMany(c => c.Exams)
+            .UsingEntity<Dictionary<string, object>>(
+                "Exam_Commission",
+                j => j.HasOne<Commission>().WithMany().HasForeignKey("Commission_Id"),
+                j => j.HasOne<Exam>().WithMany().HasForeignKey("Exam_Id"),
+                j => j.ToTable("Exam_Commissions"));
 
-        modelBuilder.Entity<AspNetUser>(entity =>
+        //modelBuilder.Entity<Exam>()
+        //    .HasMany(e => e.SubCommissions)
+        //    .WithMany(sc => sc.Exams)
+        //    .UsingEntity<Dictionary<string, object>>(
+        //        "ExamSubCommission",
+        //        j => j.HasOne<SubCommission>().WithMany().HasForeignKey("SubCommissionId"),
+        //        j => j.HasOne<Exam>().WithMany().HasForeignKey("ExamId"),
+        //        j => j.ToTable("ExamSubCommissions"));
+    
+    modelBuilder.Entity<AspNetUser>(entity =>
         {
             entity.HasIndex(e => e.NormalizedUserName, "UserNameIndex")
                 .IsUnique()
@@ -125,8 +142,6 @@ public partial class MyDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__exams__3213E83F47E1B267");
 
-            entity.HasOne(d => d.Commission).WithMany(p => p.Exams).HasConstraintName("FK__exams__commissio__57DD0BE4");
-
             entity.HasOne(d => d.ExamBulding).WithMany(p => p.Exams)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__exams__exam_buld__59C55456");
@@ -135,7 +150,6 @@ public partial class MyDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__exams__section_i__56E8E7AB");
 
-            entity.HasOne(d => d.SubCommission).WithMany(p => p.Exams).HasConstraintName("FK__exams__sub_commi__58D1301D");
 
             entity.HasMany(d => d.Experts).WithMany(p => p.Exams)
                 .UsingEntity<Dictionary<string, object>>(

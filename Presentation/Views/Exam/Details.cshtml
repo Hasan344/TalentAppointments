@@ -26,10 +26,19 @@
                 <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.ExamBulding.Name</dd>
 
                 <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Komissiya:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.Commission?.Name</dd>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">
+                    @if (Model.Commissions != null && Model.Commissions.Any())
+                    {
+                        @string.Join(", ", Model.Commissions.Select(sp => sp.Name))
+                    }
+                    else
+                    {
+                        <span style="color: @secondaryColor;">---</span>
+                    }
+                </dd>
 
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Sub-Komissiya:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.SubCommission?.Name</dd>
+  @*               <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Sub-Komissiya:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.SubCommission?.Name</dd> *@
             </dl>
         </div>
 

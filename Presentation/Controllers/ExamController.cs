@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Identity;
 using ForQab.DataAccess.ViewModel.Exam;
 using ClosedXML.Excel;
 using System.Data;
+using ForQab.Migrations;
+using ForQab.Presentation.ViewModels;
+using ForQab.Data_Access.ViewModel;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -51,37 +54,80 @@ namespace ForQab.Presentation.Controllers
 
         public async Task<IActionResult> Create()
         {
-            var sectionId = await GetCurrentSectionIdAsync();
-            if (sectionId==null)
+            var sectionId = await GetCurrentSectionIdAsync(); 
+            var commissions = await _examService.GetCommissionsAsync(sectionId);
+
+            var viewModel = new CreateExamViewModel
+            {
+                Commissions = commissions.Select(sp => new SelectListItem
+                {
+                    Text = sp.Name,
+                    Value = sp.Id.ToString()
+                }).ToList()
+            };
+            if (sectionId == null)
             {
                 ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
                 ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.ToListAsync(), "Id", "Name");
-                ViewBag.CommissionList = new SelectList(await _context.Commissions.ToListAsync(), "Id", "Name");
-                ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.ToListAsync(), "Id", "Name");
             }
             else
             {
                 ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
                 ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.Where(e => e.SectionId == sectionId).ToListAsync(), "Id", "Name");
-                ViewBag.CommissionList = new SelectList(await _context.Commissions.Where(c => c.SectionId == sectionId).ToListAsync(), "Id", "Name");
-                ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.Where(sc => sc.SectionId == sectionId).ToListAsync(), "Id", "Name");
 
             }
 
-            return View();
+            return View(viewModel);
         }
+        //public async Task<IActionResult> Create()
+        //{
+
+        //    await PopulateDropdowns(sectionId);
+        //    return View();
+        //}
+
+        //[HttpPost]
+        //public async Task<IActionResult> Create(CreateExamViewModel viewModel)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        await PopulateDropdowns(viewModel.SectionId);
+        //        return View(viewModel);
+        //    }
+
+        //    var exam = new Exam
+        //    {
+        //        Name = viewModel.Name,
+        //        SectionId = viewModel.SectionId,
+        //        ExamBuldingId = viewModel.ExamBuldingId,
+        //        ExamDate = viewModel.ExamDate,
+        //        Duration = viewModel.Duration,
+        //        Water = viewModel.Water,
+        //        Food = viewModel.Food,
+        //        Notes = viewModel.Notes,
+        //        InventoryTransport = viewModel.InventoryTransport
+        //    };
+
+        //    await _examService.AddExamAsync(exam);
+        //    return RedirectToAction(nameof(Index));
+        //}
 
         [HttpPost]
-        public async Task<IActionResult> Create(Exam exam)
+        public async Task<IActionResult> Create(CreateExamViewModel exam)
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values.SelectMany(v => v.Errors);
-                foreach (var error in errors)
-                {
-                    Console.WriteLine(error.ErrorMessage);
-                }
                 var sectionId = await GetCurrentSectionIdAsync();
+                var commissions = await _examService.GetCommissionsAsync(sectionId);
+
+                var viewModel = new CreateExamViewModel
+                {
+                    Commissions = commissions.Select(sp => new SelectListItem
+                    {
+                        Text = sp.Name,
+                        Value = sp.Id.ToString()
+                    }).ToList()
+                };
                 if (sectionId == null)
                 {
                     ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
@@ -107,6 +153,7 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var sectionId = await GetCurrentSectionIdAsync();
+
             if (sectionId == null)
             {
                 ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
@@ -120,8 +167,9 @@ namespace ForQab.Presentation.Controllers
                 ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.Where(e => e.SectionId == sectionId).ToListAsync(), "Id", "Name");
                 ViewBag.CommissionList = new SelectList(await _context.Commissions.Where(c => c.SectionId == sectionId).ToListAsync(), "Id", "Name");
                 ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.Where(sc => sc.SectionId == sectionId).ToListAsync(), "Id", "Name");
-
             }
+
+            // Fetch the exam entity
             var exam = await _examService.GetExamByIdAsync(id);
             if (exam == null)
             {
@@ -131,12 +179,32 @@ namespace ForQab.Presentation.Controllers
             {
                 return Forbid();
             }
-            
-            return View(exam);
+
+            // Convert Exam model to EditExamViewModel
+            var viewModel = new EditExamViewModel
+            {
+                Id = exam.Id,
+                Name = exam.Name,
+                SectionId = exam.SectionId,
+                ExamBuldingId = exam.ExamBuldingId,
+                ExamDate = exam.ExamDate,
+                Duration = exam.Duration,
+                Water = exam.Water,
+                Food = exam.Food,
+                Notes = exam.Notes,
+                InventoryTransport = exam.InventoryTransport,
+                SelectedCommissions = exam.Commissions?.Select(ec => ec.Id).ToArray(),
+                Commissions = (await _examService.GetCommissionsAsync(sectionId))
+                    .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
+                    .ToList()
+            };
+
+            return View(viewModel); // Pass the correct view model
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> Edit(Exam exam)
+        public async Task<IActionResult> Edit(EditExamViewModel exam, int[] selectedCommissions)
         {
             var sectionId = await GetCurrentSectionIdAsync();
             if (sectionId == null)
@@ -156,11 +224,67 @@ namespace ForQab.Presentation.Controllers
             }
             if (ModelState.IsValid)
             {
-                await _examService.UpdateExamAsync(exam);
+                await _examService.UpdateExamAsync(exam,selectedCommissions);
                 return RedirectToAction(nameof(Index));
             }
             
             return View(exam);
+        }
+
+        //[HttpPost]
+        //public async Task<IActionResult> Edit(Exam exam, int[] selectedCommissions, int[] selectedSubCommissions)
+        //{
+        //    var sectionId = await GetCurrentSectionIdAsync();
+        //    if (sectionId == null)
+        //    {
+        //        ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
+        //        ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.ToListAsync(), "Id", "Name");
+        //    }
+        //    else
+        //    {
+        //        ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
+        //        ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.Where(e => e.SectionId == sectionId).ToListAsync(), "Id", "Name");
+
+        //    }
+        //    if (ModelState.IsValid)
+        //    {
+        //        try
+        //        {
+        //            await _examService.UpdateExamAsync(
+        //                exam,
+        //                selectedCommissions ?? Array.Empty<int>(),
+        //                selectedSubCommissions ?? Array.Empty<int>()
+        //            );
+        //            return RedirectToAction(nameof(Index));
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            ModelState.AddModelError("", $"Güncelleme hatası: {ex.Message}");
+        //        }
+        //    }
+
+            // Hata durumu için dropdown'ları tekrar doldur
+        //    await PopulateDropdowns(exam.SectionId);
+        //    return View(exam);
+        //}
+
+        private async Task PopulateDropdowns(int? sectionId)
+        {
+            ViewBag.CommissionList = new MultiSelectList(
+                await _context.Commissions
+                    .Where(c => c.SectionId == sectionId)
+                    .ToListAsync(),
+                "Id",
+                "Name"
+            );
+
+            ViewBag.SubCommissionList = new MultiSelectList(
+                await _context.SubCommissions
+                    .Where(sc => sc.SectionId == sectionId)
+                    .ToListAsync(),
+                "Id",
+                "Name"
+            );
         }
 
         public async Task<IActionResult> Delete(int id)
@@ -314,10 +438,9 @@ namespace ForQab.Presentation.Controllers
                     new DataColumn("Duration"),
                     new DataColumn("Water Provided"),
                     new DataColumn("Food Provided"),
-                    new DataColumn("Commission"),
+                    //new DataColumn("Commission"),
                     new DataColumn("Exam Building"),
                     new DataColumn("Section"),
-                    new DataColumn("Sub Commission"),
                 });
 
             // Verileri doldur
@@ -329,10 +452,9 @@ namespace ForQab.Presentation.Controllers
                     exam.Duration,
                     exam.Water ,
                     exam.Food,
-                    exam.Commission?.Name ?? "---",
+                    //exam.Commission?.Name ?? "---",
                     exam.ExamBulding?.Name ?? "---",
-                    exam.Section?.Name ?? "---",
-                    exam.SubCommission?.Name ?? "---"
+                    exam.Section?.Name ?? "---"
                 );
             }
 

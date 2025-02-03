@@ -23,12 +23,6 @@ public partial class Exam
     [Column("exam_bulding_id")]
     public int ExamBuldingId { get; set; }
 
-    [Column("commission_id")]
-    public int? CommissionId { get; set; }
-
-    [Column("sub_commission_id")]
-    public int? SubCommissionId { get; set; }
-
     [Column("exam_date")]
     public DateOnly ExamDate { get; set; }
 
@@ -49,10 +43,6 @@ public partial class Exam
     [StringLength(4000)]
     public string? InventoryTransport { get; set; }
 
-    [ForeignKey("CommissionId")]
-    [InverseProperty("Exams")]
-    public virtual Commission? Commission { get; set; }
-
     [ForeignKey("ExamBuldingId")]
     [InverseProperty("Exams")]
     public virtual ExamBuilding? ExamBulding { get; set; } = null!;
@@ -61,9 +51,9 @@ public partial class Exam
     [InverseProperty("Exams")]
     public virtual Section? Section { get; set; } = null!;
 
-    [ForeignKey("SubCommissionId")]
+    [ForeignKey("Exam_Id")]
     [InverseProperty("Exams")]
-    public virtual SubCommission? SubCommission { get; set; }
+    public virtual ICollection<Commission> Commissions { get; set; } = new List<Commission>();
 
     [ForeignKey("ExamId")]
     [InverseProperty("Exams")]
