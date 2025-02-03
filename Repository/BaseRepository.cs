@@ -35,7 +35,11 @@ namespace ForQab.Repository
 
         public async Task<IEnumerable<T>> GetAllAsync(int? sectionId)
         {
-            // Assuming entities have a SectionId property. Adjust if necessary.
+            if (sectionId == null)
+            {
+                return await _dbContext.Set<T>()
+                .ToListAsync();
+            }
             return await _dbContext.Set<T>()
                 .Where(e => EF.Property<int>(e, "SectionId") == sectionId)
                 .ToListAsync();
