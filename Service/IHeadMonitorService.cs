@@ -13,6 +13,7 @@ namespace ForQab.Service
         Task DeleteAsync(int id);
         Task<List<Section>> GetSectionsAsync(int? sectionId);
         public Task BulkAddAsync(IEnumerable<Monitor> monitors);
-
+        public Task<string> ImportFromExcelAsync(IFormFile excelFile);
+        public Task<byte[]> ExportToExcelAsync(int? sectionId);
     }
 }
