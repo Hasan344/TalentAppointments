@@ -31,8 +31,8 @@ public partial class SubCommission
     [InverseProperty("SubCommissions")]
     public virtual Commission Commission { get; set; } = null!;
 
-    [InverseProperty("SubCommission")]
-    public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
+    //[InverseProperty("SubCommission")]
+    //public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
 
     [ForeignKey("SectionId")]
     [InverseProperty("SubCommissions")]

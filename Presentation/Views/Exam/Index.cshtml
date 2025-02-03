@@ -41,10 +41,23 @@
                     <td>@Html.DisplayFor(modelItem => item.Duration)</td>
                     <td>@Html.DisplayFor(modelItem => item.Water)</td>
                     <td>@Html.DisplayFor(modelItem => item.Food)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Commission.Name)</td>
+                        <td>
+                            @if (item.Commissions != null && item.Commissions.Any())
+                            {
+                                <ul class="list-unstyled mb-0">
+                                    @foreach (var commission in item.Commissions)
+                                    {
+                                        <li>@commission.Name</li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <span>---</span>
+                            }
+                        </td>
                     <td>@Html.DisplayFor(modelItem => item.ExamBulding.Name)</td>
                     <td>@Html.DisplayFor(modelItem => item.Section.Name)</td>
-                    <td>@Html.DisplayFor(modelItem => item.SubCommission.Name)</td>
                     <td>
                         <div class="btn-group" role="group">
                             <a class="btn btn-outline-warning btn-sm p-1" asp-action="Edit" asp-route-id="@item.Id">

@@ -1,4 +1,4 @@
-﻿@model ForQab.DataAccess.Models.Exam
+﻿@model ForQab.Presentation.ViewModels.CreateExamViewModel
 
 @{
     ViewData["Title"] = "İmtahan Yarat";
@@ -33,21 +33,21 @@
                     <span asp-validation-for="ExamBuldingId" class="text-danger"></span>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="CommissionId" class="form-label">Komissiya</label>
-                    <select asp-for="CommissionId" class="form-select" asp-items="ViewBag.CommissionList" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>Komissiya Seçin</option>
-                    </select>
-                    <span asp-validation-for="CommissionId" class="text-danger"></span>
-                </div>
 
+                <div class="mb-3">
+                    <label class="form-label">Kommissiyalar</label>
+                    <select asp-for="SelectedCommissions" class="form-select" asp-items="Model.Commissions" multiple style="background-color: #23272a; color: #ffffff;">
+                    </select>
+                    <span asp-validation-for="SelectedCommissions" class="text-danger"></span>
+                </div>
+@* 
                 <div class="mb-3">
                     <label asp-for="SubCommissionId" class="form-label">Alt Komissiya</label>
                     <select asp-for="SubCommissionId" class="form-select" asp-items="ViewBag.SubCommissionList" style="background-color: #23272a; color: #ffffff;">
                         <option value="" disabled selected>Alt Komissiya Seçin</option>
                     </select>
                     <span asp-validation-for="SubCommissionId" class="text-danger"></span>
-                </div>
+                </div> *@
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
