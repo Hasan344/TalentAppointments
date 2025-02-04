@@ -9,13 +9,13 @@
         <div class="col-md-8">
             <div class="card shadow-lg">
                 <div class="card-header bg-danger text-white">
-                    <h3 class="mb-0">Nəzarətçi Sil</h3>
+                    <h3 class="mb-0">Monitoru Sil</h3>
                 </div>
                 <div class="card-body">
-                    <h4 class="text-center text-danger">Bu nəzarətçini silməyə əminsiniz?</h4>
+                    <h4 class="text-center text-danger">Bu monitoru silmək istədiyinizdən əminsiniz?</h4>
 
                     <div class="mt-4">
-                        <h5>Monitor Məlumatları</h5>
+                        <h5>Monitor Detalları</h5>
                         <hr />
                         <dl class="row">
                             <dt class="col-sm-4 font-weight-bold">Ad:</dt>
@@ -24,31 +24,25 @@
                             <dt class="col-sm-4 font-weight-bold">Soyad:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.Surname)</dd>
 
-                            <dt class="col-sm-4 font-weight-bold">Ata Adı:</dt>
+                            <dt class="col-sm-4 font-weight-bold">Ata adı:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.Fname)</dd>
 
-                            <dt class="col-sm-4 font-weight-bold">Region:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Region)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">Arxiv:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Archive)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">Cinsiyyət:</dt>
+                            <dt class="col-sm-4 font-weight-bold">Cins:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.Gender)</dd>
 
-                            <dt class="col-sm-4 font-weight-bold">Vəzifə:</dt>
+                            <dt class="col-sm-4 font-weight-bold">Rol:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.Role)</dd>
 
-                            <dt class="col-sm-4 font-weight-bold">Vəsiqə nömrəsi:</dt>
+                            <dt class="col-sm-4 font-weight-bold">VNum:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.VNum)</dd>
 
                             <dt class="col-sm-4 font-weight-bold">Peşə:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.Profession)</dd>
 
-                            <dt class="col-sm-4 font-weight-bold">İş Yeri:</dt>
+                            <dt class="col-sm-4 font-weight-bold">İş yeri:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.Workplace)</dd>
 
-                            <dt class="col-sm-4 font-weight-bold">Vəzifə Yeri:</dt>
+                            <dt class="col-sm-4 font-weight-bold">Vəzifə:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.Position)</dd>
 
                             <dt class="col-sm-4 font-weight-bold">Yaş:</dt>
@@ -57,32 +51,72 @@
                             <dt class="col-sm-4 font-weight-bold">Şəkil:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.Foto)</dd>
 
-                            <dt class="col-sm-4 font-weight-bold">Ev Telefonu:</dt>
+                            <dt class="col-sm-4 font-weight-bold">Ev telefonu:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.TelEv)</dd>
 
-                            <dt class="col-sm-4 font-weight-bold">İş Telefonu:</dt>
+                            <dt class="col-sm-4 font-weight-bold">İş telefonu:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.TelIs)</dd>
 
-                            <dt class="col-sm-4 font-weight-bold">Maliyyə Kodu:</dt>
+                            <dt class="col-sm-4 font-weight-bold">FİN Kodu:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.FinCode)</dd>
 
                             <dt class="col-sm-4 font-weight-bold">Seriya:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.Serial)</dd>
 
-                            <dt class="col-sm-4 font-weight-bold">Şöbə:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Section.Id)</dd>
+                            <dt class="col-sm-4 font-weight-bold">Bölmə ID:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Section.Name)</dd>
                         </dl>
                     </div>
 
                     <div class="mt-4 text-center">
                         <form asp-action="Delete">
                             <input type="hidden" asp-for="Id" />
-                            <button type="submit" class="btn btn-danger btn-lg px-4">Sil</button>
+                            <button type="submit" class="btn btn-danger btn-lg px-4">Bəli, Sil</button>
                             <a asp-action="Index" class="btn btn-secondary btn-lg px-4 ml-3">Siyahıya Qayıt</a>
                         </form>
+                        <div class="mt-4 text-center">
+                            <div class="mt-4 text-center">
+                                <button type="button" class="btn btn-warning btn-lg px-4" onclick="openArchiveModal()">Arxivə Yolla</button>
+                            </div>
+
+                            <div class="modal fade" id="archiveModal" tabindex="-1" aria-labelledby="archiveModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="archiveModalLabel">Arxivə Göndər</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="archiveForm" method="post" asp-action="ArchiveMonitor">
+                                                <input type="hidden" id="archiveId" name="id" value="@Model.Id" />
+                                                <div class="mb-3">
+                                                    <label for="archiveReason" class="form-label">Arxivləmə Səbəbi:</label>
+                                                    <textarea class="form-control" id="archiveReason" name="archiveReason" rows="3" required></textarea>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
+                                            <button type="submit" class="btn btn-warning" onclick="submitArchiveForm()">Arxivə Göndər</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+    function openArchiveModal() {
+        var modal = new bootstrap.Modal(document.getElementById("archiveModal"));
+        modal.show();
+    }
+
+    function submitArchiveForm() {
+        document.getElementById("archiveForm").submit();
+    }
+</script>

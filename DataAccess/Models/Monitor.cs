@@ -129,4 +129,8 @@ public partial class Monitor
     [Column("bank_filial_code")]
     [StringLength(400)]
     public string? BankFilialCode { get; set; }
+
+    [Column("archive_reason")]
+    [StringLength(2000)]
+    public string? ArchiveReason { get; set; }
 }
