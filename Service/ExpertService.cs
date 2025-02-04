@@ -110,7 +110,7 @@ namespace ForQab.Service
             var includes = new string[] { "DistrictNavigation", "SubProfessions", "Section", "GenderNavigation" };
 
             var query = await _expertRepository.GetAllAsync(sectionId, null, includes); 
-            if (genderId.HasValue && genderId > 0)
+            if (genderId.HasValue)
             {
                 query = query.Where(m => m.Gender == genderId.Value).ToList();
             }

@@ -23,6 +23,18 @@
                 </div>
 
                 <div class="mb-3">
+                    <label asp-for="Code" class="form-label">Bina Kodu</label>
+                    <input asp-for="Code" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Code" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Address" class="form-label">Bina ünvanı</label>
+                    <input asp-for="Address" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
                     <label asp-for="SectionId" class="form-label">Bölmə</label>
                     <select asp-for="SectionId"
                             class="form-select modern-select"
