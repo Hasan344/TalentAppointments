@@ -9,6 +9,7 @@ using ForQab.Service;
 using System.Data;
 using ClosedXML.Excel;
 using System.Globalization;
+using ForQab.Presentation.Validators;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -80,19 +81,37 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Monitor monitor)
         {
+            var validator = new HeadMonitorValidator();
+            var result = validator.Validate(monitor);
+
+            if (!result.IsValid)
+            {
+                // FluentValidation hatalarını ModelState’e ekleyelim ki View içinde gösterilebilsin.
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+
+                // Hatalarla birlikte tekrar View’a döneceğiz.
+                await LoadViewData(monitor);
+                return View(monitor);
+            }
+
             if (ModelState.IsValid)
             {
                 await _headMonitorService.AddAsync(monitor);
+                TempData["SuccessMessage"] = "İmtahan rəhbəri uğurla əlavə edildi.";
                 return RedirectToAction(nameof(Index));
             }
-            var sectionId = await GetCurrentSectionIdAsync();
-            var sections = await _headMonitorService.GetSectionsAsync(sectionId);
-            ViewBag.SectionList = new SelectList(sections, "Id", "Name");
-            ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name", monitor.Gender);
-            ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name", monitor.Role);
-            ViewData["District"] = new SelectList(_context.Districts, "Id", "Name", monitor.District);
+
+            // Model geçersizse, sayfayı tekrar doldur ve hata mesajlarını göster.
+            await LoadViewData(monitor);
             return View(monitor);
         }
+
+        // ViewData için tekrar tekrar kod yazmamak adına ayrı bir metot oluşturalım.
+        
+
 
         // GET: HeadMonitors/Edit/5
         public async Task<IActionResult> Edit(int id)
@@ -111,12 +130,7 @@ namespace ForQab.Presentation.Controllers
             {
                 return Forbid();
             }
-            var sectionId = await GetCurrentSectionIdAsync();
-            var sections = await _headMonitorService.GetSectionsAsync(sectionId);
-            ViewBag.SectionList = new SelectList(sections, "Id", "Name");
-            ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name", monitor.Gender);
-            ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name", monitor.Role);
-            ViewData["District"] = new SelectList(_context.Districts, "Id", "Name", monitor.District);
+            await LoadViewData(monitor);
             return View(monitor);
         }
 
@@ -149,12 +163,8 @@ namespace ForQab.Presentation.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            var sectionId = await GetCurrentSectionIdAsync();
-            var sections = await _headMonitorService.GetSectionsAsync(sectionId);
-            ViewBag.SectionList = new SelectList(sections, "Id", "Name");
-            ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name", monitor.Gender);
-            ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name", monitor.Role);
-            ViewData["District"] = new SelectList(_context.Districts, "Id", "Name", monitor.District);
+
+            await LoadViewData(monitor);
             return View(monitor);
         }
 
@@ -214,6 +224,16 @@ namespace ForQab.Presentation.Controllers
             var message = await _headMonitorService.ImportFromExcelAsync(excelFile);
             TempData["SuccessMessage"] = message;
             return RedirectToAction(nameof(Index));
+        }
+        private async Task LoadViewData(Monitor monitor)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var sections = await _headMonitorService.GetSectionsAsync(sectionId);
+
+            ViewBag.SectionList = new SelectList(sections, "Id", "Name");
+            ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name", monitor.Gender);
+            ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name", monitor.Role);
+            ViewData["District"] = new SelectList(_context.Districts, "Id", "Name", monitor.District);
         }
     }
 }
