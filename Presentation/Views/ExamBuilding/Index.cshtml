@@ -7,6 +7,8 @@
         <tr>
             <th>Bina Adı</th>
             <th>Bölmə</th>
+            <th>Bina Kodu</th>
+            <th>Ünvanı</th>
             <th>Əməliyyatlar</th>
         </tr>
     </thead>
@@ -16,6 +18,8 @@
                 <tr>
                     <td>@item.Name</td>
                     <td>@item.Section.Name</td>
+                    <td>@item.Code</td>
+                    <td>@item.Address</td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Redaktə</a>
                         <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Sil</a>
