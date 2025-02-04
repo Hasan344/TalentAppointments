@@ -73,7 +73,7 @@ namespace ForQab.Service
             if (endYear.HasValue)
                 query = query.Where(m => m.BirthDate.Value.Year <= endYear.Value).ToList();
 
-            return query;
+            return query.Where(m => m.Archive == 0).ToList();
         }
 
         public async Task<Monitor> GetByIdAsync(int id)
@@ -236,6 +236,45 @@ namespace ForQab.Service
                     return stream.ToArray(); // Byte dizisi olarak döndürüyoruz
                 }
             }
+        }
+
+        public async Task<IEnumerable<Monitor>> GetAllArchivedAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        {
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
+            var query = await _monitorRepository.GetAllAsync(sectionId, 2, null, includes);
+            if (genderId.HasValue && genderId > 0)
+            {
+                query = query.Where(m => m.Gender == genderId.Value).ToList();
+            }
+            if (!string.IsNullOrEmpty(searchName))
+            {
+                query = query.Where(m =>
+             m.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase) ||
+             m.Surname.Contains(searchName, StringComparison.OrdinalIgnoreCase))
+              .ToList();
+            }
+            // FinCode filtresi
+            if (!string.IsNullOrEmpty(finCode))
+            {
+                query = query.Where(m => m.FinCode.Contains(finCode, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            // Serial filtresi
+            if (!string.IsNullOrEmpty(serial))
+            {
+                query = query.Where(m => m.Serial.Contains(serial, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            // District filtresi
+            if (district.HasValue && district > 0)
+            {
+                query = query.Where(m => m.District == district.Value).ToList();
+            }
+            if (startYear.HasValue)
+                query = query.Where(m => m.BirthDate.Value.Year >= startYear.Value).ToList(); // Tarixi ilin başlanğıcına çeviririk.
+            if (endYear.HasValue)
+                query = query.Where(m => m.BirthDate.Value.Year <= endYear.Value).ToList();
+
+            return query.Where(m => m.Archive==1).ToList();
         }
     }
 }

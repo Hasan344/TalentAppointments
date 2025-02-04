@@ -41,6 +41,18 @@ namespace ForQab.Presentation.Controllers
             return View(model);
 
         }
+        public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var model = await _headMonitorService.GetAllArchivedAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
+
+            var genders = _context.Genders.ToList();
+            var districts = _context.Districts.ToList();
+
+            ViewBag.Genders = genders;
+            ViewBag.Districts = districts;
+            return View(model);
+        }
 
         // GET: HeadMonitors/Details/5
         public async Task<IActionResult> Details(int id)
@@ -199,6 +211,42 @@ namespace ForQab.Presentation.Controllers
                 await _headMonitorService.DeleteAsync(id);
             }
 
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ArchiveMonitor(int id, string archiveReason)
+        {
+            var monitor = await _headMonitorService.GetByIdAsync(id);
+            if (monitor == null)
+            {
+                return NotFound();
+            }
+
+            // Monitor'ü arşive al
+            monitor.Archive = 1;
+            monitor.ArchiveReason = archiveReason;
+            await _headMonitorService.UpdateAsync(monitor);
+
+            TempData["SuccessMessage"] = "İmtahan rəhbəri arxivə göndərildi.";
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RestoreMonitor(int id)
+        {
+            var monitor = await _headMonitorService.GetByIdAsync(id);
+            if (monitor == null)
+            {
+                return NotFound();
+            }
+
+            // Monitor'ü arşive al
+            monitor.Archive = 0;
+            monitor.ArchiveReason = null;
+            await _headMonitorService.UpdateAsync(monitor);
+
+            TempData["SuccessMessage"] = "İmtahan rəhbəri arxivdən çıxarıldı.";
             return RedirectToAction(nameof(Index));
         }
 

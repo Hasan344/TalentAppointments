@@ -35,6 +35,17 @@ namespace ForQab.Presentation.Controllers
             ViewBag.Districts = districts;
             return View(model);
         }
+        public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var model = await _monitorService.GetAllArchivedAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
+            var genders = _context.Genders.ToList();
+            var districts = _context.Districts.ToList();
+
+            ViewBag.Genders = genders;
+            ViewBag.Districts = districts;
+            return View(model);
+        }
 
         public async Task<IActionResult> Details(int id)
         {
@@ -163,7 +174,42 @@ namespace ForQab.Presentation.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ArchiveMonitor(int id, string archiveReason)
+        {
+            var monitor = await _monitorService.GetByIdAsync(id);
+            if (monitor == null)
+            {
+                return NotFound();
+            }
 
+            // Monitor'ü arşive al
+            monitor.Archive = 1;
+            monitor.ArchiveReason = archiveReason;
+            await _monitorService.UpdateAsync(monitor);
+
+            TempData["SuccessMessage"] = "Nəzarətçi arxivə göndərildi.";
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RestoreMonitor(int id)
+        {
+            var monitor = await _monitorService.GetByIdAsync(id);
+            if (monitor == null)
+            {
+                return NotFound();
+            }
+
+            // Monitor'ü arşive al
+            monitor.Archive = 0;
+            monitor.ArchiveReason = null;
+            await _monitorService.UpdateAsync(monitor);
+
+            TempData["SuccessMessage"] = "Nəzarətçi arxivdən çıxarıldı.";
+            return RedirectToAction(nameof(Index));
+        }
         private bool MonitorExists(int id)
         {
             return _context.Monitors.Any(e => e.Id == id);
