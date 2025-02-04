@@ -8,6 +8,7 @@ using Monitor = ForQab.DataAccess.Models.Monitor;
 using ForQab.Service;
 using ClosedXML.Excel;
 using System.Data;
+using ForQab.Presentation.Validators;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -66,17 +67,18 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Surname,Fname,Region,SectionId,0,Gender,Role,VNum,Profession,Workplace,Position,Age,Foto,TelEv,TelIs,FinCode,Serial,District")] DataAccess.Models.Monitor monitor)
         {
+            var validator = new VolunteerValidator();
+            var result = validator.Validate(monitor);
+            if (!result.IsValid)
+            {
+                return View(monitor);
+            }
             if (ModelState.IsValid)
             {
                 await _volunteerService.AddAsync(monitor);
                 return RedirectToAction(nameof(Index));
             }
-            var sectionId = await GetCurrentSectionIdAsync();
-            var sections = await _volunteerService.GetSectionsAsync(sectionId);
-            ViewBag.SectionList = new SelectList(sections, "Id", "Name");
-            ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name", monitor.Gender);
-            ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name", monitor.Role);
-            ViewData["District"] = new SelectList(_context.Districts, "Id", "Name", monitor.District);
+            await LoadViewData(monitor);
             return View(monitor);
         }
 
@@ -92,12 +94,7 @@ namespace ForQab.Presentation.Controllers
             {
                 return Forbid();
             }
-            var sectionId = await GetCurrentSectionIdAsync();
-            var sections = await _volunteerService.GetSectionsAsync(sectionId);
-            ViewBag.SectionList = new SelectList(sections, "Id", "Name");
-            ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name", monitor.Gender);
-            ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name", monitor.Role);
-            ViewData["District"] = new SelectList(_context.Districts, "Id", "Name", monitor.District);
+            await LoadViewData(monitor);
             return View(monitor);
         }
 
@@ -137,12 +134,7 @@ namespace ForQab.Presentation.Controllers
                     Console.WriteLine(error.ErrorMessage);
                 }
             }
-            var sectionId = await GetCurrentSectionIdAsync();
-            var sections = await _volunteerService.GetSectionsAsync(sectionId);
-            ViewBag.SectionList = new SelectList(sections, "Id", "Name");
-            ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name", monitor.Gender);
-            ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name", monitor.Role);
-            ViewData["District"] = new SelectList(_context.Districts, "Id", "Name", monitor.District);
+            await LoadViewData(monitor);
             return View(monitor);
         }
 
@@ -198,6 +190,15 @@ namespace ForQab.Presentation.Controllers
             TempData["SuccessMessage"] = message;
             return RedirectToAction(nameof(Index));
         }
+        private async Task LoadViewData(Monitor monitor)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var sections = await _volunteerService.GetSectionsAsync(sectionId);
 
+            ViewBag.SectionList = new SelectList(sections, "Id", "Name");
+            ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name", monitor.Gender);
+            ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name", monitor.Role);
+            ViewData["District"] = new SelectList(_context.Districts, "Id", "Name", monitor.District);
+        }
     }
 }

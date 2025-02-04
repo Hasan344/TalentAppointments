@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "İmtahan rəhbəri əlavə et";
 }
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
 @if (TempData["SuccessMessage"] != null)
 {
     <div class="alert alert-success">@TempData["SuccessMessage"]</div>

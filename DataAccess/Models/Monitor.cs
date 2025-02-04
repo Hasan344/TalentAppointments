@@ -108,11 +108,11 @@ public partial class Monitor
 
     [Column("ssn")]
     [StringLength(400)]
-    public string SSN { get; set; }
+    public string? SSN { get; set; }
 
     [Column("rekvizit")]
     [StringLength(400)]
-    public string Rekvizit { get; set; }
+    public string? Rekvizit { get; set; }
 
     [Column("hesablashma_h")]
     [StringLength(400)]
@@ -124,9 +124,9 @@ public partial class Monitor
 
     [Column("bank_filial")]
     [StringLength(400)]
-    public string BankFilial { get; set; }
+    public string? BankFilial { get; set; }
 
     [Column("bank_filial_code")]
     [StringLength(400)]
-    public string BankFilialCode { get; set; }
+    public string? BankFilialCode { get; set; }
 }
