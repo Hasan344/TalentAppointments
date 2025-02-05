@@ -37,5 +37,8 @@ namespace ForQab.Presentation.ViewModels
 
         public List<SelectListItem>? Commissions { get; set; } 
         public int[]? SelectedCommissions { get; set; }
+        public byte? Shift { get; set; }
+        public TimeSpan? StartTime { get; set; }
+        public TimeSpan? EndTime { get; set; }
     }
 }

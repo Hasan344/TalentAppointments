@@ -8,5 +8,7 @@ namespace ForQab.DataAccess.ViewModel.Exam
         [Range(1, int.MaxValue, ErrorMessage = "The number of experts must be at least 1.")]
         public int NumberOfMonitors { get; set; }
         public int SectionId { get; set; }
+        public int GenderId { get; set; }
+        public DateOnly MaxDate { get; set; }
     }
 }

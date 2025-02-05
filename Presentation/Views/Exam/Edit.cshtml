@@ -54,28 +54,48 @@
                     <span asp-validation-for="SubCommissionId" class="text-danger"></span>
                 </div> *@
 
-                <div class="mb-3">
+                <div class="col-md-6 mb-3">
                     <label asp-for="ExamDate" class="form-label">İmtahan tarixi</label>
                     <input asp-for="ExamDate" class="form-control" type="date" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="ExamDate" class="text-danger"></span>
                 </div>
 
-                <div class="mb-3">
+                <div class="col-md-6 mb-3">
                     <label asp-for="Duration" class="form-label">Müddət (saat)</label>
                     <input asp-for="Duration" class="form-control" type="number" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="Duration" class="text-danger"></span>
                 </div>
 
-                <div class="mb-3">
+                <div class="col-md-6 mb-3">
                     <label asp-for="Water" class="form-label">Su</label>
                     <input asp-for="Water" class="form-control" type="number" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="Water" class="text-danger"></span>
                 </div>
 
-                <div class="mb-3">
+                <div class="col-md-6 mb-3">
                     <label asp-for="Food" class="form-label">Yemək</label>
                     <input asp-for="Food" class="form-control" type="number" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="Food" class="text-danger"></span>
+                </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Shift" class="form-label">Növbə</label>
+                        <input asp-for="Shift" type="number" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                        <span asp-validation-for="Shift" class="text-danger"></span>
+                    </div>
+
+                <div class="form-group col-md-6 ">
+                    <label asp-for="StartTime" class="control-label">Başlama Saatı</label>
+                    <input asp-for="StartTime" type="time" class="form-control"
+                           value="@Model.StartTime?.ToString(@"hh\:mm", System.Globalization.CultureInfo.InvariantCulture)" />
+                    <span asp-validation-for="StartTime" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label asp-for="EndTime" class="control-label">Bitmə Saatı</label>
+                    <input asp-for="EndTime" type="time" class="form-control"
+                           value="@Model.EndTime?.ToString(@"hh\:mm", System.Globalization.CultureInfo.InvariantCulture)" />
+                    <span asp-validation-for="EndTime" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
@@ -92,16 +112,6 @@
 
                 <div class="d-flex justify-content-between">
                     <a asp-action="Index" class="btn btn-secondary" style="background-color: #2f3136; color: #ffffff;">Geri</a>
-                    <a asp-action="AssignExperts"
-                       asp-route-id="@Model.Id"
-                       class="btn btn-primary" style="background-color: #7289da; border-color: #7289da;">
-                        Ekspert təyin et
-                    </a>
-                    <a asp-action="AssignMonitors"
-                       asp-route-id="@Model.Id"
-                       class="btn btn-primary" style="background-color: #7289da; border-color: #7289da;">
-                        Nəzarətçi təyin et
-                    </a>
                     <button type="submit" class="btn btn-primary" style="background-color: #7289da; border-color: #7289da;">Yadda saxla</button>
                 </div>
             </form>
@@ -112,5 +122,8 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
     }
+
+
 }

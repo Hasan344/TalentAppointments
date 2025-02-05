@@ -38,6 +38,7 @@ namespace ForQab.Presentation.Controllers
         {
             var exam = await _examService.GetExamByIdAsync(id);
             var sectionId = await GetCurrentSectionIdAsync();
+            ViewBag.AllExperts = await _context.Experts.ToListAsync();
             var examWithExperts = await _context.Exams
                                         .Include(e => e.Experts)  // Include the related experts
                                         .FirstOrDefaultAsync(e => e.Id == id);
@@ -51,7 +52,147 @@ namespace ForQab.Presentation.Controllers
             }
             return View(exam);
         }
+        public IActionResult ChangeExpert(int examId, int expertId)
+        {
+            var exam = _context.Exams
+                .Include(e => e.Experts)
+                .FirstOrDefault(e => e.Id == examId);
 
+            if (exam == null) return NotFound();
+
+            var expertList = _context.Experts.ToList(); // Mövcud ekspertlərin siyahısı
+
+            var viewModel = new ChangeExpertViewModel
+            {
+                ExamId = examId,
+                CurrentExpertId = expertId,
+                AvailableExperts = expertList.Select(e => new SelectListItem
+                {
+                    Value = e.Id.ToString(),
+                    Text = $"{e.Name} {e.Surname} ({e.FinCode})"
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
+        [HttpPost]
+        public IActionResult ChangeExpert(ChangeExpertViewModel model)
+        {
+            var exam = _context.Exams
+                .Include(e => e.Experts)
+                .FirstOrDefault(e => e.Id == model.ExamId);
+
+            if (exam == null) return NotFound();
+
+            var currentExpert = exam.Experts.FirstOrDefault(e => e.Id == model.CurrentExpertId);
+            if (currentExpert != null)
+            {
+                exam.Experts.Remove(currentExpert);
+            }
+
+            var newExpert = _context.Experts.FirstOrDefault(e => e.Id == model.NewExpertId);
+            if (newExpert != null)
+            {
+                exam.Experts.Add(newExpert);
+            }
+
+            _context.SaveChanges();
+            return RedirectToAction("Details", new { id = model.ExamId });
+        }
+        public IActionResult ChangeMonitor(int examId, int monitorId)
+        {
+            var exam = _context.Exams
+                .Include(e => e.Monitors)
+                .FirstOrDefault(e => e.Id == examId);
+
+            if (exam == null) return NotFound();
+
+            var monitorList = _context.Monitors.Where(m => m.Role == 2).ToList(); 
+
+            var viewModel = new ChangeMonitorViewModel
+            {
+                ExamId = examId,
+                CurrentMonitorId = monitorId,
+                AvailableMonitors = monitorList.Select(e => new SelectListItem
+                {
+                    Value = e.Id.ToString(),
+                    Text = $"{e.Name} {e.Surname} ({e.FinCode})"
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
+        [HttpPost]
+        public IActionResult ChangeMonitor(ChangeMonitorViewModel model)
+        {
+            var exam = _context.Exams
+                .Include(e => e.Monitors)
+                .FirstOrDefault(e => e.Id == model.ExamId);
+
+            if (exam == null) return NotFound();
+
+            var currentMonitor = exam.Monitors.FirstOrDefault(e => e.Id == model.CurrentMonitorId);
+            if (currentMonitor != null)
+            {
+                exam.Monitors.Remove(currentMonitor);
+            }
+
+            var newMonitor = _context.Monitors.FirstOrDefault(e => e.Id == model.NewMonitorId);
+            if (newMonitor != null)
+            {
+                exam.Monitors.Add(newMonitor);
+            }
+
+            _context.SaveChanges();
+            return RedirectToAction("Details", new { id = model.ExamId });
+        }
+        public IActionResult ChangeHeadMonitor(int examId, int monitorId)
+        {
+            var exam = _context.Exams
+                .Include(e => e.Monitors)
+                .FirstOrDefault(e => e.Id == examId);
+
+            if (exam == null) return NotFound();
+
+            var monitorList = _context.Monitors.Where(m => m.Role == 1).ToList();
+
+            var viewModel = new ChangeMonitorViewModel
+            {
+                ExamId = examId,
+                CurrentMonitorId = monitorId,
+                AvailableMonitors = monitorList.Select(e => new SelectListItem
+                {
+                    Value = e.Id.ToString(),
+                    Text = $"{e.Name} {e.Surname} ({e.FinCode})"
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
+        [HttpPost]
+        public IActionResult ChangeHeadMonitor(ChangeMonitorViewModel model)
+        {
+            var exam = _context.Exams
+                .Include(e => e.Monitors)
+                .FirstOrDefault(e => e.Id == model.ExamId);
+
+            if (exam == null) return NotFound();
+
+            var currentMonitor = exam.Monitors.FirstOrDefault(e => e.Id == model.CurrentMonitorId);
+            if (currentMonitor != null)
+            {
+                exam.Monitors.Remove(currentMonitor);
+            }
+
+            var newMonitor = _context.Monitors.FirstOrDefault(e => e.Id == model.NewMonitorId);
+            if (newMonitor != null)
+            {
+                exam.Monitors.Add(newMonitor);
+            }
+
+            _context.SaveChanges();
+            return RedirectToAction("Details", new { id = model.ExamId });
+        }
         public async Task<IActionResult> Create()
         {
             var sectionId = await GetCurrentSectionIdAsync(); 
@@ -79,38 +220,6 @@ namespace ForQab.Presentation.Controllers
 
             return View(viewModel);
         }
-        //public async Task<IActionResult> Create()
-        //{
-
-        //    await PopulateDropdowns(sectionId);
-        //    return View();
-        //}
-
-        //[HttpPost]
-        //public async Task<IActionResult> Create(CreateExamViewModel viewModel)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        await PopulateDropdowns(viewModel.SectionId);
-        //        return View(viewModel);
-        //    }
-
-        //    var exam = new Exam
-        //    {
-        //        Name = viewModel.Name,
-        //        SectionId = viewModel.SectionId,
-        //        ExamBuldingId = viewModel.ExamBuldingId,
-        //        ExamDate = viewModel.ExamDate,
-        //        Duration = viewModel.Duration,
-        //        Water = viewModel.Water,
-        //        Food = viewModel.Food,
-        //        Notes = viewModel.Notes,
-        //        InventoryTransport = viewModel.InventoryTransport
-        //    };
-
-        //    await _examService.AddExamAsync(exam);
-        //    return RedirectToAction(nameof(Index));
-        //}
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateExamViewModel exam)
@@ -193,6 +302,9 @@ namespace ForQab.Presentation.Controllers
                 Food = exam.Food,
                 Notes = exam.Notes,
                 InventoryTransport = exam.InventoryTransport,
+                Shift = exam.Shift,
+                StartTime = exam.StartTime,
+                EndTime = exam.EndTime,
                 SelectedCommissions = exam.Commissions?.Select(ec => ec.Id).ToArray(),
                 Commissions = (await _examService.GetCommissionsAsync(sectionId))
                     .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
@@ -230,43 +342,6 @@ namespace ForQab.Presentation.Controllers
             
             return View(exam);
         }
-
-        //[HttpPost]
-        //public async Task<IActionResult> Edit(Exam exam, int[] selectedCommissions, int[] selectedSubCommissions)
-        //{
-        //    var sectionId = await GetCurrentSectionIdAsync();
-        //    if (sectionId == null)
-        //    {
-        //        ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
-        //        ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.ToListAsync(), "Id", "Name");
-        //    }
-        //    else
-        //    {
-        //        ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
-        //        ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.Where(e => e.SectionId == sectionId).ToListAsync(), "Id", "Name");
-
-        //    }
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            await _examService.UpdateExamAsync(
-        //                exam,
-        //                selectedCommissions ?? Array.Empty<int>(),
-        //                selectedSubCommissions ?? Array.Empty<int>()
-        //            );
-        //            return RedirectToAction(nameof(Index));
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            ModelState.AddModelError("", $"Güncelleme hatası: {ex.Message}");
-        //        }
-        //    }
-
-            // Hata durumu için dropdown'ları tekrar doldur
-        //    await PopulateDropdowns(exam.SectionId);
-        //    return View(exam);
-        //}
 
         private async Task PopulateDropdowns(int? sectionId)
         {
@@ -337,7 +412,30 @@ namespace ForQab.Presentation.Controllers
             return View(viewModel); // View'a model aktar
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UpdateExperts(int ExamId, int[] SelectedExpertIds)
+        {
+            var exam = await _context.Exams
+                .Include(e => e.Experts)
+                .FirstOrDefaultAsync(e => e.Id == ExamId);
 
+            if (exam == null)
+            {
+                return NotFound();
+            }
+
+            // Mövcud ekspertləri yeniləyək
+            var selectedExperts = await _context.Experts
+                .Where(e => SelectedExpertIds.Contains(e.Id))
+                .ToListAsync();
+
+            exam.Experts = selectedExperts;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Ekspertlər uğurla yeniləndi!";
+            return RedirectToAction(nameof(Details), new { id = ExamId });
+        }
 
         [HttpPost]
         public async Task<IActionResult> AssignExperts(AssignExpertToExamViewModel model)
@@ -405,8 +503,51 @@ namespace ForQab.Presentation.Controllers
             {
                 try
                 {
-                    await _examService.AssignRandomMonitorsToExamAsync(model.ExamId, model.NumberOfMonitors);
-                    TempData["SuccessMessage"] = "Ekspert uğurla təyin edildi!";
+                    await _examService.AssignRandomMonitorsToExamAsync(model.ExamId, model.NumberOfMonitors, model.GenderId, model.MaxDate);
+                    TempData["SuccessMessage"] = "Nəzarətçi uğurla təyin edildi!";
+                    return RedirectToAction(nameof(Details), new { id = model.ExamId });
+                }
+                catch (Exception ex)
+                {
+                    ViewBag.ErrorMessage = "Xəta baş verdi: " + ex.Message;
+                }
+            }
+
+            var exam = await _examService.GetExamByIdAsync(model.ExamId);
+            if (exam != null)
+            {
+                ViewBag.ExamName = exam.Name;
+            }
+
+            return View(model);
+        }
+        [HttpGet]
+        public async Task<IActionResult> AssignHeadMonitors(int id)
+        {
+            var exam = await _examService.GetExamByIdAsync(id);
+            if (exam == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.ExamName = exam.Name;
+            var model = new AssignMonitorsToExamViewModel
+            {
+                ExamId = exam.Id,
+                SectionId = exam.SectionId,
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignHeadMonitors(AssignMonitorsToExamViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await _examService.AssignRandomHeadMonitorsToExamAsync(model.ExamId, model.NumberOfMonitors,model.GenderId, model.MaxDate);
+                    TempData["SuccessMessage"] = "İmtahan rəhbəri uğurla təyin edildi!";
                     return RedirectToAction(nameof(Details), new { id = model.ExamId });
                 }
                 catch (Exception ex)
@@ -473,4 +614,3 @@ namespace ForQab.Presentation.Controllers
 
     }
 }
-

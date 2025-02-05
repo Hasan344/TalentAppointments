@@ -1,0 +1,20 @@
+﻿@model ForQab.DataAccess.ViewModel.Exam.ChangeExpertViewModel
+
+@{
+    ViewData["Title"] = "Ekspert Dəyişdir";
+}
+
+<h2>Eksperti Dəyişdir</h2>
+
+<form asp-action="ChangeExpert" method="post">
+    <input type="hidden" asp-for="ExamId" />
+    <input type="hidden" asp-for="CurrentExpertId" />
+
+    <div class="mb-3">
+        <label for="newExpertId" class="form-label">Yeni Ekspert Seçin:</label>
+        <select asp-for="NewExpertId" asp-items="Model.AvailableExperts" class="form-select"></select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Yadda Saxla</button>
+    <a asp-action="Details" asp-route-id="@Model.ExamId" class="btn btn-secondary">İmtahana Qayıt</a>
+</form>
