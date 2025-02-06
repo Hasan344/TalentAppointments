@@ -136,4 +136,11 @@ public partial class Monitor
 
     [Column("AssignmentCount")]
     public int? AssignmentCount { get; set; }
+
+    [Column("status")]
+    public byte? Status { get; set; }
+
+    [Column("status_reason")]
+    [StringLength(2000)]
+    public string? StatusReason { get; set; }
 }
