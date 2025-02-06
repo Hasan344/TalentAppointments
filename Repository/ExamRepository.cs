@@ -108,7 +108,9 @@ namespace ForQab.Repository
             var allMonitors = await _context.Monitors.Where(e => e.SectionId == exam.SectionId)
                                                      .Where(e => e.Role == 2)
                                                      .Where(e => e.Gender == genderId)
-                                                     .Where(e => e.BirthDate >= maxDate).ToListAsync();
+                                                     .Where(e => e.BirthDate >= maxDate)
+                                                     .Where(e => e.Status == 0)
+                                                     .Where(e => e.Archive == 0).ToListAsync();
 
             if (allMonitors.Count < numberOfMonitors)
                 throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
@@ -138,7 +140,9 @@ namespace ForQab.Repository
             var allMonitors = await _context.Monitors.Where(e => e.SectionId == exam.SectionId)
                                                      .Where(e => e.Role == 1)
                                                      .Where(e => e.Gender == genderId)
-                                                     .Where(e => e.BirthDate >= maxDate).ToListAsync();
+                                                     .Where(e => e.BirthDate >= maxDate)
+                                                     .Where(e => e.Status == 0)
+                                                     .Where(e => e.Archive == 0).ToListAsync();
             if (allMonitors.Count < numberOfMonitors)
                 throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
 
@@ -296,7 +300,9 @@ namespace ForQab.Repository
                 .Where(m => m.SectionId == sectionId)
                 .Where(m => m.Gender == genderId)
                 .Where(m => m.BirthDate >= maxDate)
-                .Where(m => m.Role ==2)
+                .Where(m => m.Role == 2)
+                .Where(e => e.Status == 0)
+                .Where(e => e.Archive == 0)
                 .CountAsync();
         }
 
@@ -307,6 +313,8 @@ namespace ForQab.Repository
                 .Where(m => m.Gender == genderId)
                 .Where(m => m.BirthDate >= maxDate)
                 .Where(m => m.Role == 1)
+                .Where(e => e.Status == 0)
+                .Where(e => e.Archive == 0)
                 .CountAsync();
         }
     }

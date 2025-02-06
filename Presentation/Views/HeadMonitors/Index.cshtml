@@ -111,7 +111,7 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr class="align-middle">
+                    <tr class="align-middle @(item.Status == 1 ? "table-danger" : "")">
                         <td>@Html.DisplayFor(modelItem => item.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.Surname)</td>
                         <td>@Html.DisplayFor(modelItem => item.Fname)</td>

@@ -210,6 +210,38 @@ namespace ForQab.Presentation.Controllers
             TempData["SuccessMessage"] = "Nəzarətçi arxivdən çıxarıldı.";
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeStatus(int id, string statusReason)
+        {
+            var monitor = await _monitorService.GetByIdAsync(id);
+            if (monitor == null)
+            {
+                return NotFound();
+            }
+
+            monitor.Status = 1;
+            monitor.StatusReason = statusReason;
+            await _monitorService.UpdateAsync(monitor);
+
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RestoreStatus(int id)
+        {
+            var monitor = await _monitorService.GetByIdAsync(id);
+            if (monitor == null)    
+            {
+                return NotFound();
+            }
+
+            monitor.Status = 0;
+            monitor.StatusReason = null;
+            await _monitorService.UpdateAsync(monitor);
+
+            return RedirectToAction(nameof(Index));
+        }
         private bool MonitorExists(int id)
         {
             return _context.Monitors.Any(e => e.Id == id);
