@@ -111,7 +111,7 @@ namespace ForQab.Repository
                                                      .Where(e => e.BirthDate >= maxDate).ToListAsync();
 
             if (allMonitors.Count < numberOfMonitors)
-                throw new ArgumentException("Not enough exams available");
+                throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
 
             var selectedMonitors = allMonitors
                                     .OrderBy(e => e.AssignmentCount) // En az atanmış olanları önce al
@@ -140,7 +140,7 @@ namespace ForQab.Repository
                                                      .Where(e => e.Gender == genderId)
                                                      .Where(e => e.BirthDate >= maxDate).ToListAsync();
             if (allMonitors.Count < numberOfMonitors)
-                throw new Exception("Not enough exams available");
+                throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
 
             var selectedMonitors = allMonitors
                                     .OrderBy(e => e.AssignmentCount) // En az atanmış olanları önce al
@@ -290,5 +290,24 @@ namespace ForQab.Repository
             return _context.Commissions.Where(e => e.SectionId == sectionId).ToList();
         }
 
+        public async Task<int> GetAvailableMonitorsCountAsync(int sectionId, int genderId, DateOnly maxDate)
+        {
+            return await _context.Monitors
+                .Where(m => m.SectionId == sectionId)
+                .Where(m => m.Gender == genderId)
+                .Where(m => m.BirthDate >= maxDate)
+                .Where(m => m.Role ==2)
+                .CountAsync();
+        }
+
+        public async Task<int> GetAvailableHeadMonitorsCountAsync(int sectionId, int genderId, DateOnly maxDate)
+        {
+            return await _context.Monitors
+                .Where(m => m.SectionId == sectionId)
+                .Where(m => m.Gender == genderId)
+                .Where(m => m.BirthDate >= maxDate)
+                .Where(m => m.Role == 1)
+                .CountAsync();
+        }
     }
 }

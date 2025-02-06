@@ -492,24 +492,27 @@ namespace ForQab.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> AssignMonitors(AssignMonitorsToExamViewModel model)
         {
-            var availableMonitors = await _context.Monitors.Where(e => e.SectionId == model.SectionId).ToListAsync();
-            if (model.NumberOfMonitors > availableMonitors.Count)
-            {
-                ViewBag.ErrorMessage = "Təyin etmək istədiyiniz Nəzarətçi sayı mövcud nəzarətçi sayını aşır!";
-                return RedirectToAction("AssignMonitors", new { id = model.ExamId });
-            }
-           
             if (ModelState.IsValid)
             {
                 try
                 {
-                    await _examService.AssignRandomMonitorsToExamAsync(model.ExamId, model.NumberOfMonitors, model.GenderId, model.MaxDate);
-                    TempData["SuccessMessage"] = "Nəzarətçi uğurla təyin edildi!";
+                    foreach (var assignment in model.Assignments)
+                    {
+                        await _examService.AssignRandomMonitorsToExamAsync(
+                            model.ExamId,
+                            assignment.NumberOfMonitors,
+                            assignment.GenderId,
+                            assignment.MaxDate
+                        );
+                    }
+
+                    TempData["SuccessMessage"] = "İmtahan rəhbərləri uğurla təyin edildi!";
                     return RedirectToAction(nameof(Details), new { id = model.ExamId });
                 }
                 catch (Exception ex)
                 {
-                    ViewBag.ErrorMessage = "Xəta baş verdi: " + ex.Message;
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                    ViewBag.ErrorMessage = ex.Message; 
                 }
             }
 
@@ -546,13 +549,23 @@ namespace ForQab.Presentation.Controllers
             {
                 try
                 {
-                    await _examService.AssignRandomHeadMonitorsToExamAsync(model.ExamId, model.NumberOfMonitors,model.GenderId, model.MaxDate);
-                    TempData["SuccessMessage"] = "İmtahan rəhbəri uğurla təyin edildi!";
+                    foreach (var assignment in model.Assignments)
+                    {
+                        await _examService.AssignRandomHeadMonitorsToExamAsync(
+                            model.ExamId,
+                            assignment.NumberOfMonitors,
+                            assignment.GenderId,
+                            assignment.MaxDate
+                        );
+                    }
+
+                    TempData["SuccessMessage"] = "İmtahan rəhbərləri uğurla təyin edildi!";
                     return RedirectToAction(nameof(Details), new { id = model.ExamId });
                 }
                 catch (Exception ex)
                 {
-                    ViewBag.ErrorMessage = "Xəta baş verdi: " + ex.Message;
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                    ViewBag.ErrorMessage = ex.Message; // Alternatif olarak
                 }
             }
 
@@ -564,6 +577,7 @@ namespace ForQab.Presentation.Controllers
 
             return View(model);
         }
+
         public async Task<IActionResult> ExportToExcel()
         {
             var sectionId=await GetCurrentSectionIdAsync();
