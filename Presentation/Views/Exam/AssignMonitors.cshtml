@@ -1,12 +1,15 @@
 ﻿@using ForQab.DataAccess.ViewModel.Exam
 @model AssignMonitorsToExamViewModel
 
-<p>Bu imtahana Nəzarətçi təyin et: @ViewBag.ExamName</p>
+<h2>İmtahana rəhbər nəzarətçi təyin et: @ViewBag.ExamName</h2>
 
-@if (TempData["ErrorMessage"] != null)
+@if (!ViewData.ModelState.IsValid)
 {
     <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
     </div>
 }
 
@@ -20,21 +23,52 @@
 <form asp-action="AssignMonitors" method="post">
     <input type="hidden" asp-for="ExamId" />
     <input type="hidden" asp-for="SectionId" />
-    <div class="form-group">
-        <label asp-for="GenderId">Gender</label>
-        <select asp-for="GenderId" class="form-control" disabled>
-            <option value="0" selected="@(Model.GenderId == 0)">Qadın</option>
-            <option value="1" selected="@(Model.GenderId == 1)">Kişi</option>
-        </select>
+
+    <div id="monitorContainer">
+        <div class="monitor-form">
+            <div class="form-group">
+                <label>Gender</label>
+                <select name="Assignments[0].GenderId" class="form-control">
+                    <option value="0">Qadın</option>
+                    <option value="1">Kişi</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Maksimum Tarix</label>
+                <input type="date" name="Assignments[0].MaxDate" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label>Number of Monitors</label>
+                <input type="number" name="Assignments[0].NumberOfMonitors" class="form-control" required />
+                <span asp-validation-for="Assignments[0].NumberOfMonitors" class="text-danger"></span>
+            </div>
+        </div>
     </div>
-    <div class="form-group">
-        <label asp-for="MaxDate">Maksimum Tarix</label>
-        <input asp-for="MaxDate" type="date" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="NumberOfMonitors" class="control-label"></label>
-        <input asp-for="NumberOfMonitors" class="form-control" />
-        <span asp-validation-for="NumberOfMonitors" class="text-danger"></span>
-    </div>
+
+    <button type="button" id="addMonitorBtn" class="btn btn-secondary">+</button>
     <button type="submit" class="btn btn-primary">Nəzarətçi təyin et</button>
 </form>
+
+<script>
+    document.getElementById('addMonitorBtn').addEventListener('click', function () {
+        var container = document.getElementById('monitorContainer');
+        var forms = container.children;
+        var newForm = container.firstElementChild.cloneNode(true);
+        var newIndex = forms.length;
+
+        Array.from(newForm.querySelectorAll('[name]')).forEach(function (input) {
+            var name = input.getAttribute('name');
+            if (name) {
+                var updatedName = name.replace(/\[\d+\]/, `[${newIndex}]`);
+                input.setAttribute('name', updatedName);
+            }
+            if (input.tagName === 'SELECT') {
+                input.selectedIndex = -1;
+            } else {
+                input.value = '';
+            }
+        });
+
+        container.appendChild(newForm);
+    });
+</script>
