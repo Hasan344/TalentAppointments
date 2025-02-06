@@ -1,7 +1,7 @@
 ﻿@using ForQab.DataAccess.ViewModel.Exam
 @model AssignMonitorsToExamViewModel
 
-<p>Bu imtahana Nəzarətçi təyin et: @ViewBag.ExamName</p>
+<p>Bu imtahana Imtahan rəhbəri təyin et: @ViewBag.ExamName</p>
 
 @if (TempData["ErrorMessage"] != null)
 {
@@ -17,12 +17,12 @@
     </div>
 }
 
-<form asp-action="AssignMonitors" method="post">
+<form asp-action="AssignHeadMonitors" method="post">
     <input type="hidden" asp-for="ExamId" />
     <input type="hidden" asp-for="SectionId" />
     <div class="form-group">
         <label asp-for="GenderId">Gender</label>
-        <select asp-for="GenderId" class="form-control" disabled>
+        <select asp-for="GenderId" class="form-control">
             <option value="0" selected="@(Model.GenderId == 0)">Qadın</option>
             <option value="1" selected="@(Model.GenderId == 1)">Kişi</option>
         </select>

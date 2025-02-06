@@ -133,4 +133,7 @@ public partial class Monitor
     [Column("archive_reason")]
     [StringLength(2000)]
     public string? ArchiveReason { get; set; }
+
+    [Column("AssignmentCount")]
+    public int? AssignmentCount { get; set; }
 }

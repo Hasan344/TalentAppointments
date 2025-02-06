@@ -40,13 +40,13 @@
                     </select>
                     <span asp-validation-for="SelectedCommissions" class="text-danger"></span>
                 </div>
-@* 
+                @*
                 <div class="mb-3">
-                    <label asp-for="SubCommissionId" class="form-label">Alt Komissiya</label>
-                    <select asp-for="SubCommissionId" class="form-select" asp-items="ViewBag.SubCommissionList" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>Alt Komissiya Seçin</option>
-                    </select>
-                    <span asp-validation-for="SubCommissionId" class="text-danger"></span>
+                <label asp-for="SubCommissionId" class="form-label">Alt Komissiya</label>
+                <select asp-for="SubCommissionId" class="form-select" asp-items="ViewBag.SubCommissionList" style="background-color: #23272a; color: #ffffff;">
+                <option value="" disabled selected>Alt Komissiya Seçin</option>
+                </select>
+                <span asp-validation-for="SubCommissionId" class="text-danger"></span>
                 </div> *@
 
                 <div class="row">
@@ -75,6 +75,26 @@
                         <input asp-for="Food" type="number" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                         <span asp-validation-for="Food" class="text-danger"></span>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Shift" class="form-label">Növbə</label>
+                        <input asp-for="Shift" type="number" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                        <span asp-validation-for="Shift" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="StartTime" class="control-label">Başlama Saatı</label>
+                    <input asp-for="StartTime" type="time" class="form-control" value="@Model.StartTime?.ToString(@"hh\:mm")" />
+                    <span asp-validation-for="StartTime" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="EndTime" class="control-label">Bitmə Saatı</label>
+                    <input asp-for="EndTime" type="time" class="form-control" value="@Model.EndTime?.ToString(@"hh\:mm")" />
+                    <span asp-validation-for="EndTime" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">

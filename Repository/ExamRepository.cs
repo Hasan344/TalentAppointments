@@ -1,13 +1,7 @@
-﻿using DocumentFormat.OpenXml.ExtendedProperties;
-using DocumentFormat.OpenXml.Vml.Office;
-using DocumentFormat.OpenXml.Wordprocessing;
-using ForQab.Data_Access.ViewModel;
-using ForQab.DataAccess.Models;
+﻿using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Exam;
-using ForQab.Migrations;
 using ForQab.Presentation.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Packaging;
 
 namespace ForQab.Repository
 {
@@ -32,6 +26,9 @@ namespace ForQab.Repository
                 Notes = entity.Notes,
                 Water = entity.Water,
                 InventoryTransport = entity.InventoryTransport,
+                StartTime = entity.StartTime,
+                EndTime = entity.EndTime,
+                Shift = entity.Shift,
             };
 
             // Link selected SubProfessions
@@ -92,14 +89,14 @@ namespace ForQab.Repository
 
             foreach (var expert in selectedExperts)
             {
-                exam.Experts.Add(expert); // Exam'a exam ekleme işlemi
+                exam.Experts.Add(expert); 
                 expert.AssignmentCount++;
             }
 
             await _context.SaveChangesAsync();
         }
 
-        public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors)
+        public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate)
         {
             var exam = await _context.Exams
                 .Include(e => e.Monitors)
@@ -108,17 +105,52 @@ namespace ForQab.Repository
             if (exam == null)
                 throw new ArgumentException("Exam not found");
 
-            var allMonitors = await _context.Monitors.Where(e => e.SectionId == exam.SectionId).ToListAsync();
+            var allMonitors = await _context.Monitors.Where(e => e.SectionId == exam.SectionId)
+                                                     .Where(e => e.Role == 2)
+                                                     .Where(e => e.Gender == genderId)
+                                                     .Where(e => e.BirthDate >= maxDate).ToListAsync();
 
             if (allMonitors.Count < numberOfMonitors)
                 throw new ArgumentException("Not enough exams available");
 
-            Random rng = new Random();
-            var shuffledMonitors = allMonitors.OrderBy(x => rng.Next()).Take(numberOfMonitors).ToList();
+            var selectedMonitors = allMonitors
+                                    .OrderBy(e => e.AssignmentCount) // En az atanmış olanları önce al
+                                    .Take(numberOfMonitors) // İstenen sayıda exam seç
+                                    .ToList();
 
-            foreach (var monitor in shuffledMonitors)
+            foreach (var monitor in selectedMonitors)
+            {
+                exam.Monitors.Add(monitor); 
+                monitor.AssignmentCount++;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+        public async Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate)
+        {
+            var exam = await _context.Exams
+                .Include(e => e.Monitors)
+                .FirstOrDefaultAsync(e => e.Id == examId);
+
+            if (exam == null)
+                throw new Exception("Exam not found");
+
+            var allMonitors = await _context.Monitors.Where(e => e.SectionId == exam.SectionId)
+                                                     .Where(e => e.Role == 1)
+                                                     .Where(e => e.Gender == genderId)
+                                                     .Where(e => e.BirthDate >= maxDate).ToListAsync();
+            if (allMonitors.Count < numberOfMonitors)
+                throw new Exception("Not enough exams available");
+
+            var selectedMonitors = allMonitors
+                                    .OrderBy(e => e.AssignmentCount) // En az atanmış olanları önce al
+                                    .Take(numberOfMonitors) // İstenen sayıda exam seç
+                                    .ToList();
+
+            foreach (var monitor in selectedMonitors)
             {
                 exam.Monitors.Add(monitor);
+                monitor.AssignmentCount++;
             }
 
             await _context.SaveChangesAsync();
@@ -166,7 +198,7 @@ namespace ForQab.Repository
                                    .Include(e => e.Experts)
                                    .Include(e => e.Monitors)
                                    .ToListAsync()
-            :    await _context.Exams
+            : await _context.Exams
                                    .Include(e => e.Section)
                                    .Include(e => e.ExamBulding)
                                    .Include(e => e.Commissions)
@@ -179,7 +211,7 @@ namespace ForQab.Repository
         public async Task<IEnumerable<SubProfession>> GetSubProfessionsBySectionIdAsync(int? sectionId)
         {
 
-             return _context.SubProfessions.Where(sp => sp.SectionId == sectionId).ToList();
+            return _context.SubProfessions.Where(sp => sp.SectionId == sectionId).ToList();
         }
 
         public async Task UpdateAsync(Exam entity)
@@ -205,63 +237,50 @@ namespace ForQab.Repository
 
         public async Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds)
         {
-            
-                var existingExam = await _context.Exams
-                .Include(e => e.Commissions)
-                .Include(e => e.ExamBulding)
-                .Include(e => e.Section)
-                .FirstOrDefaultAsync(e => e.Id == exam.Id);
 
-                if (existingExam == null)
-                    throw new ArgumentException("Exam not found");
-                if (existingExam != null)
+            var existingExam = await _context.Exams
+            .Include(e => e.Commissions)
+            .Include(e => e.ExamBulding)
+            .Include(e => e.Section)
+            .FirstOrDefaultAsync(e => e.Id == exam.Id);
+
+            if (existingExam == null)
+                throw new ArgumentException("Exam not found");
+            if (existingExam != null)
+            {
+                existingExam.Id = exam.Id;
+                existingExam.Name = exam.Name;
+                existingExam.InventoryTransport = exam.InventoryTransport;
+                existingExam.SectionId = exam.SectionId;
+                existingExam.ExamBuldingId = exam.ExamBuldingId;
+                existingExam.Duration = exam.Duration;
+                existingExam.Food = exam.Food;
+                existingExam.Notes = exam.Notes;
+                existingExam.Water = exam.Water;
+                existingExam.StartTime = exam.StartTime;
+                existingExam.EndTime = exam.EndTime;
+                existingExam.Shift = exam.Shift;
+
+                if (existingExam.Commissions != null)
                 {
-                    existingExam.Id = exam.Id;
-                    existingExam.Name = exam.Name;
-                    existingExam.InventoryTransport = exam.InventoryTransport;
-                    existingExam.SectionId = exam.SectionId;
-                    existingExam.ExamBuldingId = exam.ExamBuldingId;
-                    existingExam.Duration = exam.Duration;
-                    existingExam.Food = exam.Food;
-                    existingExam.Notes = exam.Notes;
-                    existingExam.Water = exam.Water;
-
-                    if (existingExam.Commissions != null)
+                    existingExam.Commissions.Clear();
+                }
+                if (exam.SelectedCommissions != null)
+                {
+                    foreach (var commissionId in exam.SelectedCommissions)
                     {
-                        existingExam.Commissions.Clear();
-                    }
-                    if (exam.SelectedCommissions != null)
-                    {
-                        foreach (var commissionId in exam.SelectedCommissions)
+                        var commissions = await _context.Commissions.FindAsync(commissionId);
+                        if (commissions != null)
                         {
-                            var commissions = await _context.Commissions.FindAsync(commissionId);
-                            if (commissions != null)
-                            {
-                                existingExam.Commissions.Add(commissions);
-                            }
+                            existingExam.Commissions.Add(commissions);
                         }
                     }
-
-                    _context.Exams.Update(existingExam);
-                    await _context.SaveChangesAsync();
                 }
+
+                _context.Exams.Update(existingExam);
+                await _context.SaveChangesAsync();
             }
-            
-        
-
-        //private async Task UpdateCommissionsAsync(Exam exam, int[] commissionIds)
-        //{
-        //    exam.Commissions.Clear();
-
-        //    if (commissionIds?.Any() == true)
-        //    {
-        //        var commissions = await _context.Commissions
-        //            .Where(c => commissionIds.Contains(c.Id))
-        //            .ToListAsync();
-
-        //        exam.Commissions.AddRange(commissions);
-        //    }
-        //}
+        }
         public async Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId)
         {
             if (sectionId == null)

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace ForQab.DataAccess.Models;
 
@@ -62,4 +59,13 @@ public partial class Exam
     [ForeignKey("ExamId")]
     [InverseProperty("Exams")]
     public virtual ICollection<Monitor> Monitors { get; set; } = new List<Monitor>();
+
+    [Column("shift")]
+    public byte? Shift { get; set; }
+
+    [Column("start_time")]
+    public TimeSpan? StartTime { get; set; }
+
+    [Column("end_time")]
+    public TimeSpan? EndTime { get; set; }
 }

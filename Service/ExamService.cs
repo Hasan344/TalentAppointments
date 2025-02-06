@@ -25,12 +25,10 @@ namespace ForQab.Service
         }
         public async Task<bool> AssignExpertsAsync(AssignExpertToExamViewModel model)
         {
-            // 1️⃣ Exam üzerinden SectionId al
             var sectionId = await _examRepository.GetSectionIdByExamIdAsync(model.ExamId);
             if (sectionId == null)
                 throw new Exception("İmtahan tapılmadı");
 
-            // 2️⃣ Tüm atamaları kontrol et
             foreach (var assignment in model.Assignments)
             {
                 if (assignment.SelectedSubProfessions == null || !assignment.SelectedSubProfessions.Any())
@@ -46,7 +44,6 @@ namespace ForQab.Service
                     );
             }
 
-            // 3️⃣ Ekspertleri ata
             foreach (var assignment in model.Assignments)
             {
                 await _examRepository.AssignRandomExpertsToExamAsync(
@@ -57,11 +54,15 @@ namespace ForQab.Service
         }
 
 
-        public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors)
+        public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate)
         {
-            await _examRepository.AssignRandomMonitorsToExamAsync(examId, numberOfMonitors);
+            await _examRepository.AssignRandomMonitorsToExamAsync(examId, numberOfMonitors, genderId, maxDate);
         }
 
+        public async Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate)
+        {
+            await _examRepository.AssignRandomHeadMonitorsToExamAsync(examId, numberOfMonitors, genderId, maxDate);
+        }
         public async Task DeleteExamAsync(int id)
         {
             await _examRepository.DeleteAsync(id);
