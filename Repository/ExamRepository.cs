@@ -116,8 +116,8 @@ namespace ForQab.Repository
                 throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
 
             var selectedMonitors = allMonitors
-                                    .OrderBy(e => e.AssignmentCount) // En az atanmış olanları önce al
-                                    .Take(numberOfMonitors) // İstenen sayıda exam seç
+                                    .OrderBy(e => e.AssignmentCount) 
+                                    .Take(numberOfMonitors)
                                     .ToList();
 
             foreach (var monitor in selectedMonitors)
@@ -147,8 +147,8 @@ namespace ForQab.Repository
                 throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
 
             var selectedMonitors = allMonitors
-                                    .OrderBy(e => e.AssignmentCount) // En az atanmış olanları önce al
-                                    .Take(numberOfMonitors) // İstenen sayıda exam seç
+                                    .OrderBy(e => e.AssignmentCount) 
+                                    .Take(numberOfMonitors) 
                                     .ToList();
 
             foreach (var monitor in selectedMonitors)

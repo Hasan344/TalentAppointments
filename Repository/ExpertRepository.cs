@@ -1,4 +1,5 @@
-﻿using ForQab.Data_Access.ViewModel;
+﻿using DocumentFormat.OpenXml.Office2016.Excel;
+using ForQab.Data_Access.ViewModel;
 using ForQab.Data_Access.ViewModel.Expert;
 using ForQab.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +52,8 @@ namespace ForQab.Repository
                 SSN = expertViewModel.SSN,
                 Rekvizit = expertViewModel.Rekvizit,
                 Voen = expertViewModel.Voen,
+                Gender = expertViewModel.Gender,
+                Federation = expertViewModel.Federation,
                 Kons = false
             };
 
@@ -95,6 +98,8 @@ namespace ForQab.Repository
                 existingExpert.FinCode = expert.FinCode;
                 existingExpert.Kons = false;
                 existingExpert.Voen = expert.Voen;
+                existingExpert.Gender = expert.Gender;
+                existingExpert.Federation = expert.Federation;
                 existingExpert.HesablashmaH = expert.HesablashmaH;
 
                 // SubProfessions yeniləməsi
@@ -189,6 +194,14 @@ namespace ForQab.Repository
                 return _context.Sections.ToList();
             }
             return _context.Sections.Where(s => s.Id == sectionId).ToList();
+        }
+        public async Task<List<Profession>> GetFederationsAsync(int? sectionId)
+        {
+            if (sectionId == null)
+            {
+                return _context.Professions.ToList();
+            }
+            return _context.Professions.Where(s => s.SectionId == sectionId).ToList();
         }
 
         public async Task<IEnumerable<SubProfession>> GetSubProfessionsAsync(int? sectionId)

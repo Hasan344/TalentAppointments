@@ -49,6 +49,15 @@
                     </select>
                     <span asp-validation-for="SectionId" class="text-danger"></span>
                 </div>
+
+                <div class="mb-3">
+                    <label asp-for="Gender" class="form-label">Cins</label>
+                    <select asp-for="Gender" class="form-select" asp-items="ViewBag.GenderList" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Cins Seçin</option>
+                    </select>
+                    <span asp-validation-for="Gender" class="text-danger"></span>
+                </div>
+
                 <div class="mb-3">
                     <input type="hidden" asp-for="Kons" value="False" />
                 </div>
@@ -94,9 +103,18 @@
                     <input asp-for="BankFilialCode" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="BankFilialCode" class="text-danger"></span>
                 </div>
+
+                <div class="mb-3">
+                    <label asp-for="Federation" class="form-label">Federasiya</label>
+                    <select asp-for="Federation" class="form-select" asp-items="ViewBag.FederationList" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Federasiya Seçin</option>
+                    </select>
+                    <span asp-validation-for="Federation" class="text-danger"></span>
+                </div>
+
                 <div class="mb-3">
                     <label class="form-label">Alt Peşələr</label>
-                    <select asp-for="SelectedSubProfessions" class="form-select" asp-items="Model.SubProfessions" multiple style="background-color: #23272a; color: #ffffff;">
+                    <select asp-for="SelectedSubProfessions" id="SelectedSubProfessions" class="form-select" multiple style="background-color: #23272a; color: #ffffff;">
                     </select>
                     <span asp-validation-for="SelectedSubProfessions" class="text-danger"></span>
                 </div>
@@ -122,3 +140,22 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#Federation").change(function () {
+            var federationId = $(this).val();
+            if (federationId) {
+                $.getJSON("/Expert/GetSubProfessionsByFederation", { federationId: federationId }, function (data) {
+                    var subProfessionDropdown = $("#SelectedSubProfessions");
+                    subProfessionDropdown.empty(); // Önce listeyi temizle
+                    $.each(data, function (index, item) {
+                        subProfessionDropdown.append(new Option(item.name, item.id));
+                    });
+                });
+            } else {
+                $("#SelectedSubProfessions").empty();
+            }
+        });
+    });
+</script>
