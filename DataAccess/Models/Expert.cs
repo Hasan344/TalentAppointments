@@ -74,8 +74,10 @@ public partial class Expert
     [Column("profession")]
     [StringLength(400)]
     public string? Profession { get; set; }
+
     [Column("gender")]
     public byte? Gender { get; set; }
+
     [ForeignKey("Gender")]
     [InverseProperty("Experts")]
     public virtual Gender? GenderNavigation { get; set; }
@@ -93,4 +95,10 @@ public partial class Expert
 
     [Column("AssignmentCount")]
     public int? AssignmentCount { get; set; }
+
+    [Column("federation")]
+    public int? Federation {  get; set; }
+
+    [ForeignKey("Federation")]
+    public virtual Profession? FederationNavigation { get; set; }
 }

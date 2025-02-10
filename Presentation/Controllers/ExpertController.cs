@@ -2,8 +2,6 @@
 using ForQab.Data_Access.ViewModel;
 using ForQab.Data_Access.ViewModel.Expert;
 using ForQab.DataAccess.Models;
-using ForQab.Migrations;
-using ForQab.Models;
 using ForQab.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -34,9 +32,11 @@ namespace ForQab.Presentation.Controllers
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
             var subProfessions = await _subProfessionService.GetAllSubProfessionsAsync(sectionId);
+            var federations = _context.Professions.ToList();
             var experts = await _expertService.GetExpertsBySectionIdAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, subProfessionId);
             ViewBag.SubProfessions = subProfessions;
             ViewBag.Genders = genders;
+            ViewBag.Federation = federations;
             ViewBag.Districts = districts;
             return View(experts);
         }
@@ -46,6 +46,7 @@ namespace ForQab.Presentation.Controllers
             var sectionId = await GetCurrentSectionIdAsync();
             var sections = await _expertService.GetSectionsAsync(sectionId);
             var subProfessions = await _expertService.GetSubProfessionsAsync(sectionId);
+            var federations = await _expertService.GetFederationsAsync(sectionId);
 
             var viewModel = new ExpertViewModel
             {
@@ -57,6 +58,8 @@ namespace ForQab.Presentation.Controllers
             };
 
             ViewBag.SectionList = new SelectList(sections, "Id", "Name");
+            ViewBag.GenderList = new SelectList(_context.Genders.ToList(), "Id", "Name");
+            ViewBag.FederationList = new SelectList(federations, "Id", "Name");
             return View(viewModel);
         }
         [HttpPost]
@@ -72,9 +75,12 @@ namespace ForQab.Presentation.Controllers
             // If ModelState is invalid, re-populate dropdown lists
             var sections = await _expertService.GetSectionsAsync(sectionId);
             var subProfessions = await _subProfessionService.GetAllSubProfessionsAsync(sectionId);
+            var federations = await _expertService.GetFederationsAsync(sectionId);
 
 
             ViewBag.SectionList = new SelectList(sections, "Id", "Name");
+            ViewBag.GenderList = new SelectList(_context.Genders.ToList(), "Id", "Name");
+            ViewBag.FederationList = new SelectList(federations, "Id", "Name");
             expertViewModel.SubProfessions = subProfessions.Select(sp => new SelectListItem
             {
                 Text = sp.Name,
@@ -88,6 +94,7 @@ namespace ForQab.Presentation.Controllers
         {
             var expert = await _expertService.GetExpertByIdAsync(id);
             var sectionId = await GetCurrentSectionIdAsync();
+            var federations = await _expertService.GetFederationsAsync(sectionId);
             if (expert == null)
             {
                 return NotFound();
@@ -117,6 +124,8 @@ namespace ForQab.Presentation.Controllers
                 Kons = false,
                 FinCode = expert.FinCode,
                 Profession = expert.Profession,
+                Gender = expert.Gender,
+                Federation = expert.Federation,
                 SelectedSubProfessions = expert.SubProfessions.Select(sp => sp.Id).ToArray(),
                 SubProfessions = allSubProfessions
                     .Select(sp => new SelectListItem
@@ -128,6 +137,8 @@ namespace ForQab.Presentation.Controllers
             };
 
             ViewData["SectionId"] = new SelectList(sections, "Id", "Name", expert.SectionId);
+            ViewBag.GenderList = new SelectList(_context.Genders.ToList(), "Id", "Name");
+            ViewBag.FederationList = new SelectList(federations, "Id", "Name");
             return View(viewModel);
         }
 
@@ -162,7 +173,11 @@ namespace ForQab.Presentation.Controllers
 
             var sectionId = await GetCurrentSectionIdAsync();
             var sections = await _expertService.GetSectionsAsync(sectionId);
+            var federations = await _expertService.GetFederationsAsync(sectionId);
+
             ViewData["SectionId"] = new SelectList(sections, "Id", "Name");
+            ViewBag.GenderList = new SelectList(_context.Genders.ToList(), "Id", "Name");
+            ViewBag.FederationList = new SelectList(federations, "Id", "Name");
             return View(expert);
         }
         [HttpGet]
@@ -340,6 +355,17 @@ namespace ForQab.Presentation.Controllers
 
             TempData["SuccessMessage"] = "Expert-lər uğurla idxal edildi.";
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSubProfessionsByFederation(int federationId)
+        {
+            var subProfessions = await _context.SubProfessions
+                .Where(sp => sp.ProfessionId == federationId) // Federation aslında Profession olduğu için bu ilişkiyi kullanıyoruz.
+                .Select(sp => new { sp.Id, sp.Name })
+                .ToListAsync();
+
+            return Json(subProfessions);
         }
 
     }

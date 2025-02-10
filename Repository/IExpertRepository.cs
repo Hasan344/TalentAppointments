@@ -17,9 +17,10 @@ namespace ForQab.Repository
         Task RemoveSubProfessionFromExpertAsync(int expertId, int subProfessionId);
         Task<IEnumerable<Expert>> SearchByNameAsync(string name);
         Task<List<Section>> GetSectionsAsync(int? sectionId);
+        Task<List<Profession>> GetFederationsAsync(int? sectionId);
         Task<IEnumerable<SubProfession>> GetSubProfessionsAsync(int? sectionId);
         Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId);
         Task<List<Expert>> GetAllAsync(int? sectionId, Expression<Func<Expert, bool>> exp = null, params string[] includes);
-        public Task BulkAddAsync(IEnumerable<Expert> experts);
+        Task BulkAddAsync(IEnumerable<Expert> experts);
     }
 }

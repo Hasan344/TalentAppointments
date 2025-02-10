@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace ForQab.DataAccess.Models;
 
@@ -26,4 +23,6 @@ public partial class Profession
 
     [InverseProperty("Profession")]
     public virtual ICollection<SubProfession> SubProfessions { get; set; } = new List<SubProfession>();
+    [InverseProperty("FederationNavigation")]
+    public virtual ICollection<Expert> Experts { get; set; } = new List<Expert>();
 }

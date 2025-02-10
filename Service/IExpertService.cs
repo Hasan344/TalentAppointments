@@ -16,6 +16,7 @@ namespace ForQab.Service
         Task RemoveSubProfessionFromExpertAsync(int expertId, int subProfessionId);
         Task<IEnumerable<Expert>> SearchExpertsByNameAsync(string name);
         Task<List<Section>> GetSectionsAsync(int? sectionId);
+        Task<List<Profession>> GetFederationsAsync(int? sectionId);
         Task<IEnumerable<SubProfession>> GetSubProfessionsAsync(int? sectionId);
         Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId);
         Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId);

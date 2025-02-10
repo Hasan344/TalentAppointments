@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using DocumentFormat.OpenXml.Drawing.Charts;
 
 namespace ForQab.Data_Access.ViewModel.Expert
 {
@@ -21,6 +22,8 @@ namespace ForQab.Data_Access.ViewModel.Expert
         public Boolean? Kons { get; set; }
         public string? FinCode { get; set; }
         public string? Profession { get; set; }
+        public int? Federation { get; set; }
+        public byte? Gender { get; set; }
         public List<SelectListItem>? SubProfessions { get; set; } // For dropdown list
         public int[]? SelectedSubProfessions { get; set; } // IDs of selected SubProfessions
     }
