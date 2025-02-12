@@ -242,6 +242,12 @@ namespace ForQab.Presentation.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        public async Task<IActionResult> MonitorLogs()
+        {
+            var logs = await _monitorService.GetMonitorLogsAsync();
+
+            return View(logs);
+        }
         private bool MonitorExists(int id)
         {
             return _context.Monitors.Any(e => e.Id == id);

@@ -213,6 +213,13 @@ namespace ForQab.Presentation.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        public async Task<IActionResult> HeadMonitorLogs()
+        {
+            var logs = await _headMonitorService.GetMonitorLogsAsync();
+
+            return View(logs);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ArchiveMonitor(int id, string archiveReason)

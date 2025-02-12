@@ -159,6 +159,11 @@ namespace ForQab.Repository
 
             await _context.SaveChangesAsync();
         }
+        public async Task AddMonitorLogAsync(MonitorLog log)
+        {
+            await _context.MonitorLogs.AddAsync(log);
+            await _context.SaveChangesAsync();
+        }
 
         public async Task DeleteAsync(int id)
         {

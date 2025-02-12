@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace ForQab.DataAccess.Models;
 
@@ -23,4 +20,7 @@ public partial class MonitorLog
     [ForeignKey("SupervisorId")]
     [InverseProperty("MonitorLogs")]
     public virtual Monitor Supervisor { get; set; } = null!;
+
+    [Column("kind")]
+    public byte Kind { get; set; }
 }

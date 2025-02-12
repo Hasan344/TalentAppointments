@@ -276,5 +276,9 @@ namespace ForQab.Service
 
             return query.Where(m => m.Archive==1).ToList();
         }
+        public async Task<IEnumerable<Monitor>> GetMonitorLogsAsync()
+        {
+            return await _monitorRepository.GetMonitorLogsAsync();
+        }
     }
 }

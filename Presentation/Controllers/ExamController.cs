@@ -463,6 +463,41 @@ namespace ForQab.Presentation.Controllers
             return View(model);
         }
 
+        public IActionResult WriteMonitorLog(int examId, int monitorId, byte kind)
+        {
+            var viewModel = new WriteMonitorLogViewModel
+            {
+                ExamId = examId,
+                MonitorId = monitorId,
+                Kind = 0, 
+                KindOptions = new List<SelectListItem>
+                {
+                    new SelectListItem { Value = "0", Text = "Gəlməyən haqqında qeyd" },
+                    new SelectListItem { Value = "1", Text = "Xaric olan haqqında qeyd" },
+                    new SelectListItem { Value = "2", Text = "Digər səbəblərlə bağlı qeyd" }
+                }
+            };
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> WriteMonitorLog(WriteMonitorLogViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Hata durumunda KindOptions listesini yeniden eklemeyi unutmayın.
+                model.KindOptions = new List<SelectListItem>
+                {
+                    new SelectListItem { Value = "0", Text = "Gəlməyən haqqında qeyd" },
+                    new SelectListItem { Value = "1", Text = "Xaric olan haqqında qeyd" },
+                    new SelectListItem { Value = "2", Text = "Digər səbəblərlə bağlı qeyd" }
+                };
+                return View(model);
+            }
+
+            await _examService.AddMonitorLogAsync(model);
+            return RedirectToAction("Details", new { id = model.ExamId });
+        }
 
 
         private async Task<int?> GetCurrentSectionIdAsync()

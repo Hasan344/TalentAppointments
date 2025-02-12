@@ -19,5 +19,6 @@ namespace ForQab.Repository
         public Task<int> GetAvailableHeadMonitorsCountAsync(int sectionId, int genderId, DateOnly maxDate);
         public Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds);
         public Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId);
+        Task AddMonitorLogAsync(MonitorLog log);
     }
 }
