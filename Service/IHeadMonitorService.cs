@@ -13,8 +13,9 @@ namespace ForQab.Service
         Task UpdateAsync(Monitor entity);
         Task DeleteAsync(int id);
         Task<List<Section>> GetSectionsAsync(int? sectionId);
-        public Task BulkAddAsync(IEnumerable<Monitor> monitors);
-        public Task<string> ImportFromExcelAsync(IFormFile excelFile);
-        public Task<byte[]> ExportToExcelAsync(int? sectionId);
+        Task BulkAddAsync(IEnumerable<Monitor> monitors);
+        Task<string> ImportFromExcelAsync(IFormFile excelFile);
+        Task<byte[]> ExportToExcelAsync(int? sectionId);
+        Task<IEnumerable<Monitor>> GetMonitorLogsAsync();
     }
 }

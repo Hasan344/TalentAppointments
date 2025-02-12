@@ -74,9 +74,19 @@
             <ul class="list-group">
                 @foreach (var expert in Model.Experts)
                 {
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>@expert.Name @expert.Surname -- @expert.FinCode</span>
-                        <a class="btn btn-sm btn-warning" asp-action="ChangeExpert" asp-route-examId="@Model.Id" asp-route-expertId="@expert.Id">
+                    <li class="list-group-item ">
+                        <div class="col-md-8">
+                            <h6 class="mb-0">
+                                @expert.Name @expert.Surname @expert.Fname
+                            </h6>
+                            <small class="text-muted">
+                                FinCode: @expert.FinCode
+                            </small>
+                        </div>
+                        <a class="btn btn-sm btn-outline-secondary mr-2"
+                           asp-action="ChangeExpert"
+                           asp-route-examId="@Model.Id"
+                           asp-route-monitorId="@expert.Id">
                             <i class="bi bi-pencil"></i> Dəyişdir
                         </a>
                     </li>
@@ -92,16 +102,41 @@
     <!-- Assigned Monitors Section -->
     <div class="mt-4">
         <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Nəzarətçilər</h4>
-        @if (Model.Monitors.Where(m => m.Role==2).Any())
+        @{
+            var monitors = Model.Monitors.Where(m => m.Role == 2);
+        }
+        @if (monitors.Any())
         {
-            <ul class="list-group">
-                @foreach (var monitor in Model.Monitors)
+            <ul class="list-group list-group-flush">
+                @foreach (var monitor in monitors)
                 {
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>@monitor.Name @monitor.Surname @monitor.Fname -- @monitor.FinCode</span>
-                        <a class="btn btn-sm btn-warning" asp-action="ChangeMonitor" asp-route-examId="@Model.Id" asp-route-monitorId="@monitor.Id">
-                            <i class="bi bi-pencil"></i> Dəyişdir
-                        </a>
+                    <li class="list-group-item">
+                        <div class="row align-items-center">
+                            <!-- Monitor bilgileri -->
+                            <div class="col-md-8">
+                                <h6 class="mb-0">
+                                    @monitor.Name @monitor.Surname @monitor.Fname
+                                </h6>
+                                <small class="text-muted">
+                                    FinCode: @monitor.FinCode
+                                </small>
+                            </div>
+                            <!-- İşlem butonları -->
+                            <div class="col-md-4 text-md-right mt-2 mt-md-0">
+                                <a class="btn btn-sm btn-outline-secondary mr-2"
+                                   asp-action="ChangeMonitor"
+                                   asp-route-examId="@Model.Id"
+                                   asp-route-monitorId="@monitor.Id">
+                                    <i class="bi bi-pencil"></i> Dəyişdir
+                                </a>
+                                <a class="btn btn-sm btn-outline-primary"
+                                   asp-action="WriteMonitorLog"
+                                   asp-route-examId="@Model.Id"
+                                   asp-route-monitorId="@monitor.Id">
+                                    <i class="bi bi-chat"></i> Xüsusi qeyd yaz
+                                </a>
+                            </div>
+                        </div>
                     </li>
                 }
             </ul>
@@ -115,16 +150,41 @@
     <!-- Assigned Head Monitors Section -->
     <div class="mt-4">
         <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş İmtahan rəhbərləri</h4>
-        @if (Model.Monitors.Where(m => m.Role == 1).Any())
+        @{
+            var headMonitors = Model.Monitors.Where(m => m.Role == 1);
+        }
+        @if (headMonitors.Any())
         {
-            <ul class="list-group">
-                @foreach (var monitor in Model.Monitors)
+            <ul class="list-group list-group-flush">
+                @foreach (var monitor in headMonitors)
                 {
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>@monitor.Name @monitor.Surname @monitor.Fname -- @monitor.FinCode</span>
-                        <a class="btn btn-sm btn-warning" asp-action="ChangeHeadMonitor" asp-route-examId="@Model.Id" asp-route-monitorId="@monitor.Id">
-                            <i class="bi bi-pencil"></i> Dəyişdir
-                        </a>
+                    <li class="list-group-item">
+                        <div class="row align-items-center">
+                            <!-- Monitor bilgileri -->
+                            <div class="col-md-8">
+                                <h6 class="mb-0">
+                                    @monitor.Name @monitor.Surname @monitor.Fname
+                                </h6>
+                                <small class="text-muted">
+                                    FinCode: @monitor.FinCode
+                                </small>
+                            </div>
+                            <!-- İşlem butonları -->
+                            <div class="col-md-4 text-md-right mt-2 mt-md-0">
+                                <a class="btn btn-sm btn-outline-secondary mr-2"
+                                   asp-action="ChangeHeadMonitor"
+                                   asp-route-examId="@Model.Id"
+                                   asp-route-monitorId="@monitor.Id">
+                                    <i class="bi bi-pencil"></i> Dəyişdir
+                                </a>
+                                <a class="btn btn-sm btn-outline-primary"
+                                   asp-action="WriteMonitorLog"
+                                   asp-route-examId="@Model.Id"
+                                   asp-route-monitorId="@monitor.Id">
+                                    <i class="bi bi-chat"></i> Xüsusi qeyd yaz
+                                </a>
+                            </div>
+                        </div>
                     </li>
                 }
             </ul>
@@ -134,6 +194,7 @@
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir İmtahan rəhbəri təyin edilməyib.</p>
         }
     </div>
+
 
     <!-- Action Buttons -->
     <div class="text-center mt-4">

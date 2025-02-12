@@ -1,4 +1,5 @@
 ﻿
+using DocumentFormat.OpenXml.InkML;
 using ForQab.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -35,6 +36,14 @@ namespace ForQab.Repository
                 }
             }
             return query;
+        }
+
+        public async Task<IEnumerable<Monitor>> GetMonitorLogsAsync()
+        {
+            return await _dbContext.Monitors
+                        .Include(ml => ml.MonitorLogs)
+                        .Where(ml => ml.Role == 2 && ml.MonitorLogs.Any())
+                        .ToListAsync();
         }
     }
 }

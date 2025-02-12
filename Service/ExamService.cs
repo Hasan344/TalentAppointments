@@ -52,7 +52,17 @@ namespace ForQab.Service
 
             return true;
         }
+        public async Task AddMonitorLogAsync(WriteMonitorLogViewModel model)
+        {
+            MonitorLog log = new MonitorLog
+            {
+                SupervisorId = model.MonitorId,
+                Note = model.Note,
+                Kind = model.Kind
+            };
 
+            await _examRepository.AddMonitorLogAsync(log);
+        }
 
         public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate)
         {

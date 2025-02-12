@@ -38,5 +38,12 @@ namespace ForQab.Repository
             }
             return query;
         }
+        public async Task<IEnumerable<Monitor>> GetMonitorLogsAsync()
+        {
+            return await _dbContext.Monitors
+                        .Include(m => m.MonitorLogs)
+                        .Where(m => m.Role == 1 && m.MonitorLogs.Any())
+                        .ToListAsync();
+        }
     }
 }
