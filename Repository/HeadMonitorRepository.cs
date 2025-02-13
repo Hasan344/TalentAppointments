@@ -45,5 +45,12 @@ namespace ForQab.Repository
                         .Where(m => m.Role == 1 && m.MonitorLogs.Any())
                         .ToListAsync();
         }
+        public async Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId)
+        {
+            return await _dbContext.Monitors
+                        .Include(ml => ml.MonitorLogs)
+                        .Where(ml => ml.Id == monitorId)
+                        .ToListAsync();
+        }
     }
 }

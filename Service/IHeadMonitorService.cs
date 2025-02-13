@@ -17,5 +17,6 @@ namespace ForQab.Service
         Task<string> ImportFromExcelAsync(IFormFile excelFile);
         Task<byte[]> ExportToExcelAsync(int? sectionId);
         Task<IEnumerable<Monitor>> GetMonitorLogsAsync();
+        Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId);
     }
 }

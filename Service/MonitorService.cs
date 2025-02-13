@@ -280,5 +280,9 @@ namespace ForQab.Service
         {
             return await _monitorRepository.GetMonitorLogsAsync();
         }
+        public async Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId)
+        {
+            return await _monitorRepository.GetMonitorLogsBySupervisorIdAsync(monitorId);
+        }
     }
 }
