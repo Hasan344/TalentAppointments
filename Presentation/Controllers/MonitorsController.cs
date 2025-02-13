@@ -248,6 +248,18 @@ namespace ForQab.Presentation.Controllers
 
             return View(logs);
         }
+        public async Task<IActionResult> MonitorLog(int monitorId)
+        {
+            var logs = await _monitorService.GetMonitorLogsBySupervisorIdAsync(monitorId);
+
+            var monitor = await _context.Monitors.FindAsync(monitorId);
+            if (monitor == null)
+            {
+                return NotFound();
+            }
+
+            return View(logs);
+        }
         private bool MonitorExists(int id)
         {
             return _context.Monitors.Any(e => e.Id == id);
