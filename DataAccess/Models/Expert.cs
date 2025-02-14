@@ -101,4 +101,7 @@ public partial class Expert
 
     [ForeignKey("Federation")]
     public virtual Profession? FederationNavigation { get; set; }
+
+    [InverseProperty("Expert")]
+    public virtual ICollection<ExpertLog> ExpertLogs { get; set; } = new List<ExpertLog>();
 }

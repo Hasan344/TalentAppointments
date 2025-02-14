@@ -117,5 +117,17 @@ namespace ForQab.Service
         {
            return await _examRepository.GetCommissionsAsync(sectionId);
         }
+
+        public async Task AddExpertLogAsync(WriteExpertLogsViewModel model)
+        {
+            ExpertLog log = new ExpertLog
+            {
+                ExpertId = model.ExpertId,
+                Note = model.Note,
+                Kind = model.Kind
+            };
+
+            await _examRepository.AddExpertLogAsync(log);
+        }
     }
 }

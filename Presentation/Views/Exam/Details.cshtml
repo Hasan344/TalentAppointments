@@ -27,9 +27,9 @@
 
                 <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Komissiya:</dt>
                 <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">
-                    @if (Model.Commissions != null && Model.Commissions.Any())
+                    @if (Model.ExamCommissions != null && Model.ExamCommissions.Any())
                     {
-                        @string.Join(", ", Model.Commissions.Select(sp => sp.Name))
+                        @string.Join(", ", Model.ExamCommissions.Select(sp => sp.Commission.Name))
                     }
                     else
                     {
@@ -69,33 +69,46 @@
     <!-- Assigned Experts Section -->
     <div class="mt-4">
         <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Ekspertlər</h4>
-        @if (Model.Experts.Any())
+        @{
+            var experts = Model.Experts;
+        }
+        @if (experts.Any())
         {
-            <ul class="list-group">
-                @foreach (var expert in Model.Experts)
+            <ul class="list-group list-group-flush">
+                @foreach (var expert in experts)
                 {
-                    <li class="list-group-item ">
-                        <div class="col-md-8">
-                            <h6 class="mb-0">
-                                @expert.Name @expert.Surname @expert.Fname
-                            </h6>
-                            <small class="text-muted">
-                                FinCode: @expert.FinCode
-                            </small>
+                    <li class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h6 class="mb-0">
+                                    @expert.Name @expert.Surname @expert.Fname
+                                </h6>
+                                <small class="text-muted">
+                                    FinCode: @expert.FinCode
+                                </small>
+                            </div>
+                            <div class="col-md-4 text-md-right mt-2 mt-md-0">
+                                <a class="btn btn-sm btn-outline-secondary mr-2"
+                                   asp-action="ChangeExpert"
+                                   asp-route-examId="@Model.Id"
+                                   asp-route-monitorId="@expert.Id">
+                                    <i class="bi bi-pencil"></i> Dəyişdir
+                                </a>
+                                <a class="btn btn-sm btn-outline-primary"
+                                   asp-action="WriteExpertLog"
+                                   asp-route-examId="@Model.Id"
+                                   asp-route-monitorId="@expert.Id">
+                                    <i class="bi bi-chat"></i> Xüsusi qeyd yaz
+                                </a>
+                            </div>
                         </div>
-                        <a class="btn btn-sm btn-outline-secondary mr-2"
-                           asp-action="ChangeExpert"
-                           asp-route-examId="@Model.Id"
-                           asp-route-monitorId="@expert.Id">
-                            <i class="bi bi-pencil"></i> Dəyişdir
-                        </a>
                     </li>
                 }
             </ul>
         }
         else
         {
-            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir ekspert təyin edilməyib.</p>
+            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nəzarətçi təyin edilməyib.</p>
         }
     </div>
 
