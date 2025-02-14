@@ -157,4 +157,14 @@ public class ExpertService : IExpertService
     {
         await _expertRepository.BulkAddAsync(experts);
     }
+
+    public async Task<IEnumerable<Expert>> GetExpertLogsAsync()
+    {
+        return await _expertRepository.GetExpertLogsAsync();
+    }
+
+    public async Task<IEnumerable<Expert>> GetExpertLogsByExpertIdAsync(int expertId)
+    {
+        return await _expertRepository.GetExpertLogsByExpertIdAsync(expertId);
+    }
 }

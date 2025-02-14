@@ -47,10 +47,8 @@ public partial class Exam
     [ForeignKey("SectionId")]
     [InverseProperty("Exams")]
     public virtual Section? Section { get; set; } = null!;
+    public virtual ICollection<ExamCommission> ExamCommissions { get; set; } = new List<ExamCommission>();
 
-    [ForeignKey("Exam_Id")]
-    [InverseProperty("Exams")]
-    public virtual ICollection<Commission> Commissions { get; set; } = new List<Commission>();
 
     [ForeignKey("ExamId")]
     [InverseProperty("Exams")]

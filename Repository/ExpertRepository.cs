@@ -244,5 +244,21 @@ namespace ForQab.Repository
             await _context.Set<Expert>().AddRangeAsync(experts);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<Expert>> GetExpertLogsAsync()
+        {
+            return await _context.Experts
+                        .Include(xl => xl.ExpertLogs)
+                        .Where(xl => xl.ExpertLogs.Any())
+                        .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Expert>> GetExpertLogsByExpertIdAsync(int expertId)
+        {
+            return await _context.Experts
+                        .Include(xl => xl.ExpertLogs)
+                        .Where(xl => xl.Id == expertId)
+                        .ToListAsync();
+        }
     }
 }

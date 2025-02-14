@@ -20,5 +20,6 @@ namespace ForQab.Repository
         public Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds);
         public Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId);
         Task AddMonitorLogAsync(MonitorLog log);
+        Task AddExpertLogAsync(ExpertLog logs);
     }
 }

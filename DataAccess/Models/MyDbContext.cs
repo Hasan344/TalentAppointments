@@ -6,16 +6,13 @@ namespace ForQab.DataAccess.Models;
 
 public partial class MyDbContext : DbContext
 {
-    private readonly IConfiguration _configuration;
-    public MyDbContext(IConfiguration configuration)
+    public MyDbContext()
     {
-        _configuration = configuration;
     }
 
-    public MyDbContext(DbContextOptions<MyDbContext> options, IConfiguration configuration)
+    public MyDbContext(DbContextOptions<MyDbContext> options)
         : base(options)
     {
-        _configuration = configuration;
     }
 
     public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
@@ -40,7 +37,13 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<ExamBuilding> ExamBuildings { get; set; }
 
+    public virtual DbSet<ExamCommission> ExamCommissions { get; set; }
+
+    public virtual DbSet<ExamSubCommission> ExamSubCommissions { get; set; }
+
     public virtual DbSet<Expert> Experts { get; set; }
+
+    public virtual DbSet<ExpertLog> ExpertLogs { get; set; }
 
     public virtual DbSet<Gender> Genders { get; set; }
 
@@ -62,13 +65,9 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    
-
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        var connectionString = _configuration.GetConnectionString("DefaultConnection");
-        optionsBuilder.UseSqlServer(connectionString);
-    }
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=HASANI-PC\\SQLEXPRESS;Database=ForQab;Integrated Security=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -78,25 +77,8 @@ public partial class MyDbContext : DbContext
                 .IsUnique()
                 .HasFilter("([NormalizedName] IS NOT NULL)");
         });
-        modelBuilder.Entity<Exam>()
-            .HasMany(e => e.Commissions)
-            .WithMany(c => c.Exams)
-            .UsingEntity<Dictionary<string, object>>(
-                "Exam_Commission",
-                j => j.HasOne<Commission>().WithMany().HasForeignKey("Commission_Id"),
-                j => j.HasOne<Exam>().WithMany().HasForeignKey("Exam_Id"),
-                j => j.ToTable("Exam_Commissions"));
 
-        //modelBuilder.Entity<Exam>()
-        //    .HasMany(e => e.SubCommissions)
-        //    .WithMany(sc => sc.Exams)
-        //    .UsingEntity<Dictionary<string, object>>(
-        //        "ExamSubCommission",
-        //        j => j.HasOne<SubCommission>().WithMany().HasForeignKey("SubCommissionId"),
-        //        j => j.HasOne<Exam>().WithMany().HasForeignKey("ExamId"),
-        //        j => j.ToTable("ExamSubCommissions"));
-    
-    modelBuilder.Entity<AspNetUser>(entity =>
+        modelBuilder.Entity<AspNetUser>(entity =>
         {
             entity.HasIndex(e => e.NormalizedUserName, "UserNameIndex")
                 .IsUnique()
@@ -114,6 +96,21 @@ public partial class MyDbContext : DbContext
                         j.HasIndex(new[] { "RoleId" }, "IX_AspNetUserRoles_RoleId");
                     });
         });
+        modelBuilder.Entity<ExamCommission>()
+        .ToTable("Exam_Commissions"); // Tablo adını doğru belirtin
+
+        modelBuilder.Entity<ExamCommission>()
+            .HasKey(ec => new { ec.ExamId, ec.CommissionId }); // Composite key tanımlayın
+
+        modelBuilder.Entity<ExamCommission>()
+            .HasOne(ec => ec.Exam)
+            .WithMany(e => e.ExamCommissions)
+            .HasForeignKey(ec => ec.ExamId);
+
+        modelBuilder.Entity<ExamCommission>()
+            .HasOne(ec => ec.Commission)
+            .WithMany(c => c.ExamCommissions)
+            .HasForeignKey(ec => ec.CommissionId);
 
         modelBuilder.Entity<Commission>(entity =>
         {
@@ -133,9 +130,7 @@ public partial class MyDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__district__3213E83F8DDCBF8C");
 
-            entity.HasOne(d => d.Region).WithMany(p => p.Districts)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__districts__regio__0E6E26BF");
+            entity.HasOne(d => d.Region).WithMany(p => p.Districts).HasConstraintName("FK__districts__regio__0E6E26BF");
         });
 
         modelBuilder.Entity<Exam>(entity =>
@@ -149,7 +144,6 @@ public partial class MyDbContext : DbContext
             entity.HasOne(d => d.Section).WithMany(p => p.Exams)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__exams__section_i__56E8E7AB");
-
 
             entity.HasMany(d => d.Experts).WithMany(p => p.Exams)
                 .UsingEntity<Dictionary<string, object>>(
@@ -167,6 +161,11 @@ public partial class MyDbContext : DbContext
                         j.HasKey("ExamId", "ExpertId");
                         j.ToTable("Exam_Experts");
                     });
+
+
+            
+
+
 
             entity.HasMany(d => d.Monitors).WithMany(p => p.Exams)
                 .UsingEntity<Dictionary<string, object>>(
@@ -199,6 +198,14 @@ public partial class MyDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__experts__3213E83FCCBE8A03");
 
+            entity.Property(e => e.AssignmentCount).HasDefaultValue(0);
+
+            entity.HasOne(d => d.DistrictNavigation).WithMany(p => p.Experts).HasConstraintName("FK__districts_experts");
+
+            entity.HasOne(d => d.FederationNavigation).WithMany(p => p.Experts).HasConstraintName("FK__expert_federation");
+
+            entity.HasOne(d => d.GenderNavigation).WithMany(p => p.Experts).HasConstraintName("FK__monitor_experts");
+
             entity.HasOne(d => d.Section).WithMany(p => p.Experts).HasConstraintName("FK_Experts_Sections");
 
             entity.HasMany(d => d.SubProfessions).WithMany(p => p.Experts)
@@ -219,6 +226,15 @@ public partial class MyDbContext : DbContext
                         j.IndexerProperty<int>("ExpertId").HasColumnName("expert_id");
                         j.IndexerProperty<int>("SubProfessionId").HasColumnName("sub_profession_id");
                     });
+        });
+
+        modelBuilder.Entity<ExpertLog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_expert_log_id");
+
+            entity.HasOne(d => d.Expert).WithMany(p => p.ExpertLogs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_expert_logs_1");
         });
 
         modelBuilder.Entity<Gender>(entity =>
@@ -289,13 +305,9 @@ public partial class MyDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__sub_prof__3213E83F14C802DD");
 
-            entity.HasOne(d => d.Profession).WithMany(p => p.SubProfessions)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Professions_Sub_Professions");
+            entity.HasOne(d => d.Profession).WithMany(p => p.SubProfessions).HasConstraintName("FK_Professions_Sub_Professions");
 
-            entity.HasOne(d => d.Section).WithMany(p => p.SubProfessions)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Sub_Professions_Sections");
+            entity.HasOne(d => d.Section).WithMany(p => p.SubProfessions).HasConstraintName("FK_Sub_Professions_Sections");
         });
 
         modelBuilder.Entity<User>(entity =>

@@ -220,6 +220,24 @@ namespace ForQab.Presentation.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+        public async Task<IActionResult> ExpertLogs()
+        {
+            var logs = await _expertService.GetExpertLogsAsync();
+
+            return View(logs);
+        }
+        public async Task<IActionResult> ExpertLog(int expertId)
+        {
+            var logs = await _expertService.GetExpertLogsByExpertIdAsync(expertId);
+
+            var expert = await _context.Experts.FindAsync(expertId);
+            if (expert == null)
+            {
+                return NotFound();
+            }
+
+            return View(logs);
+        }
 
         private bool ExpertExists(int id)
         {

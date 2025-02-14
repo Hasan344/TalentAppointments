@@ -305,10 +305,10 @@ namespace ForQab.Presentation.Controllers
                 Shift = exam.Shift,
                 StartTime = exam.StartTime,
                 EndTime = exam.EndTime,
-                SelectedCommissions = exam.Commissions?.Select(ec => ec.Id).ToArray(),
+                SelectedCommissions = exam.ExamCommissions?.Select(ec => ec.CommissionId).ToArray(), // CommissionId'leri al
                 Commissions = (await _examService.GetCommissionsAsync(sectionId))
-                    .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
-                    .ToList()
+                .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
+                .ToList()
             };
 
             return View(viewModel); // Pass the correct view model
@@ -496,6 +496,41 @@ namespace ForQab.Presentation.Controllers
             }
 
             await _examService.AddMonitorLogAsync(model);
+            return RedirectToAction("Details", new { id = model.ExamId });
+        }
+        public IActionResult WriteExpertLog(int examId, int expertId, byte kind)
+        {
+            var viewModel = new WriteExpertLogsViewModel
+            {
+                ExamId = examId,
+                ExpertId = expertId,
+                Kind = 0,
+                KindOptions = new List<SelectListItem>
+                {
+                    new SelectListItem { Value = "0", Text = "Gəlməyən haqqında qeyd" },
+                    new SelectListItem { Value = "1", Text = "Xaric olan haqqında qeyd" },
+                    new SelectListItem { Value = "2", Text = "Digər səbəblərlə bağlı qeyd" }
+                }
+            };
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> WriteExpertLog(WriteExpertLogsViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Hata durumunda KindOptions listesini yeniden eklemeyi unutmayın.
+                model.KindOptions = new List<SelectListItem>
+                {
+                    new SelectListItem { Value = "0", Text = "Gəlməyən haqqında qeyd" },
+                    new SelectListItem { Value = "1", Text = "Xaric olan haqqında qeyd" },
+                    new SelectListItem { Value = "2", Text = "Digər səbəblərlə bağlı qeyd" }
+                };
+                return View(model);
+            }
+
+            await _examService.AddExpertLogAsync(model);
             return RedirectToAction("Details", new { id = model.ExamId });
         }
 

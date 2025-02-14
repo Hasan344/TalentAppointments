@@ -42,12 +42,12 @@
                     <td>@Html.DisplayFor(modelItem => item.Water)</td>
                     <td>@Html.DisplayFor(modelItem => item.Food)</td>
                         <td>
-                            @if (item.Commissions != null && item.Commissions.Any())
+                            @if (item.ExamCommissions != null && item.ExamCommissions.Any())
                             {
                                 <ul class="list-unstyled mb-0">
-                                    @foreach (var commission in item.Commissions)
+                                    @foreach (var commission in item.ExamCommissions)
                                     {
-                                        <li>@commission.Name</li>
+                                        <li>@commission.Commission.Name</li>
                                     }
                                 </ul>
                             }
