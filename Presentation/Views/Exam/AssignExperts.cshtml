@@ -2,83 +2,69 @@
 @model AssignExpertToExamViewModel
 
 <link rel="stylesheet" href="~/css/expert/Edit.css" asp-append-version="true" />
-<h2>İmtahana ekspert təyin et : @ViewBag.ExamName</h2>
 
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-4 p-4">
+        <h2 class="mb-4 text-center text-dark fw-bold">İmtahana Ekspert Təyin Et</h2>
+        <h4 class="text-center text-muted">@ViewBag.ExamName</h4>
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
-}
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger text-center">@TempData["ErrorMessage"]</div>
+        }
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success text-center">@TempData["SuccessMessage"]</div>
+        }
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
-}
+        <form asp-action="AssignExperts" method="post" id="assignForm">
+            <input type="hidden" asp-for="ExamId" />
+            <input type="hidden" asp-for="SectionId" />
 
-<form asp-action="AssignExperts" method="post" id="assignForm">
-    <input type="hidden" asp-for="ExamId" />
-    <input type="hidden" asp-for="SectionId" />
-
-    <div id="expertContainer">
-        <div class="expert-form">
-            <div class="form-group">
-                <label>Number of Experts</label>
-                <input type="number" name="Assignments[0].NumberOfExperts" class="form-control" value="1" required />
-                <span asp-validation-for="Assignments[0].NumberOfExperts" class="text-danger"></span>
+            <div id="expertContainer">
+                <div class="expert-form row mb-3 p-3 bg-light rounded-3 shadow-sm">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Ekspert sayı</label>
+                        <input type="number" name="Assignments[0].NumberOfExperts" class="form-control" value="1" required />
+                        <span asp-validation-for="Assignments[0].NumberOfExperts" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Sub-Professions</label>
+                        <select name="Assignments[0].SelectedSubProfessions" class="form-select multiple-modern-select" multiple required>
+                            @foreach (var sp in Model.SubProfessions)
+                            {
+                                <option value="@sp.Value">@sp.Text</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Assignments[0].SelectedSubProfessions" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Sub-Professions</label>
-                <select name="Assignments[0].SelectedSubProfessions" class="form-select multiple-modern-select" multiple required>
-                    @foreach (var sp in Model.SubProfessions)
-                    {
-                        <option value="@sp.Value">@sp.Text</option>
-                    }
-                </select>
-                <span asp-validation-for="Assignments[0].SelectedSubProfessions" class="text-danger"></span>
-            </div>
-        </div>
-    </div>
 
-    <button type="button" id="addExpertBtn" class="btn btn-secondary">+</button>
-    <button type="submit" class="btn btn-primary">Ekspert təyin et</button>
-</form>
+            <div class="mt-4 d-flex justify-content-center gap-3">
+                <button type="button" id="addExpertBtn" class="btn btn-outline-success px-4 py-2">Yeni Ekspert +</button>
+                <button type="submit" class="btn btn-primary px-4 py-2">Ekspert Təyin Et</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
     document.getElementById('addExpertBtn').addEventListener('click', function () {
         var container = document.getElementById('expertContainer');
-        var forms = container.children; // Mevcut form sayısını al
-        var newForm = container.firstElementChild.cloneNode(true); // İlk formu klonla
-        var newIndex = forms.length; // Yeni formun index'i
+        var forms = container.children;
+        var newForm = container.firstElementChild.cloneNode(true);
+        var newIndex = forms.length;
 
-        // Yeni formdaki tüm input ve select alanlarının name attribute'larını güncelle
         Array.from(newForm.querySelectorAll('[name]')).forEach(function (input) {
             var name = input.getAttribute('name');
             if (name) {
                 var updatedName = name.replace(/\[\d+\]/, `[${newIndex}]`);
                 input.setAttribute('name', updatedName);
             }
-            if (input.tagName === 'SELECT') {
-                input.value = null; // Select içeriğini sıfırla
-            } else {
-                input.value = ''; // Input içeriğini sıfırla
-            }
+            input.value = '';
         });
 
-        container.appendChild(newForm); // Yeni formu ekle
-    });
-</script>
-<script>
-    document.querySelector("form").addEventListener("submit", function (event) {
-        var assignedCount = parseInt(document.getElementById("AssignedMonitorsCount").value);
-        var availableCount = parseInt(document.getElementById("AvailableMonitorsCount").value);
-
-        if (assignedCount > availableCount) {
-            alert("Təyin etmək istədiyiniz Nəzarətçi sayı mövcud nəzarətçi sayını aşır!");
-            event.preventDefault(); // Formun gönderilmesini engelle
-        }
+        container.appendChild(newForm);
     });
 </script>
