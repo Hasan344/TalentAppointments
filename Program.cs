@@ -37,6 +37,8 @@ builder.Services.AddScoped<IKonsRepository, KonsRepository>();
 builder.Services.AddScoped<IKonsService, KonsService>();
 builder.Services.AddScoped<INaturaService, NaturaService>();
 builder.Services.AddScoped<INaturaRepository, NaturaRepository>();
+builder.Services.AddScoped<IWorkerService, WorkerService>();
+builder.Services.AddScoped<IWorkerRepository, WorkerRepository>();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireNonAlphanumeric = false;

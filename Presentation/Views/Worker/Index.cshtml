@@ -9,11 +9,11 @@
 
 <div class="container mt-5">
     <!-- Page Title -->
-    <h1 class="text-center mb-4 ">Arxivlənmiş Naturaçılar</h1>
+    <h1 class="text-center mb-4 ">İşçi İdarəetməsi</h1>
 
     <!-- Create New Monitor Button -->
     <div class="mb-4 text-end">
-
+        
         <div class="mb-2">
             <a class="btn btn-sm btn-success shadow-sm" asp-action="Create">
                 <i class="bi bi-plus-circle"></i> Yenisini yarat
@@ -21,8 +21,11 @@
             <a class="btn btn-sm btn-primary shadow-sm" asp-action="ExportToExcel">
                 <i class="bi bi-file-earmark-excel"></i> Excel'ə çıxarış
             </a>
-            <a class="btn btn-sm btn-primary shadow-sm" asp-action="Index">
-                <i class="bi bi-file-earmark"></i> Geri
+            <a class="btn btn-sm btn-primary shadow-sm" asp-action="Archived">
+                <i class="bi bi-file-earmark"></i> Arxivə keçid
+            </a>
+            <a class="btn btn-sm btn-primary shadow-sm" asp-action="MonitorLogs">
+                <i class="bi bi-file-earmark"></i> Xüsusi qeydlərə keçid
             </a>
             <form method="get" class="d-flex align-items-center gap-2 flex-wrap">
                 <!-- Search by Name -->
@@ -89,70 +92,66 @@
 
 
 
-        <!-- Table with Bordered and Modern Design -->
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover shadow-sm sticky-header">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Ad</th>
-                        <th>Soyad</th>
-                        <th>Ata adı</th>
-                        <th>Cins</th> @*
-                        <th>Rol</th>
-                        <th>Vəsiqə nömrəsi</th> *@
-                        <th>Doğum tarixi</th>
-                        <th>Peşə</th>
-                        <th>İş yeri</th>
-                        @* <th>Vəzifə</th> *@
-                        <th>Ev telefonu</th>
-                        <th>İş telefonu</th>
-                        <th>FİN Kodu</th>
-                        <th>Seriya</th>
-                        <th>Bölmə</th>
-                        <th>Rayon</th>
-                        <th>Əməliyyatlar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr class="align-middle">
-                            <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Surname)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Fname)</td>
-                            <td>@Html.DisplayFor(modelItem => item.GenderNavigation.Name)</td>@*
+    <!-- Table with Bordered and Modern Design -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover shadow-sm sticky-header">
+            <thead class="table-dark">
+                <tr>
+                    <th>Ad</th>
+                    <th>Soyad</th>
+                    <th>Ata adı</th>
+                    <th>Cins</th> @* 
+                    <th>Rol</th> 
+                    <th>Vəsiqə nömrəsi</th> *@
+                    <th>Doğum tarixi</th>
+                    <th>Peşə</th>
+                    <th>İş yeri</th>
+                    @* <th>Vəzifə</th> *@
+                    <th>Ev telefonu</th>
+                    <th>İş telefonu</th>
+                    <th>FİN Kodu</th>
+                    <th>Seriya</th>
+                    <th>Bölmə</th>
+                    <th>Rayon</th>
+                    <th>Əməliyyatlar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                        <tr class="align-middle @(item.Status == 1 ? "table-danger" : "")">
+                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Surname)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Fname)</td>
+                        <td>@Html.DisplayFor(modelItem => item.GenderNavigation.Name)</td>@* 
                         <td>@Html.DisplayFor(modelItem => item.RoleNavigation.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.VNum)</td> *@
-                            <td>@Html.DisplayFor(modelItem => item.BirthDate)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Profession)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Workplace)</td>@*
+                        <td>@Html.DisplayFor(modelItem => item.BirthDate)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Profession)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Workplace)</td>@* 
                         <td>@Html.DisplayFor(modelItem => item.Position)</td> *@
-                            <td>@Html.DisplayFor(modelItem => item.TelEv)</td>
-                            <td>@Html.DisplayFor(modelItem => item.TelIs)</td>
-                            <td>@Html.DisplayFor(modelItem => item.FinCode)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Serial)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Section.Name)</td>
-                            <td>@Html.DisplayFor(modelItem => item.DistrictNavigation.Name)</td>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <a class="btn btn-outline-warning btn-sm p-1" asp-action="Edit" asp-route-id="@item.Id">
-                                        <i class="bi bi-pencil-square" style="font-size: 0.75rem;"></i> Düzəliş
-                                    </a>
-                                    <a class="btn btn-outline-info btn-sm p-1" asp-action="Details" asp-route-id="@item.Id">
-                                        <i class="bi bi-eye" style="font-size: 0.75rem;"></i> Detallar
-                                    </a>
-                                    <form asp-action="RestoreMonitor" method="post">
-                                        <input type="hidden" name="id" value="@item.Id" />
-                                        <button type="submit" class="btn btn-danger btn-sm p-1">
-                                            <i class="bi bi-arrow-counterclockwise"></i> Arxivdən çıxar
-                                        </button>
-                                    </form>
-
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                        <td>@Html.DisplayFor(modelItem => item.TelEv)</td>
+                        <td>@Html.DisplayFor(modelItem => item.TelIs)</td>
+                        <td>@Html.DisplayFor(modelItem => item.FinCode)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Serial)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Section.Name)</td>
+                        <td>@Html.DisplayFor(modelItem => item.DistrictNavigation.Name)</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a class="btn btn-outline-warning btn-sm p-1" asp-action="Edit" asp-route-id="@item.Id">
+                                    <i class="bi bi-pencil-square" style="font-size: 0.75rem;"></i> Düzəliş
+                                </a>
+                                <a class="btn btn-outline-info btn-sm p-1" asp-action="Details" asp-route-id="@item.Id">
+                                    <i class="bi bi-eye" style="font-size: 0.75rem;"></i> Detallar
+                                </a>
+                                <a class="btn btn-outline-danger btn-sm p-1" asp-action="Delete" asp-route-id="@item.Id">
+                                    <i class="bi bi-trash" style="font-size: 0.75rem;"></i> Sil
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
+</div>

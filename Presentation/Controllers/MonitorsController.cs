@@ -80,17 +80,30 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Monitor monitor)
         {
-            var validator = new MonitorValidator();
+            var validator = new HeadMonitorValidator();
             var result = validator.Validate(monitor);
+
             if (!result.IsValid)
             {
+                // FluentValidation hatalarını ModelState’e ekleyelim ki View içinde gösterilebilsin.
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+
+                // Hatalarla birlikte tekrar View’a döneceğiz.
+                await LoadViewData(monitor);
                 return View(monitor);
             }
+
             if (ModelState.IsValid)
             {
                 await _monitorService.AddAsync(monitor);
+                TempData["SuccessMessage"] = "İmtahan rəhbəri uğurla əlavə edildi.";
                 return RedirectToAction(nameof(Index));
             }
+
+            // Model geçersizse, sayfayı tekrar doldur ve hata mesajlarını göster.
             await LoadViewData(monitor);
             return View(monitor);
         }
