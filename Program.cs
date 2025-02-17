@@ -35,6 +35,8 @@ builder.Services.AddScoped<IExamBuildingRepository, ExamBuildingRepository>();
 builder.Services.AddScoped<IExamBuildingService, ExamBuildingService>();
 builder.Services.AddScoped<IKonsRepository, KonsRepository>();
 builder.Services.AddScoped<IKonsService, KonsService>();
+builder.Services.AddScoped<INaturaService, NaturaService>();
+builder.Services.AddScoped<INaturaRepository, NaturaRepository>();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireNonAlphanumeric = false;
