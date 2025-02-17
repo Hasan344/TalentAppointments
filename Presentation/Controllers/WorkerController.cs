@@ -1,4 +1,6 @@
-﻿using ForQab.DataAccess.Models;
+﻿using DocumentFormat.OpenXml.Math;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using ForQab.DataAccess.Models;
 using ForQab.Presentation.Validators;
 using ForQab.Service;
 using Microsoft.AspNetCore.Identity;
@@ -276,11 +278,11 @@ namespace ForQab.Presentation.Controllers
             var user = await _userManager.GetUserAsync(User);
             return user?.SectionId != null ? user.SectionId : null;
         }
-        public async Task<IActionResult> ExportToExcel()
+        public async Task<IActionResult> ExportToExcel(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var fileContent = await _workerService.ExportToExcelAsync(sectionId);
-            return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "İmtahan rəhbərləri.xlsx");
+            var fileContent = await _workerService.ExportToExcelAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
+            return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Digər işçilər.xlsx");
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
