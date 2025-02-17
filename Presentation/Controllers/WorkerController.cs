@@ -9,15 +9,14 @@ using Monitor = ForQab.DataAccess.Models.Monitor;
 
 namespace ForQab.Presentation.Controllers
 {
-    public class NaturaController : BaseController
-        
+    public class WorkerController : BaseController
     {
-        private readonly INaturaService _naturaService;
+        private readonly IWorkerService _workerService;
         private readonly UserManager<ApplicationUser> _userManager;
-        public NaturaController(MyDbContext context, UserManager<ApplicationUser> userManager, INaturaService naturaService) : base(context, userManager)
+        public WorkerController(MyDbContext context, UserManager<ApplicationUser> userManager, IWorkerService workerService) : base(context, userManager)
         {
             _userManager = userManager;
-            _naturaService = naturaService;
+            _workerService = workerService;
         }
 
         public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
@@ -25,7 +24,7 @@ namespace ForQab.Presentation.Controllers
             var currentUserSection = await GetCurrentSectionIdAsync();
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
-            var model = await _naturaService.GetAllAsync(currentUserSection, searchName, genderId, finCode, serial, district, startYear, endYear);
+            var model = await _workerService.GetAllAsync(currentUserSection, searchName, genderId, finCode, serial, district, startYear, endYear);
             ViewBag.Genders = genders;
             ViewBag.Districts = districts;
             return View(model);
@@ -33,7 +32,7 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var model = await _naturaService.GetAllArchivedAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
+            var model = await _workerService.GetAllArchivedAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
 
@@ -44,7 +43,7 @@ namespace ForQab.Presentation.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
-            var monitor = await _naturaService.GetByIdAsync(id);
+            var monitor = await _workerService.GetByIdAsync(id);
             if (monitor == null)
             {
                 return NotFound();
@@ -60,7 +59,7 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> Create()
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var sections = await _naturaService.GetSectionsAsync(sectionId);
+            var sections = await _workerService.GetSectionsAsync(sectionId);
             ViewBag.SectionList = new SelectList(sections, "Id", "Name");
             ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
             ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name");
@@ -93,7 +92,7 @@ namespace ForQab.Presentation.Controllers
 
             if (ModelState.IsValid)
             {
-                await _naturaService.AddAsync(monitor);
+                await _workerService.AddAsync(monitor);
                 TempData["SuccessMessage"] = "İmtahan rəhbəri uğurla əlavə edildi.";
                 return RedirectToAction(nameof(Index));
             }
@@ -106,7 +105,7 @@ namespace ForQab.Presentation.Controllers
         // GET: Monitors/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var monitor = await _naturaService.GetByIdAsync(id);
+            var monitor = await _workerService.GetByIdAsync(id);
             if (monitor == null)
             {
                 return NotFound();
@@ -135,7 +134,7 @@ namespace ForQab.Presentation.Controllers
             {
                 try
                 {
-                    await _naturaService.UpdateAsync(monitor);
+                    await _workerService.UpdateAsync(monitor);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -157,7 +156,7 @@ namespace ForQab.Presentation.Controllers
         // GET: Monitors/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-            var monitor = await _naturaService.GetByIdAsync(id);
+            var monitor = await _workerService.GetByIdAsync(id);
             if (monitor == null)
             {
                 return NotFound();
@@ -175,10 +174,10 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var monitor = await _naturaService.GetByIdAsync(id);
+            var monitor = await _workerService.GetByIdAsync(id);
             if (monitor != null)
             {
-                await _naturaService.DeleteAsync(id);
+                await _workerService.DeleteAsync(id);
             }
             return RedirectToAction(nameof(Index));
         }
@@ -186,7 +185,7 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ArchiveMonitor(int id, string archiveReason)
         {
-            var monitor = await _naturaService.GetByIdAsync(id);
+            var monitor = await _workerService.GetByIdAsync(id);
             if (monitor == null)
             {
                 return NotFound();
@@ -195,16 +194,16 @@ namespace ForQab.Presentation.Controllers
             // Monitor'ü arşive al
             monitor.Archive = 1;
             monitor.ArchiveReason = archiveReason;
-            await _naturaService.UpdateAsync(monitor);
+            await _workerService.UpdateAsync(monitor);
 
-            TempData["SuccessMessage"] = "Natura arxivə göndərildi.";
+            TempData["SuccessMessage"] = "İşçi arxivə göndərildi.";
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RestoreMonitor(int id)
         {
-            var monitor = await _naturaService.GetByIdAsync(id);
+            var monitor = await _workerService.GetByIdAsync(id);
             if (monitor == null)
             {
                 return NotFound();
@@ -213,16 +212,16 @@ namespace ForQab.Presentation.Controllers
             // Monitor'ü arşive al
             monitor.Archive = 0;
             monitor.ArchiveReason = null;
-            await _naturaService.UpdateAsync(monitor);
+            await _workerService.UpdateAsync(monitor);
 
-            TempData["SuccessMessage"] = "Natura arxivdən çıxarıldı.";
+            TempData["SuccessMessage"] = "İşçi arxivdən çıxarıldı.";
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeStatus(int id, string statusReason)
         {
-            var monitor = await _naturaService.GetByIdAsync(id);
+            var monitor = await _workerService.GetByIdAsync(id);
             if (monitor == null)
             {
                 return NotFound();
@@ -230,7 +229,7 @@ namespace ForQab.Presentation.Controllers
 
             monitor.Status = 1;
             monitor.StatusReason = statusReason;
-            await _naturaService.UpdateAsync(monitor);
+            await _workerService.UpdateAsync(monitor);
 
             return RedirectToAction(nameof(Index));
         }
@@ -238,7 +237,7 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RestoreStatus(int id)
         {
-            var monitor = await _naturaService.GetByIdAsync(id);
+            var monitor = await _workerService.GetByIdAsync(id);
             if (monitor == null)
             {
                 return NotFound();
@@ -246,19 +245,19 @@ namespace ForQab.Presentation.Controllers
 
             monitor.Status = 0;
             monitor.StatusReason = null;
-            await _naturaService.UpdateAsync(monitor);
+            await _workerService.UpdateAsync(monitor);
 
             return RedirectToAction(nameof(Index));
         }
         public async Task<IActionResult> MonitorLogs()
         {
-            var logs = await _naturaService.GetMonitorLogsAsync();
+            var logs = await _workerService.GetMonitorLogsAsync();
 
             return View(logs);
         }
         public async Task<IActionResult> MonitorLog(int monitorId)
         {
-            var logs = await _naturaService.GetMonitorLogsBySupervisorIdAsync(monitorId);
+            var logs = await _workerService.GetMonitorLogsBySupervisorIdAsync(monitorId);
 
             var monitor = await _context.Monitors.FindAsync(monitorId);
             if (monitor == null)
@@ -280,21 +279,21 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> ExportToExcel()
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var fileContent = await _naturaService.ExportToExcelAsync(sectionId);
+            var fileContent = await _workerService.ExportToExcelAsync(sectionId);
             return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "İmtahan rəhbərləri.xlsx");
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ImportFromExcel(IFormFile excelFile)
         {
-            var message = await _naturaService.ImportFromExcelAsync(excelFile);
+            var message = await _workerService.ImportFromExcelAsync(excelFile);
             TempData["SuccessMessage"] = message;
             return RedirectToAction(nameof(Index));
         }
         private async Task LoadViewData(Monitor monitor)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var sections = await _naturaService.GetSectionsAsync(sectionId);
+            var sections = await _workerService.GetSectionsAsync(sectionId);
 
             ViewBag.SectionList = new SelectList(sections, "Id", "Name");
             ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name", monitor.Gender);
