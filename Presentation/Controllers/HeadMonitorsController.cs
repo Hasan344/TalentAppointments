@@ -309,10 +309,10 @@ namespace ForQab.Presentation.Controllers
             var user = await _userManager.GetUserAsync(User);
             return user?.SectionId != null ? user.SectionId : null;
         }
-        public async Task<IActionResult> ExportToExcel()
+        public async Task<IActionResult> ExportToExcel(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var fileContent = await _headMonitorService.ExportToExcelAsync(sectionId);
+            var fileContent = await _headMonitorService.ExportToExcelAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
             return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "İmtahan rəhbərləri.xlsx");
         }
         [HttpPost]

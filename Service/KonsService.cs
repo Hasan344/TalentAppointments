@@ -40,7 +40,7 @@ namespace ForQab.Service
             //var includes = new string[] { "DistrictNavigation", "SubProfessions", "Section", "GenderNavigation" };
 
             var query = await _konsRepository.GetAllAsync(sectionId);
-            if (genderId.HasValue && genderId > 0)
+            if (genderId.HasValue)
             {
                 query = query.Where(m => m.Gender == genderId.Value).ToList();
             }

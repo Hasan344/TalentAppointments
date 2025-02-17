@@ -1,4 +1,6 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Math;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using ForQab.DataAccess.Models;
 using ForQab.Repository;
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +44,7 @@ namespace ForQab.Service
 
                 var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
                 var query = await _naturaRepository.GetAllAsync(sectionId, 3, null, includes);
-                if (genderId.HasValue && genderId > 0)
+                if (genderId.HasValue)
                 {
                     query = query.Where(m => m.Gender == genderId.Value).ToList();
                 }
@@ -165,13 +167,35 @@ namespace ForQab.Service
 
                 return "HeadMonitor-lər uğurla idxal edildi.";
             }
-            public async Task<byte[]> ExportToExcelAsync(int? sectionId)
+            public async Task<byte[]> ExportToExcelAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
             {
                 var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
 
                 var monitors = await _naturaRepository.GetAllAsync(sectionId, 2, null, includes);
 
-                var dt = new DataTable("Monitors");
+            if (genderId.HasValue)
+                monitors = monitors.Where(m => m.Gender == genderId.Value).ToList();
+
+            if (!string.IsNullOrEmpty(searchName))
+                monitors = monitors.Where(m => m.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase) ||
+                                               m.Surname.Contains(searchName, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (!string.IsNullOrEmpty(finCode))
+                monitors = monitors.Where(m => m.FinCode.Contains(finCode, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (!string.IsNullOrEmpty(serial))
+                monitors = monitors.Where(m => m.Serial.Contains(serial, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (district.HasValue && district > 0)
+                monitors = monitors.Where(m => m.District == district.Value).ToList();
+
+            if (startYear.HasValue)
+                monitors = monitors.Where(m => m.BirthDate.HasValue && m.BirthDate.Value.Year >= startYear.Value).ToList();
+
+            if (endYear.HasValue)
+                monitors = monitors.Where(m => m.BirthDate.HasValue && m.BirthDate.Value.Year <= endYear.Value).ToList();
+
+            var dt = new DataTable("Monitors");
                 dt.Columns.AddRange(new DataColumn[]
                 {
                 new DataColumn("Ad"),
