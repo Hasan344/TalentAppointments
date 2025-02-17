@@ -59,6 +59,18 @@
                 </div>
 
                 <div class="mb-3">
+                    <input type="hidden" asp-for="Status" value="0" />
+                </div>
+
+                <div class="mb-3">
+                    <input type="hidden" asp-for="AssignmentCount" value="0" />
+                </div>
+
+                <div class="mb-3">
+                    <input type="hidden" asp-for="Archive" value="0" />
+                </div>
+
+                <div class="mb-3">
                     <label asp-for="VNum" class="form-label">Vəsiqə Nömrəsi</label>
                     <input asp-for="VNum" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="VNum" class="text-danger"></span>

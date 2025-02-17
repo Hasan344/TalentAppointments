@@ -1,54 +1,54 @@
 ﻿@using ForQab.DataAccess.ViewModel.Exam
 @model AssignMonitorsToExamViewModel
 
-<h2>İmtahana rəhbər nəzarətçi təyin et: @ViewBag.ExamName</h2>
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-4 p-4">
+        <h2 class="mb-4 text-center text-dark fw-bold">İmtahana Rəhbər Nəzarətçi Təyin Et</h2>
+        <h4 class="text-center text-muted">@ViewBag.ExamName</h4>
 
-@if (!ViewData.ModelState.IsValid)
-{
-    <div class="alert alert-danger">
-        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        @if (!ViewData.ModelState.IsValid)
         {
-            <p>@error.ErrorMessage</p>
+            <div class="alert alert-danger text-center">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <p>@error.ErrorMessage</p>
+                }
+            </div>
         }
-    </div>
-}
 
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
-}
+        <form asp-action="AssignHeadMonitors" method="post">
+            <input type="hidden" asp-for="ExamId" />
+            <input type="hidden" asp-for="SectionId" />
 
-<form asp-action="AssignHeadMonitors" method="post">
-    <input type="hidden" asp-for="ExamId" />
-    <input type="hidden" asp-for="SectionId" />
-
-    <div id="headMonitorContainer">
-        <div class="headmonitor-form">
-            <div class="form-group">
-                <label>Gender</label>
-                <select name="Assignments[0].GenderId" class="form-control">
-                    <option value="0">Qadın</option>
-                    <option value="1">Kişi</option>
-                </select>
+            <div id="headMonitorContainer">
+                <div class="headmonitor-form row mb-3 p-3 bg-light rounded-3 shadow-sm">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Cinsiyyət</label>
+                        <select name="Assignments[0].GenderId" class="form-select">
+                            <option value="0">Qadın</option>
+                            <option value="1">Kişi</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Maksimum Tarix</label>
+                        <input type="date" name="Assignments[0].MaxDate" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Nəzarətçi sayı</label>
+                        <input type="number" name="Assignments[0].NumberOfMonitors" class="form-control" required />
+                        <span asp-validation-for="Assignments[0].NumberOfMonitors" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Maksimum Tarix</label>
-                <input type="date" name="Assignments[0].MaxDate" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label>Number of Monitors</label>
-                <input type="number" name="Assignments[0].NumberOfMonitors" class="form-control" required />
-                <span asp-validation-for="Assignments[0].NumberOfMonitors" class="text-danger"></span>
-            </div>
-        </div>
-    </div>
 
-    <button type="button" id="addHeadMonitorBtn" class="btn btn-secondary">+</button>
-    <button type="submit" class="btn btn-primary">Nəzarətçi təyin et</button>
-</form>
+            <div class="mt-4 d-flex justify-content-center gap-3">
+                <button type="button" id="addHeadMonitorBtn" class="btn btn-outline-success px-4 py-2">Yeni Nəzarətçi +</button>
+                <button type="submit" class="btn btn-primary px-4 py-2">Nəzarətçi Təyin Et</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
     document.getElementById('addHeadMonitorBtn').addEventListener('click', function () {
@@ -63,11 +63,7 @@
                 var updatedName = name.replace(/\[\d+\]/, `[${newIndex}]`);
                 input.setAttribute('name', updatedName);
             }
-            if (input.tagName === 'SELECT') {
-                input.selectedIndex = -1;
-            } else {
-                input.value = '';
-            }
+            input.value = '';
         });
 
         container.appendChild(newForm);

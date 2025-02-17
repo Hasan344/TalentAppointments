@@ -82,7 +82,8 @@ namespace ForQab.Repository
             // SubProfessions ile ilgili uzmanları filtrele
             var experts = await _context.Experts
                 .Where(e => e.SectionId == exam.SectionId &&
-                            e.SubProfessions.Any(sp => selectedSubProfessions.Contains(sp.Id)))
+                            e.SubProfessions.Any(sp => selectedSubProfessions.Contains(sp.Id)) &&
+                            !exam.Experts.Contains(e)) // Bu sınavda zaten atanmış uzmanları dışarıda bırak
                 .ToListAsync();
 
             if (experts.Count < numberOfExperts)
@@ -92,9 +93,9 @@ namespace ForQab.Repository
 
             // Random seçilen uzmanları ilişkilendirme
             var selectedExperts = experts
-        .OrderBy(e => e.AssignmentCount) // En az atanmış olanları önce al
-        .Take(numberOfExperts) // İstenen sayıda exam seç
-        .ToList();
+                .OrderBy(e => e.AssignmentCount) // En az atanmış olanları önce al
+                .Take(numberOfExperts) // İstenen sayıda exam seç
+                .ToList();
 
             foreach (var expert in selectedExperts)
             {
@@ -105,29 +106,36 @@ namespace ForQab.Repository
             await _context.SaveChangesAsync();
         }
 
+
         public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate)
         {
             var exam = await _context.Exams
-                .Include(e => e.Monitors)
+                .Include(e => e.Monitors) // Mevcut nəzarətçiləri yüklə
                 .FirstOrDefaultAsync(e => e.Id == examId);
 
             if (exam == null)
                 throw new ArgumentException("Exam not found");
 
-            var allMonitors = await _context.Monitors.Where(e => e.SectionId == exam.SectionId)
-                                                     .Where(e => e.Role == 2)
-                                                     .Where(e => e.Gender == genderId)
-                                                     .Where(e => e.BirthDate >= maxDate)
-                                                     .Where(e => e.Status == 0)
-                                                     .Where(e => e.Archive == 0).ToListAsync();
+            // Zaten atanmış nəzarətçilerin Id'lerini belirleyin
+            var alreadyAssignedMonitorIds = exam.Monitors.Select(m => m.Id).ToHashSet();
 
-            if (allMonitors.Count < numberOfMonitors)
+            // Uygun ve daha önce atanmış olmayan nəzarətçiləri al
+            var availableMonitors = await _context.Monitors
+                .Where(e => e.SectionId == exam.SectionId)
+                .Where(e => e.Role == 2)
+                .Where(e => e.Gender == genderId)
+                .Where(e => e.BirthDate >= maxDate)
+                .Where(e => e.Status == 0)
+                .Where(e => e.Archive == 0)
+                .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id)) // Daha önce atanmışları çıkar
+                .OrderBy(e => e.AssignmentCount) // Daha az atanmışları önceliklendir
+                .ToListAsync();
+
+            if (availableMonitors.Count < numberOfMonitors)
                 throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
 
-            var selectedMonitors = allMonitors
-                                    .OrderBy(e => e.AssignmentCount)
-                                    .Take(numberOfMonitors)
-                                    .ToList();
+            // Belirlenen sayıda nəzarətçiyi seç
+            var selectedMonitors = availableMonitors.Take(numberOfMonitors).ToList();
 
             foreach (var monitor in selectedMonitors)
             {
@@ -137,6 +145,7 @@ namespace ForQab.Repository
 
             await _context.SaveChangesAsync();
         }
+
         public async Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate)
         {
             var exam = await _context.Exams
@@ -146,15 +155,22 @@ namespace ForQab.Repository
             if (exam == null)
                 throw new Exception("Exam not found");
 
+            var alreadyAssignedMonitorIds = exam.Monitors.Select(m => m.Id).ToHashSet();
+
+            // Head Monitors için uygun olanları al
             var allMonitors = await _context.Monitors.Where(e => e.SectionId == exam.SectionId)
                                                      .Where(e => e.Role == 1)
                                                      .Where(e => e.Gender == genderId)
                                                      .Where(e => e.BirthDate >= maxDate)
                                                      .Where(e => e.Status == 0)
-                                                     .Where(e => e.Archive == 0).ToListAsync();
+                                                     .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id))
+                                                     .Where(e => e.Archive == 0)
+                                                     .ToListAsync();
+
             if (allMonitors.Count < numberOfMonitors)
                 throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
 
+            // Baş Monitorları sıraya koy
             var selectedMonitors = allMonitors
                                     .OrderBy(e => e.AssignmentCount)
                                     .Take(numberOfMonitors)
@@ -168,6 +184,7 @@ namespace ForQab.Repository
 
             await _context.SaveChangesAsync();
         }
+
         public async Task AddMonitorLogAsync(MonitorLog log)
         {
             await _context.MonitorLogs.AddAsync(log);
