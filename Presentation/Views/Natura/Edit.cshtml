@@ -1,0 +1,121 @@
+﻿@model ForQab.DataAccess.Models.Monitor
+
+@{
+    ViewData["Title"] = "Düzəliş";
+}
+
+<div class="container py-4" style="background-color: #2c2f33; border-radius: 10px; color: #ffffff;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="text-center mb-4">@ViewData["Title"]</h1>
+            <h4 class="text-center mb-3">Nəzarətçiyə düzəliş</h4>
+            <hr style="border-color: #7289da;" />
+
+            <form asp-action="Edit" method="post" class="p-4">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label" style="font-weight: 500;">Ad</label>
+                    <input asp-for="Name" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" required />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Surname" class="form-label" style="font-weight: 500;">Soyad</label>
+                    <input asp-for="Surname" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" required />
+                    <span asp-validation-for="Surname" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Fname" class="form-label" style="font-weight: 500;">Ata adı</label>
+                    <input asp-for="Fname" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <span asp-validation-for="Fname" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Region" class="form-label" style="font-weight: 500;">Region</label>
+                    <input asp-for="Region" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <span asp-validation-for="Region" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SectionId" class="form-label">Bölmə</label>
+                    <select asp-for="SectionId" class="form-select" asp-items="ViewBag.SectionList" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Bölmə Seçin</option>
+                    </select>
+                    <span asp-validation-for="SectionId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Gender" class="form-label" style="font-weight: 500;">Cins</label>
+                    <input asp-for="Gender" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <span asp-validation-for="Gender" class="text-danger"></span>
+                </div>
+
+               @*  <div class="mb-3">
+                    <label asp-for="Role" class="form-label" style="font-weight: 500;">Vəzifə</label>
+                    <input asp-for="Role" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <span asp-validation-for="Role" class="text-danger"></span>
+                </div> *@
+
+
+                <div class="mb-3">
+                    <label asp-for="BirthDate" class="form-label">Doğum tarixi</label>
+                    <input asp-for="BirthDate" type="date" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <span asp-validation-for="BirthDate" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SSN" class="form-label">SSN</label>
+                    <input asp-for="SSN" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <span asp-validation-for="SSN" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Rekvizit" class="form-label">Rekvizit</label>
+                    <input asp-for="Rekvizit" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <span asp-validation-for="Rekvizit" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Voen" class="form-label">VÖEN</label>
+                    <input asp-for="Voen" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <span asp-validation-for="Voen" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="BankFilial" class="form-label">Bank Filialı</label>
+                    <input asp-for="BankFilial" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <span asp-validation-for="BankFilial" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="BankFilialCode" class="form-label">Bank Filial kodu</label>
+                    <input asp-for="BankFilialCode" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <span asp-validation-for="BankFilialCode" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="District" class="form-label" style="font-weight: 500;">Rayon</label>
+                    <select asp-for="District" class="form-select" asp-items="ViewBag.District" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;">
+                        <option value="" disabled selected>Seçin...</option>
+                    </select>
+                    <span asp-validation-for="District" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary" style="border-radius: 6px;">Geri</a>
+                    <button type="submit" class="btn btn-primary" style="border-radius: 6px;">Yadda saxla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
