@@ -167,4 +167,9 @@ public class ExpertService : IExpertService
     {
         return await _expertRepository.GetExpertLogsByExpertIdAsync(expertId);
     }
+
+    public async Task DeleteExpertLogs(int? id)
+    {
+        await _expertRepository.DeleteExpertLogs(id);
+    }
 }

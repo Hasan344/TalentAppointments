@@ -260,5 +260,17 @@ namespace ForQab.Repository
                         .Where(xl => xl.Id == expertId)
                         .ToListAsync();
         }
+
+        public async Task DeleteExpertLogs(int? id)
+        {
+            var log = await _context.ExpertLogs.FindAsync(id);
+            if (log == null)
+            {
+                throw new InvalidOperationException("Log yoxdur");
+            }
+            else
+                _context.ExpertLogs.Remove(log);
+                _context.SaveChanges();
+        }
     }
 }

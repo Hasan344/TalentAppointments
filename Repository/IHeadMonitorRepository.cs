@@ -4,9 +4,10 @@ namespace ForQab.Repository
 {
     public interface IHeadMonitorRepository : IBaseRepository<Monitor>
     {
-        public Task<List<Monitor>> GetAllAsync(int? sectionId, int? role, Expression<Func<Monitor, bool>> exp = null, params string[] includes);
-        public Task BulkAddAsync(IEnumerable<Monitor> monitors);
+        Task<List<Monitor>> GetAllAsync(int? sectionId, int? role, Expression<Func<Monitor, bool>> exp = null, params string[] includes);
+        Task BulkAddAsync(IEnumerable<Monitor> monitors);
         Task<IEnumerable<Monitor>> GetMonitorLogsAsync();
         Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId);
+        Task DeleteMonitorLogs(int? id);
     }
 }

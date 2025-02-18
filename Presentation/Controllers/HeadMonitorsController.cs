@@ -333,5 +333,17 @@ namespace ForQab.Presentation.Controllers
             ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name", monitor.Role);
             ViewData["District"] = new SelectList(_context.Districts, "Id", "Name", monitor.District);
         }
+        [HttpPost]
+        public async Task<IActionResult> DeleteLogs(int id)
+        {
+            var log = await _context.MonitorLogs.FindAsync(id);
+            if (log == null)
+            {
+                return NotFound();
+            }
+            await _headMonitorService.DeleteMonitorLogs(id);
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

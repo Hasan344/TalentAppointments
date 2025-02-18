@@ -1,6 +1,4 @@
 ﻿using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Math;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using ForQab.DataAccess.Models;
 using ForQab.Repository;
 using Microsoft.EntityFrameworkCore;
@@ -21,12 +19,12 @@ namespace ForQab.Service
             _context = context;
         }
 
-        public async Task AddAsync(DataAccess.Models.Monitor entity)
+        public async Task AddAsync(Monitor entity)
         {
             await _headMonitorRepository.AddAsync(entity);
         }
 
-        public async Task BulkAddAsync(IEnumerable<DataAccess.Models.Monitor> monitors)
+        public async Task BulkAddAsync(IEnumerable<Monitor> monitors)
         {
             await _headMonitorRepository.BulkAddAsync(monitors);
         }
@@ -35,14 +33,14 @@ namespace ForQab.Service
         {
             await _headMonitorRepository.DeleteAsync(id);
         }
-        public async Task<IEnumerable<DataAccess.Models.Monitor>> GetAllAsync(int? sectionId)
+        public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId)
         {
 
             var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
             var query = await _headMonitorRepository.GetAllAsync(sectionId, 1, null, includes);
             return await _headMonitorRepository.GetAllAsync(sectionId, 1, null, includes);
         }
-        public async Task<IEnumerable<DataAccess.Models.Monitor>> GetAllAsync(int? sectionId,string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId,string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
             var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
 
@@ -82,7 +80,7 @@ namespace ForQab.Service
             return query.Where(h => h.Archive==0).ToList();
         }
 
-        public async Task<DataAccess.Models.Monitor> GetByIdAsync(int id)
+        public async Task<Monitor> GetByIdAsync(int id)
         {
             return await _headMonitorRepository.GetByIdAsync(id);
         }
@@ -92,7 +90,7 @@ namespace ForQab.Service
             return await _headMonitorRepository.GetSectionsAsync(sectionId);
         }
 
-        public async Task UpdateAsync(DataAccess.Models.Monitor entity)
+        public async Task UpdateAsync(Monitor entity)
         {
             await _headMonitorRepository.UpdateAsync(entity);
         }
@@ -306,6 +304,11 @@ namespace ForQab.Service
         public async Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId)
         {
             return await _headMonitorRepository.GetMonitorLogsBySupervisorIdAsync(monitorId);
+        }
+
+        public async Task DeleteMonitorLogs(int? id)
+        {
+            await _headMonitorRepository.DeleteMonitorLogs(id);
         }
     }
 }

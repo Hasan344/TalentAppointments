@@ -52,5 +52,17 @@ namespace ForQab.Repository
                         .Where(ml => ml.Id == monitorId)
                         .ToListAsync();
         }
+
+        public async Task DeleteMonitorLogs(int? id)
+        {
+            var log = await _dbContext.MonitorLogs.FindAsync(id);
+            if (log == null) 
+            {
+                throw new InvalidOperationException("Log yoxdur");
+            }
+            else
+            _dbContext.MonitorLogs.Remove(log);
+            _dbContext.SaveChanges();
+        }
     }
 }

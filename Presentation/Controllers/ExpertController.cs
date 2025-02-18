@@ -379,11 +379,26 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> GetSubProfessionsByFederation(int federationId)
         {
             var subProfessions = await _context.SubProfessions
-                .Where(sp => sp.ProfessionId == federationId) // Federation aslında Profession olduğu için bu ilişkiyi kullanıyoruz.
+                .Where(sp => sp.ProfessionId == federationId) 
                 .Select(sp => new { sp.Id, sp.Name })
                 .ToListAsync();
 
             return Json(subProfessions);
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteLogs(int id)
+        {
+            var monitor = await _expertService.GetExpertByIdAsync(id);
+            if (monitor == null)
+            {
+                return NotFound();
+            }
+            if (!await IsSectionValidAsync<Expert>(id))
+            {
+                return Forbid();
+            }
+            await _expertService.DeleteExpertLogs(id);
+            return RedirectToAction(nameof(Index));
         }
 
     }
