@@ -10,5 +10,6 @@ namespace ForQab.Repository
         public Task BulkAddAsync(IEnumerable<Monitor> monitors);
         Task<IEnumerable<Monitor>> GetMonitorLogsAsync();
         Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId);
+        Task DeleteMonitorLogs(int? id);
     }
 }

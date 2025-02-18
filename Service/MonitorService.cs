@@ -309,5 +309,10 @@ namespace ForQab.Service
         {
             return await _monitorRepository.GetMonitorLogsBySupervisorIdAsync(monitorId);
         }
+
+        public async Task DeleteMonitorLogs(int? id)
+        {
+            await _monitorRepository.DeleteMonitorLogs(id);
+        }
     }
 }

@@ -52,6 +52,15 @@
                                                     break;
                                             }
                                         </td>
+                                        <td>
+                                            <form asp-action="DeleteLogs" method="post">
+                                                <input type="hidden" name="id" value="@log.Id" />
+                                                <button type="submit" class="btn btn-danger btn-sm"
+                                                        onclick="return confirm('Bu logu silmək istədiyinizə əminsiniz?');">
+                                                    Sil
+                                                </button>
+                                            </form>
+                                        </td>
                                     </tr>
                                     count++;
                                 }
@@ -59,7 +68,7 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="3" class="text-center">Heç bir qeyd tapılmadı.</td>
+                                    <td colspan="4" class="text-center">Heç bir qeyd tapılmadı.</td>
                                 </tr>
                             }
                         </tbody>
