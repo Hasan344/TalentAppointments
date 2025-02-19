@@ -77,6 +77,7 @@
             <ul class="list-group list-group-flush">
                 @foreach (var expert in experts)
                 {
+                    var hasLog = ViewBag.ExpertWithLogs.Contains(expert.Id);
                     <li class="list-group-item">
                         <div class="row align-items-center">
                             <div class="col-md-8">
@@ -86,6 +87,10 @@
                                 <small class="text-muted">
                                     FinCode: @expert.FinCode
                                 </small>
+                                @if (hasLog)
+                                {
+                                    <span class="badge ml-2" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;">Qeydi var</span>
+                                }
                             </div>
                             <div class="col-md-4 text-md-right mt-2 mt-md-0">
                                 <a class="btn btn-sm btn-outline-secondary mr-2"
@@ -123,9 +128,9 @@
             <ul class="list-group list-group-flush">
                 @foreach (var monitor in monitors)
                 {
+                    var hasLog = ViewBag.MonitorsWithLogs.Contains(monitor.Id);
                     <li class="list-group-item">
                         <div class="row align-items-center">
-                            <!-- Monitor bilgileri -->
                             <div class="col-md-8">
                                 <h6 class="mb-0">
                                     @monitor.Name @monitor.Surname @monitor.Fname
@@ -133,8 +138,12 @@
                                 <small class="text-muted">
                                     FinCode: @monitor.FinCode
                                 </small>
+                                @if (hasLog)
+                                {
+                                    <span class="badge ml-2" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;">Qeydi var</span>
+
+                                }
                             </div>
-                            <!-- İşlem butonları -->
                             <div class="col-md-4 text-md-right mt-2 mt-md-0">
                                 <a class="btn btn-sm btn-outline-secondary mr-2"
                                    asp-action="ChangeMonitor"
@@ -153,6 +162,7 @@
                     </li>
                 }
             </ul>
+
         }
         else
         {
@@ -171,6 +181,7 @@
             <ul class="list-group list-group-flush">
                 @foreach (var monitor in headMonitors)
                 {
+                    var hasLog = ViewBag.MonitorsWithLogs.Contains(monitor.Id);
                     <li class="list-group-item">
                         <div class="row align-items-center">
                             <!-- Monitor bilgileri -->
@@ -181,6 +192,10 @@
                                 <small class="text-muted">
                                     FinCode: @monitor.FinCode
                                 </small>
+                                @if (hasLog)
+                                {
+                                    <span class="badge ml-2" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;">Qeydi var</span>
+                                }
                             </div>
                             <!-- İşlem butonları -->
                             <div class="col-md-4 text-md-right mt-2 mt-md-0">

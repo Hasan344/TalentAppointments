@@ -21,6 +21,9 @@ namespace ForQab.Service
         public Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds);
         public Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId); 
         Task AddMonitorLogAsync(WriteMonitorLogViewModel model);
-        Task AddExpertLogAsync(WriteExpertLogsViewModel model);
+        Task AddExpertLogAsync(WriteExpertLogsViewModel model); 
+        Task<List<int>> GetMonitorsWithLogsAsync(List<int> monitorIds);
+        Task<List<int>> GetExpertsWithLogsAsync(List<int> expertIds);
+
     }
 }
