@@ -37,11 +37,6 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var exam = await _examService.GetExamByIdAsync(id);
-            var sectionId = await GetCurrentSectionIdAsync();
-            ViewBag.AllExperts = await _context.Experts.ToListAsync();
-            var examWithExperts = await _context.Exams
-                                        .Include(e => e.Experts)  // Include the related experts
-                                        .FirstOrDefaultAsync(e => e.Id == id);
             if (exam == null)
             {
                 return NotFound();
@@ -50,8 +45,18 @@ namespace ForQab.Presentation.Controllers
             {
                 return Forbid();
             }
+
+            var monitorIds = exam.Monitors.Select(m => m.Id).ToList();
+            var expertIds = exam.Experts.Select(m => m.Id).ToList();
+            var monitorLogs = await _examService.GetMonitorsWithLogsAsync(monitorIds);
+            var expertLogs = await _examService.GetExpertsWithLogsAsync(expertIds);
+
+            ViewBag.MonitorsWithLogs = monitorLogs;
+            ViewBag.ExpertsWithLogs = expertLogs;
+
             return View(exam);
         }
+
         public IActionResult ChangeExpert(int examId, int expertId)
         {
             var exam = _context.Exams

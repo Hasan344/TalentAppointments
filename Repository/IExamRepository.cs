@@ -21,5 +21,8 @@ namespace ForQab.Repository
         public Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId);
         Task AddMonitorLogAsync(MonitorLog log);
         Task AddExpertLogAsync(ExpertLog logs);
+        Task<List<int>> GetMonitorsWithLogsAsync(List<int> monitorIds);
+        Task<List<int>> GetExpertsWithLogsAsync(List<int> expertIds);
+
     }
 }

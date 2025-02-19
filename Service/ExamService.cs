@@ -129,5 +129,14 @@ namespace ForQab.Service
 
             await _examRepository.AddExpertLogAsync(log);
         }
+
+        public async Task<List<int>> GetMonitorsWithLogsAsync(List<int> monitorIds)
+        {
+            return await _examRepository.GetMonitorsWithLogsAsync(monitorIds);
+        }
+        public async Task<List<int>> GetExpertsWithLogsAsync(List<int> expertIds)
+        {
+            return await _examRepository.GetExpertsWithLogsAsync(expertIds);
+        }
     }
 }

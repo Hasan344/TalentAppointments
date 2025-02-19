@@ -371,5 +371,21 @@ namespace ForQab.Repository
             await _context.ExpertLogs.AddAsync(logs);
             await _context.SaveChangesAsync();
         }
+        public async Task<List<int>> GetMonitorsWithLogsAsync(List<int> monitorIds)
+        {
+            return await _context.MonitorLogs
+                                 .Where(log => monitorIds.Contains(log.SupervisorId))
+                                 .Select(log => log.SupervisorId)
+                                 .Distinct()
+                                 .ToListAsync();
+        }
+        public async Task<List<int>> GetExpertsWithLogsAsync(List<int> expertIds)
+        {
+            return await _context.MonitorLogs
+                                 .Where(log => expertIds.Contains(log.SupervisorId))
+                                 .Select(log => log.SupervisorId)
+                                 .Distinct()
+                                 .ToListAsync();
+        }
     }
 }
