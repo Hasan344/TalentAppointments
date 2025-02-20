@@ -84,6 +84,7 @@ namespace ForQab.Repository
                 .Where(e => e.SectionId == exam.SectionId &&
                             e.SubProfessions.Any(sp => selectedSubProfessions.Contains(sp.Id)) &&
                             !exam.Experts.Contains(e)) // Bu sınavda zaten atanmış uzmanları dışarıda bırak
+                .Where(e => e.Archive == 0 && e.Status == 0)
                 .ToListAsync();
 
             if (experts.Count < numberOfExperts)

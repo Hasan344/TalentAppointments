@@ -104,4 +104,18 @@ public partial class Expert
 
     [InverseProperty("Expert")]
     public virtual ICollection<ExpertLog> ExpertLogs { get; set; } = new List<ExpertLog>();
+
+    [Column("archive")]
+    public byte Archive { get; set; }
+
+    [Column("archive_reason")]
+    [StringLength(2000)]
+    public string? ArchiveReason { get; set; }
+
+    [Column("status")]
+    public byte? Status { get; set; }
+
+    [Column("status_reason")]
+    [StringLength(2000)]
+    public string? StatusReason { get; set; }
 }

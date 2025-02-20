@@ -123,6 +123,11 @@ namespace ForQab.Repository
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task UpdateExpertAsync(Expert expert)
+        {
+            _context.Experts.Update(expert);
+            await _context.SaveChangesAsync();
+        }
 
         public async Task DeleteAsync(int id)
         {
@@ -224,8 +229,15 @@ namespace ForQab.Repository
         {
             IQueryable<Expert> query = GetQuery(includes);
             return sectionId is null
-                ? await query.Where(e => e.Kons == false).ToListAsync()
-                : await query.Where(e => EF.Property<int>(e, "SectionId") == sectionId).Where(e => e.Kons == false).ToListAsync();
+                ? await query.Where(e => e.Kons == false).Where(e => e.Archive == 0).ToListAsync()
+                : await query.Where(e => EF.Property<int>(e, "SectionId") == sectionId).Where(e => e.Kons == false).Where(e => e.Archive == 0).ToListAsync();
+        }
+        public async Task<List<Expert>> GetAllArchivedAsync(int? sectionId, Expression<Func<Expert, bool>> exp = null, params string[] includes)
+        {
+            IQueryable<Expert> query = GetQuery(includes);
+            return sectionId is null
+                ? await query.Where(e => e.Kons == false).Where(e => e.Archive == 1).ToListAsync()
+                : await query.Where(e => EF.Property<int>(e, "SectionId") == sectionId).Where(e => e.Kons == false).Where(e => e.Archive == 1).ToListAsync();
         }
         private IQueryable<Expert> GetQuery(string[] includes)
         {

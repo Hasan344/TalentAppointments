@@ -43,9 +43,47 @@
                             <button type="submit" class="btn btn-danger btn-lg px-4">Sil</button>
                             <a asp-action="Index" class="btn btn-dark btn-lg px-4 ml-3">Siyahıya qayıt</a>
                         </form>
+                    </div><div class="mt-4 text-center">
+                        <div class="mt-4 text-center">
+                            <button type="button" class="btn btn-warning btn-lg px-4" onclick="openArchiveModal()">Arxivə Yolla</button>
+                        </div>
+
+                        <div class="modal fade" id="archiveModal" tabindex="-1" aria-labelledby="archiveModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="archiveModalLabel">Arxivə Göndər</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="archiveForm" method="post" asp-action="ArchiveExpert">
+                                            <input type="hidden" id="archiveId" name="id" value="@Model.Id" />
+                                            <div class="mb-3">
+                                                <label for="archiveReason" class="form-label">Arxivləmə Səbəbi:</label>
+                                                <textarea class="form-control" id="archiveReason" name="archiveReason" rows="3" required></textarea>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
+                                        <button type="submit" class="btn btn-warning" onclick="submitArchiveForm()">Arxivə Göndər</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+    function openArchiveModal() {
+        var modal = new bootstrap.Modal(document.getElementById("archiveModal"));
+        modal.show();
+    }
+
+    function submitArchiveForm() {
+        document.getElementById("archiveForm").submit();
+    }
+</script>
