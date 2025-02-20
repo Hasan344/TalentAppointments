@@ -40,6 +40,23 @@ namespace ForQab.Presentation.Controllers
             ViewBag.Districts = districts;
             return View(experts);
         }
+        public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var genders = _context.Genders.ToList();
+            var districts = _context.Districts.ToList();
+            var subProfessions = await _subProfessionService.GetAllSubProfessionsAsync(sectionId);
+            var federations = _context.Professions.ToList();
+            var model = await _expertService.GetArchivedExpertsBySectionIdAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, subProfessionId);
+            ViewBag.SubProfessions = subProfessions;
+            ViewBag.Genders = genders;
+            ViewBag.Federation = federations;
+            ViewBag.Districts = districts;
+
+            ViewBag.Genders = genders;
+            ViewBag.Districts = districts;
+            return View(model);
+        }
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -398,6 +415,72 @@ namespace ForQab.Presentation.Controllers
                 return Forbid();
             }
             await _expertService.DeleteExpertLogs(id);
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ArchiveExpert(int id, string archiveReason)
+        {
+            var expert = await _expertService.GetExpertByIdAsync(id);
+            if (expert == null)
+            {
+                return NotFound();
+            }
+
+            expert.Archive = 1;
+            expert.ArchiveReason = archiveReason;
+            await _expertService.UpdateExpertAsync(expert);
+
+            TempData["SuccessMessage"] = "Nəzarətçi arxivə göndərildi.";
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RestoreExpert(int id)
+        {
+            var expert = await _expertService.GetExpertByIdAsync(id);
+            if (expert == null)
+            {
+                return NotFound();
+            }
+
+            expert.Archive = 0;
+            expert.ArchiveReason = null;
+            await _expertService.UpdateExpertAsync(expert);
+
+            TempData["SuccessMessage"] = "Nəzarətçi arxivdən çıxarıldı.";
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeStatus(int id, string statusReason)
+        {
+            var monitor = await _expertService.GetExpertByIdAsync(id);
+            if (monitor == null)
+            {
+                return NotFound();
+            }
+
+            monitor.Status = 1;
+            monitor.StatusReason = statusReason;
+            await _expertService.UpdateExpertAsync(monitor);
+
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RestoreStatus(int id)
+        {
+            var monitor = await _expertService.GetExpertByIdAsync(id);
+            if (monitor == null)
+            {
+                return NotFound();
+            }
+
+            monitor.Status = 0;
+            monitor.StatusReason = null;
+            await _expertService.UpdateExpertAsync(monitor);
+
             return RedirectToAction(nameof(Index));
         }
 

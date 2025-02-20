@@ -11,6 +11,7 @@ namespace ForQab.Repository
         Task<Expert?> GetByIdAsync(int id);
         Task AddAsync(ExpertViewModel expertViewModel);
         Task UpdateAsync(ExpertEditViewModel expert);
+        Task UpdateExpertAsync(Expert expert);
         Task DeleteAsync(int id);
         //Task<IEnumerable<SubProfession>> GetSubProfessionsByExpertIdAsync(int expertId);
         Task AddSubProfessionToExpertAsync(int expertId, SubProfession subProfession);
@@ -21,6 +22,7 @@ namespace ForQab.Repository
         Task<IEnumerable<SubProfession>> GetSubProfessionsAsync(int? sectionId);
         Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId);
         Task<List<Expert>> GetAllAsync(int? sectionId, Expression<Func<Expert, bool>> exp = null, params string[] includes);
+        Task<List<Expert>> GetAllArchivedAsync(int? sectionId, Expression<Func<Expert, bool>> exp = null, params string[] includes);
         Task BulkAddAsync(IEnumerable<Expert> experts);
         Task<IEnumerable<Expert>> GetExpertLogsAsync();
         Task<IEnumerable<Expert>> GetExpertLogsByExpertIdAsync(int expertId);

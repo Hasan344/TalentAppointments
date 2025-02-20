@@ -153,6 +153,50 @@ public class ExpertService : IExpertService
 
         return query;
     }
+    public async Task<IEnumerable<Expert>> GetArchivedExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId)
+    {
+        var includes = new string[] { "DistrictNavigation", "SubProfessions", "Section", "GenderNavigation" };
+
+        var query = await _expertRepository.GetAllArchivedAsync(sectionId, null, includes);
+        if (genderId.HasValue)
+        {
+            query = query.Where(m => m.Gender == genderId.Value).ToList();
+        }
+        if (!string.IsNullOrEmpty(searchName))
+        {
+            query = query.Where(m =>
+         m.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase) ||
+         m.Surname.Contains(searchName, StringComparison.OrdinalIgnoreCase))
+          .ToList();
+        }
+        // FinCode filtresi
+        if (!string.IsNullOrEmpty(finCode))
+        {
+            query = query.Where(m => m.FinCode.Contains(finCode, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        // Serial filtresi
+        if (!string.IsNullOrEmpty(serial))
+        {
+            query = query.Where(m => m.Serial.Contains(serial, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+        // District filtresi
+        if (district.HasValue && district > 0)
+        {
+            query = query.Where(m => m.District == district.Value).ToList();
+        }
+        if (startYear.HasValue)
+            query = query.Where(m => m.BirthDate.Value.Year >= startYear.Value).ToList(); // Tarixi ilin başlanğıcına çeviririk.
+        if (endYear.HasValue)
+            query = query.Where(m => m.BirthDate.Value.Year <= endYear.Value).ToList();
+
+        if (subProfessionId.HasValue && subProfessionId > 0)
+        {
+            query = query.Where(m => m.SubProfessions.Any(sp => sp.Id == subProfessionId.Value)).ToList();
+        }
+
+        return query;
+    }
     public async Task BulkAddAsync(IEnumerable<Expert> experts)
     {
         await _expertRepository.BulkAddAsync(experts);
@@ -171,5 +215,10 @@ public class ExpertService : IExpertService
     public async Task DeleteExpertLogs(int? id)
     {
         await _expertRepository.DeleteExpertLogs(id);
+    }
+
+    public async Task UpdateExpertAsync(Expert expert)
+    {
+        await _expertRepository.UpdateExpertAsync(expert);
     }
 }

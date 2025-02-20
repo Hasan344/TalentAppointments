@@ -32,9 +32,6 @@ public partial class Monitor
     [Column("section_id")]
     public int? SectionId { get; set; }
 
-    [Column("archive")]
-    public byte Archive { get; set; }
-
     [Column("gender")]
     public byte? Gender { get; set; }
 
@@ -130,12 +127,15 @@ public partial class Monitor
     [StringLength(400)]
     public string? BankFilialCode { get; set; }
 
+    [Column("AssignmentCount")]
+    public int? AssignmentCount { get; set; }
+
+    [Column("archive")]
+    public byte Archive { get; set; }
+
     [Column("archive_reason")]
     [StringLength(2000)]
     public string? ArchiveReason { get; set; }
-
-    [Column("AssignmentCount")]
-    public int? AssignmentCount { get; set; }
 
     [Column("status")]
     public byte? Status { get; set; }

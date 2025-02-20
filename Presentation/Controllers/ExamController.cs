@@ -51,11 +51,13 @@ namespace ForQab.Presentation.Controllers
             var monitorLogs = await _examService.GetMonitorsWithLogsAsync(monitorIds);
             var expertLogs = await _examService.GetExpertsWithLogsAsync(expertIds);
 
-            ViewBag.MonitorsWithLogs = monitorLogs;
-            ViewBag.ExpertsWithLogs = expertLogs;
+            // Null kontrolü ekleyelim
+            ViewBag.MonitorsWithLogs = monitorLogs ?? new List<int>();  // Eğer null ise boş bir liste atıyoruz
+            ViewBag.ExpertsWithLogs = expertLogs ?? new List<int>();  // Eğer null ise boş bir liste atıyoruz
 
             return View(exam);
         }
+
 
         public IActionResult ChangeExpert(int examId, int expertId)
         {
@@ -651,6 +653,26 @@ namespace ForQab.Presentation.Controllers
             }
 
             return View(model);
+        }
+        public IActionResult ExpertDetails(int id)
+        {
+            var expert = _context.Experts.Find(id);
+            if (expert == null) return NotFound();
+            return RedirectToAction("Details","Expert", new { id });
+        }
+
+        public IActionResult MonitorDetails(int id)
+        {
+            var monitor = _context.Monitors.Find(id);
+            if (monitor == null) return NotFound();
+            return RedirectToAction("Details", "Monitors", new { id });
+        }
+
+        public IActionResult HeadMonitorDetails(int id)
+        {
+            var monitor = _context.Monitors.Find(id);
+            if (monitor == null) return NotFound();
+            return RedirectToAction("Details", "HeadMonitors", new { id });
         }
 
         public async Task<IActionResult> ExportToExcel()
