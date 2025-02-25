@@ -39,6 +39,8 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<ExamCommission> ExamCommissions { get; set; }
 
+    public virtual DbSet<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; }
+
     public virtual DbSet<ExamSubCommission> ExamSubCommissions { get; set; }
 
     public virtual DbSet<Expert> Experts { get; set; }
@@ -66,7 +68,6 @@ public partial class MyDbContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=HASANI-PC\\SQLEXPRESS;Database=ForQab;Integrated Security=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -112,6 +113,36 @@ public partial class MyDbContext : DbContext
             .WithMany(c => c.ExamCommissions)
             .HasForeignKey(ec => ec.CommissionId);
 
+
+        modelBuilder.Entity<ExamExpertSubProfession>()
+        .ToTable("Exam_Expert_SubProfessions"); // Tablo adını doğru belirtin
+
+        // In your DbContext's OnModelCreating method
+        modelBuilder.Entity<ExamExpertSubProfession>(entity =>
+        {
+            entity.HasKey(e => new { e.ExamId, e.ExpertId, e.SubProfessionId, e.FederationId });
+        });
+
+        modelBuilder.Entity<ExamExpertSubProfession>()
+            .HasOne(ec => ec.Exam)
+            .WithMany(e => e.ExamExpertSubProfessions)
+            .HasForeignKey(ec => ec.ExamId);
+
+        modelBuilder.Entity<ExamExpertSubProfession>()
+            .HasOne(ec => ec.SubProfession)
+            .WithMany(c => c.ExamExpertSubProfessions)
+            .HasForeignKey(ec => ec.SubProfessionId);
+
+        modelBuilder.Entity<ExamExpertSubProfession>()
+            .HasOne(ec => ec.Expert)
+            .WithMany(c => c.ExamExpertSubProfessions)
+            .HasForeignKey(ec => ec.ExpertId);
+
+        modelBuilder.Entity<ExamExpertSubProfession>()
+            .HasOne(ec => ec.Federation)
+            .WithMany(c => c.ExamExpertSubProfessions)
+            .HasForeignKey(ec => ec.FederationId);
+
         modelBuilder.Entity<Commission>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__commissi__3213E83F3B4ABE27");
@@ -137,7 +168,7 @@ public partial class MyDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__exams__3213E83F47E1B267");
 
-            entity.HasOne(d => d.ExamBulding).WithMany(p => p.Exams)
+            entity.HasOne(d => d.ExamBuilding).WithMany(p => p.Exams)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__exams__exam_buld__59C55456");
 

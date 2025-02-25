@@ -42,13 +42,14 @@ public partial class Exam
 
     [ForeignKey("ExamBuldingId")]
     [InverseProperty("Exams")]
-    public virtual ExamBuilding? ExamBulding { get; set; } = null!;
+    public virtual ExamBuilding? ExamBuilding { get; set; } = null!;
 
     [ForeignKey("SectionId")]
     [InverseProperty("Exams")]
     public virtual Section? Section { get; set; } = null!;
     public virtual ICollection<ExamCommission> ExamCommissions { get; set; } = new List<ExamCommission>();
 
+    public virtual ICollection<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; } = new List<ExamExpertSubProfession>();
 
     [ForeignKey("ExamId")]
     [InverseProperty("Exams")]

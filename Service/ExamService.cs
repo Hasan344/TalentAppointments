@@ -19,9 +19,9 @@ namespace ForQab.Service
             await _examRepository.AddAsync(exam);
         }
 
-        public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions)
+        public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId)
         {
-            await _examRepository.AssignRandomExpertsToExamAsync(examId, numberOfExperts,  selectedSubProfessions);
+            await _examRepository.AssignRandomExpertsToExamAsync(examId, numberOfExperts,  selectedSubProfessions, federationId);
         }
         public async Task<bool> AssignExpertsAsync(AssignExpertToExamViewModel model)
         {
@@ -47,7 +47,7 @@ namespace ForQab.Service
             foreach (var assignment in model.Assignments)
             {
                 await _examRepository.AssignRandomExpertsToExamAsync(
-                    model.ExamId, assignment.NumberOfExperts, assignment.SelectedSubProfessions);
+                    model.ExamId, assignment.NumberOfExperts, assignment.SelectedSubProfessions, assignment.FederationId);
             }
 
             return true;
@@ -137,6 +137,14 @@ namespace ForQab.Service
         public async Task<List<int>> GetExpertsWithLogsAsync(List<int> expertIds)
         {
             return await _examRepository.GetExpertsWithLogsAsync(expertIds);
+        }
+        public  List<Expert> GetExpertsByExam(int examId)
+        {
+            return  _examRepository.GetExpertsByExam(examId);
+        }
+        public async Task<List<ExamExpertSubProfession>> GetExpertSubProfessionsByExamIdAsync(int examId)
+        {
+            return await _examRepository.GetExpertSubProfessionsByExamIdAsync(examId);
         }
     }
 }

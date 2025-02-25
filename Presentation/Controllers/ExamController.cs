@@ -10,6 +10,7 @@ using System.Data;
 using ForQab.Migrations;
 using ForQab.Presentation.ViewModels;
 using ForQab.Data_Access.ViewModel;
+using ForQab.Models.ViewModels;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -36,7 +37,17 @@ namespace ForQab.Presentation.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
-            var exam = await _examService.GetExamByIdAsync(id);
+            var exam = await _examService.GetExamByIdAsync(id); 
+            Console.WriteLine($"Exam Id: {exam.Id}, Experts Count: {exam.Experts.Count}");
+            foreach (var expert in exam.Experts)
+            {
+                Console.WriteLine($"Expert Id: {expert.Id}, Name: {expert.Name}, SubProfessions Count: {expert.ExamExpertSubProfessions?.Count}");
+            }
+
+            var expertsWithData = exam.Experts
+    .Where(e => e.ExamExpertSubProfessions.Any())
+    .ToList();
+
             if (exam == null)
             {
                 return NotFound();
@@ -51,12 +62,56 @@ namespace ForQab.Presentation.Controllers
             var monitorLogs = await _examService.GetMonitorsWithLogsAsync(monitorIds);
             var expertLogs = await _examService.GetExpertsWithLogsAsync(expertIds);
 
-            // Null kontrolü ekleyelim
-            ViewBag.MonitorsWithLogs = monitorLogs ?? new List<int>();  // Eğer null ise boş bir liste atıyoruz
-            ViewBag.ExpertsWithLogs = expertLogs ?? new List<int>();  // Eğer null ise boş bir liste atıyoruz
+            ViewBag.MonitorsWithLogs = monitorLogs ?? new List<int>();
+            ViewBag.ExpertsWithLogs = expertLogs ?? new List<int>();
 
-            return View(exam);
+            // Entity Model'den ViewModel'e Dönüşüm
+            var viewModel = new ExamDetailsViewModel
+            {
+                Id = exam.Id,
+                Name = exam.Name,
+                Section = new SectionViewModel { Name = exam.Section.Name },
+                ExamBulding = new BuildingViewModel { Name = exam.ExamBuilding.Name },
+                ExamDate = exam.ExamDate,
+                Duration = exam.Duration,
+                Water = exam.Water,
+                Food = exam.Food,
+                Notes = exam.Notes ?? string.Empty,
+                InventoryTransport = exam.InventoryTransport ?? string.Empty,
+                ExamCommissions = exam.ExamCommissions.Select(ec => new ExamCommissionViewModel
+                {
+                    Commission = new CommissionViewModel { Name = ec.Commission.Name }
+                }).ToList(),
+                Experts = exam.Experts.Select(e => new ExpertViewModelForExam
+                {
+                    Id = e.Id,
+                    Name = e.Name,
+                    Surname = e.Surname,
+                    Fname = e.Fname,
+                    FinCode = e.FinCode,
+                    ExamExpertSubProfessions = e.ExamExpertSubProfessions
+                        .Where(eesp => eesp.SubProfession != null && eesp.Federation != null)
+                        .Select(eesp => new SubProfessionViewModelForExam
+                        {
+                            Name = eesp.SubProfession.Name,
+                            FederationName = eesp.Federation.Name
+                        }).ToList()
+                }).ToList(),
+                Monitors = exam.Monitors.Select(m => new MonitorViewModel
+                {
+                    Id = m.Id,
+                    Name = m.Name,
+                    Surname = m.Surname,
+                    Fname = m.Fname,
+                    FinCode = m.FinCode,
+                    Role = m.Role
+                }).ToList(),
+                ExpertsWithLogs = expertLogs ?? new List<int>(),
+            };
+
+            return View(viewModel);
         }
+
 
 
         public IActionResult ChangeExpert(int examId, int expertId)
@@ -82,6 +137,7 @@ namespace ForQab.Presentation.Controllers
 
             return View(viewModel);
         }
+
         [HttpPost]
         public IActionResult ChangeExpert(ChangeExpertViewModel model)
         {
@@ -389,35 +445,6 @@ namespace ForQab.Presentation.Controllers
             await _examService.DeleteExamAsync(id);
             return RedirectToAction(nameof(Index));
         }
-        public async Task<IActionResult> AssignExperts(int id)
-        {
-            int sectionId = _context.Exams
-                                     .Where(e => e.Id == id)
-                                     .Select(i => i.SectionId)
-                                     .FirstOrDefault();
-            var availableSubProfessions = await _examService.GetSubprofessionsBySectionIdAsync(sectionId); // SubProfessions listesini al
-
-            var exam = await _examService.GetExamByIdAsync(id);
-            if (exam == null)
-            {
-                return NotFound();
-            }
-
-            // SubProfessions listesini ve diğer gerekli bilgileri ViewModel'e aktar
-            var viewModel = new AssignExpertToExamViewModel
-            {
-                ExamId = exam.Id,
-                SectionId = exam.SectionId,
-                SubProfessions = availableSubProfessions.Select(sp => new SelectListItem
-                {
-                    Text = sp.Name,
-                    Value = sp.Id.ToString()
-                }).ToList()
-            };
-
-            ViewBag.ExamName = exam.Name; // Sınav adı
-            return View(viewModel); // View'a model aktar
-        }
 
         [HttpPost]
         public async Task<IActionResult> UpdateExperts(int ExamId, int[] SelectedExpertIds)
@@ -443,12 +470,47 @@ namespace ForQab.Presentation.Controllers
             TempData["SuccessMessage"] = "Ekspertlər uğurla yeniləndi!";
             return RedirectToAction(nameof(Details), new { id = ExamId });
         }
+        public async Task<IActionResult> AssignExperts(int id)
+        {
+            int sectionId = _context.Exams
+                                     .Where(e => e.Id == id)
+                                     .Select(i => i.SectionId)
+                                     .FirstOrDefault();
+            var availableSubProfessions = await _examService.GetSubprofessionsBySectionIdAsync(sectionId);
+            var federations = await _context.Professions
+                                             .Where(f => f.SectionId == sectionId)
+                                             .Select(f => new SelectListItem { Value = f.Id.ToString(), Text = f.Name })
+                                             .ToListAsync();
+
+            var exam = await _examService.GetExamByIdAsync(id);
+            if (exam == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new AssignExpertToExamViewModel
+            {
+                ExamId = exam.Id,
+                SectionId = exam.SectionId,
+                SubProfessions = availableSubProfessions.Select(sp => new SelectListItem
+                {
+                    Text = sp.Name,
+                    Value = sp.Id.ToString()
+                }).ToList(),
+                Federations = federations // Yeni eklendi
+            };
+
+            ViewBag.ExamName = exam.Name;
+            return View(viewModel);
+        }
 
         [HttpPost]
         public async Task<IActionResult> AssignExperts(AssignExpertToExamViewModel model)
         {
             try
             {
+                var federationId = model.Assignments[0].FederationId;
+                Console.WriteLine($"FederationId received: {federationId}");
                 bool success = await _examService.AssignExpertsAsync(model);
                 if (success)
                 {
@@ -460,12 +522,14 @@ namespace ForQab.Presentation.Controllers
             {
                 TempData["ErrorMessage"] = ex.Message;
             }
-
-            // Hata durumunda, SubProfessions verisini tekrar yükleyelim
             var sectionId = await _examService.GetSectionIdByExamIdAsync(model.ExamId);
             model.SubProfessions = (await _examService.GetSubprofessionsBySectionIdAsync(sectionId))
                 .Select(sp => new SelectListItem { Value = sp.Id.ToString(), Text = sp.Name })
                 .ToList();
+            model.Federations = await _context.Professions
+                .Where(f => f.SectionId == sectionId)
+                .Select(f => new SelectListItem { Value = f.Id.ToString(), Text = f.Name })
+                .ToListAsync();
 
             return View(model);
         }
@@ -705,7 +769,7 @@ namespace ForQab.Presentation.Controllers
                     exam.Water ,
                     exam.Food,
                     //exam.Commission?.Name ?? "---",
-                    exam.ExamBulding?.Name ?? "---",
+                    exam.ExamBuilding?.Name ?? "---",
                     exam.Section?.Name ?? "---"
                 );
             }
@@ -721,6 +785,17 @@ namespace ForQab.Presentation.Controllers
                     return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Exams.xlsx");
                 }
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSubProfessionsByFederation(int federationId)
+        {
+            var subProfessions = await _context.SubProfessions
+                .Where(sp => sp.ProfessionId == federationId)
+                .Select(sp => new { sp.Id, sp.Name })
+                .ToListAsync();
+
+            return Json(subProfessions);
         }
 
     }

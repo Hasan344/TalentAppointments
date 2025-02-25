@@ -118,4 +118,5 @@ public partial class Expert
     [Column("status_reason")]
     [StringLength(2000)]
     public string? StatusReason { get; set; }
+    public virtual ICollection<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; } = new List<ExamExpertSubProfession>();
 }

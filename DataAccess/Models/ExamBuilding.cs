@@ -25,7 +25,7 @@ public partial class ExamBuilding
     [Column("section_id")]
     public int SectionId { get; set; }
 
-    [InverseProperty("ExamBulding")]
+    [InverseProperty("ExamBuilding")]
     public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
 
     [ForeignKey("SectionId")]
