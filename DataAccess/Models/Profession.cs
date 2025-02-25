@@ -25,4 +25,5 @@ public partial class Profession
     public virtual ICollection<SubProfession> SubProfessions { get; set; } = new List<SubProfession>();
     [InverseProperty("FederationNavigation")]
     public virtual ICollection<Expert> Experts { get; set; } = new List<Expert>();
+    public virtual ICollection<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; } = new List<ExamExpertSubProfession>();
 }

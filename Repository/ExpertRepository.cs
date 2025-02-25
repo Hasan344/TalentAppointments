@@ -282,7 +282,7 @@ namespace ForQab.Repository
             }
             else
                 _context.ExpertLogs.Remove(log);
-                _context.SaveChanges();
+            _context.SaveChanges();
         }
     }
 }

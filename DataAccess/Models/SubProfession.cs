@@ -34,4 +34,5 @@ public partial class SubProfession
     [ForeignKey("SubProfessionId")]
     [InverseProperty("SubProfessions")]
     public virtual ICollection<Expert> Experts { get; set; } = new List<Expert>();
+    public virtual ICollection<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; } = new List<ExamExpertSubProfession>();
 }

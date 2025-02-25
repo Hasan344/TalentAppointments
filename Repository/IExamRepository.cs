@@ -8,7 +8,7 @@ namespace ForQab.Repository
     public interface IExamRepository : IRepository<Exam>
     {
         public Task AddAsync(CreateExamViewModel examViewModel);
-        Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions);
+        Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId);
         Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate);
         Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate);
         Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId);
@@ -23,6 +23,8 @@ namespace ForQab.Repository
         Task AddExpertLogAsync(ExpertLog logs);
         Task<List<int>> GetMonitorsWithLogsAsync(List<int> monitorIds);
         Task<List<int>> GetExpertsWithLogsAsync(List<int> expertIds);
+        List<Expert> GetExpertsByExam(int examId);
+        Task<List<ExamExpertSubProfession>> GetExpertSubProfessionsByExamIdAsync(int examId);
 
     }
 }

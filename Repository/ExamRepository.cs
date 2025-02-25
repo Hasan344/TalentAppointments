@@ -58,18 +58,21 @@ namespace ForQab.Repository
         }
 
 
-        public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions)
+        public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId)
         {
-            var exam = await _context.Exams
-            .Include(e => e.Experts) // exams ilişkisini dahil et
-            .FirstOrDefaultAsync(e => e.Id == examId);
+            Console.WriteLine($"FederationId received: {federationId}");
 
+            var exam = await _context.Exams.Include(e => e.Experts).FirstOrDefaultAsync(e => e.Id == examId);
             if (exam == null)
             {
                 throw new ArgumentException("Exam not found");
             }
+            var federationExists = await _context.Professions.AnyAsync(p => p.Id == federationId);
+            if (!federationExists)
+            {
+                throw new ArgumentException("Federation does not exist.");
+            }
 
-            // İlgili SubProfessions'ı alın
             var subProfessions = await _context.SubProfessions
                 .Where(sp => selectedSubProfessions.Contains(sp.Id))
                 .ToListAsync();
@@ -79,34 +82,60 @@ namespace ForQab.Repository
                 throw new ArgumentException("One or more subprofessions not found.");
             }
 
-            // SubProfessions ile ilgili uzmanları filtrele
+            var assignedExpertIds = exam.Experts.Select(ex => ex.Id).ToList(); // Önceden listeye al
+
             var experts = await _context.Experts
                 .Where(e => e.SectionId == exam.SectionId &&
                             e.SubProfessions.Any(sp => selectedSubProfessions.Contains(sp.Id)) &&
-                            !exam.Experts.Contains(e)) // Bu sınavda zaten atanmış uzmanları dışarıda bırak
-                .Where(e => e.Archive == 0 && e.Status == 0)
+                            !assignedExpertIds.Contains(e.Id) && // Daha iyi çevirim
+                            e.Archive == 0 &&
+                            e.Status == 0)
                 .ToListAsync();
+
+
 
             if (experts.Count < numberOfExperts)
             {
                 throw new InvalidOperationException("Not enough experts available.");
             }
 
-            // Random seçilen uzmanları ilişkilendirme
-            var selectedExperts = experts
-                .OrderBy(e => e.AssignmentCount) // En az atanmış olanları önce al
-                .Take(numberOfExperts) // İstenen sayıda exam seç
-                .ToList();
+            var selectedExperts = experts.OrderBy(e => e.AssignmentCount).Take(numberOfExperts).ToList();
+            var shuffledSubProfessions = subProfessions.OrderBy(x => Guid.NewGuid()).ToList();
 
-            foreach (var expert in selectedExperts)
+            for (int i = 0; i < selectedExperts.Count; i++)
             {
+                var expert = selectedExperts[i];
                 exam.Experts.Add(expert);
                 expert.AssignmentCount++;
+
+                var assignedSubProfession = shuffledSubProfessions[i % shuffledSubProfessions.Count];
+
+                bool existsInDatabase = await _context.ExamExpertSubProfessions
+                    .AnyAsync(ees => ees.ExamId == examId &&
+                                     ees.ExpertId == expert.Id &&
+                                     ees.SubProfessionId == assignedSubProfession.Id &&
+                                     ees.FederationId == federationId);
+
+                bool existsInLocal = _context.ExamExpertSubProfessions.Local
+                    .Any(ees => ees.ExamId == examId &&
+                                ees.ExpertId == expert.Id &&
+                                ees.SubProfessionId == assignedSubProfession.Id &&
+                                ees.FederationId == federationId);
+
+                if (!existsInDatabase && !existsInLocal)
+                {
+                    _context.ExamExpertSubProfessions.Add(new ExamExpertSubProfession
+                    {
+                        ExamId = examId,
+                        ExpertId = expert.Id,
+                        SubProfessionId = assignedSubProfession.Id,
+                        FederationId = (int)federationId // Yeni eklendi
+                    });
+                }
             }
 
             await _context.SaveChangesAsync();
         }
-
 
         public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate)
         {
@@ -206,7 +235,7 @@ namespace ForQab.Repository
         {
             return await _context.Exams
                 .Include(e => e.Section)
-                .Include(e => e.ExamBulding)
+                .Include(e => e.ExamBuilding)
                 .Include(e => e.ExamCommissions)
                     .ThenInclude(ec => ec.Commission)
                 .Include(e => e.Experts)
@@ -218,20 +247,28 @@ namespace ForQab.Repository
         {
             return await _context.Exams
                 .Include(e => e.Section)
-                .Include(e => e.ExamBulding)
+                .Include(e => e.ExamBuilding)
                 .Include(e => e.ExamCommissions)
                     .ThenInclude(ec => ec.Commission)
                 .Include(e => e.Experts)
+                    .ThenInclude(ex => ex.ExamExpertSubProfessions
+                        .Where(eesp => eesp.ExamId == id)) // Sadece bu imtahana aid olanlar
+                    .ThenInclude(eesp => eesp.SubProfession)
+                .Include(e => e.Experts)
+                    .ThenInclude(ex => ex.ExamExpertSubProfessions
+                        .Where(eesp => eesp.ExamId == id)) // Sadece bu imtahana aid olanlar
+                    .ThenInclude(eesp => eesp.Federation)
                 .Include(e => e.Monitors)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
+
 
         public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId)
         {
             return sectionId is null
                 ? await _context.Exams
                                 .Include(e => e.Section)
-                                .Include(e => e.ExamBulding)
+                                .Include(e => e.ExamBuilding)
                                 .Include(e => e.ExamCommissions)
                                     .ThenInclude(ec => ec.Commission) // Commission'ları bu şekilde include et
                                 .Include(e => e.Experts)
@@ -239,7 +276,7 @@ namespace ForQab.Repository
                                 .ToListAsync()
                 : await _context.Exams
                                 .Include(e => e.Section)
-                                .Include(e => e.ExamBulding)
+                                .Include(e => e.ExamBuilding)
                                 .Include(e => e.ExamCommissions)
                                     .ThenInclude(ec => ec.Commission)
                                 .Include(e => e.Experts)
@@ -275,13 +312,13 @@ namespace ForQab.Repository
                 .CountAsync();
         }
 
-       public async Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds)
+        public async Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds)
         {
             // Mevcut Exam'i bul ve ilişkili verileri include et
             var existingExam = await _context.Exams
                 .Include(e => e.ExamCommissions)
                     .ThenInclude(ec => ec.Commission)
-                .Include(e => e.ExamBulding)
+                .Include(e => e.ExamBuilding)
                 .Include(e => e.Section)
                 .FirstOrDefaultAsync(e => e.Id == exam.Id);
 
@@ -333,7 +370,7 @@ namespace ForQab.Repository
             _context.Exams.Update(existingExam);
             await _context.SaveChangesAsync();
         }
-    
+
         public async Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId)
         {
             if (sectionId == null)
@@ -388,5 +425,21 @@ namespace ForQab.Repository
                                  .Distinct()
                                  .ToListAsync();
         }
+        public List<Expert> GetExpertsByExam(int examId)
+        {
+            return _context.Experts
+                .Where(e => e.ExamExpertSubProfessions.Any(esp => esp.ExamId == examId))
+                .Include(e => e.ExamExpertSubProfessions)
+                    .ThenInclude(esp => esp.SubProfession)
+                .ToList();
+        }
+        public async Task<List<ExamExpertSubProfession>> GetExpertSubProfessionsByExamIdAsync(int examId)
+        {
+            return await _context.ExamExpertSubProfessions
+                .Where(esp => esp.ExamId == examId)
+                .Include(esp => esp.SubProfession)
+                .ToListAsync();
+        }
+
     }
 }
