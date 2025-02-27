@@ -7,9 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using ForQab.DataAccess.ViewModel.Exam;
 using ClosedXML.Excel;
 using System.Data;
-using ForQab.Migrations;
 using ForQab.Presentation.ViewModels;
-using ForQab.Data_Access.ViewModel;
 using ForQab.Models.ViewModels;
 
 namespace ForQab.Presentation.Controllers
@@ -38,15 +36,6 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var exam = await _examService.GetExamByIdAsync(id); 
-            Console.WriteLine($"Exam Id: {exam.Id}, Experts Count: {exam.Experts.Count}");
-            foreach (var expert in exam.Experts)
-            {
-                Console.WriteLine($"Expert Id: {expert.Id}, Name: {expert.Name}, SubProfessions Count: {expert.ExamExpertSubProfessions?.Count}");
-            }
-
-            var expertsWithData = exam.Experts
-    .Where(e => e.ExamExpertSubProfessions.Any())
-    .ToList();
 
             if (exam == null)
             {
@@ -114,15 +103,26 @@ namespace ForQab.Presentation.Controllers
 
 
 
-        public IActionResult ChangeExpert(int examId, int expertId)
+        public  async Task<IActionResult> ChangeExpert(int examId, int expertId)
         {
+           
             var exam = _context.Exams
                 .Include(e => e.Experts)
                 .FirstOrDefault(e => e.Id == examId);
-
+            var sectionId = await GetCurrentSectionIdAsync();
+            var subProfession = _context.ExamExpertSubProfessions
+                                        .Include(e => e.SubProfession)
+                                        .Where(e => e.ExamId == examId && e.ExpertId == expertId)
+                                        .Select(e => e.SubProfessionId)
+                                        .FirstOrDefault();
             if (exam == null) return NotFound();
 
-            var expertList = _context.Experts.ToList(); // Mövcud ekspertlərin siyahısı
+            var selectedExpertList = exam.Experts.Select(e => e.Id).ToList();
+
+            var expertList = _context.Experts
+                                     .Where(e => e.SectionId == sectionId)
+                                     .Where(e => e.SubProfessions.Any(sp => sp.Id == subProfession) && !selectedExpertList.Contains(e.Id))// 🔥 Yalnız uyğun subprofession olanlar
+                                     .ToList();
 
             var viewModel = new ChangeExpertViewModel
             {
@@ -139,38 +139,82 @@ namespace ForQab.Presentation.Controllers
         }
 
         [HttpPost]
-        public IActionResult ChangeExpert(ChangeExpertViewModel model)
+        public async Task<IActionResult> ChangeExpert(ChangeExpertViewModel model)
         {
             var exam = _context.Exams
                 .Include(e => e.Experts)
+                .Include(e => e.ExamExpertSubProfessions) // 🔥 SubProfession ilişkisini de çekiyoruz
                 .FirstOrDefault(e => e.Id == model.ExamId);
 
             if (exam == null) return NotFound();
 
-            var currentExpert = exam.Experts.FirstOrDefault(e => e.Id == model.CurrentExpertId);
-            if (currentExpert != null)
+            using (var transaction = _context.Database.BeginTransaction()) // 🔥 İşlem sırasında hata olursa geri al
             {
-                exam.Experts.Remove(currentExpert);
+                try
+                {
+                    var currentExpert = exam.Experts.FirstOrDefault(e => e.Id == model.CurrentExpertId);
+                    if (currentExpert != null)
+                    {
+                        exam.Experts.Remove(currentExpert);
+
+                        var currentSubProfessions = _context.ExamExpertSubProfessions
+                            .Where(eesp => eesp.ExamId == model.ExamId && eesp.ExpertId == model.CurrentExpertId)
+                            .ToList();
+
+                        if (currentSubProfessions.Any())
+                        {
+                            _context.ExamExpertSubProfessions.RemoveRange(currentSubProfessions);
+                        }
+                    }
+
+                    var newExpert = _context.Experts.FirstOrDefault(e => e.Id == model.NewExpertId);
+                    if (newExpert != null)
+                    {
+                        exam.Experts.Add(newExpert);
+
+                        var subProfession = _context.ExamExpertSubProfessions
+                            .Where(eesp => eesp.ExamId == model.ExamId && eesp.ExpertId == model.CurrentExpertId)
+                            .Select(eesp => new ExamExpertSubProfession
+                            {
+                                ExamId = model.ExamId,
+                                ExpertId = model.NewExpertId,
+                                SubProfessionId = eesp.SubProfessionId,
+                                FederationId = eesp.FederationId
+                            })
+                            .ToList();
+
+                        if (subProfession.Any())
+                        {
+                            _context.ExamExpertSubProfessions.AddRange(subProfession);
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync(); 
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
             }
 
-            var newExpert = _context.Experts.FirstOrDefault(e => e.Id == model.NewExpertId);
-            if (newExpert != null)
-            {
-                exam.Experts.Add(newExpert);
-            }
-
-            _context.SaveChanges();
             return RedirectToAction("Details", new { id = model.ExamId });
         }
-        public IActionResult ChangeMonitor(int examId, int monitorId)
+
+        public async Task<IActionResult> ChangeMonitor(int examId, int monitorId)
         {
             var exam = _context.Exams
                 .Include(e => e.Monitors)
                 .FirstOrDefault(e => e.Id == examId);
 
+            var monitorGender = _context.Monitors.Where(m => m.Id == monitorId).Select(m => m.Gender).FirstOrDefault();
+            var sectionId = await GetCurrentSectionIdAsync();
             if (exam == null) return NotFound();
 
-            var monitorList = _context.Monitors.Where(m => m.Role == 2).ToList(); 
+            var selectedMonitorList = exam.Monitors.Select(m => m.Id).ToList();
+
+            var monitorList = _context.Monitors.Where(m => m.Role == 2 && m.SectionId == sectionId && m.Gender == monitorGender && !selectedMonitorList.Contains(m.Id)).ToList(); 
 
             var viewModel = new ChangeMonitorViewModel
             {
@@ -209,15 +253,17 @@ namespace ForQab.Presentation.Controllers
             _context.SaveChanges();
             return RedirectToAction("Details", new { id = model.ExamId });
         }
-        public IActionResult ChangeHeadMonitor(int examId, int monitorId)
+        public async Task<IActionResult> ChangeHeadMonitor(int examId, int monitorId)
         {
             var exam = _context.Exams
                 .Include(e => e.Monitors)
                 .FirstOrDefault(e => e.Id == examId);
 
+            var sectionId = await GetCurrentSectionIdAsync();
+            var headMonitorGender = _context.Monitors.Where(m => m.Id == monitorId).Select(m => m.Gender).FirstOrDefault();
             if (exam == null) return NotFound();
 
-            var monitorList = _context.Monitors.Where(m => m.Role == 1).ToList();
+            var monitorList = _context.Monitors.Where(m => m.Role == 1 && m.SectionId == sectionId && m.Gender == headMonitorGender).ToList();
 
             var viewModel = new ChangeMonitorViewModel
             {
@@ -721,14 +767,16 @@ namespace ForQab.Presentation.Controllers
         public IActionResult ExpertDetails(int id)
         {
             var expert = _context.Experts.Find(id);
-            if (expert == null) return NotFound();
-            return RedirectToAction("Details","Expert", new { id });
+            if (expert == null) 
+                return NotFound();
+            return RedirectToAction("Details", "Expert", new { id });
         }
 
         public IActionResult MonitorDetails(int id)
         {
             var monitor = _context.Monitors.Find(id);
-            if (monitor == null) return NotFound();
+            if (monitor == null) 
+                return NotFound();
             return RedirectToAction("Details", "Monitors", new { id });
         }
 

@@ -106,6 +106,24 @@
                                     <span class="badge ml-2" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;">Qeydi var</span>
                                 }
                             </div>
+                            <div class="col-md-4 text-md-right mt-2 mt-md-0">
+                                <a class="btn btn-sm btn-outline-secondary mr-2"
+                                   asp-action="ChangeExpert"
+                                   asp-route-examId="@Model.Id"
+                                   asp-route-expertId="@expert.Id">
+                                    <i class="bi bi-pencil"></i> Dəyişdir
+                                </a>
+                                <a class="btn btn-sm btn-outline-primary"
+                                   asp-action="WriteExpertLog"
+                                   asp-route-examId="@Model.Id"
+                                   asp-route-expertId="@expert.Id">
+                                    <i class="bi bi-chat"></i> Xüsusi qeyd yaz
+                                </a>
+                                <a class="btn btn-sm btn-outline-info"
+                                   asp-action="ExpertDetails"
+                                   asp-route-id="@expert.Id">
+                                    <i class="bi bi-eye"></i> Detallara Bax
+                                </a>
                         </div>
                     </li>
                 }
@@ -142,7 +160,6 @@
                                 @if (hasLog)
                                 {
                                     <span class="badge ml-2" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;">Qeydi var</span>
-
                                 }
                             </div>
                             <div class="col-md-4 text-md-right mt-2 mt-md-0">
@@ -169,7 +186,6 @@
                     </li>
                 }
             </ul>
-
         }
         else
         {
@@ -217,12 +233,11 @@
                                    asp-route-examId="@Model.Id"
                                    asp-route-monitorId="@monitor.Id">
                                     <i class="bi bi-chat"></i> Xüsusi qeyd yaz
-                                    <a class="btn btn-sm btn-outline-info"
+                                </a>
+                                <a class="btn btn-sm btn-outline-info"
                                        asp-action="HeadMonitorDetails"
                                        asp-route-id="@monitor.Id">
-                                        <i class="bi bi-eye"></i> Detallara Bax
-                                    </a>
-
+                                    <i class="bi bi-eye"></i> Detallara Bax
                                 </a>
                             </div>
                         </div>
