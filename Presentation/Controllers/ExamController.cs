@@ -65,6 +65,10 @@ namespace ForQab.Presentation.Controllers
                 Duration = exam.Duration,
                 Water = exam.Water,
                 Food = exam.Food,
+                StudentCount = exam.StudentCount,
+                StartTime = exam.StartTime,
+                EndTime = exam.EndTime,
+                AdmissionTime = exam.AdmissionTime,
                 Notes = exam.Notes ?? string.Empty,
                 InventoryTransport = exam.InventoryTransport ?? string.Empty,
                 ExamCommissions = exam.ExamCommissions.Select(ec => new ExamCommissionViewModel

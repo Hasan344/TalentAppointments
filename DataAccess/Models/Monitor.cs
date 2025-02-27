@@ -143,4 +143,12 @@ public partial class Monitor
     [Column("status_reason")]
     [StringLength(2000)]
     public string? StatusReason { get; set; }
+
+    [Column("worker_type")]
+    public byte? WorkerType { get; set; }
+
+    [ForeignKey("WorkerType")]
+    [InverseProperty("Monitors")]
+    public virtual WorkerType? WorkerTypeNavigation { get; set; }
+
 }

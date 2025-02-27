@@ -1,4 +1,6 @@
 ﻿using ForQab.DataAccess.Models;
+using ForQab.DataAccess.ViewModel.HeadMonitor;
+using ForQab.DataAccess.ViewModel.Monitor;
 using Microsoft.EntityFrameworkCore;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 namespace ForQab.Service
@@ -19,5 +21,6 @@ namespace ForQab.Service
         Task<IEnumerable<Monitor>> GetMonitorLogsAsync();
         Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId);
         Task DeleteMonitorLogs(int? id);
+        Task UpdateModelAsync(HeadMonitorEditViewModel model);
     }
 }

@@ -1,12 +1,11 @@
-﻿using DocumentFormat.OpenXml.Math;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+﻿
 using ForQab.DataAccess.Models;
+using ForQab.DataAccess.ViewModel.Worker;
 using ForQab.Presentation.Validators;
 using ForQab.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 
 namespace ForQab.Presentation.Controllers
@@ -64,6 +63,7 @@ namespace ForQab.Presentation.Controllers
             var sections = await _workerService.GetSectionsAsync(sectionId);
             ViewBag.SectionList = new SelectList(sections, "Id", "Name");
             ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
+            ViewBag.WorkerType = new SelectList(_context.WorkerTypes, "Id", "Name");
             ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name");
             ViewData["District"] = new SelectList(_context.Districts, "Id", "Name");
             return View();
@@ -125,34 +125,28 @@ namespace ForQab.Presentation.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Monitor monitor)
+        public async Task<IActionResult> Edit(int id, WorkerEditViewModel worker)
         {
-            if (id != monitor.Id)
+            if (id != worker.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    await _workerService.UpdateAsync(monitor);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MonitorExists(monitor.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                return View(worker);
             }
-            await LoadViewData(monitor);
-            return View(monitor);
+
+            try
+            {
+                await _workerService.UpdateModelAsync(worker);
+                return RedirectToAction("Index");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(worker);
+            }
         }
 
         // GET: Monitors/Delete/5
@@ -299,6 +293,7 @@ namespace ForQab.Presentation.Controllers
 
             ViewBag.SectionList = new SelectList(sections, "Id", "Name");
             ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name", monitor.Gender);
+            ViewBag.WorkerType = new SelectList(_context.WorkerTypes, "Id", "Name");
             ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name", monitor.Role);
             ViewData["District"] = new SelectList(_context.Districts, "Id", "Name", monitor.District);
         }

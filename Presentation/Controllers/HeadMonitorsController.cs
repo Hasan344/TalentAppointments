@@ -10,6 +10,7 @@ using System.Data;
 using ClosedXML.Excel;
 using System.Globalization;
 using ForQab.Presentation.Validators;
+using ForQab.DataAccess.ViewModel.HeadMonitor;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -149,35 +150,28 @@ namespace ForQab.Presentation.Controllers
         // POST: HeadMonitors/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Monitor monitor)
+        public async Task<IActionResult> Edit(int id, HeadMonitorEditViewModel headMonitor)
         {
-            if (id != monitor.Id)
+            if (id != headMonitor.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    await _headMonitorService.UpdateAsync(monitor);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MonitorExists(monitor.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                return View(headMonitor);
             }
 
-            await LoadViewData(monitor);
-            return View(monitor);
+            try
+            {
+                await _headMonitorService.UpdateModelAsync(headMonitor);
+                return RedirectToAction("Index");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(headMonitor);
+            }
         }
 
         // GET: HeadMonitors/Delete/5

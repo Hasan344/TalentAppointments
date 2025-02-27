@@ -67,6 +67,8 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<WorkerType> WorkerTypes { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("Server=HASANI-PC\\SQLEXPRESS;Database=ForQab;Integrated Security=True;TrustServerCertificate=True;");
 
@@ -283,6 +285,8 @@ public partial class MyDbContext : DbContext
 
             entity.HasOne(d => d.RoleNavigation).WithMany(p => p.Monitors).HasConstraintName("FK__monitor_role");
 
+            entity.HasOne(d => d.WorkerTypeNavigation).WithMany(p => p.Monitors).HasConstraintName("FK__monitor_workertype");
+
             entity.HasOne(d => d.Section).WithMany(p => p.Monitors).HasConstraintName("FK__superviso__secti__60A75C0F");
         });
 
@@ -312,6 +316,11 @@ public partial class MyDbContext : DbContext
         modelBuilder.Entity<Role>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__roles__3213E83F4B5228FB");
+        });
+
+        modelBuilder.Entity<WorkerType>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__workertypes__3213E83F4B5228FB");
         });
 
         modelBuilder.Entity<Section>(entity =>

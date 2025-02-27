@@ -1,5 +1,6 @@
 ﻿
 using ForQab.DataAccess.Models;
+using ForQab.DataAccess.ViewModel.Monitor;
 using System.Linq.Expressions;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 namespace ForQab.Repository
@@ -11,5 +12,6 @@ namespace ForQab.Repository
         Task<IEnumerable<Monitor>> GetMonitorLogsAsync();
         Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId);
         Task DeleteMonitorLogs(int? id);
+        Task UpdateAsync(MonitorEditViewModel model);
     }
 }
