@@ -409,11 +409,13 @@ namespace ForQab.Presentation.Controllers
                 Duration = exam.Duration,
                 Water = exam.Water,
                 Food = exam.Food,
+                StudentCount = exam.StudentCount,
                 Notes = exam.Notes,
                 InventoryTransport = exam.InventoryTransport,
                 Shift = exam.Shift,
                 StartTime = exam.StartTime,
                 EndTime = exam.EndTime,
+                AdmissionTime = exam.AdmissionTime,
                 SelectedCommissions = exam.ExamCommissions?.Select(ec => ec.CommissionId).ToArray(), // CommissionId'leri al
                 Commissions = (await _examService.GetCommissionsAsync(sectionId))
                 .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })

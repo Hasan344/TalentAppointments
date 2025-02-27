@@ -41,5 +41,8 @@ namespace ForQab.DataAccess.ViewModel.Exam
         public byte? Shift { get; set; }
         public TimeSpan? StartTime { get; set; }
         public TimeSpan? EndTime { get; set; }
+        [Required]
+        public int? StudentCount { get; set; }
+        public TimeSpan? AdmissionTime { get; set; }
     }
 }

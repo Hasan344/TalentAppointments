@@ -67,4 +67,10 @@ public partial class Exam
 
     [Column("end_time")]
     public TimeSpan? EndTime { get; set; }
+
+    [Column("admission_time")]
+    public TimeSpan? AdmissionTime { get; set; }
+
+    [Column("student_count")]
+    public int? StudentCount { get; set; }
 }
