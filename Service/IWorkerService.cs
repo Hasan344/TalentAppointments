@@ -1,4 +1,5 @@
 ﻿using ForQab.DataAccess.Models;
+using ForQab.DataAccess.ViewModel.Worker;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 namespace ForQab.Service
 {
@@ -10,6 +11,7 @@ namespace ForQab.Service
         Task<IEnumerable<Monitor>> GetAllArchivedAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear);
         Task AddAsync(Monitor entity);
         Task UpdateAsync(Monitor entity);
+        Task UpdateModelAsync(WorkerEditViewModel entity);
         Task DeleteAsync(int id);
         Task<IEnumerable<Section>> GetSectionsAsync(int? sectionId);
         Task BulkAddAsync(IEnumerable<Monitor> monitors);

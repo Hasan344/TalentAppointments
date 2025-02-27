@@ -9,6 +9,7 @@ using ForQab.Service;
 using ClosedXML.Excel;
 using System.Data;
 using ForQab.Presentation.Validators;
+using ForQab.DataAccess.ViewModel.Monitor;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -129,34 +130,29 @@ namespace ForQab.Presentation.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Monitor monitor)
+        public async Task<IActionResult> Edit(int id, MonitorEditViewModel monitor)
         {
             if (id != monitor.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                   await _monitorService.UpdateAsync(monitor);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MonitorExists(monitor.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                return View(monitor);
             }
-            await LoadViewData(monitor);
-            return View(monitor);
+
+            try
+            {
+                await _monitorService.UpdateModelAsync(monitor);
+                return RedirectToAction("Index");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(monitor);
+            }
         }
 
         // GET: Monitors/Delete/5

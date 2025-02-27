@@ -1,4 +1,6 @@
 ﻿using ForQab.DataAccess.Models;
+using ForQab.DataAccess.ViewModel.HeadMonitor;
+using ForQab.DataAccess.ViewModel.Monitor;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Monitor = ForQab.DataAccess.Models.Monitor;
@@ -63,6 +65,32 @@ namespace ForQab.Repository
             else
             _dbContext.MonitorLogs.Remove(log);
             _dbContext.SaveChanges();
+        }
+        public async Task UpdateAsync(HeadMonitorEditViewModel model)   
+        {
+            var monitor = await _dbContext.Monitors.FindAsync(model.Id);
+            if (monitor == null)
+            {
+                throw new KeyNotFoundException("Monitor tapılmadı.");
+            }
+
+            // Güncellenmesi gereken alanlar
+            monitor.Name = model.Name;
+            monitor.Surname = model.Surname;
+            monitor.Fname = model.Fname;
+            monitor.Region = model.Region;
+            monitor.SectionId = model.SectionId;
+            monitor.Gender = model.Gender;
+            monitor.BirthDate = model.BirthDate;
+            monitor.SSN = model.SSN;
+            monitor.Rekvizit = model.Rekvizit;
+            monitor.Voen = model.Voen;
+            monitor.BankFilial = model.BankFilial;
+            monitor.BankFilialCode = model.BankFilialCode;
+            monitor.District = model.District;
+
+            _dbContext.Monitors.Update(monitor);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

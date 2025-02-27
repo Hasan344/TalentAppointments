@@ -17,6 +17,7 @@ namespace ForQab.Presentation.Validators
             RuleFor(m => m.BankFilialCode).NotEmpty();
             RuleFor(m => m.SSN).NotEmpty();
             RuleFor(m => m.Rekvizit).NotEmpty();
+            RuleFor(m => m.District).NotEmpty();
         }
     }
 }

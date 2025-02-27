@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using ForQab.DataAccess.Models;
+using ForQab.DataAccess.ViewModel.Monitor;
 using ForQab.Repository;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
@@ -313,6 +314,11 @@ namespace ForQab.Service
         public async Task DeleteMonitorLogs(int? id)
         {
             await _monitorRepository.DeleteMonitorLogs(id);
+        }
+
+        public async Task UpdateModelAsync(MonitorEditViewModel model)
+        {
+            await _monitorRepository.UpdateAsync(model);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using ForQab.DataAccess.Models;
+using ForQab.DataAccess.ViewModel.Worker;
 using ForQab.Migrations;
 using ForQab.Repository;
 using Microsoft.EntityFrameworkCore;
@@ -87,6 +88,10 @@ namespace ForQab.Service
             return await _workerRepository.GetSectionsAsync(sectionId);
         }
 
+        public async Task UpdateModelAsync(WorkerEditViewModel entity)
+        {
+            await _workerRepository.UpdateAsync(entity);
+        }
         public async Task UpdateAsync(Monitor entity)
         {
             await _workerRepository.UpdateAsync(entity);
