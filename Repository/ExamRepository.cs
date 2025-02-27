@@ -23,12 +23,14 @@ namespace ForQab.Repository
                 ExamDate = entity.ExamDate,
                 Duration = entity.Duration,
                 Food = entity.Food,
+                StudentCount = entity.StudentCount,
                 Notes = entity.Notes,
                 Water = entity.Water,
                 InventoryTransport = entity.InventoryTransport,
                 StartTime = entity.StartTime,
                 EndTime = entity.EndTime,
                 Shift = entity.Shift,
+                AdmissionTime = entity.AdmissionTime,
             };
 
             //Link selected SubProfessions
@@ -60,7 +62,6 @@ namespace ForQab.Repository
 
         public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId)
         {
-            Console.WriteLine($"FederationId received: {federationId}");
 
             var exam = await _context.Exams.Include(e => e.Experts).FirstOrDefaultAsync(e => e.Id == examId);
             if (exam == null)
@@ -338,6 +339,8 @@ namespace ForQab.Repository
             existingExam.StartTime = exam.StartTime;
             existingExam.EndTime = exam.EndTime;
             existingExam.Shift = exam.Shift;
+            existingExam.StudentCount = exam.StudentCount;
+            existingExam.AdmissionTime = exam.AdmissionTime;
 
             // Mevcut ExamCommissions'ları temizle
             if (existingExam.ExamCommissions != null)

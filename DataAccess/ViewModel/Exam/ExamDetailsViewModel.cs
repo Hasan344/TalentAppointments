@@ -14,6 +14,10 @@ namespace ForQab.Models.ViewModels
         public decimal Duration { get; set; }
         public double Water { get; set; }
         public int Food { get; set; }
+        public int StudentCount { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public TimeOnly AdmissionTime { get; set; }
         public string Notes { get; set; } = string.Empty;
         public string InventoryTransport { get; set; } = string.Empty;
         public List<ExamCommissionViewModel> ExamCommissions { get; set; } = new();

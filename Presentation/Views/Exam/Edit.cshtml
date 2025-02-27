@@ -78,11 +78,24 @@
                     <span asp-validation-for="Food" class="text-danger"></span>
                 </div>
 
+                <div class="col-md-6 mb-3">
+                    <label asp-for="StudentCount" class="form-label">İştirakçı sayı</label>
+                    <input asp-for="StudentCount" type="number" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="StudentCount" class="text-danger"></span>
+                </div>
+
                     <div class="col-md-6 mb-3">
                         <label asp-for="Shift" class="form-label">Növbə</label>
                         <input asp-for="Shift" type="number" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                         <span asp-validation-for="Shift" class="text-danger"></span>
                     </div>
+
+
+                <div class="form-group col-md-6">
+                    <label asp-for="AdmissionTime" class="control-label">Buraxılış Saatı</label>
+                    <input asp-for="AdmissionTime" type="time" class="form-control" value="@Model.AdmissionTime?.ToString(@"hh\:mm")" />
+                    <span asp-validation-for="AdmissionTime" class="text-danger"></span>
+                </div>
 
                 <div class="form-group col-md-6 ">
                     <label asp-for="StartTime" class="control-label">Başlama Saatı</label>

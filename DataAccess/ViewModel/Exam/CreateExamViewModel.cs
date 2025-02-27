@@ -29,6 +29,9 @@ namespace ForQab.Presentation.ViewModels
         [Required]
         public int Food { get; set; }
 
+        [Required]
+        public int? StudentCount { get; set; }
+
         [StringLength(2000)]
         public string? Notes { get; set; }
 
@@ -40,5 +43,6 @@ namespace ForQab.Presentation.ViewModels
         public byte? Shift { get; set; }
         public TimeSpan? StartTime { get; set; }
         public TimeSpan? EndTime { get; set; }
+        public TimeSpan? AdmissionTime { get; set; }
     }
 }
