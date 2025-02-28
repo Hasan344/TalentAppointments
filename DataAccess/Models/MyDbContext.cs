@@ -39,11 +39,15 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<ExamCommission> ExamCommissions { get; set; }
 
+    public virtual DbSet<ExamDegree> ExamDegrees { get; set; }
+
     public virtual DbSet<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; }
 
     public virtual DbSet<ExamSubCommission> ExamSubCommissions { get; set; }
 
     public virtual DbSet<Expert> Experts { get; set; }
+
+    public virtual DbSet<Degree> Degrees { get; set; }
 
     public virtual DbSet<ExpertLog> ExpertLogs { get; set; }
 
@@ -115,6 +119,21 @@ public partial class MyDbContext : DbContext
             .WithMany(c => c.ExamCommissions)
             .HasForeignKey(ec => ec.CommissionId);
 
+        modelBuilder.Entity<ExamDegree>()
+        .ToTable("Exam_Degrees"); 
+
+        modelBuilder.Entity<ExamDegree>()
+            .HasKey(ec => new { ec.ExamId, ec.DegreeId });
+
+        modelBuilder.Entity<ExamDegree>()
+            .HasOne(ec => ec.Exams)
+            .WithMany(e => e.ExamDegrees)
+            .HasForeignKey(ec => ec.ExamId);
+
+        modelBuilder.Entity<ExamDegree>()
+            .HasOne(ec => ec.Degrees)
+            .WithMany(c => c.ExamDegrees)
+            .HasForeignKey(ec => ec.DegreeId);
 
         modelBuilder.Entity<ExamExpertSubProfession>()
         .ToTable("Exam_Expert_SubProfessions"); // Tablo adını doğru belirtin

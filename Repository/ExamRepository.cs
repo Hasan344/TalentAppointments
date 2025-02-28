@@ -53,6 +53,25 @@ namespace ForQab.Repository
                     }
                 }
             }
+            if (entity.SelectedDegrees != null)
+            {
+                foreach (var degreeId in entity.SelectedDegrees)
+                {
+                    var degree = await _context.Degrees.FindAsync(degreeId);
+                    if (degree != null)
+                    {
+                        // Yeni ExamCommission oluştur ve ekle
+                        var examDegree = new ExamDegree
+                        {
+                            ExamId = exam.Id, // Exam'in Id'si otomatik olarak atanacak
+                            DegreeId = degree.Id,
+                            Exams = exam,
+                            Degrees = degree
+                        };
+                        exam.ExamDegrees.Add(examDegree);
+                    }
+                }
+            }
 
 
             await _context.Exams.AddAsync(exam);
@@ -260,6 +279,8 @@ namespace ForQab.Repository
                         .Where(eesp => eesp.ExamId == id)) // Sadece bu imtahana aid olanlar
                     .ThenInclude(eesp => eesp.Federation)
                 .Include(e => e.Monitors)
+                .Include(e => e.ExamDegrees)
+                    .ThenInclude(ed => ed.Degrees)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
@@ -313,7 +334,7 @@ namespace ForQab.Repository
                 .CountAsync();
         }
 
-        public async Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds)
+        public async Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds, int[] degreeIds)
         {
             // Mevcut Exam'i bul ve ilişkili verileri include et
             var existingExam = await _context.Exams
@@ -321,6 +342,8 @@ namespace ForQab.Repository
                     .ThenInclude(ec => ec.Commission)
                 .Include(e => e.ExamBuilding)
                 .Include(e => e.Section)
+                .Include(e => e.ExamDegrees)
+                    .ThenInclude(e => e.Degrees)
                 .FirstOrDefaultAsync(e => e.Id == exam.Id);
 
             if (existingExam == null)
@@ -347,8 +370,10 @@ namespace ForQab.Repository
             {
                 existingExam.ExamCommissions.Clear();
             }
-
-            // Yeni komisyonları ekle
+            if (existingExam.ExamDegrees != null)
+            {
+                existingExam.ExamDegrees.Clear();
+            }
             if (commissionIds != null && commissionIds.Length > 0)
             {
                 foreach (var commissionId in commissionIds)
@@ -356,7 +381,6 @@ namespace ForQab.Repository
                     var commission = await _context.Commissions.FindAsync(commissionId);
                     if (commission != null)
                     {
-                        // Yeni ExamCommission oluştur ve ekle
                         var examCommission = new ExamCommission
                         {
                             ExamId = existingExam.Id,
@@ -365,6 +389,24 @@ namespace ForQab.Repository
                             Commission = commission
                         };
                         existingExam.ExamCommissions.Add(examCommission);
+                    }
+                }
+            }
+            if (degreeIds != null && degreeIds.Length > 0)
+            {
+                foreach (var degreeId in degreeIds)
+                {
+                    var degree = await _context.Degrees.FindAsync(degreeId);
+                    if (degree != null)
+                    {
+                        var examDegree = new ExamDegree
+                        {
+                            ExamId = existingExam.Id,
+                            DegreeId = degree.Id,
+                            Exams = existingExam,
+                            Degrees = degree
+                        };
+                        existingExam.ExamDegrees.Add(examDegree);
                     }
                 }
             }

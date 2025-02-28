@@ -75,6 +75,10 @@ namespace ForQab.Presentation.Controllers
                 {
                     Commission = new CommissionViewModel { Name = ec.Commission.Name }
                 }).ToList(),
+                ExamDegrees = exam.ExamDegrees.Select(ec => new ExamDegreeViewModel
+                {
+                    Degree = new DegreeViewModel { Name = ec.Degrees.Name }
+                }).ToList(),
                 Experts = exam.Experts.Select(e => new ExpertViewModelForExam
                 {
                     Id = e.Id,
@@ -365,12 +369,18 @@ namespace ForQab.Presentation.Controllers
             var sectionId = await GetCurrentSectionIdAsync();
             var commissions = await _examService.GetCommissionsAsync(sectionId);
 
+            var degrees = _context.Degrees.ToList();
             var viewModel = new CreateExamViewModel
             {
                 Commissions = commissions.Select(sp => new SelectListItem
                 {
                     Text = sp.Name,
                     Value = sp.Id.ToString()
+                }).ToList(),
+                Degrees = degrees.Select(d => new SelectListItem
+                {
+                    Text = d.Name,
+                    Value = d.Id.ToString()
                 }).ToList()
             };
             if (sectionId == null)
@@ -395,6 +405,7 @@ namespace ForQab.Presentation.Controllers
             {
                 var sectionId = await GetCurrentSectionIdAsync();
                 var commissions = await _examService.GetCommissionsAsync(sectionId);
+                var degrees = _context.Degrees.ToList();
 
                 var viewModel = new CreateExamViewModel
                 {
@@ -402,6 +413,11 @@ namespace ForQab.Presentation.Controllers
                     {
                         Text = sp.Name,
                         Value = sp.Id.ToString()
+                    }).ToList(),
+                    Degrees = degrees.Select(d => new SelectListItem
+                    {
+                        Text = d.Name,
+                        Value = d.Id.ToString()
                     }).ToList()
                 };
                 if (sectionId == null)
@@ -409,6 +425,7 @@ namespace ForQab.Presentation.Controllers
                     ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
                     ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.ToListAsync(), "Id", "Name");
                     ViewBag.CommissionList = new SelectList(await _context.Commissions.ToListAsync(), "Id", "Name");
+                    ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
                     ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.ToListAsync(), "Id", "Name");
                 }
                 else
@@ -416,6 +433,7 @@ namespace ForQab.Presentation.Controllers
                     ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
                     ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.Where(e => e.SectionId == sectionId).ToListAsync(), "Id", "Name");
                     ViewBag.CommissionList = new SelectList(await _context.Commissions.Where(c => c.SectionId == sectionId).ToListAsync(), "Id", "Name");
+                    ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
                     ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.Where(sc => sc.SectionId == sectionId).ToListAsync(), "Id", "Name");
 
                 }
@@ -435,6 +453,7 @@ namespace ForQab.Presentation.Controllers
                 ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
                 ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.ToListAsync(), "Id", "Name");
                 ViewBag.CommissionList = new SelectList(await _context.Commissions.ToListAsync(), "Id", "Name");
+                ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
                 ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.ToListAsync(), "Id", "Name");
             }
             else
@@ -442,6 +461,7 @@ namespace ForQab.Presentation.Controllers
                 ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
                 ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.Where(e => e.SectionId == sectionId).ToListAsync(), "Id", "Name");
                 ViewBag.CommissionList = new SelectList(await _context.Commissions.Where(c => c.SectionId == sectionId).ToListAsync(), "Id", "Name");
+                ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
                 ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.Where(sc => sc.SectionId == sectionId).ToListAsync(), "Id", "Name");
             }
 
@@ -477,7 +497,11 @@ namespace ForQab.Presentation.Controllers
                 SelectedCommissions = exam.ExamCommissions?.Select(ec => ec.CommissionId).ToArray(), // CommissionId'leri al
                 Commissions = (await _examService.GetCommissionsAsync(sectionId))
                 .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
-                .ToList()
+                .ToList(),
+                SelectedDegrees = exam.ExamDegrees?.Select(ec => ec.DegreeId).ToArray(), // CommissionId'leri al
+                Degrees = (await _context.Degrees.ToListAsync())
+                                         .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
+                                         .ToList()
             };
 
             return View(viewModel); // Pass the correct view model
@@ -485,7 +509,7 @@ namespace ForQab.Presentation.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Edit(EditExamViewModel exam, int[] selectedCommissions)
+        public async Task<IActionResult> Edit(EditExamViewModel exam, int[] selectedCommissions, int[] selectedDegrees)
         {
             var sectionId = await GetCurrentSectionIdAsync();
             if (sectionId == null)
@@ -493,6 +517,7 @@ namespace ForQab.Presentation.Controllers
                 ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
                 ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.ToListAsync(), "Id", "Name");
                 ViewBag.CommissionList = new SelectList(await _context.Commissions.ToListAsync(), "Id", "Name");
+                ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
                 ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.ToListAsync(), "Id", "Name");
             }
             else
@@ -500,12 +525,13 @@ namespace ForQab.Presentation.Controllers
                 ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
                 ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.Where(e => e.SectionId == sectionId).ToListAsync(), "Id", "Name");
                 ViewBag.CommissionList = new SelectList(await _context.Commissions.Where(c => c.SectionId == sectionId).ToListAsync(), "Id", "Name");
+                ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
                 ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.Where(sc => sc.SectionId == sectionId).ToListAsync(), "Id", "Name");
 
             }
             if (ModelState.IsValid)
             {
-                await _examService.UpdateExamAsync(exam, selectedCommissions);
+                await _examService.UpdateExamAsync(exam, selectedCommissions, selectedDegrees);
                 return RedirectToAction(nameof(Index));
             }
 

@@ -38,6 +38,8 @@ namespace ForQab.DataAccess.ViewModel.Exam
         public string? InventoryTransport { get; set; }
         public List<SelectListItem>? Commissions { get; set; }
         public int[]? SelectedCommissions { get; set; }
+        public List<SelectListItem>? Degrees { get; set; }
+        public int[]? SelectedDegrees { get; set; }
         public byte? Shift { get; set; }
         public TimeSpan? StartTime { get; set; }
         public TimeSpan? EndTime { get; set; }
