@@ -50,6 +50,7 @@ public partial class Exam
     public virtual ICollection<ExamCommission> ExamCommissions { get; set; } = new List<ExamCommission>();
 
     public virtual ICollection<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; } = new List<ExamExpertSubProfession>();
+    public virtual ICollection<ExamDegree> ExamDegrees { get; set; } = new List<ExamDegree>();
 
     [ForeignKey("ExamId")]
     [InverseProperty("Exams")]

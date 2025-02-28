@@ -108,9 +108,9 @@ namespace ForQab.Service
            return await _examRepository.GetSectionIdByExamIdAsync(examId);
         }
 
-        public async Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds)
+        public async Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds, int[] degreeIds)
         {
-            await _examRepository.UpdateExamAsync(exam, commissionIds);
+            await _examRepository.UpdateExamAsync(exam, commissionIds,degreeIds);
         }
 
         public async Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId)

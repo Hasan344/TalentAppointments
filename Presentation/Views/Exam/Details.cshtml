@@ -76,6 +76,18 @@
 
                 <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Nəqliyyat:</dt>
                 <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.InventoryTransport</dd>
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Təhsil səviyyələri:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">
+                    @if (Model.ExamDegrees != null && Model.ExamDegrees.Any())
+                    {
+                        @string.Join(", ", Model.ExamDegrees.Select(sp => sp.Degree.Name))
+                    }
+                    else
+                    {
+                        <span style="color: @secondaryColor;">---</span>
+                    }
+                </dd>
             </dl>
         </div>
     </div>

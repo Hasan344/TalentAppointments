@@ -45,14 +45,13 @@
                     </select>
                     <span asp-validation-for="SelectedCommissions" class="text-danger"></span>
                 </div>
-@* 
+
                 <div class="mb-3">
-                    <label asp-for="SubCommissionId" class="form-label">Sub-Commission</label>
-                    <select asp-for="SubCommissionId" class="form-select" asp-items="ViewBag.SubCommissionList" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>Select Sub-Commission</option>
+                    <label class="form-label">Təhsil səviyyəsi</label>
+                    <select asp-for="SelectedDegrees" class="form-select" asp-items="Model.Degrees" multiple style="background-color: #23272a; color: #ffffff;">
                     </select>
-                    <span asp-validation-for="SubCommissionId" class="text-danger"></span>
-                </div> *@
+                    <span asp-validation-for="SelectedDegrees" class="text-danger"></span>
+                </div>
 
                 <div class="col-md-6 mb-3">
                     <label asp-for="ExamDate" class="form-label">İmtahan tarixi</label>

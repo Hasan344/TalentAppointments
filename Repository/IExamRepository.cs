@@ -17,7 +17,7 @@ namespace ForQab.Repository
         public Task<int> GetAvailableExpertsCountAsync(int sectionId, int[] selectedSubProfessions);
         public Task<int> GetAvailableMonitorsCountAsync(int sectionId, int genderId, DateOnly maxDate);
         public Task<int> GetAvailableHeadMonitorsCountAsync(int sectionId, int genderId, DateOnly maxDate);
-        public Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds);
+        public Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds, int[] degreeIds);
         public Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId);
         Task AddMonitorLogAsync(MonitorLog log);
         Task AddExpertLogAsync(ExpertLog logs);

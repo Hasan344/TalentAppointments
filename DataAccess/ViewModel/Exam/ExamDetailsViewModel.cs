@@ -21,6 +21,7 @@ namespace ForQab.Models.ViewModels
         public string Notes { get; set; } = string.Empty;
         public string InventoryTransport { get; set; } = string.Empty;
         public List<ExamCommissionViewModel> ExamCommissions { get; set; } = new();
+        public List<ExamDegreeViewModel> ExamDegrees { get; set; } = new();
         public List<ExpertViewModelForExam> Experts { get; set; } = new();
         public List<MonitorViewModel> Monitors { get; set; } = new();
         public List<int> ExpertsWithLogs { get; set; } = new();
@@ -43,6 +44,15 @@ namespace ForQab.Models.ViewModels
     }
 
     public class CommissionViewModel
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+    public class ExamDegreeViewModel
+    {
+        public DegreeViewModel Degree { get; set; } = new();
+    }
+
+    public class DegreeViewModel
     {
         public string Name { get; set; } = string.Empty;
     }
