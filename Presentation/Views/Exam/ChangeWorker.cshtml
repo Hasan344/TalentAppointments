@@ -1,0 +1,20 @@
+﻿@model ForQab.DataAccess.ViewModel.Exam.ChangeMonitorViewModel
+
+@{
+    ViewData["Title"] = "Nəzarətçi Dəyişdir";
+}
+
+<h2>Nəzarətçini Dəyişdir</h2>
+
+<form asp-action="ChangeWorker" method="post">
+    <input type="hidden" asp-for="ExamId" />
+    <input type="hidden" asp-for="CurrentMonitorId" />
+
+    <div class="mb-3">
+        <label for="newMonitorId" class="form-label">Yeni İşçi Seçin:</label>
+        <select asp-for="NewMonitorId" asp-items="Model.AvailableMonitors" class="form-select"></select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Yadda Saxla</button>
+    <a asp-action="Details" asp-route-id="@Model.ExamId" class="btn btn-secondary">İmtahana Qayıt</a>
+</form>

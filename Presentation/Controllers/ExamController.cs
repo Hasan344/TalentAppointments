@@ -18,7 +18,7 @@ namespace ForQab.Presentation.Controllers
         private readonly MyDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public ExamController(IExamService examService,  MyDbContext context, UserManager<ApplicationUser> userManager)
+        public ExamController(IExamService examService, MyDbContext context, UserManager<ApplicationUser> userManager)
          : base(context, userManager)
         {
             _examService = examService;
@@ -28,14 +28,14 @@ namespace ForQab.Presentation.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var sectionId= await GetCurrentSectionIdAsync();
+            var sectionId = await GetCurrentSectionIdAsync();
             var exams = await _examService.GetExamsBySectionIdAsync(sectionId);
             return View(exams);
         }
 
         public async Task<IActionResult> Details(int id)
         {
-            var exam = await _examService.GetExamByIdAsync(id); 
+            var exam = await _examService.GetExamByIdAsync(id);
 
             if (exam == null)
             {
@@ -107,9 +107,9 @@ namespace ForQab.Presentation.Controllers
 
 
 
-        public  async Task<IActionResult> ChangeExpert(int examId, int expertId)
+        public async Task<IActionResult> ChangeExpert(int examId, int expertId)
         {
-           
+
             var exam = _context.Exams
                 .Include(e => e.Experts)
                 .FirstOrDefault(e => e.Id == examId);
@@ -194,7 +194,7 @@ namespace ForQab.Presentation.Controllers
                     }
 
                     await _context.SaveChangesAsync();
-                    await transaction.CommitAsync(); 
+                    await transaction.CommitAsync();
                 }
                 catch (Exception)
                 {
@@ -218,7 +218,7 @@ namespace ForQab.Presentation.Controllers
 
             var selectedMonitorList = exam.Monitors.Select(m => m.Id).ToList();
 
-            var monitorList = _context.Monitors.Where(m => m.Role == 2 && m.SectionId == sectionId && m.Gender == monitorGender && !selectedMonitorList.Contains(m.Id)).ToList(); 
+            var monitorList = _context.Monitors.Where(m => m.Role == 2 && m.SectionId == sectionId && m.Gender == monitorGender && !selectedMonitorList.Contains(m.Id)).ToList();
 
             var viewModel = new ChangeMonitorViewModel
             {
@@ -267,7 +267,8 @@ namespace ForQab.Presentation.Controllers
             var headMonitorGender = _context.Monitors.Where(m => m.Id == monitorId).Select(m => m.Gender).FirstOrDefault();
             if (exam == null) return NotFound();
 
-            var monitorList = _context.Monitors.Where(m => m.Role == 1 && m.SectionId == sectionId && m.Gender == headMonitorGender).ToList();
+            var selectedMonitorList = exam.Monitors.Select(m => m.Id).ToList();
+            var monitorList = _context.Monitors.Where(m => m.Role == 1 && m.SectionId == sectionId && m.Gender == headMonitorGender && !selectedMonitorList.Contains(m.Id)).ToList();
 
             var viewModel = new ChangeMonitorViewModel
             {
@@ -282,6 +283,7 @@ namespace ForQab.Presentation.Controllers
 
             return View(viewModel);
         }
+
         [HttpPost]
         public IActionResult ChangeHeadMonitor(ChangeMonitorViewModel model)
         {
@@ -306,9 +308,61 @@ namespace ForQab.Presentation.Controllers
             _context.SaveChanges();
             return RedirectToAction("Details", new { id = model.ExamId });
         }
+        public async Task<IActionResult> ChangeWorker(int examId, int monitorId)
+        {
+            var exam = _context.Exams
+                .Include(e => e.Monitors)
+                .FirstOrDefault(e => e.Id == examId);
+
+            var workerType = _context.Monitors.Where(m => m.Id == monitorId).Select(m => m.WorkerType).FirstOrDefault();
+            var sectionId = await GetCurrentSectionIdAsync();
+            if (exam == null) return NotFound();
+
+            var selectedMonitorList = exam.Monitors.Select(m => m.Id).ToList();
+
+            var monitorList = _context.Monitors.Where(m => m.Role == 5 && m.SectionId == sectionId && m.WorkerType == workerType && !selectedMonitorList.Contains(m.Id)).ToList();
+
+            var viewModel = new ChangeMonitorViewModel
+            {
+                ExamId = examId,
+                CurrentMonitorId = monitorId,
+                AvailableMonitors = monitorList.Select(e => new SelectListItem
+                {
+                    Value = e.Id.ToString(),
+                    Text = $"{e.Name} {e.Surname} ({e.FinCode})"
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
+        [HttpPost]
+        public IActionResult ChangeWorker(ChangeMonitorViewModel model)
+        {
+            var exam = _context.Exams
+                .Include(e => e.Monitors)
+                .FirstOrDefault(e => e.Id == model.ExamId);
+
+            if (exam == null) return NotFound();
+
+            var currentMonitor = exam.Monitors.FirstOrDefault(e => e.Id == model.CurrentMonitorId);
+            if (currentMonitor != null)
+            {
+                exam.Monitors.Remove(currentMonitor);
+            }
+
+            var newMonitor = _context.Monitors.FirstOrDefault(e => e.Id == model.NewMonitorId);
+            if (newMonitor != null)
+            {
+                exam.Monitors.Add(newMonitor);
+            }
+
+            _context.SaveChanges();
+            return RedirectToAction("Details", new { id = model.ExamId });
+        }
+        
         public async Task<IActionResult> Create()
         {
-            var sectionId = await GetCurrentSectionIdAsync(); 
+            var sectionId = await GetCurrentSectionIdAsync();
             var commissions = await _examService.GetCommissionsAsync(sectionId);
 
             var viewModel = new CreateExamViewModel
@@ -451,10 +505,10 @@ namespace ForQab.Presentation.Controllers
             }
             if (ModelState.IsValid)
             {
-                await _examService.UpdateExamAsync(exam,selectedCommissions);
+                await _examService.UpdateExamAsync(exam, selectedCommissions);
                 return RedirectToAction(nameof(Index));
             }
-            
+
             return View(exam);
         }
 
@@ -592,7 +646,7 @@ namespace ForQab.Presentation.Controllers
             {
                 ExamId = examId,
                 MonitorId = monitorId,
-                Kind = 0, 
+                Kind = 0,
                 KindOptions = new List<SelectListItem>
                 {
                     new SelectListItem { Value = "0", Text = "Gəlməyən haqqında qeyd" },
@@ -705,7 +759,7 @@ namespace ForQab.Presentation.Controllers
                 catch (Exception ex)
                 {
                     ModelState.AddModelError(string.Empty, ex.Message);
-                    ViewBag.ErrorMessage = ex.Message; 
+                    ViewBag.ErrorMessage = ex.Message;
                 }
             }
 
@@ -717,6 +771,7 @@ namespace ForQab.Presentation.Controllers
 
             return View(model);
         }
+
         [HttpGet]
         public async Task<IActionResult> AssignHeadMonitors(int id)
         {
@@ -770,10 +825,83 @@ namespace ForQab.Presentation.Controllers
 
             return View(model);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> AssignWorkers(int id)
+        {
+            var exam = await _examService.GetExamByIdAsync(id);
+            if (exam == null)
+            {
+                return NotFound();
+            }
+            var workerTypes = _context.WorkerTypes // WorkerType'ların bulunduğu DbSet
+                                .Select(w => new SelectListItem
+                                {
+                                    Value = w.Id.ToString(), // Byte türündeyse ToString() kullanmalısın
+                                    Text = w.Name
+                                })
+                                .ToList();
+
+            ViewBag.ExamName = exam.Name;
+            ViewBag.WorkerTypes = workerTypes; 
+
+            var model = new AssignWorkersToExamViewModel
+            {
+                ExamId = exam.Id,
+                SectionId = exam.SectionId,
+                Assignments = new List<WorkerAssignmentViewModel> { new WorkerAssignmentViewModel() }
+
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignWorkers(AssignWorkersToExamViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    foreach (var assignment in model.Assignments)
+                    {
+                        await _examService.AssignRandomWorkersToExamAsync(
+                            model.ExamId,
+                            assignment.NumberOfMonitors,
+                            assignment.WorkerType
+                        );
+                    }
+
+                    TempData["SuccessMessage"] = "İşçi uğurla təyin edildi!";
+                    return RedirectToAction(nameof(Details), new { id = model.ExamId });
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                    ViewBag.ErrorMessage = ex.Message;
+                }
+            }
+
+            var workerTypes = _context.WorkerTypes 
+                                .Select(w => new SelectListItem
+                                {
+                                    Value = w.Id.ToString(),
+                                    Text = w.Name
+                                })
+                                .ToList();
+            ViewBag.WorkerTypes = workerTypes;
+            var exam = await _examService.GetExamByIdAsync(model.ExamId);
+            if (exam != null)
+            {
+                ViewBag.ExamName = exam.Name;
+            }
+
+            return View(model);
+        }
+
         public IActionResult ExpertDetails(int id)
         {
             var expert = _context.Experts.Find(id);
-            if (expert == null) 
+            if (expert == null)
                 return NotFound();
             return RedirectToAction("Details", "Expert", new { id });
         }
@@ -781,7 +909,7 @@ namespace ForQab.Presentation.Controllers
         public IActionResult MonitorDetails(int id)
         {
             var monitor = _context.Monitors.Find(id);
-            if (monitor == null) 
+            if (monitor == null)
                 return NotFound();
             return RedirectToAction("Details", "Monitors", new { id });
         }
@@ -793,16 +921,22 @@ namespace ForQab.Presentation.Controllers
             return RedirectToAction("Details", "HeadMonitors", new { id });
         }
 
+        public IActionResult WorkerDetails(int id)
+        {
+            var monitor = _context.Monitors.Find(id);
+            if (monitor == null)
+                return NotFound();
+            return RedirectToAction("Details", "Worker", new { id });
+        }
+
         public async Task<IActionResult> ExportToExcel()
         {
-            var sectionId=await GetCurrentSectionIdAsync();
-            // Mevcut verileri alın
+            var sectionId = await GetCurrentSectionIdAsync();
             var exams = await _examService.GetExamsBySectionIdAsync(sectionId);
 
-            // DataTable oluştur
             var dt = new DataTable("Exams");
-                dt.Columns.AddRange(new DataColumn[]
-                {
+            dt.Columns.AddRange(new DataColumn[]
+            {
                     new DataColumn("Name"),
                     new DataColumn("Exam Date"),
                     new DataColumn("Duration"),
@@ -811,16 +945,15 @@ namespace ForQab.Presentation.Controllers
                     //new DataColumn("Commission"),
                     new DataColumn("Exam Building"),
                     new DataColumn("Section"),
-                });
+            });
 
-            // Verileri doldur
             foreach (var exam in exams)
             {
                 dt.Rows.Add(
                     exam.Name,
-                    exam.ExamDate.ToString("yyyy-MM-dd"), // Tarih formatı
+                    exam.ExamDate.ToString("yyyy-MM-dd"), 
                     exam.Duration,
-                    exam.Water ,
+                    exam.Water,
                     exam.Food,
                     //exam.Commission?.Name ?? "---",
                     exam.ExamBuilding?.Name ?? "---",

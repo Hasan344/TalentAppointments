@@ -1,5 +1,4 @@
-﻿using ForQab.Data_Access.ViewModel;
-using ForQab.DataAccess.Models;
+﻿using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Exam;
 using ForQab.Presentation.ViewModels;
 
@@ -11,6 +10,7 @@ namespace ForQab.Repository
         Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId);
         Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate);
         Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate);
+        Task AssignRandomWorkersToExamAsync(int examId, int numberOfMonitors, byte workerType);
         Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId);
         Task<IEnumerable<SubProfession>> GetSubProfessionsBySectionIdAsync(int? sectionId);
         public Task<int?> GetSectionIdByExamIdAsync(int examId);

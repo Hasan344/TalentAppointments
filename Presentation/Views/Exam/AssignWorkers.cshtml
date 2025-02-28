@@ -1,9 +1,9 @@
 ﻿@using ForQab.DataAccess.ViewModel.Exam
-@model AssignMonitorsToExamViewModel
+@model AssignWorkersToExamViewModel
 
 <div class="container mt-5">
     <div class="card shadow-lg border-0 rounded-4 p-4">
-        <h2 class="mb-4 text-center text-dark fw-bold">İmtahan Rəhbəri Təyin Et</h2>
+        <h2 class="mb-4 text-center text-dark fw-bold">İmtahana İşçi Təyin Et</h2>
         <h4 class="text-center text-muted">@ViewBag.ExamName</h4>
 
         @if (!ViewData.ModelState.IsValid)
@@ -17,25 +17,28 @@
         }
 
 
-        <form asp-action="AssignHeadMonitors" method="post">
+        <form asp-action="AssignWorkers" method="post">
             <input type="hidden" asp-for="ExamId" />
             <input type="hidden" asp-for="SectionId" />
 
-            <div id="headMonitorContainer">
-                <div class="headmonitor-form row mb-3 p-3 bg-light rounded-3 shadow-sm">
+            <div id="monitorContainer">
+                <div class="monitor-form row mb-3 p-3 bg-light rounded-3 shadow-sm">
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">Cinsiyyət</label>
-                        <select name="Assignments[0].GenderId" class="form-select">
-                            <option value="0">Qadın</option>
-                            <option value="1">Kişi</option>
-                        </select>
+                        <label class="form-label fw-semibold">İşçi Tipi</label>
+                        @if (Model.Assignments.Count > 0)
+                        {
+                            <select asp-for="Assignments[0].WorkerType" class="form-select"
+                                    asp-items="@ViewBag.WorkerTypes">
+                                <option value="">Seçin...</option>
+                            </select>
+                        }
+                        else
+                        {
+                            <p class="text-danger">Worker tiplerini eklemek için en az bir atama gereklidir.</p>
+                        }
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">Maksimum Tarix</label>
-                        <input type="date" name="Assignments[0].MaxDate" class="form-control" />
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Nəzarətçi sayı</label>
+                        <label class="form-label fw-semibold">İşçi sayı</label>
                         <input type="number" name="Assignments[0].NumberOfMonitors" class="form-control" required />
                         <span asp-validation-for="Assignments[0].NumberOfMonitors" class="text-danger"></span>
                     </div>
@@ -43,16 +46,16 @@
             </div>
 
             <div class="mt-4 d-flex justify-content-center gap-3">
-                <button type="button" id="addHeadMonitorBtn" class="btn btn-outline-success px-4 py-2">Yeni Nəzarətçi +</button>
-                <button type="submit" class="btn btn-primary px-4 py-2">Nəzarətçi Təyin Et</button>
+                <button type="button" id="addMonitorBtn" class="btn btn-outline-success px-4 py-2">Yeni İşçi +</button>
+                <button type="submit" class="btn btn-primary px-4 py-2">İşçi Təyin Et</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-    document.getElementById('addHeadMonitorBtn').addEventListener('click', function () {
-        var container = document.getElementById('headMonitorContainer');
+    document.getElementById('addMonitorBtn').addEventListener('click', function () {
+        var container = document.getElementById('monitorContainer');
         var forms = container.children;
         var newForm = container.firstElementChild.cloneNode(true);
         var newIndex = forms.length;
