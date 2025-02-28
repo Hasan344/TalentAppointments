@@ -14,6 +14,7 @@ namespace ForQab.Service
         Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId);
         Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate);
         Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate);
+        Task AssignRandomWorkersToExamAsync(int examId, int numberOfMonitors, byte workerType);
         Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId);
         Task<IEnumerable<SubProfession>> GetSubprofessionsBySectionIdAsync(int? sectionId);
         public Task<bool> AssignExpertsAsync(AssignExpertToExamViewModel model);

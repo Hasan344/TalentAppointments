@@ -146,5 +146,10 @@ namespace ForQab.Service
         {
             return await _examRepository.GetExpertSubProfessionsByExamIdAsync(examId);
         }
+
+        public async Task AssignRandomWorkersToExamAsync(int examId, int numberOfMonitors, byte workerType)
+        {
+            await _examRepository.AssignRandomWorkersToExamAsync(examId, numberOfMonitors, workerType);
+        }
     }
 }

@@ -444,5 +444,50 @@ namespace ForQab.Repository
                 .ToListAsync();
         }
 
+        public async Task AssignRandomWorkersToExamAsync(int examId, int numberOfMonitors, byte workerType)
+        {
+            var exam = await _context.Exams
+                .Include(e => e.Monitors) // Mevcut nəzarətçiləri yüklə
+                .FirstOrDefaultAsync(e => e.Id == examId);
+
+            if (exam == null)
+                throw new ArgumentException("Exam not found");
+
+            var alreadyAssignedMonitorIds = exam.Monitors.Select(m => m.Id).ToHashSet();
+
+            var availableMonitors = await _context.Monitors
+                .Where(e => e.SectionId == exam.SectionId)
+                .Where(e => e.Role == 5)
+                .Where(e => e.Status == 0)
+                .Where(e => e.Archive == 0)
+                .Where(e => e.WorkerType == workerType)
+                .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id)) 
+                .OrderBy(e => e.AssignmentCount) 
+                .ToListAsync();
+
+            if (availableMonitors.Count < numberOfMonitors)
+                throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
+
+            // Belirlenen sayıda nəzarətçiyi seç
+            var selectedMonitors = availableMonitors.Take(numberOfMonitors).ToList();
+
+            foreach (var monitor in selectedMonitors)
+            {
+                exam.Monitors.Add(monitor);
+                monitor.AssignmentCount++;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        //public async Task<int> GetAvailableWorkersCountAsync(int sectionId)
+        //{
+        //    return await _context.Monitors
+        //        .Where(m => m.SectionId == sectionId)
+        //        .Where(m => m.Role == 5)
+        //        .Where(e => e.Status == 0)
+        //        .Where(e => e.Archive == 0)
+        //        .CountAsync();
+        //}
     }
 }

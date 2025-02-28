@@ -266,6 +266,64 @@
     </div>
 
 
+    <!-- Assigned Workers Section -->
+    <div class="mt-4">
+        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş İşçilər</h4>
+        @{
+            var workers = Model.Monitors.Where(m => m.Role == 5);
+        }
+        @if (workers.Any())
+        {
+            <ul class="list-group list-group-flush">
+                @foreach (var worker in workers)
+                {
+                    var hasLog = ViewBag.MonitorsWithLogs != null && ViewBag.MonitorsWithLogs.Contains(worker.Id);
+                    <li class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h6 class="mb-0">
+                                    @worker.Name @worker.Surname @worker.Fname
+                                </h6>
+                                <small class="text-muted">
+                                    FinCode: @worker.FinCode
+                                </small>
+                                @if (hasLog)
+                                {
+                                    <span class="badge ml-2" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;">Qeydi var</span>
+                                }
+                            </div>
+                            <div class="col-md-4 text-md-right mt-2 mt-md-0">
+                                <a class="btn btn-sm btn-outline-secondary mr-2"
+                                   asp-action="ChangeWorker"
+                                   asp-route-examId="@Model.Id"
+                                   asp-route-monitorId="@worker.Id">
+                                    <i class="bi bi-pencil"></i> Dəyişdir
+                                </a>
+                                @* <a class="btn btn-sm btn-outline-primary"
+                                   asp-action="WriteWorkerLog"
+                                   asp-route-examId="@Model.Id"
+                                   asp-route-monitorId="@worker.Id">
+                                    <i class="bi bi-chat"></i> Xüsusi qeyd yaz
+                                </a> *@
+                                <a class="btn btn-sm btn-outline-info"
+                                   asp-action="WorkerDetails"
+                                   asp-route-id="@worker.Id">
+                                    <i class="bi bi-eye"></i> Detallara Bax
+                                </a>
+
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nəzarətçi təyin edilməyib.</p>
+        }
+    </div>
+
+
     <!-- Action Buttons -->
     <div class="text-center mt-4">
         <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="Edit" asp-route-id="@Model.Id">
@@ -282,6 +340,9 @@
         </a>
         <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
             <i class="bi bi-person-plus"></i> İmtahan rəhbəri Təyin Et
+        </a>
+        <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignWorkers" asp-route-id="@Model.Id">
+            <i class="bi bi-person-plus"></i> İşçi Təyin Et
         </a>
     </div> 
 </div>
