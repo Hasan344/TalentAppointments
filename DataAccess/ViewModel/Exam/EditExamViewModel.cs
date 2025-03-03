@@ -16,6 +16,9 @@ namespace ForQab.DataAccess.ViewModel.Exam
         public int SectionId { get; set; }
 
         [Required]
+        public int DistrictId { get; set; }
+
+        [Required]
         public int ExamBuldingId { get; set; }
 
         [Required]

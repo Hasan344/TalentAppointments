@@ -26,6 +26,14 @@
                 </div>
 
                 <div class="mb-3">
+                    <label asp-for="DistrictId" class="form-label">Rayon</label>
+                    <select asp-for="DistrictId" class="form-select" asp-items="ViewBag.DistrictList" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Rayon Seçin</option>
+                    </select>
+                    <span asp-validation-for="DistrictId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
                     <label asp-for="ExamBuldingId" class="form-label">İmtahan Binasi</label>
                     <select asp-for="ExamBuldingId" class="form-select" asp-items="ViewBag.ExamBuildingList" style="background-color: #23272a; color: #ffffff;">
                         <option value="" disabled selected>İmtahan Binasi Seçin</option>

@@ -193,6 +193,9 @@ public partial class MyDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__exams__exam_buld__59C55456");
 
+            entity.HasOne(d => d.District).WithMany(p => p.Exams)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
             entity.HasOne(d => d.Section).WithMany(p => p.Exams)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__exams__section_i__56E8E7AB");

@@ -17,6 +17,9 @@ public partial class Exam
     [Column("section_id")]
     public int SectionId { get; set; }
 
+    [Column("district_id")]
+    public int DistrictId { get; set; }
+
     [Column("exam_bulding_id")]
     public int ExamBuldingId { get; set; }
 
@@ -47,6 +50,10 @@ public partial class Exam
     [ForeignKey("SectionId")]
     [InverseProperty("Exams")]
     public virtual Section? Section { get; set; } = null!;
+
+    [ForeignKey("DistrictId")]
+    [InverseProperty("Exams")]
+    public virtual District? District { get; set; } = null!;
     public virtual ICollection<ExamCommission> ExamCommissions { get; set; } = new List<ExamCommission>();
 
     public virtual ICollection<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; } = new List<ExamExpertSubProfession>();
