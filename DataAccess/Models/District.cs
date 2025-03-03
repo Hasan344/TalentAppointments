@@ -26,6 +26,10 @@ public partial class District
     [ForeignKey("RegionId")]
     [InverseProperty("Districts")]
     public virtual Region? Region { get; set; } = null!;
+
     [InverseProperty("DistrictNavigation")]
     public virtual ICollection<Expert> Experts { get; set; } = new List<Expert>();
+
+    [InverseProperty("District")]
+    public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
 }

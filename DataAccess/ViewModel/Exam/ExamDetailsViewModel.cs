@@ -9,6 +9,7 @@ namespace ForQab.Models.ViewModels
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public SectionViewModel Section { get; set; } = new();
+        public DistrictViewModel District { get; set; } = new();
         public BuildingViewModel ExamBulding { get; set; } = new();
         public DateOnly ExamDate { get; set; }
         public decimal Duration { get; set; }
@@ -33,6 +34,10 @@ namespace ForQab.Models.ViewModels
         public string Name { get; set; } = string.Empty;
     }
 
+    public class DistrictViewModel
+    {
+        public string Name { get; set; } = string.Empty;
+    }
     public class BuildingViewModel
     {
         public string Name { get; set; } = string.Empty;

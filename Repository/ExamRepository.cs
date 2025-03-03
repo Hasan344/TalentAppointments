@@ -1,7 +1,12 @@
-﻿using ForQab.DataAccess.Models;
+﻿using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using DocumentFormat.OpenXml;
+using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Exam;
 using ForQab.Presentation.ViewModels;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace ForQab.Repository
 {
@@ -31,6 +36,7 @@ namespace ForQab.Repository
                 EndTime = entity.EndTime,
                 Shift = entity.Shift,
                 AdmissionTime = entity.AdmissionTime,
+                DistrictId = entity.DistrictId,
             };
 
             //Link selected SubProfessions
@@ -260,6 +266,7 @@ namespace ForQab.Repository
                     .ThenInclude(ec => ec.Commission)
                 .Include(e => e.Experts)
                 .Include(e => e.Monitors)
+                .Include(e => e.District)
                 .ToListAsync();
         }
 
@@ -281,6 +288,7 @@ namespace ForQab.Repository
                 .Include(e => e.Monitors)
                 .Include(e => e.ExamDegrees)
                     .ThenInclude(ed => ed.Degrees)
+                .Include(e => e.District)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
@@ -292,9 +300,10 @@ namespace ForQab.Repository
                                 .Include(e => e.Section)
                                 .Include(e => e.ExamBuilding)
                                 .Include(e => e.ExamCommissions)
-                                    .ThenInclude(ec => ec.Commission) // Commission'ları bu şekilde include et
+                                    .ThenInclude(ec => ec.Commission)
                                 .Include(e => e.Experts)
                                 .Include(e => e.Monitors)
+                                .Include(e => e.District)
                                 .ToListAsync()
                 : await _context.Exams
                                 .Include(e => e.Section)
@@ -303,6 +312,7 @@ namespace ForQab.Repository
                                     .ThenInclude(ec => ec.Commission)
                                 .Include(e => e.Experts)
                                 .Include(e => e.Monitors)
+                                .Include(e => e.District)
                                 .Where(e => e.SectionId == sectionId)
                                 .ToListAsync();
         }
@@ -364,6 +374,7 @@ namespace ForQab.Repository
             existingExam.Shift = exam.Shift;
             existingExam.StudentCount = exam.StudentCount;
             existingExam.AdmissionTime = exam.AdmissionTime;
+            existingExam.DistrictId = exam.DistrictId;
 
             // Mevcut ExamCommissions'ları temizle
             if (existingExam.ExamCommissions != null)
@@ -503,8 +514,8 @@ namespace ForQab.Repository
                 .Where(e => e.Status == 0)
                 .Where(e => e.Archive == 0)
                 .Where(e => e.WorkerType == workerType)
-                .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id)) 
-                .OrderBy(e => e.AssignmentCount) 
+                .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id))
+                .OrderBy(e => e.AssignmentCount)
                 .ToListAsync();
 
             if (availableMonitors.Count < numberOfMonitors)
@@ -522,14 +533,121 @@ namespace ForQab.Repository
             await _context.SaveChangesAsync();
         }
 
-        //public async Task<int> GetAvailableWorkersCountAsync(int sectionId)
-        //{
-        //    return await _context.Monitors
-        //        .Where(m => m.SectionId == sectionId)
-        //        .Where(m => m.Role == 5)
-        //        .Where(e => e.Status == 0)
-        //        .Where(e => e.Archive == 0)
-        //        .CountAsync();
-        //}
+        public async Task<MemoryStream> ExportExamScheduleToWord()
+        {
+            var exams = await _context.Exams
+                                      .Include(e => e.ExamDegrees)
+                                          .ThenInclude(d => d.Degrees)  // Eğer Degrees ilişkisi varsa
+                                      .Include(e => e.ExamCommissions)
+                                          .ThenInclude(c => c.Commission) // Eğer Commission ilişkisi varsa
+                                      .Include(e => e.ExamExpertSubProfessions)
+                                          .ThenInclude(s => s.SubProfession) // Eğer SubProfession ilişkisi varsa
+                                      .Include(e => e.ExamBuilding)
+                                      .Include(e => e.District)
+                                      .Include(e => e.Section)
+                                      .ToListAsync();
+
+            MemoryStream memoryStream = new MemoryStream();
+            using (WordprocessingDocument wordDocument = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document, true))
+            {
+                MainDocumentPart mainPart = wordDocument.AddMainDocumentPart();
+                mainPart.Document = new Document();
+                Body body = new Body();
+                mainPart.Document.Append(body);
+
+                // Başlık ekleme
+               // Paragraph title = new Paragraph(new Run(new Text("Sınav Takvimi")));
+                //title.ParagraphProperties = new ParagraphProperties(new Justification() { Val = JustificationValues.Center });
+                //body.Append(title);
+
+                Table table = new Table();
+                TableProperties tblProp = new TableProperties(
+                    new TableWidth() { Width = "100%", Type = TableWidthUnitValues.Pct },
+                    new TableBorders(
+                        new TopBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new BottomBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new LeftBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new RightBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new InsideHorizontalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new InsideVerticalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 }
+                    )
+                );
+                table.AppendChild(tblProp);
+
+                TableRow headerRow = new TableRow();
+                string[] headers = { "İmtahan Tarixi", "İstiqamət", "Təhsil Səviyyəsi", "Komissiya", "İxtisas",  "İmtahan keçirilən rayon", "İmtahan mərkəzinin adı", "İştirakçı Sayı", "Buraxılışın başlanması", "İmtahan başlanması", "İmtahanın bitməsi" };
+                foreach (var header in headers)
+                {
+                    TableCell cell = new TableCell(new Paragraph(new Run(new Text(header))));
+                    cell.Append(new TableCellProperties(new TableCellWidth { Type = TableWidthUnitValues.Auto }));
+                    headerRow.Append(cell);
+                }
+                table.Append(headerRow);
+
+                foreach (var exam in exams)
+                {
+                    TableRow row = new TableRow();
+
+                    var sectionId = _context.Exams.Where(e => e.Id == exam.Id).Select(e => e.SectionId).FirstOrDefault();
+                    string bgColor = "aae4e8";
+                    // Alternatif satır renkleri belirleme
+                    if (sectionId == 1)
+                    {
+                        bgColor = "f4bc72";
+                    }
+                    else if (sectionId == 2)
+                    {
+                        bgColor = "50bdda";
+                    }
+                    else if (sectionId == 3)
+                    {
+                        bgColor = "8b1c00";
+                    }
+
+
+
+                    TableCellProperties cellProperties = new TableCellProperties(
+                        new Shading() { Val = ShadingPatternValues.Clear, Fill = bgColor } // Arka plan rengi
+                    );
+
+                    row.Append(CreateColoredCell(exam.ExamDate.ToString("dd.MM.yyyy"), bgColor));
+                    row.Append(CreateColoredCell(exam.Section?.Name ?? "N/A", bgColor));
+                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamDegrees?.Select(d => d.Degrees.Name) ?? new List<string>()), bgColor));
+                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamCommissions?.Select(c => c.Commission.CommissionNo) ?? new List<string>()), bgColor));
+                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamExpertSubProfessions?.Select(s => s.SubProfession.Name).Distinct() ?? new List<string>()), bgColor));
+                    row.Append(CreateColoredCell(exam.District?.Name ?? "N/A", bgColor));
+                    row.Append(CreateColoredCell($"{exam.ExamBuilding?.Name ?? "N/A"}, {exam.ExamBuilding?.Address ?? "N/A"}", bgColor));
+                    row.Append(CreateColoredCell(exam.StudentCount?.ToString() ?? "N/A", bgColor));
+                    row.Append(CreateColoredCell(exam.AdmissionTime?.ToString(@"hh\:mm") ?? "N/A", bgColor));
+                    row.Append(CreateColoredCell(exam.StartTime?.ToString(@"hh\:mm") ?? "N/A", bgColor));
+                    row.Append(CreateColoredCell(exam.EndTime?.ToString(@"hh\:mm") ?? "N/A", bgColor));
+
+                    table.Append(row);
+                }
+
+                // Yardımcı Metot: Renklendirilmiş hücre oluşturur
+                TableCell CreateColoredCell(string text, string bgColor)
+                {
+                    TableCell cell = new TableCell(new Paragraph(new Run(new Text(text))));
+                    TableCellProperties cellProperties = new TableCellProperties(
+                        new Shading() { Val = ShadingPatternValues.Clear, Fill = bgColor }
+                    );
+                    cell.Append(cellProperties);
+                    return cell;
+                }
+
+                var sectionProps = new SectionProperties(
+                                   new PageSize() { Width = 16838, Height = 11906, Orient = PageOrientationValues.Landscape }, // A4 Landscape Boyutları
+                                   new PageMargin() { Top = 720, Right = 720, Bottom = 720, Left = 720 } // Kenar boşlukları
+                                   );
+                body.Append(sectionProps);
+                body.Append(table);
+                mainPart.Document.Save();
+            }
+
+            memoryStream.Position = 0;
+            return memoryStream;
+
+        }
     }
 }

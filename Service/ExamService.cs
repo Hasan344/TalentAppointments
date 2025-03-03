@@ -151,5 +151,10 @@ namespace ForQab.Service
         {
             await _examRepository.AssignRandomWorkersToExamAsync(examId, numberOfMonitors, workerType);
         }
+
+        public Task<MemoryStream> ExportExamScheduleToWord()
+        {
+            return _examRepository.ExportExamScheduleToWord();
+        }
     }
 }

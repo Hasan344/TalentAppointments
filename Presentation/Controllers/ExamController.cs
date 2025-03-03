@@ -60,6 +60,7 @@ namespace ForQab.Presentation.Controllers
                 Id = exam.Id,
                 Name = exam.Name,
                 Section = new SectionViewModel { Name = exam.Section.Name },
+                District = new DistrictViewModel { Name = exam.District.Name },
                 ExamBulding = new BuildingViewModel { Name = exam.ExamBuilding.Name },
                 ExamDate = exam.ExamDate,
                 Duration = exam.Duration,
@@ -387,11 +388,13 @@ namespace ForQab.Presentation.Controllers
             {
                 ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
                 ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.ToListAsync(), "Id", "Name");
+                ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
             }
             else
             {
                 ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
                 ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.Where(e => e.SectionId == sectionId).ToListAsync(), "Id", "Name");
+                ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
 
             }
 
@@ -424,6 +427,7 @@ namespace ForQab.Presentation.Controllers
                 {
                     ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
                     ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.ToListAsync(), "Id", "Name");
+                    ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
                     ViewBag.CommissionList = new SelectList(await _context.Commissions.ToListAsync(), "Id", "Name");
                     ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
                     ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.ToListAsync(), "Id", "Name");
@@ -432,6 +436,7 @@ namespace ForQab.Presentation.Controllers
                 {
                     ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
                     ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.Where(e => e.SectionId == sectionId).ToListAsync(), "Id", "Name");
+                    ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
                     ViewBag.CommissionList = new SelectList(await _context.Commissions.Where(c => c.SectionId == sectionId).ToListAsync(), "Id", "Name");
                     ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
                     ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.Where(sc => sc.SectionId == sectionId).ToListAsync(), "Id", "Name");
@@ -452,6 +457,7 @@ namespace ForQab.Presentation.Controllers
             {
                 ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
                 ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.ToListAsync(), "Id", "Name");
+                ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
                 ViewBag.CommissionList = new SelectList(await _context.Commissions.ToListAsync(), "Id", "Name");
                 ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
                 ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.ToListAsync(), "Id", "Name");
@@ -460,6 +466,7 @@ namespace ForQab.Presentation.Controllers
             {
                 ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
                 ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.Where(e => e.SectionId == sectionId).ToListAsync(), "Id", "Name");
+                ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
                 ViewBag.CommissionList = new SelectList(await _context.Commissions.Where(c => c.SectionId == sectionId).ToListAsync(), "Id", "Name");
                 ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
                 ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.Where(sc => sc.SectionId == sectionId).ToListAsync(), "Id", "Name");
@@ -482,6 +489,7 @@ namespace ForQab.Presentation.Controllers
                 Id = exam.Id,
                 Name = exam.Name,
                 SectionId = exam.SectionId,
+                DistrictId = exam.DistrictId,
                 ExamBuldingId = exam.ExamBuldingId,
                 ExamDate = exam.ExamDate,
                 Duration = exam.Duration,
@@ -516,6 +524,7 @@ namespace ForQab.Presentation.Controllers
             {
                 ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
                 ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.ToListAsync(), "Id", "Name");
+                ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
                 ViewBag.CommissionList = new SelectList(await _context.Commissions.ToListAsync(), "Id", "Name");
                 ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
                 ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.ToListAsync(), "Id", "Name");
@@ -524,6 +533,7 @@ namespace ForQab.Presentation.Controllers
             {
                 ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
                 ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.Where(e => e.SectionId == sectionId).ToListAsync(), "Id", "Name");
+                ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
                 ViewBag.CommissionList = new SelectList(await _context.Commissions.Where(c => c.SectionId == sectionId).ToListAsync(), "Id", "Name");
                 ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
                 ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.Where(sc => sc.SectionId == sectionId).ToListAsync(), "Id", "Name");
@@ -735,6 +745,13 @@ namespace ForQab.Presentation.Controllers
 
             await _examService.AddExpertLogAsync(model);
             return RedirectToAction("Details", new { id = model.ExamId });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportToWord()
+        {
+            var memoryStream = await _examService.ExportExamScheduleToWord();
+            return File(memoryStream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Təqvim qabiliyyət.docx");
         }
 
 
