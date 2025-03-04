@@ -156,5 +156,15 @@ namespace ForQab.Service
         {
             return _examRepository.ExportExamScheduleToWord();
         }
+
+        public Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds)
+        {
+            return _examRepository.AssignRepresentativesToExamAsync(examId, selectedRepresentativeIds);
+        }
+
+        public Task<List<DimRepresentative>> GetAvailableRepresentativesAsync()
+        {
+            return _examRepository.GetAvailableRepresentativesAsync();
+        }
     }
 }

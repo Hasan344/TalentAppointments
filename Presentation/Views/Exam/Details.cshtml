@@ -337,6 +337,45 @@
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nəzarətçi təyin edilməyib.</p>
         }
     </div>
+    <!-- Assigned Representatives Section -->
+    <div class="mt-4">
+        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş DİM Nümayəndələri</h4>
+        @{
+            var reps = Model.ExamRepresentatives;
+        }
+        @if (reps.Any())
+        {
+            <ul class="list-group list-group-flush">
+                @foreach (var rep in reps)
+                {
+                    <li class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h6 class="mb-0">
+                                    @rep.Name @rep.Surname @rep.FinCode
+                                </h6>
+                                <small class="text-muted">
+                                    FinCode: @rep.FinCode
+                                </small>
+                            </div>
+                            <div class="col-md-4 text-md-right mt-2 mt-md-0">
+                                <a class="btn btn-sm btn-outline-info"
+                                   asp-action="RepresentativeDetails"
+                                   asp-route-id="@rep.Id">
+                                    <i class="bi bi-eye"></i> Detallara Bax
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nəzarətçi təyin edilməyib.</p>
+        }
+    </div>
+
 
 
     <!-- Action Buttons -->
@@ -358,6 +397,9 @@
         </a>
         <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignWorkers" asp-route-id="@Model.Id">
             <i class="bi bi-person-plus"></i> İşçi Təyin Et
+        </a> 
+        <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignRepresentatives" asp-route-examId="@Model.Id">
+            <i class="bi bi-plus-circle"></i> Nümayəndə təyin et
         </a>
     </div> 
 </div>
