@@ -1,7 +1,50 @@
 ﻿@using ForQab.DataAccess.ViewModel.Exam
 @model AssignWorkersToExamViewModel
 
-<div class="container mt-5">
+@{
+    ViewData["Title"] = "İşçi təyinatı";
+}
+
+<h2>İşçi təyinatı</h2>
+
+<form asp-action="AssignWorkers" method="post">
+    <input type="hidden" asp-for="ExamId" />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Seç</th>
+                <th>Ad</th>
+                <th>Soyad</th>
+                <th>FinCode</th>
+                <th>Təyinatı</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var rep in Model.Assignments)
+            {
+                <tr>
+                    <td>
+                        <input type="checkbox" name="SelectedWorkerIds" value="@rep.Id" required />
+                    </td>
+                    <td>@rep.Name</td>
+                    <td>@rep.Surname</td>
+                    <td>@rep.FinCode</td>
+                    <td>@rep.WorkerType</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Atama Yap</button>
+</form>
+
+
+
+
+
+
+@* <div class="container mt-5">
     <div class="card shadow-lg border-0 rounded-4 p-4">
         <h2 class="mb-4 text-center text-dark fw-bold">İmtahana İşçi Təyin Et</h2>
         <h4 class="text-center text-muted">@ViewBag.ExamName</h4>
@@ -72,3 +115,4 @@
         container.appendChild(newForm);
     });
 </script>
+ *@

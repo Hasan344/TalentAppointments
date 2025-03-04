@@ -58,6 +58,23 @@ namespace ForQab.Repository
             return await _dbContext.Set<T>().FindAsync(id);
         }
 
+        public async Task<T> GetByIdAsync(int id, Expression<Func<T, bool>> exp = null, params string[] includes)
+        {
+            IQueryable<T> query = GetQuery(includes);
+
+            // ID filtresi ekleniyor
+            query = query.Where(e => EF.Property<int>(e, "Id") == id);
+
+            // Eğer ekstra bir filtre varsa ekle
+            if (exp is not null)
+            {
+                query = query.Where(exp);
+            }
+
+            return await query.FirstOrDefaultAsync();
+        }
+
+
         public async Task<List<Section>> GetSectionsAsync(int? sectionId)
         {
             if (sectionId==null)

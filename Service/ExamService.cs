@@ -147,9 +147,9 @@ namespace ForQab.Service
             return await _examRepository.GetExpertSubProfessionsByExamIdAsync(examId);
         }
 
-        public async Task AssignRandomWorkersToExamAsync(int examId, int numberOfMonitors, byte workerType)
+        public async Task AssignWorkersToExamAsync(int examId, List<int> selectedWorkerIds)
         {
-            await _examRepository.AssignRandomWorkersToExamAsync(examId, numberOfMonitors, workerType);
+            await _examRepository.AssignWorkersToExamAsync(examId, selectedWorkerIds);
         }
 
         public Task<MemoryStream> ExportExamScheduleToWord()
@@ -165,6 +165,11 @@ namespace ForQab.Service
         public Task<List<DimRepresentative>> GetAvailableRepresentativesAsync()
         {
             return _examRepository.GetAvailableRepresentativesAsync();
+        }
+
+        public Task<List<DataAccess.Models.Monitor>> GetAvailableWorkersAsync(int buildingId)
+        {
+            return _examRepository.GetAvailableWorkersAsync(buildingId);
         }
     }
 }

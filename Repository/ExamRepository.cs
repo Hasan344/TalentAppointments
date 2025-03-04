@@ -496,37 +496,29 @@ namespace ForQab.Repository
                 .ToListAsync();
         }
 
-        public async Task AssignRandomWorkersToExamAsync(int examId, int numberOfMonitors, byte workerType)
+        public async Task AssignWorkersToExamAsync(int examId, List<int> selectedWorkerIds)
         {
             var exam = await _context.Exams
-                .Include(e => e.Monitors) // Mevcut nəzarətçiləri yüklə
+                .Include(e => e.Monitors)
                 .FirstOrDefaultAsync(e => e.Id == examId);
 
             if (exam == null)
-                throw new ArgumentException("Exam not found");
+            {
+                throw new ArgumentException("Exam not found.");
+            }
 
-            var alreadyAssignedMonitorIds = exam.Monitors.Select(m => m.Id).ToHashSet();
-
-            var availableMonitors = await _context.Monitors
-                .Where(e => e.SectionId == exam.SectionId)
-                .Where(e => e.Role == 5)
-                .Where(e => e.Status == 0)
-                .Where(e => e.Archive == 0)
-                .Where(e => e.WorkerType == workerType)
-                .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id))
-                .OrderBy(e => e.AssignmentCount)
+            var selectedWorkers = await _context.Monitors
+                .Where(r => selectedWorkerIds.Contains(r.Id))
                 .ToListAsync();
 
-            if (availableMonitors.Count < numberOfMonitors)
-                throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
-
-            // Belirlenen sayıda nəzarətçiyi seç
-            var selectedMonitors = availableMonitors.Take(numberOfMonitors).ToList();
-
-            foreach (var monitor in selectedMonitors)
+            if (selectedWorkers.Count != selectedWorkerIds.Count)
             {
-                exam.Monitors.Add(monitor);
-                monitor.AssignmentCount++;
+                throw new ArgumentException("One or more selected representatives not found.");
+            }
+
+            foreach (var rep in selectedWorkers)
+            {
+                exam.Monitors.Add(rep);
             }
 
             await _context.SaveChangesAsync();
@@ -681,5 +673,14 @@ namespace ForQab.Repository
             await _context.SaveChangesAsync();
         }
 
+        public Task<List<DataAccess.Models.Monitor>> GetAvailableWorkersAsync(int buildingId)
+        {
+            return  _context.Monitors
+                                 .Where(m => m.Role == 5)
+                                 .Where(m => m.ExamBuildingId == buildingId)
+                                 .OrderBy(m => m.Surname)
+                                 .Include(m => m.WorkerTypeNavigation)
+                                 .ToListAsync();
+        }
     }
 }

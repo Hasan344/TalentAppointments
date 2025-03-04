@@ -1,13 +1,13 @@
 ﻿@model ForQab.DataAccess.Models.Monitor
 
 @{
-    ViewData["Title"] = "Nəzarətçi detalları";
+    ViewData["Title"] = "İşçi detalları";
     string primaryColor = "#0056b3"; // Official primary color
     string secondaryColor = "#6c757d"; // Official secondary color
 }
 
 <div class="container py-5" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-    <h1 class="text-center mb-4" style="color: @primaryColor; font-weight: bold;">Nəzarətçi Detalları</h1>
+    <h1 class="text-center mb-4" style="color: @primaryColor; font-weight: bold;">İşçi Detalları</h1>
     <hr class="mb-4" />
 
     <div class="row">
@@ -49,9 +49,9 @@
 
                 <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İş yeri:</dt>
                 <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Workplace)</dd>
-@* 
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Vəzifə:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Position)</dd> *@
+
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İmtahan binası:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.ExamBuilding.Name)</dd>
             </dl>
         </div>
     </div>

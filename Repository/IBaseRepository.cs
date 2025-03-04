@@ -7,6 +7,7 @@ namespace ForQab.Repository
     public interface IBaseRepository<T> where T : class
     {
         Task<T> GetByIdAsync(int id);
+        Task<T> GetByIdAsync(int id, Expression<Func<T, bool>> exp = null, params string[] includes);
         Task<IEnumerable<T>> GetAllAsync(int? sectionId);
         Task<List<T>> GetAllAsync(int? sectionId,  Expression<Func<T, bool>> exp = null, params string[] includes);
         Task AddAsync(T entity);

@@ -1,7 +1,6 @@
 ﻿using ClosedXML.Excel;
 using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Worker;
-using ForQab.Migrations;
 using ForQab.Repository;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
@@ -33,15 +32,14 @@ namespace ForQab.Service
         public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId)
         {
 
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
-            var query = await _workerRepository.GetAllAsync(sectionId, 5, null, includes);
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding"};
             return await _workerRepository.GetAllAsync(sectionId, 5, null, includes);
         }
 
         public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
 
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding" };
             var query = await _workerRepository.GetAllAsync(sectionId, 5, null, includes);
             if (genderId.HasValue)
             {
@@ -80,7 +78,9 @@ namespace ForQab.Service
 
         public async Task<Monitor> GetByIdAsync(int id)
         {
-            return await _workerRepository.GetByIdAsync(id);
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding" };
+
+            return await _workerRepository.GetByIdAsync(id, null, includes);
         }
 
         public async Task<IEnumerable<Section>> GetSectionsAsync(int? sectionId)
@@ -172,7 +172,7 @@ namespace ForQab.Service
         }
         public async Task<byte[]> ExportToExcelAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding" };
 
             var monitors = await _workerRepository.GetAllAsync(sectionId, 5, null, includes);
 
@@ -268,7 +268,7 @@ namespace ForQab.Service
 
         public async Task<IEnumerable<Monitor>> GetAllArchivedAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding" };
             var query = await _workerRepository.GetAllAsync(sectionId, 5, null, includes);
             if (genderId.HasValue && genderId > 0)
             {

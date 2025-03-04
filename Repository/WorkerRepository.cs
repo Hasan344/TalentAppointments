@@ -76,6 +76,7 @@ namespace ForQab.Repository
             monitor.BankFilial = model.BankFilial;
             monitor.BankFilialCode = model.BankFilialCode;
             monitor.District = model.District;
+            monitor.ExamBuildingId = model.ExamBuilding;
 
             _dbContext.Monitors.Update(monitor);
             await _dbContext.SaveChangesAsync();

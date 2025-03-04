@@ -151,4 +151,11 @@ public partial class Monitor
     [InverseProperty("Monitors")]
     public virtual WorkerType? WorkerTypeNavigation { get; set; }
 
+    [Column("exam_building_id")]
+    public int? ExamBuildingId { get; set; }
+
+    [ForeignKey("ExamBuildingId")]
+    [InverseProperty("Monitors")]
+    public virtual ExamBuilding? ExamBuilding { get; set; }
+
 }
