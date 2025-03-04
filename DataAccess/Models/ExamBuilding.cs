@@ -30,5 +30,8 @@ public partial class ExamBuilding
 
     [ForeignKey("SectionId")]
     [InverseProperty("ExamBuildings")]
-    public virtual Section? Section { get; set; } 
+    public virtual Section? Section { get; set; }
+
+    [InverseProperty("ExamBuilding")]
+    public virtual ICollection<Monitor> Monitors { get; set; } = new List<Monitor>();
 }

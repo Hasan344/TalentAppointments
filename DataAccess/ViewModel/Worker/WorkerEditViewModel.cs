@@ -17,12 +17,16 @@ namespace ForQab.DataAccess.ViewModel.Worker
         public string? Region { get; set; }
 
         [Required(ErrorMessage = "Bölmə seçilməlidir")]
-        public int SectionId { get; set; }
+        public int? SectionId { get; set; }
         public List<SelectListItem>? Sections { get; set; }
 
         [Required(ErrorMessage = "İşçi tipi seçilməlidir")]
-        public byte WorkerType { get; set; }
+        public byte? WorkerType { get; set; }
         public List<SelectListItem>? WorkerTypes { get; set; }
+
+        [Required(ErrorMessage = "İmtahan binası seçilməlidir")]
+        public int? ExamBuilding { get; set; }
+        public List<SelectListItem>? ExamBuildings { get; set; }
 
         public byte? Gender { get; set; }
 
@@ -35,7 +39,7 @@ namespace ForQab.DataAccess.ViewModel.Worker
         public string? BankFilialCode { get; set; }
 
         [Required(ErrorMessage = "Rayon seçilməlidir")]
-        public byte District { get; set; }
+        public int? District { get; set; }
         public List<SelectListItem>? Districts { get; set; }
     }
 }

@@ -14,10 +14,11 @@ namespace ForQab.Service
         Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId);
         Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate);
         Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate);
-        Task AssignRandomWorkersToExamAsync(int examId, int numberOfMonitors, byte workerType);
+        Task AssignWorkersToExamAsync(int examId, List<int> selectedWorkerIds);
         Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId);
         Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds);
         Task<List<DimRepresentative>> GetAvailableRepresentativesAsync();
+        Task<List<DataAccess.Models.Monitor>> GetAvailableWorkersAsync(int buildingId);
         Task<IEnumerable<SubProfession>> GetSubprofessionsBySectionIdAsync(int? sectionId);
         public Task<bool> AssignExpertsAsync(AssignExpertToExamViewModel model);
         public Task<int?> GetSectionIdByExamIdAsync(int examId);

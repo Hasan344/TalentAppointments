@@ -881,72 +881,35 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> AssignWorkers(int id)
         {
             var exam = await _examService.GetExamByIdAsync(id);
-            if (exam == null)
+            var workers = await _examService.GetAvailableWorkersAsync(exam.ExamBuldingId);
+
+            var viewModel = new AssignWorkersToExamViewModel
             {
-                return NotFound();
-            }
-            var workerTypes = _context.WorkerTypes // WorkerType'ların bulunduğu DbSet
-                                .Select(w => new SelectListItem
-                                {
-                                    Value = w.Id.ToString(), // Byte türündeyse ToString() kullanmalısın
-                                    Text = w.Name
-                                })
-                                .ToList();
-
-            ViewBag.ExamName = exam.Name;
-            ViewBag.WorkerTypes = workerTypes; 
-
-            var model = new AssignWorkersToExamViewModel
-            {
-                ExamId = exam.Id,
-                SectionId = exam.SectionId,
-                Assignments = new List<WorkerAssignmentViewModel> { new WorkerAssignmentViewModel() }
-
+                ExamId = id,
+                Assignments = workers.Select(r => new WorkerAssignmentViewModel
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    Surname = r.Surname,
+                    FinCode = r.FinCode,
+                    WorkerType = r.WorkerTypeNavigation.Name
+                }).ToList()
             };
-            return View(model);
+            return View(viewModel);
         }
 
         [HttpPost]
         public async Task<IActionResult> AssignWorkers(AssignWorkersToExamViewModel model)
         {
-            if (ModelState.IsValid)
+            if (model.SelectedWorkerIds == null)
             {
-                try
-                {
-                    foreach (var assignment in model.Assignments)
-                    {
-                        await _examService.AssignRandomWorkersToExamAsync(
-                            model.ExamId,
-                            assignment.NumberOfMonitors,
-                            assignment.WorkerType
-                        );
-                    }
-
-                    TempData["SuccessMessage"] = "İşçi uğurla təyin edildi!";
-                    return RedirectToAction(nameof(Details), new { id = model.ExamId });
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError(string.Empty, ex.Message);
-                    ViewBag.ErrorMessage = ex.Message;
-                }
+                ModelState.AddModelError(nameof(model.SelectedWorkerIds), "Zəhmət olmazsa bir işçi seçin.");
+                return View(model);
             }
 
-            var workerTypes = _context.WorkerTypes 
-                                .Select(w => new SelectListItem
-                                {
-                                    Value = w.Id.ToString(),
-                                    Text = w.Name
-                                })
-                                .ToList();
-            ViewBag.WorkerTypes = workerTypes;
-            var exam = await _examService.GetExamByIdAsync(model.ExamId);
-            if (exam != null)
-            {
-                ViewBag.ExamName = exam.Name;
-            }
+            await _examService.AssignWorkersToExamAsync(model.ExamId, model.SelectedWorkerIds);
 
-            return View(model);
+            return RedirectToAction(nameof(Details), new { id = model.ExamId });
         }
 
         public IActionResult ExpertDetails(int id)

@@ -318,6 +318,8 @@ public partial class MyDbContext : DbContext
 
             entity.HasOne(d => d.WorkerTypeNavigation).WithMany(p => p.Monitors).HasConstraintName("FK__monitor_workertype");
 
+            entity.HasOne(d => d.ExamBuilding).WithMany(p => p.Monitors).HasConstraintName("FK__monitor_building");
+
             entity.HasOne(d => d.Section).WithMany(p => p.Monitors).HasConstraintName("FK__superviso__secti__60A75C0F");
         });
 

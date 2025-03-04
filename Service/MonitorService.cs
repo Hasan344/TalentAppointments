@@ -79,7 +79,9 @@ namespace ForQab.Service
 
         public async Task<Monitor> GetByIdAsync(int id)
         {
-            return await _monitorRepository.GetByIdAsync(id);
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding" };
+
+            return await _monitorRepository.GetByIdAsync(id, null, includes);
         }
 
         public async Task<IEnumerable<Section>> GetSectionsAsync(int? sectionId)
