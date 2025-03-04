@@ -1,0 +1,38 @@
+﻿@using ForQab.DataAccess.ViewModel.Exam
+@model AssignRepresentativesToExamViewModel
+
+@{
+    ViewData["Title"] = "Representative Atama";
+}
+
+<h2>Representative Atama</h2>
+
+<form asp-action="AssignRepresentatives" method="post">
+    <input type="hidden" asp-for="ExamId" />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Seç</th>
+                <th>Ad</th>
+                <th>Soyad</th>
+                <th>FinCode</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var rep in Model.Representatives)
+            {
+                <tr>
+                    <td>
+                        <input type="radio" name="SelectedRepresentativeId" value="@rep.Id" required />
+                    </td>
+                    <td>@rep.Name</td>
+                    <td>@rep.Surname</td>
+                    <td>@rep.FinCode</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Atama Yap</button>
+</form>

@@ -104,6 +104,14 @@ namespace ForQab.Presentation.Controllers
                     FinCode = m.FinCode,
                     Role = m.Role
                 }).ToList(),
+                ExamRepresentatives = exam.Representatives.Select(er => new RepresentativeViewModel
+                {
+                    Id = er.Id,
+                    Name = er.Name,
+                    Surname = er.Surname,
+                    Fname = er.Fname,
+                    FinCode = er.FinCode,
+                }).ToList(),
                 ExpertsWithLogs = expertLogs ?? new List<int>(),
             };
 
@@ -1026,6 +1034,38 @@ namespace ForQab.Presentation.Controllers
                 .ToListAsync();
 
             return Json(subProfessions);
+        }
+        public async Task<IActionResult> AssignRepresentatives(int examId)
+        {
+            var representatives = await _examService.GetAvailableRepresentativesAsync();
+
+            var viewModel = new AssignRepresentativesToExamViewModel
+            {
+                ExamId = examId,
+                Representatives = representatives.Select(r => new RepresentativeViewModelForAssign
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    Surname = r.Surname,
+                    FinCode = r.FinCode
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignRepresentatives(AssignRepresentativesToExamViewModel model)
+        {
+            if (model.SelectedRepresentativeId == null)
+            {
+                ModelState.AddModelError(nameof(model.SelectedRepresentativeId), "Lütfen bir Representative seçin.");
+                return View(model);
+            }
+
+            await _examService.AssignRepresentativesToExamAsync(model.ExamId, new List<int> { model.SelectedRepresentativeId.Value });
+
+            return RedirectToAction(nameof(Details), new { id = model.ExamId });
         }
 
     }

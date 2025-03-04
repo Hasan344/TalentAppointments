@@ -8,6 +8,7 @@
             <th>Ad</th>
             <th>Soyad</th>
             <th>Ata adı</th>
+            <th>Fin Kod</th>
             <th>Əməliyyatlar</th>
         </tr>
     </thead>
@@ -18,6 +19,7 @@
                 <td>@item.Name</td>
                 <td>@item.Surname</td>
                 <td>@item.Fname</td>
+                <td>@item.FinCode</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Redaktə</a>
                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Sil</a>

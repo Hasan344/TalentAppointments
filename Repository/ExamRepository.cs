@@ -4,9 +4,7 @@ using DocumentFormat.OpenXml;
 using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Exam;
 using ForQab.Presentation.ViewModels;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace ForQab.Repository
 {
@@ -289,6 +287,7 @@ namespace ForQab.Repository
                 .Include(e => e.ExamDegrees)
                     .ThenInclude(ed => ed.Degrees)
                 .Include(e => e.District)
+                .Include(e => e.Representatives)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
@@ -590,7 +589,6 @@ namespace ForQab.Repository
 
                     var sectionId = _context.Exams.Where(e => e.Id == exam.Id).Select(e => e.SectionId).FirstOrDefault();
                     string bgColor = "aae4e8";
-                    // Alternatif satır renkleri belirleme
                     if (sectionId == 1)
                     {
                         bgColor = "f4bc72";
@@ -649,5 +647,39 @@ namespace ForQab.Repository
             return memoryStream;
 
         }
+
+        public async Task<List<DimRepresentative>> GetAvailableRepresentativesAsync()
+        {
+            return await _context.DimRepresentatives.OrderBy(dr => dr.Surname).ToListAsync();
+        }
+
+        public async Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds)
+        {
+            var exam = await _context.Exams
+                .Include(e => e.Representatives)
+                .FirstOrDefaultAsync(e => e.Id == examId);
+
+            if (exam == null)
+            {
+                throw new ArgumentException("Exam not found.");
+            }
+
+            var selectedRepresentatives = await _context.DimRepresentatives
+                .Where(r => selectedRepresentativeIds.Contains(r.Id))
+                .ToListAsync();
+
+            if (selectedRepresentatives.Count != selectedRepresentativeIds.Count)
+            {
+                throw new ArgumentException("One or more selected representatives not found.");
+            }
+
+            foreach (var rep in selectedRepresentatives)
+            {
+                exam.Representatives.Add(rep);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

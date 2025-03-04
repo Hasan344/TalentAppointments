@@ -136,9 +136,8 @@ public partial class MyDbContext : DbContext
             .HasForeignKey(ec => ec.DegreeId);
 
         modelBuilder.Entity<ExamExpertSubProfession>()
-        .ToTable("Exam_Expert_SubProfessions"); // Tablo adını doğru belirtin
+        .ToTable("Exam_Expert_SubProfessions"); 
 
-        // In your DbContext's OnModelCreating method
         modelBuilder.Entity<ExamExpertSubProfession>(entity =>
         {
             entity.HasKey(e => new { e.ExamId, e.ExpertId, e.SubProfessionId, e.FederationId });
@@ -217,11 +216,6 @@ public partial class MyDbContext : DbContext
                         j.ToTable("Exam_Experts");
                     });
 
-
-            
-
-
-
             entity.HasMany(d => d.Monitors).WithMany(p => p.Exams)
                 .UsingEntity<Dictionary<string, object>>(
                     "ExamMonitor",
@@ -237,6 +231,21 @@ public partial class MyDbContext : DbContext
                     {
                         j.HasKey("ExamId", "MonitorId");
                         j.ToTable("Exam_Monitors");
+                    });
+
+            entity.HasMany(d => d.Representatives).WithMany(p => p.Exams)
+                .UsingEntity<Dictionary<string, object>>(
+                    "ExamRepresentative",
+                    r => r.HasOne<DimRepresentative>().WithMany()
+                        .HasForeignKey("RepresentativeId")
+                        .OnDelete(DeleteBehavior.ClientSetNull),
+                    l => l.HasOne<Exam>().WithMany()
+                        .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.ClientSetNull),
+                    j =>
+                    {
+                        j.HasKey("ExamId", "RepresentativeId");
+                        j.ToTable("Exam_Representatives");
                     });
         });
 
