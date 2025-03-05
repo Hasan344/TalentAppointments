@@ -75,6 +75,21 @@
             <!-- End Year -->
             <input type="number" name="endYear" value="@ViewContext.HttpContext.Request.Query["endYear"]" class="form-control" style="max-width: 120px;" placeholder="Son il" />
 
+            <select name="federationId" class="form-control" style="max-width: 200px;">
+                <option value="">Federasiya seçin</option>
+                @foreach (var federation in ViewBag.Federation)
+                {
+                    if (federation.Id.ToString() == ViewContext.HttpContext.Request.Query["federationId"])
+                    {
+                        <option value="@federation.Id" selected>@federation.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@federation.Id">@federation.Name</option>
+                    }
+                }
+            </select>
+
             <select name="subProfessionId" class="form-control" style="max-width: 200px;">
                 <option value="">İxtisas seçin</option>
                 @foreach (var subProfession in ViewBag.SubProfessions)
@@ -104,7 +119,10 @@
                     <th>Ad</th>
                     <th>Soyad</th>
                     <th>Ata adı</th>
+                    <th>Fin Kod</th>
+                    <th>Təvəllüd</th>
                     <th>Bölmə</th>
+                    <th>Federasiya</th>
                     <th>İxtisas</th>
                     <th>Əməliyyatlar</th>
                 </tr>
@@ -116,7 +134,10 @@
                         <td>@Html.DisplayFor(modelItem => item.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.Surname)</td>
                         <td>@Html.DisplayFor(modelItem => item.Fname)</td>
+                        <td>@Html.DisplayFor(modelItem => item.FinCode)</td>
+                        <td>@Html.DisplayFor(modelItem => item.BirthDate)</td>
                         <td>@Html.DisplayFor(modelItem => item.Section.Name)</td>
+                        <td>@Html.DisplayFor(modelItem => item.FederationNavigation.Name)</td>
                         <td>
                             @if (item.SubProfessions != null && item.SubProfessions.Any())
                             {

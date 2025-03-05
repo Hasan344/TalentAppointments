@@ -139,9 +139,12 @@
                                 <a class="btn btn-outline-info btn-sm p-1" asp-action="Details" asp-route-id="@item.Id">
                                     <i class="bi bi-eye" style="font-size: 0.75rem;"></i> Details
                                 </a>
-                                <a class="btn btn-outline-danger btn-sm p-1" asp-action="Delete" asp-route-id="@item.Id">
-                                    <i class="bi bi-trash" style="font-size: 0.75rem;"></i> Delete
-                                </a>
+                                <form asp-action="RestoreExpert" method="post">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-danger btn-sm p-1">
+                                            <i class="bi bi-arrow-counterclockwise"></i> Arxivdən çıxar
+                                        </button>
+                                    </form>
                             </div>
                         </td>
                     </tr>

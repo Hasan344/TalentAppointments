@@ -136,12 +136,14 @@ namespace ForQab.Service
                             Surname = row.Cell(2).GetString(),
                             Fname = row.Cell(3).GetString(),
                             Archive = 0,
+                            Status = 0,
+                            AssignmentCount = 0,
                             Gender = genderId,
                             Role = 2,
                             VNum = row.Cell(6).IsEmpty() ? null : row.Cell(6).GetValue<string?>(),
                             Profession = row.Cell(7).IsEmpty() ? null : row.Cell(7).GetString(),
                             Workplace = row.Cell(8).IsEmpty() ? null : row.Cell(8).GetString(),
-                            Position = row.Cell(7).IsEmpty() ? null : row.Cell(7).GetString(),
+                            Position = row.Cell(18).IsEmpty() ? null : row.Cell(18).GetString(),
                             BirthDate = row.Cell(10).IsEmpty() ? null
                                 : DateOnly.ParseExact(row.Cell(10).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
                             TelEv = row.Cell(11).IsEmpty() ? null : row.Cell(11).GetString(),
@@ -150,12 +152,16 @@ namespace ForQab.Service
                             Serial = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
                             SectionId = sectionId,
                             District = districtId,
-                            SSN = row.Cell(15).GetString(),
-                            Rekvizit = row.Cell(16).GetString(),
-                            HesablashmaH = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
-                            Voen = row.Cell(18).IsEmpty() ? null : row.Cell(18).GetString(),
-                            BankFilial = row.Cell(19).GetString(),
-                            BankFilialCode = row.Cell(20).GetString(),
+                            ContractDate = row.Cell(15).IsEmpty() ? null
+                                : DateOnly.ParseExact(row.Cell(15).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                            ContractNo = row.Cell(16).IsEmpty() ? null : row.Cell(16).GetString(),
+                            Uni = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
+                            SSN = row.Cell(24).GetString(),
+                            Rekvizit = row.Cell(19).GetString(),
+                            HesablashmaH = row.Cell(20).IsEmpty() ? null : row.Cell(20).GetString(),
+                            Voen = row.Cell(21).IsEmpty() ? null : row.Cell(21).GetString(),
+                            BankFilial = row.Cell(22).GetString(),
+                            BankFilialCode = row.Cell(23).GetString(),
                         };
 
                         monitors.Add(monitor);

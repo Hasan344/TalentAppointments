@@ -20,7 +20,7 @@ namespace ForQab.Service
         Task<List<Profession>> GetFederationsAsync(int? sectionId);
         Task<IEnumerable<SubProfession>> GetSubProfessionsAsync(int? sectionId);
         Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId);
-        Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId);
+        Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? federationId, int? subProfessionId);
         Task<IEnumerable<Expert>> GetArchivedExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId);
         public Task BulkAddAsync(IEnumerable<Expert> experts);
         Task<IEnumerable<Expert>> GetExpertLogsAsync();

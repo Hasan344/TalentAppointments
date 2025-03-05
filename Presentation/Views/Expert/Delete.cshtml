@@ -21,8 +21,18 @@
                         <dt class="col-sm-4 font-weight-bold">Ata adı:</dt>
                         <dd class="col-sm-8">@Html.DisplayFor(model => model.Fname)</dd>
 
-                        <dt class="col-sm-4 font-weight-bold">Bölmə:</dt>
+                        <dt class="col-sm-4 font-weight-bold">Fin Kod:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.FinCode)</dd>
+
+                        <dt class="col-sm-4 font-weight-bold">İstiqamət:</dt>
                         <dd class="col-sm-8">@Html.DisplayFor(model => model.Section.Name)</dd>
+
+                        <dt class="col-sm-4 font-weight-bold">Federasiya:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.FederationNavigation.Name)</dd>
+
+
+                        <dt class="col-sm-4 font-weight-bold">Cins:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.GenderNavigation.Name)</dd>
 
                         <dt class="col-sm-4 font-weight-bold">İxtisas:</dt>
                         <dd class="col-sm-8">

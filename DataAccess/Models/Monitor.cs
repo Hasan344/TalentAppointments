@@ -158,4 +158,15 @@ public partial class Monitor
     [InverseProperty("Monitors")]
     public virtual ExamBuilding? ExamBuilding { get; set; }
 
+    [Column("contract_no")]
+    [StringLength(50)]
+    public string? ContractNo { get; set; }
+
+    [Column("contract_date")]
+    public DateOnly? ContractDate { get; set; }
+
+    [Column("uni")]
+    [StringLength(50)]
+    public string? Uni { get; set; }
+
 }

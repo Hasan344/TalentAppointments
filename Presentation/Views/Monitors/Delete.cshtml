@@ -8,14 +8,11 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-lg">
-                <div class="card-header bg-danger text-white">
-                    <h3 class="mb-0">Monitoru Sil</h3>
-                </div>
                 <div class="card-body">
-                    <h4 class="text-center text-danger">Bu monitoru silmək istədiyinizdən əminsiniz?</h4>
+                    <h4 class="text-center text-danger">Bu Nəzarətçini silmək istədiyinizə əminsiniz?</h4>
 
                     <div class="mt-4">
-                        <h5>Monitor Detalları</h5>
+                        <h5>Detallar</h5>
                         <hr />
                         <dl class="row">
                             <dt class="col-sm-4 font-weight-bold">Ad:</dt>
@@ -28,10 +25,7 @@
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.Fname)</dd>
 
                             <dt class="col-sm-4 font-weight-bold">Cins:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Gender)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">Rol:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Role)</dd>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.GenderNavigation.Name)</dd>
 
                             <dt class="col-sm-4 font-weight-bold">VNum:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.VNum)</dd>
@@ -45,12 +39,6 @@
                             <dt class="col-sm-4 font-weight-bold">Vəzifə:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.Position)</dd>
 
-                            <dt class="col-sm-4 font-weight-bold">Yaş:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Age)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">Şəkil:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Foto)</dd>
-
                             <dt class="col-sm-4 font-weight-bold">Ev telefonu:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.TelEv)</dd>
 
@@ -62,9 +50,6 @@
 
                             <dt class="col-sm-4 font-weight-bold">Seriya:</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.Serial)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">Bölmə ID:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Section.Name)</dd>
                         </dl>
                     </div>
 

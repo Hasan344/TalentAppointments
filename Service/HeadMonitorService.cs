@@ -137,6 +137,8 @@ namespace ForQab.Service
                             Surname = row.Cell(2).GetString(),
                             Fname = row.Cell(3).GetString(),
                             Archive = 0,
+                            Status = 0,
+                            AssignmentCount = 0,
                             Gender = genderId,
                             Role = 1,
                             VNum = row.Cell(6).IsEmpty() ? null : row.Cell(6).GetValue<string?>(),
