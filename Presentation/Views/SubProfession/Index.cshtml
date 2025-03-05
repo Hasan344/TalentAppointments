@@ -6,7 +6,7 @@
     <thead>
         <tr>
             <th>Ad</th>
-            @* <th>Peşə</th> *@
+            <th>Federasiya</th> 
             <th>Bölmə</th>
             <th>Əməliyyatlar</th>
         </tr>
@@ -16,7 +16,7 @@
         {
                 <tr>
                     <td>@item.Name</td>
-                    @* <td>@(item.Profession != null ? item.Profession.Name : "Məlumat yoxdur")</td> *@
+                     <td>@(item.Profession != null ? item.Profession.Name : "Məlumat yoxdur")</td> 
                     <td>@(item.Section != null ? item.Section.Name : "Məlumat yoxdur")</td> 
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Edit</a>

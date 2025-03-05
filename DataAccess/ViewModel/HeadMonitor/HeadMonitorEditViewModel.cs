@@ -20,9 +20,12 @@ namespace ForQab.DataAccess.ViewModel.HeadMonitor
         public int SectionId { get; set; }
         public List<SelectListItem>? Sections { get; set; }
         public byte? Gender { get; set; }
-
         public DateOnly? BirthDate { get; set; }
-
+        public string? ContractNo { get; set; }
+        public DateOnly? ContractDate { get; set; }
+        public string? Uni { get; set; }
+        public string? Position { get; set; }
+        public string? Profession { get; set; }
         public string? SSN { get; set; }
         public string? Rekvizit { get; set; }
         public string? Voen { get; set; }

@@ -88,6 +88,11 @@ namespace ForQab.Repository
             monitor.BankFilial = model.BankFilial;
             monitor.BankFilialCode = model.BankFilialCode;
             monitor.District = model.District;
+            monitor.Uni = model.Uni;
+            monitor.ContractNo = model.ContractNo;
+            monitor.ContractDate = model.ContractDate;
+            monitor.Profession = model.Profession;
+            monitor.Position = model.Position;
 
             _dbContext.Monitors.Update(monitor);
             await _dbContext.SaveChangesAsync();

@@ -15,6 +15,8 @@ namespace ForQab.DataAccess.ViewModel.Monitor
 
         public string? Fname { get; set; }
         public string? Region { get; set; }
+        public string? FinCode { get; set; }
+        public string? Serial { get; set; }
 
         [Required(ErrorMessage = "Bölmə seçilməlidir")]
         public int SectionId { get; set; }
@@ -23,7 +25,11 @@ namespace ForQab.DataAccess.ViewModel.Monitor
         public byte? Gender { get; set; }
 
         public DateOnly? BirthDate { get; set; }
-
+        public string? ContractNo { get; set; }
+        public DateOnly? ContractDate { get; set; }
+        public string? Uni { get; set; }
+        public string? Position { get; set; }
+        public string? Profession { get; set; }
         public string? SSN { get; set; }
         public string? Rekvizit { get; set; }
         public string? Voen { get; set; }

@@ -100,7 +100,7 @@ namespace ForQab.Presentation.Controllers
             if (ModelState.IsValid)
             {
                 await _monitorService.AddAsync(monitor);
-                TempData["SuccessMessage"] = "İmtahan rəhbəri uğurla əlavə edildi.";
+                TempData["SuccessMessage"] = "Nəzarətçi uğurla əlavə edildi.";
                 return RedirectToAction(nameof(Index));
             }
 

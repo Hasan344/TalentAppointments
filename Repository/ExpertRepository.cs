@@ -22,6 +22,7 @@ namespace ForQab.Repository
                 .Include(e => e.SubProfessions)
                 .Include(e => e.DistrictNavigation)
                 .Include(e => e.GenderNavigation)
+                .Include(e => e.FederationNavigation)
                 .ToListAsync();
         }
 
@@ -32,6 +33,7 @@ namespace ForQab.Repository
                 .Include(e => e.SubProfessions)
                 .Include(e => e.DistrictNavigation)
                 .Include(e => e.GenderNavigation)
+                .Include(e => e.FederationNavigation)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
@@ -80,6 +82,7 @@ namespace ForQab.Repository
                 .Include(e => e.SubProfessions)
                 .Include(e => e.DistrictNavigation)
                 .Include(e => e.GenderNavigation)
+                .Include(e => e.FederationNavigation)
                 .FirstOrDefaultAsync(e => e.Id == expert.Id);
 
             if (existingExpert != null)
@@ -135,6 +138,7 @@ namespace ForQab.Repository
                 .Include(e => e.SubProfessions)
                 .Include(e => e.DistrictNavigation)
                 .Include(e => e.GenderNavigation)
+                .Include(e => e.FederationNavigation)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             if (expert != null)

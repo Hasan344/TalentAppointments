@@ -106,12 +106,12 @@ public class ExpertService : IExpertService
     }
     public async Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId)
     {
-        var includes = new string[] { "DistrictNavigation", "SubProfessions", "Section", "GenderNavigation" };
+        var includes = new string[] { "DistrictNavigation", "SubProfessions", "Section", "GenderNavigation", "FederationNavigation" };
         return await _expertRepository.GetAllAsync(sectionId,null,includes);
     }
-    public async Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId)
+    public async Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? federationId, int? subProfessionId)
     {
-        var includes = new string[] { "DistrictNavigation", "SubProfessions", "Section", "GenderNavigation" };
+        var includes = new string[] { "DistrictNavigation", "SubProfessions", "Section", "GenderNavigation", "FederationNavigation" };
 
         var query = await _expertRepository.GetAllAsync(sectionId, null, includes); 
         if (genderId.HasValue)
@@ -139,13 +139,19 @@ public class ExpertService : IExpertService
         // District filtresi
         if (district.HasValue && district > 0)
         {
-            query = query.Where(m => m.District == district.Value).ToList();
+            query = query.Where(m => m.District.HasValue && m.District == district.Value).ToList();
         }
         if (startYear.HasValue)
-            query = query.Where(m => m.BirthDate.Value.Year >= startYear.Value).ToList(); // Tarixi ilin başlanğıcına çeviririk.
+            query = query.Where(m => m.BirthDate.HasValue && m.BirthDate.Value.Year >= startYear.Value).ToList();
+
         if (endYear.HasValue)
-            query = query.Where(m => m.BirthDate.Value.Year <= endYear.Value).ToList();
-        
+            query = query.Where(m => m.BirthDate.HasValue && m.BirthDate.Value.Year <= endYear.Value).ToList();
+
+        if (federationId.HasValue)
+        {
+            query = query.Where(f => f.Federation.HasValue && f.Federation ==  federationId).ToList();
+        }
+
         if (subProfessionId.HasValue && subProfessionId > 0)
         {
             query = query.Where(m => m.SubProfessions.Any(sp => sp.Id == subProfessionId.Value)).ToList();
@@ -155,7 +161,7 @@ public class ExpertService : IExpertService
     }
     public async Task<IEnumerable<Expert>> GetArchivedExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId)
     {
-        var includes = new string[] { "DistrictNavigation", "SubProfessions", "Section", "GenderNavigation" };
+        var includes = new string[] { "DistrictNavigation", "SubProfessions", "Section", "GenderNavigation", "FederationNavigation" };
 
         var query = await _expertRepository.GetAllArchivedAsync(sectionId, null, includes);
         if (genderId.HasValue)
