@@ -1,7 +1,10 @@
 ﻿using ForQab.DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
+
+[Authorize]
 public class CalendarController : Controller
 {
     private readonly MyDbContext _context;

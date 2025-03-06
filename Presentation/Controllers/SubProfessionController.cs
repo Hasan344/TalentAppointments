@@ -1,5 +1,6 @@
 ﻿using ForQab.DataAccess.Models;
 using ForQab.Service.Abstract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ForQab.Presentation.Controllers
 {
+    [Authorize]
     public class SubProfessionController : BaseController
     {
         private readonly ISubProfessionService _subProfessionService;

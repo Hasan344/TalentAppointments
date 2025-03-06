@@ -70,7 +70,7 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
-
+app.UsePathBase("/qabiliyyet");
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

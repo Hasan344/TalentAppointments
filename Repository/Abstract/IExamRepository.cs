@@ -33,6 +33,8 @@ namespace ForQab.Repository.Abstract
         Task<Exam> GetExamWithExpertsAndSubProfessionsAsync(int examId);
         Task<IDbContextTransaction> BeginTransactionAsync();
         Task SaveAsync();
-
+        Task<Exam> GetExamWithMonitorsAsync(int examId);
+        //Task<Exam> GetExamWithExpertsByIdAsync(int examId);
+        //Task<List<Expert>> GetExpertsByIdsAsync(int[] expertIds);
     }
 }

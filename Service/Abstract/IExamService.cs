@@ -35,5 +35,13 @@ namespace ForQab.Service.Abstract
         Task<List<ExamExpertSubProfession>> GetExpertSubProfessionsByExamIdAsync(int examId);
         Task<ChangeExpertViewModel> GetChangeExpertViewModelAsync(int examId, int expertId);
         Task<bool> ChangeExpertAsync(int examId, int currentExpertId, int newExpertId);
+        Task<ChangeMonitorViewModel> GetChangeMonitorViewModelAsync(int examId, int monitorId, int role);
+        Task<bool> ChangeMonitorAsync(ChangeMonitorViewModel model); 
+        Task<CreateExamViewModel> PrepareCreateExamViewModelAsync(int? sectionId);
+        Task PopulateViewBagsAsync(int? sectionId, dynamic viewBag);
+        Task<EditExamViewModel> PrepareEditExamViewModelAsync(int id, int? sectionId);
+        //Task<bool> UpdateExpertsAsync(int examId, int[] selectedExpertIds);
+        Task<AssignExpertToExamViewModel> PrepareAssignExpertsViewModelAsync(Exam exam);
+
     }
 }
