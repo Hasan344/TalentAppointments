@@ -708,5 +708,24 @@ namespace ForQab.Repository.Concrete
         {
             await _context.SaveChangesAsync();
         }
+        public async Task<Exam> GetExamWithMonitorsAsync(int examId)
+        {
+            return await _context.Exams
+                .Include(e => e.Monitors)
+                .FirstOrDefaultAsync(e => e.Id == examId);
+        }
+        //public async Task<Exam> GetExamWithExpertsByIdAsync(int examId)
+        //{
+        //    return await _context.Exams
+        //        .Include(e => e.Experts)
+        //        .FirstOrDefaultAsync(e => e.Id == examId);
+        //}
+
+        //public async Task<List<Expert>> GetExpertsByIdsAsync(int[] expertIds)
+        //{
+        //    return await _context.Experts
+        //        .Where(e => expertIds.Contains(e.Id))
+        //        .ToListAsync();
+        //}
     }
 }

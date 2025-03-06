@@ -2,17 +2,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using ForQab.Data_Access.ViewModel;
 using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Expert;
 using System.Data;
 using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Math;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using ForQab.Service.Abstract;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ForQab.Presentation.Controllers
 {
+    [Authorize]
     public class KonsController : BaseController
     {
         private readonly IKonsService _konsService;

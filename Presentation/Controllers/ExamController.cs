@@ -7,11 +7,12 @@ using ForQab.DataAccess.ViewModel.Exam;
 using ClosedXML.Excel;
 using System.Data;
 using ForQab.Presentation.ViewModels;
-using ForQab.Models.ViewModels;
 using ForQab.Service.Abstract;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ForQab.Presentation.Controllers
 {
+    [Authorize]
     public class ExamController : BaseController
     {
         private readonly IExamService _examService;
@@ -52,10 +53,6 @@ namespace ForQab.Presentation.Controllers
 
             return View(viewModel);
         }
-
-
-
-
         [HttpGet]
         public async Task<IActionResult> ChangeExpert(int examId, int expertId)
         {
@@ -76,78 +73,19 @@ namespace ForQab.Presentation.Controllers
 
         public async Task<IActionResult> ChangeMonitor(int examId, int monitorId)
         {
-            var exam = _context.Exams
-                .Include(e => e.Monitors)
-                .FirstOrDefault(e => e.Id == examId);
-
-            var monitorGender = _context.Monitors.Where(m => m.Id == monitorId).Select(m => m.Gender).FirstOrDefault();
-            var sectionId = await GetCurrentSectionIdAsync();
-            if (exam == null) return NotFound();
-
-            var selectedMonitorList = exam.Monitors.Select(m => m.Id).ToList();
-
-            var monitorList = _context.Monitors.Where(m => m.Role == 2 && m.SectionId == sectionId && m.Gender == monitorGender && !selectedMonitorList.Contains(m.Id)).ToList();
-
-            var viewModel = new ChangeMonitorViewModel
-            {
-                ExamId = examId,
-                CurrentMonitorId = monitorId,
-                AvailableMonitors = monitorList.Select(e => new SelectListItem
-                {
-                    Value = e.Id.ToString(),
-                    Text = $"{e.Name} {e.Surname} ({e.FinCode})"
-                }).ToList()
-            };
+            var viewModel = await _examService.GetChangeMonitorViewModelAsync(examId, monitorId, 2);
 
             return View(viewModel);
         }
         [HttpPost]
-        public IActionResult ChangeMonitor(ChangeMonitorViewModel model)
+        public  IActionResult ChangeMonitor(ChangeMonitorViewModel model)
         {
-            var exam = _context.Exams
-                .Include(e => e.Monitors)
-                .FirstOrDefault(e => e.Id == model.ExamId);
-
-            if (exam == null) return NotFound();
-
-            var currentMonitor = exam.Monitors.FirstOrDefault(e => e.Id == model.CurrentMonitorId);
-            if (currentMonitor != null)
-            {
-                exam.Monitors.Remove(currentMonitor);
-            }
-
-            var newMonitor = _context.Monitors.FirstOrDefault(e => e.Id == model.NewMonitorId);
-            if (newMonitor != null)
-            {
-                exam.Monitors.Add(newMonitor);
-            }
-
-            _context.SaveChanges();
+             _examService.ChangeMonitorAsync(model); 
             return RedirectToAction("Details", new { id = model.ExamId });
         }
         public async Task<IActionResult> ChangeHeadMonitor(int examId, int monitorId)
         {
-            var exam = _context.Exams
-                .Include(e => e.Monitors)
-                .FirstOrDefault(e => e.Id == examId);
-
-            var sectionId = await GetCurrentSectionIdAsync();
-            var headMonitorGender = _context.Monitors.Where(m => m.Id == monitorId).Select(m => m.Gender).FirstOrDefault();
-            if (exam == null) return NotFound();
-
-            var selectedMonitorList = exam.Monitors.Select(m => m.Id).ToList();
-            var monitorList = _context.Monitors.Where(m => m.Role == 1 && m.SectionId == sectionId && m.Gender == headMonitorGender && !selectedMonitorList.Contains(m.Id)).ToList();
-
-            var viewModel = new ChangeMonitorViewModel
-            {
-                ExamId = examId,
-                CurrentMonitorId = monitorId,
-                AvailableMonitors = monitorList.Select(e => new SelectListItem
-                {
-                    Value = e.Id.ToString(),
-                    Text = $"{e.Name} {e.Surname} ({e.FinCode})"
-                }).ToList()
-            };
+            var viewModel = await _examService.GetChangeMonitorViewModelAsync(examId, monitorId, 1);
 
             return View(viewModel);
         }
@@ -155,112 +93,28 @@ namespace ForQab.Presentation.Controllers
         [HttpPost]
         public IActionResult ChangeHeadMonitor(ChangeMonitorViewModel model)
         {
-            var exam = _context.Exams
-                .Include(e => e.Monitors)
-                .FirstOrDefault(e => e.Id == model.ExamId);
-
-            if (exam == null) return NotFound();
-
-            var currentMonitor = exam.Monitors.FirstOrDefault(e => e.Id == model.CurrentMonitorId);
-            if (currentMonitor != null)
-            {
-                exam.Monitors.Remove(currentMonitor);
-            }
-
-            var newMonitor = _context.Monitors.FirstOrDefault(e => e.Id == model.NewMonitorId);
-            if (newMonitor != null)
-            {
-                exam.Monitors.Add(newMonitor);
-            }
-
-            _context.SaveChanges();
+            _examService.ChangeMonitorAsync(model);
             return RedirectToAction("Details", new { id = model.ExamId });
         }
         public async Task<IActionResult> ChangeWorker(int examId, int monitorId)
         {
-            var exam = _context.Exams
-                .Include(e => e.Monitors)
-                .FirstOrDefault(e => e.Id == examId);
-
-            var workerType = _context.Monitors.Where(m => m.Id == monitorId).Select(m => m.WorkerType).FirstOrDefault();
-            var sectionId = await GetCurrentSectionIdAsync();
-            if (exam == null) return NotFound();
-
-            var selectedMonitorList = exam.Monitors.Select(m => m.Id).ToList();
-
-            var monitorList = _context.Monitors.Where(m => m.Role == 5 && m.SectionId == sectionId && m.WorkerType == workerType && !selectedMonitorList.Contains(m.Id)).ToList();
-
-            var viewModel = new ChangeMonitorViewModel
-            {
-                ExamId = examId,
-                CurrentMonitorId = monitorId,
-                AvailableMonitors = monitorList.Select(e => new SelectListItem
-                {
-                    Value = e.Id.ToString(),
-                    Text = $"{e.Name} {e.Surname} ({e.FinCode})"
-                }).ToList()
-            };
+            var viewModel = await _examService.GetChangeMonitorViewModelAsync(examId, monitorId, 5);
 
             return View(viewModel);
         }
+
         [HttpPost]
         public IActionResult ChangeWorker(ChangeMonitorViewModel model)
         {
-            var exam = _context.Exams
-                .Include(e => e.Monitors)
-                .FirstOrDefault(e => e.Id == model.ExamId);
-
-            if (exam == null) return NotFound();
-
-            var currentMonitor = exam.Monitors.FirstOrDefault(e => e.Id == model.CurrentMonitorId);
-            if (currentMonitor != null)
-            {
-                exam.Monitors.Remove(currentMonitor);
-            }
-
-            var newMonitor = _context.Monitors.FirstOrDefault(e => e.Id == model.NewMonitorId);
-            if (newMonitor != null)
-            {
-                exam.Monitors.Add(newMonitor);
-            }
-
-            _context.SaveChanges();
+            _examService.ChangeMonitorAsync(model);
             return RedirectToAction("Details", new { id = model.ExamId });
         }
-        
+
         public async Task<IActionResult> Create()
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var commissions = await _examService.GetCommissionsAsync(sectionId);
-
-            var degrees = _context.Degrees.ToList();
-            var viewModel = new CreateExamViewModel
-            {
-                Commissions = commissions.Select(sp => new SelectListItem
-                {
-                    Text = sp.Name,
-                    Value = sp.Id.ToString()
-                }).ToList(),
-                Degrees = degrees.Select(d => new SelectListItem
-                {
-                    Text = d.Name,
-                    Value = d.Id.ToString()
-                }).ToList()
-            };
-            if (sectionId == null)
-            {
-                ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
-                ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.ToListAsync(), "Id", "Name");
-                ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
-            }
-            else
-            {
-                ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
-                ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.Where(e => e.SectionId == sectionId).ToListAsync(), "Id", "Name");
-                ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
-
-            }
-
+            var viewModel = await _examService.PrepareCreateExamViewModelAsync(sectionId);
+            await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
             return View(viewModel);
         }
 
@@ -270,42 +124,9 @@ namespace ForQab.Presentation.Controllers
             if (!ModelState.IsValid)
             {
                 var sectionId = await GetCurrentSectionIdAsync();
-                var commissions = await _examService.GetCommissionsAsync(sectionId);
-                var degrees = _context.Degrees.ToList();
-
-                var viewModel = new CreateExamViewModel
-                {
-                    Commissions = commissions.Select(sp => new SelectListItem
-                    {
-                        Text = sp.Name,
-                        Value = sp.Id.ToString()
-                    }).ToList(),
-                    Degrees = degrees.Select(d => new SelectListItem
-                    {
-                        Text = d.Name,
-                        Value = d.Id.ToString()
-                    }).ToList()
-                };
-                if (sectionId == null)
-                {
-                    ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
-                    ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.ToListAsync(), "Id", "Name");
-                    ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
-                    ViewBag.CommissionList = new SelectList(await _context.Commissions.ToListAsync(), "Id", "Name");
-                    ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
-                    ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.ToListAsync(), "Id", "Name");
-                }
-                else
-                {
-                    ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
-                    ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.Where(e => e.SectionId == sectionId).ToListAsync(), "Id", "Name");
-                    ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
-                    ViewBag.CommissionList = new SelectList(await _context.Commissions.Where(c => c.SectionId == sectionId).ToListAsync(), "Id", "Name");
-                    ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
-                    ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.Where(sc => sc.SectionId == sectionId).ToListAsync(), "Id", "Name");
-
-                }
-                return View(exam); // Ensure drop-downs are reloaded on error
+                exam = await _examService.PrepareCreateExamViewModelAsync(sectionId);
+                await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
+                return View(exam);
             }
 
             await _examService.AddExamAsync(exam);
@@ -315,119 +136,27 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var sectionId = await GetCurrentSectionIdAsync();
+            var viewModel = await _examService.PrepareEditExamViewModelAsync(id, sectionId);
 
-            if (sectionId == null)
-            {
-                ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
-                ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.ToListAsync(), "Id", "Name");
-                ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
-                ViewBag.CommissionList = new SelectList(await _context.Commissions.ToListAsync(), "Id", "Name");
-                ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
-                ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.ToListAsync(), "Id", "Name");
-            }
-            else
-            {
-                ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
-                ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.Where(e => e.SectionId == sectionId).ToListAsync(), "Id", "Name");
-                ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
-                ViewBag.CommissionList = new SelectList(await _context.Commissions.Where(c => c.SectionId == sectionId).ToListAsync(), "Id", "Name");
-                ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
-                ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.Where(sc => sc.SectionId == sectionId).ToListAsync(), "Id", "Name");
-            }
+            if (viewModel == null) return NotFound();
+            if (!await IsSectionValidAsync<Exam>(id)) return Forbid();
 
-            // Fetch the exam entity
-            var exam = await _examService.GetExamByIdAsync(id);
-            if (exam == null)
-            {
-                return NotFound();
-            }
-            if (!await IsSectionValidAsync<Exam>(id))
-            {
-                return Forbid();
-            }
-
-            // Convert Exam model to EditExamViewModel
-            var viewModel = new EditExamViewModel
-            {
-                Id = exam.Id,
-                Name = exam.Name,
-                SectionId = exam.SectionId,
-                DistrictId = exam.DistrictId,
-                ExamBuldingId = exam.ExamBuldingId,
-                ExamDate = exam.ExamDate,
-                Duration = exam.Duration,
-                Water = exam.Water,
-                Food = exam.Food,
-                StudentCount = exam.StudentCount,
-                Notes = exam.Notes,
-                InventoryTransport = exam.InventoryTransport,
-                Shift = exam.Shift,
-                StartTime = exam.StartTime,
-                EndTime = exam.EndTime,
-                AdmissionTime = exam.AdmissionTime,
-                SelectedCommissions = exam.ExamCommissions?.Select(ec => ec.CommissionId).ToArray(), // CommissionId'leri al
-                Commissions = (await _examService.GetCommissionsAsync(sectionId))
-                .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
-                .ToList(),
-                SelectedDegrees = exam.ExamDegrees?.Select(ec => ec.DegreeId).ToArray(), // CommissionId'leri al
-                Degrees = (await _context.Degrees.ToListAsync())
-                                         .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
-                                         .ToList()
-            };
-
-            return View(viewModel); // Pass the correct view model
+            await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
+            return View(viewModel);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Edit(EditExamViewModel exam, int[] selectedCommissions, int[] selectedDegrees)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            if (sectionId == null)
+            if (!ModelState.IsValid)
             {
-                ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
-                ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.ToListAsync(), "Id", "Name");
-                ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
-                ViewBag.CommissionList = new SelectList(await _context.Commissions.ToListAsync(), "Id", "Name");
-                ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
-                ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.ToListAsync(), "Id", "Name");
-            }
-            else
-            {
-                ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
-                ViewBag.ExamBuildingList = new SelectList(await _context.ExamBuildings.Where(e => e.SectionId == sectionId).ToListAsync(), "Id", "Name");
-                ViewBag.DistrictList = new SelectList(await _context.Districts.ToListAsync(), "Id", "Name");
-                ViewBag.CommissionList = new SelectList(await _context.Commissions.Where(c => c.SectionId == sectionId).ToListAsync(), "Id", "Name");
-                ViewBag.DegreeList = new SelectList(await _context.Degrees.ToListAsync(), "Id", "Name");
-                ViewBag.SubCommissionList = new SelectList(await _context.SubCommissions.Where(sc => sc.SectionId == sectionId).ToListAsync(), "Id", "Name");
-
-            }
-            if (ModelState.IsValid)
-            {
-                await _examService.UpdateExamAsync(exam, selectedCommissions, selectedDegrees);
-                return RedirectToAction(nameof(Index));
+                await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
+                return View(exam);
             }
 
-            return View(exam);
-        }
-
-        private async Task PopulateDropdowns(int? sectionId)
-        {
-            ViewBag.CommissionList = new MultiSelectList(
-                await _context.Commissions
-                    .Where(c => c.SectionId == sectionId)
-                    .ToListAsync(),
-                "Id",
-                "Name"
-            );
-
-            ViewBag.SubCommissionList = new MultiSelectList(
-                await _context.SubCommissions
-                    .Where(sc => sc.SectionId == sectionId)
-                    .ToListAsync(),
-                "Id",
-                "Name"
-            );
+            await _examService.UpdateExamAsync(exam, selectedCommissions, selectedDegrees);
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Delete(int id)
@@ -450,62 +179,17 @@ namespace ForQab.Presentation.Controllers
             await _examService.DeleteExamAsync(id);
             return RedirectToAction(nameof(Index));
         }
-
-        [HttpPost]
-        public async Task<IActionResult> UpdateExperts(int ExamId, int[] SelectedExpertIds)
-        {
-            var exam = await _context.Exams
-                .Include(e => e.Experts)
-                .FirstOrDefaultAsync(e => e.Id == ExamId);
-
-            if (exam == null)
-            {
-                return NotFound();
-            }
-
-            // Mövcud ekspertləri yeniləyək
-            var selectedExperts = await _context.Experts
-                .Where(e => SelectedExpertIds.Contains(e.Id))
-                .ToListAsync();
-
-            exam.Experts = selectedExperts;
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Ekspertlər uğurla yeniləndi!";
-            return RedirectToAction(nameof(Details), new { id = ExamId });
-        }
         public async Task<IActionResult> AssignExperts(int id)
         {
-            int sectionId = _context.Exams
-                                     .Where(e => e.Id == id)
-                                     .Select(i => i.SectionId)
-                                     .FirstOrDefault();
-            var availableSubProfessions = await _examService.GetSubprofessionsBySectionIdAsync(sectionId);
-            var federations = await _context.Professions
-                                             .Where(f => f.SectionId == sectionId)
-                                             .Select(f => new SelectListItem { Value = f.Id.ToString(), Text = f.Name })
-                                             .ToListAsync();
-
             var exam = await _examService.GetExamByIdAsync(id);
             if (exam == null)
             {
                 return NotFound();
             }
 
-            var viewModel = new AssignExpertToExamViewModel
-            {
-                ExamId = exam.Id,
-                SectionId = exam.SectionId,
-                SubProfessions = availableSubProfessions.Select(sp => new SelectListItem
-                {
-                    Text = sp.Name,
-                    Value = sp.Id.ToString()
-                }).ToList(),
-                Federations = federations // Yeni eklendi
-            };
-
+            var viewModel = await _examService.PrepareAssignExpertsViewModelAsync(exam);
             ViewBag.ExamName = exam.Name;
+
             return View(viewModel);
         }
 
@@ -514,8 +198,6 @@ namespace ForQab.Presentation.Controllers
         {
             try
             {
-                var federationId = model.Assignments[0].FederationId;
-                Console.WriteLine($"FederationId received: {federationId}");
                 bool success = await _examService.AssignExpertsAsync(model);
                 if (success)
                 {
@@ -527,33 +209,25 @@ namespace ForQab.Presentation.Controllers
             {
                 TempData["ErrorMessage"] = ex.Message;
             }
-            var sectionId = await _examService.GetSectionIdByExamIdAsync(model.ExamId);
-            model.SubProfessions = (await _examService.GetSubprofessionsBySectionIdAsync(sectionId))
-                .Select(sp => new SelectListItem { Value = sp.Id.ToString(), Text = sp.Name })
-                .ToList();
-            model.Federations = await _context.Professions
-                .Where(f => f.SectionId == sectionId)
-                .Select(f => new SelectListItem { Value = f.Id.ToString(), Text = f.Name })
-                .ToListAsync();
 
+            var exam = await _examService.GetExamByIdAsync(model.ExamId);
+            if (exam == null)
+            {
+                return NotFound();
+            }
+
+            model = await _examService.PrepareAssignExpertsViewModelAsync(exam);
             return View(model);
         }
 
-        public IActionResult WriteMonitorLog(int examId, int monitorId, byte kind)
+        private List<SelectListItem> GetKindOptions()
         {
-            var viewModel = new WriteMonitorLogViewModel
-            {
-                ExamId = examId,
-                MonitorId = monitorId,
-                Kind = 0,
-                KindOptions = new List<SelectListItem>
-                {
-                    new SelectListItem { Value = "0", Text = "Gəlməyən haqqında qeyd" },
-                    new SelectListItem { Value = "1", Text = "Xaric olan haqqında qeyd" },
-                    new SelectListItem { Value = "2", Text = "Digər səbəblərlə bağlı qeyd" }
-                }
-            };
-            return View(viewModel);
+            return new List<SelectListItem>
+    {
+        new SelectListItem { Value = "0", Text = "Gəlməyən haqqında qeyd" },
+        new SelectListItem { Value = "1", Text = "Xaric olan haqqında qeyd" },
+        new SelectListItem { Value = "2", Text = "Digər səbəblərlə bağlı qeyd" }
+    };
         }
 
         [HttpPost]
@@ -561,32 +235,22 @@ namespace ForQab.Presentation.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // Hata durumunda KindOptions listesini yeniden eklemeyi unutmayın.
-                model.KindOptions = new List<SelectListItem>
-                {
-                    new SelectListItem { Value = "0", Text = "Gəlməyən haqqında qeyd" },
-                    new SelectListItem { Value = "1", Text = "Xaric olan haqqında qeyd" },
-                    new SelectListItem { Value = "2", Text = "Digər səbəblərlə bağlı qeyd" }
-                };
+                model.KindOptions = GetKindOptions();
                 return View(model);
             }
 
             await _examService.AddMonitorLogAsync(model);
             return RedirectToAction("Details", new { id = model.ExamId });
         }
+
         public IActionResult WriteExpertLog(int examId, int expertId, byte kind)
         {
             var viewModel = new WriteExpertLogsViewModel
             {
                 ExamId = examId,
                 ExpertId = expertId,
-                Kind = 0,
-                KindOptions = new List<SelectListItem>
-                {
-                    new SelectListItem { Value = "0", Text = "Gəlməyən haqqında qeyd" },
-                    new SelectListItem { Value = "1", Text = "Xaric olan haqqında qeyd" },
-                    new SelectListItem { Value = "2", Text = "Digər səbəblərlə bağlı qeyd" }
-                }
+                Kind = kind,
+                KindOptions = GetKindOptions()
             };
             return View(viewModel);
         }
@@ -596,13 +260,7 @@ namespace ForQab.Presentation.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // Hata durumunda KindOptions listesini yeniden eklemeyi unutmayın.
-                model.KindOptions = new List<SelectListItem>
-                {
-                    new SelectListItem { Value = "0", Text = "Gəlməyən haqqında qeyd" },
-                    new SelectListItem { Value = "1", Text = "Xaric olan haqqında qeyd" },
-                    new SelectListItem { Value = "2", Text = "Digər səbəblərlə bağlı qeyd" }
-                };
+                model.KindOptions = GetKindOptions();
                 return View(model);
             }
 

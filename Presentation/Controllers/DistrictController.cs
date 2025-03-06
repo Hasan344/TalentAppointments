@@ -1,14 +1,14 @@
 ﻿using ForQab.DataAccess.Models;
 using ForQab.Service.Abstract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 
 namespace ForQab.Presentation.Controllers;
-
+[Authorize]
 public class DistrictController : BaseController
 {
+
     private readonly IDistrictService _districtService;
     private readonly MyDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;

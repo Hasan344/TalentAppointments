@@ -1,6 +1,7 @@
 ﻿using ForQab.DataAccess.Models;
 using ForQab.Presentation.Validators;
 using ForQab.Service.Abstract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -9,6 +10,7 @@ using Monitor = ForQab.DataAccess.Models.Monitor;
 
 namespace ForQab.Presentation.Controllers
 {
+    [Authorize]
     public class NaturaController : BaseController
         
     {

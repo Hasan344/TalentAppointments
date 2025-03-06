@@ -11,6 +11,9 @@ namespace ForQab.Repository.Abstract
         Task<IEnumerable<Monitor>> GetMonitorLogsAsync();
         Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId);
         Task DeleteMonitorLogs(int? id);
-        Task UpdateAsync(MonitorEditViewModel model);
+        Task UpdateAsync(MonitorEditViewModel model); 
+        Task<List<Monitor>> GetAvailableMonitorsAsync(int sectionId, int role, int gender, List<int> selectedMonitorList);
+        Task<List<Monitor>> GetAvailableWorkersAsync(int sectionId, int role, int workerType, List<int> selectedMonitorList); 
+        Task<int?> GetMonitorAttributeByIdAsync(int monitorId, int role);
     }
 }

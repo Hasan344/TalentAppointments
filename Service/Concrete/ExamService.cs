@@ -6,6 +6,7 @@ using ForQab.Repository.Abstract;
 using ForQab.Repository.Concrete;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace ForQab.Service
 {
@@ -15,13 +16,152 @@ namespace ForQab.Service
         private readonly IExpertRepository _expertRepository;
         private readonly IExamExpertSubProfessionRepository _examExpertSubProfessionRepository;
         private readonly ISectionRepository _sectionRepository;
+        private readonly IMonitorRepository _monitorRepository;
+        private readonly MyDbContext _context;
 
-        public ExamService(IExamRepository examRepository, IExpertRepository expertRepository, ISectionRepository sectionRepository, IExamExpertSubProfessionRepository examExpertSubProfessionRepository)
+        public ExamService(IExamRepository examRepository, IExpertRepository expertRepository, ISectionRepository sectionRepository, IExamExpertSubProfessionRepository examExpertSubProfessionRepository, IMonitorRepository monitorRepository, MyDbContext context)
         {
             _examRepository = examRepository;
             _expertRepository = expertRepository;
             _sectionRepository = sectionRepository;
             _examExpertSubProfessionRepository = examExpertSubProfessionRepository;
+            _monitorRepository = monitorRepository;
+            _context = context;
+        }
+        public async Task<CreateExamViewModel> PrepareCreateExamViewModelAsync(int? sectionId)
+        {
+            var commissions = await _examRepository.GetCommissionsAsync(sectionId);
+            var degrees = await _context.Degrees.ToListAsync();
+
+            return new CreateExamViewModel
+            {
+                Commissions = commissions.Select(sp => new SelectListItem { Text = sp.Name, Value = sp.Id.ToString() }).ToList(),
+                Degrees = degrees.Select(d => new SelectListItem { Text = d.Name, Value = d.Id.ToString() }).ToList()
+            };
+        }
+        public async Task<EditExamViewModel> PrepareEditExamViewModelAsync(int id, int? sectionId)
+        {
+            var exam = await _examRepository.GetByIdAsync(id);
+            if (exam == null) return null;
+
+            var commissions = await _examRepository.GetCommissionsAsync(sectionId);
+            var degrees = await _context.Degrees.ToListAsync();
+
+            return new EditExamViewModel
+            {
+                Id = exam.Id,
+                Name = exam.Name,
+                SectionId = exam.SectionId,
+                DistrictId = exam.DistrictId,
+                ExamBuldingId = exam.ExamBuldingId,
+                ExamDate = exam.ExamDate,
+                Duration = exam.Duration,
+                Water = exam.Water,
+                Food = exam.Food,
+                StudentCount = exam.StudentCount,
+                Notes = exam.Notes,
+                InventoryTransport = exam.InventoryTransport,
+                Shift = exam.Shift,
+                StartTime = exam.StartTime,
+                EndTime = exam.EndTime,
+                AdmissionTime = exam.AdmissionTime,
+                SelectedCommissions = exam.ExamCommissions?.Select(ec => ec.CommissionId).ToArray(),
+                Commissions = commissions.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }).ToList(),
+                SelectedDegrees = exam.ExamDegrees?.Select(ed => ed.DegreeId).ToArray(),
+                Degrees = degrees.Select(d => new SelectListItem { Value = d.Id.ToString(), Text = d.Name }).ToList()
+            };
+        }
+
+        public async Task PopulateViewBagsAsync(int? sectionId, dynamic viewBag)
+        {
+            var sections = sectionId == null ? _context.Sections : _context.Sections.Where(s => s.Id == sectionId);
+            var examBuildings = sectionId == null ? _context.ExamBuildings : _context.ExamBuildings.Where(e => e.SectionId == sectionId);
+            var districts = _context.Districts ;
+            var commissions = sectionId == null ? _context.Commissions : _context.Commissions.Where(c => c.SectionId == sectionId);
+            var degrees = _context.Degrees;
+            var subCommissions = sectionId == null ? _context.SubCommissions : _context.SubCommissions.Where(sc => sc.SectionId == sectionId);
+
+            viewBag.SectionList = new SelectList(await sections.ToListAsync(), "Id", "Name");
+            viewBag.ExamBuildingList = new SelectList(await examBuildings.ToListAsync(), "Id", "Name");
+            viewBag.DistrictList = new SelectList(await districts.ToListAsync(), "Id", "Name");
+            viewBag.CommissionList = new SelectList(await commissions.ToListAsync(), "Id", "Name");
+            viewBag.DegreeList = new SelectList(await degrees.ToListAsync(), "Id", "Name");
+            viewBag.SubCommissionList = new SelectList(await subCommissions.ToListAsync(), "Id", "Name");
+        }
+        public async Task<ChangeMonitorViewModel> GetChangeMonitorViewModelAsync(int examId, int monitorId, int role)
+        {
+            var exam = await _examRepository.GetExamWithMonitorsAsync(examId);
+            if (exam == null) return null;
+
+            var monitorAttribute = await _monitorRepository.GetMonitorAttributeByIdAsync(monitorId, role);
+            var sectionId = exam.SectionId;
+
+            var selectedMonitorList = exam.Monitors.Select(m => m.Id).ToList();
+            var availableMonitors = await _monitorRepository.GetAvailableMonitorsAsync(role, sectionId, (int)monitorAttribute, selectedMonitorList);
+
+            return new ChangeMonitorViewModel
+            {
+                ExamId = examId,
+                CurrentMonitorId = monitorId,
+                AvailableMonitors = availableMonitors.Select(m => new SelectListItem
+                {
+                    Value = m.Id.ToString(),
+                    Text = $"{m.Name} {m.Surname} ({m.FinCode})"
+                }).ToList()
+            };
+        }
+        //public async Task<bool> UpdateExpertsAsync(int examId, int[] selectedExpertIds)
+        //{
+        //    var exam = await _examRepository.GetExamWithExpertsByIdAsync(examId);
+        //    if (exam == null) return false;
+
+        //    var selectedExperts = await _expertRepository.GetExpertsByIdsAsync(selectedExpertIds);
+        //    exam.Experts = selectedExperts;
+
+        //    await _examRepository.SaveChangesAsync();
+        //    return true;
+        //}
+        public async Task<AssignExpertToExamViewModel> PrepareAssignExpertsViewModelAsync(Exam exam)
+        {
+            var availableSubProfessions = await GetSubprofessionsBySectionIdAsync(exam.SectionId);
+            var federations = await _context.Professions
+                                             .Where(f => f.SectionId == exam.SectionId)
+                                             .Select(f => new SelectListItem { Value = f.Id.ToString(), Text = f.Name })
+                                             .ToListAsync();
+
+            return new AssignExpertToExamViewModel
+            {
+                ExamId = exam.Id,
+                SectionId = exam.SectionId,
+                SubProfessions = availableSubProfessions.Select(sp => new SelectListItem
+                {
+                    Text = sp.Name,
+                    Value = sp.Id.ToString()
+                }).ToList(),
+                Federations = federations
+            };
+        }
+
+
+        public async Task<bool> ChangeMonitorAsync(ChangeMonitorViewModel model)
+        {
+            var exam = await _examRepository.GetExamWithMonitorsAsync(model.ExamId);
+            if (exam == null) return false;
+
+            var currentMonitor = exam.Monitors.FirstOrDefault(m => m.Id == model.CurrentMonitorId);
+            if (currentMonitor != null)
+            {
+                exam.Monitors.Remove(currentMonitor);
+            }
+
+            var newMonitor = await _monitorRepository.GetByIdAsync(model.NewMonitorId);
+            if (newMonitor != null)
+            {
+                exam.Monitors.Add(newMonitor);
+            }
+
+            await _examRepository.SaveAsync();
+            return true;
         }
         public async Task<ChangeExpertViewModel> GetChangeExpertViewModelAsync(int examId, int expertId)
         {

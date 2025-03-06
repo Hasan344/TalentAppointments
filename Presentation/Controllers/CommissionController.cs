@@ -1,15 +1,15 @@
-﻿using ForQab.Data_Access.ViewModel.Expert;
-using ForQab.Data_Access.ViewModel;
-using ForQab.DataAccess.Models;
+﻿using ForQab.DataAccess.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using ForQab.Migrations;
 using ForQab.Service.Abstract;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace ForQab.Presentation.Controllers
 {
+    [Authorize]
     public class CommissionController : BaseController
     {
         private readonly ICommissionService _commissionService;
