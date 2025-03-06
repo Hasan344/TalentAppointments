@@ -1,5 +1,5 @@
 ﻿using ForQab.DataAccess.Models;
-using ForQab.Service;
+using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -23,14 +23,12 @@ public class DistrictController : BaseController
     public async Task<IActionResult> Index()
     {
         var districts = await _districtService.GetAllDistrictsAsync();
-        ViewBag.RegionList = new SelectList(await _context.Regions.ToListAsync(), "Id", "Name");
         return View(districts);
     }
 
     [HttpGet]
     public async Task<IActionResult> Create()
     {
-        ViewBag.RegionList = new SelectList(await _context.Regions.ToListAsync(), "Id", "Name");
         return View();
     }
 
@@ -42,7 +40,6 @@ public class DistrictController : BaseController
             await _districtService.AddDistrictAsync(district);
             return RedirectToAction(nameof(Index));
         }
-        ViewBag.RegionList = new SelectList(await _context.Regions.ToListAsync(), "Id", "Name");
         return View(district);
     }
 
@@ -53,7 +50,6 @@ public class DistrictController : BaseController
         {
             return NotFound();
         }
-        ViewBag.RegionList = new SelectList(await _context.Regions.ToListAsync(), "Id", "Name");
         return View(district);
     }
 
@@ -70,7 +66,6 @@ public class DistrictController : BaseController
             await _districtService.UpdateDistrictAsync(district);
             return RedirectToAction(nameof(Index));
         }
-        ViewBag.RegionList = new SelectList(await _context.Regions.ToListAsync(), "Id", "Name");
         return View(district);
     }
 

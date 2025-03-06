@@ -1,5 +1,5 @@
 ﻿using ForQab.DataAccess.Models;
-using ForQab.Service;
+using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
