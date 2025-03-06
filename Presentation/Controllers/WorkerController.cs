@@ -2,7 +2,7 @@
 using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Worker;
 using ForQab.Presentation.Validators;
-using ForQab.Service;
+using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;

@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using ForQab.Service;
-using ForQab.Repository;
 using ForQab.DataAccess.Models;
 using ForQab.Presentation.Filters;
+using ForQab.Repository.Abstract;
+using ForQab.Repository.Concrete;
+using ForQab.Service.Abstract;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,7 +40,9 @@ builder.Services.AddScoped<IKonsService, KonsService>();
 builder.Services.AddScoped<INaturaService, NaturaService>();
 builder.Services.AddScoped<INaturaRepository, NaturaRepository>();
 builder.Services.AddScoped<IWorkerService, WorkerService>();
-builder.Services.AddScoped<IWorkerRepository, WorkerRepository>();
+builder.Services.AddScoped<IWorkerRepository, WorkerRepository>(); 
+builder.Services.AddScoped<ISectionRepository, SectionRepository>();
+builder.Services.AddScoped<IExamExpertSubProfessionRepository, ExamExpertSubProfessionRepository>();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireNonAlphanumeric = false;

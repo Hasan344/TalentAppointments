@@ -1,6 +1,4 @@
-﻿
-using ForQab.Service;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,6 +9,7 @@ using System.Data;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Math;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using ForQab.Service.Abstract;
 
 namespace ForQab.Presentation.Controllers
 {

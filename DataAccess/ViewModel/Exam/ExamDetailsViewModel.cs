@@ -27,6 +27,7 @@ namespace ForQab.Models.ViewModels
         public List<ExpertViewModelForExam> Experts { get; set; } = new();
         public List<MonitorViewModel> Monitors { get; set; } = new();
         public List<int> ExpertsWithLogs { get; set; } = new();
+        public List<int> MonitorsWithLogs { get; set; } = new();
         public List<Profession> Federations { get; set; } = new();
     }
 

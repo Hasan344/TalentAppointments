@@ -2,13 +2,13 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ForQab.DataAccess.Models;
-using ForQab.Service;
 using Microsoft.AspNetCore.Identity;
 using ForQab.DataAccess.ViewModel.Exam;
 using ClosedXML.Excel;
 using System.Data;
 using ForQab.Presentation.ViewModels;
 using ForQab.Models.ViewModels;
+using ForQab.Service.Abstract;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -35,122 +35,32 @@ namespace ForQab.Presentation.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
-            var exam = await _examService.GetExamByIdAsync(id);
+            var viewModel = await _examService.GetExamDetailsAsync(id);
 
-            if (exam == null)
+            if (viewModel == null)
             {
                 return NotFound();
             }
+
             if (!await IsSectionValidAsync<Exam>(id))
             {
                 return Forbid();
             }
 
-            var monitorIds = exam.Monitors.Select(m => m.Id).ToList();
-            var expertIds = exam.Experts.Select(m => m.Id).ToList();
-            var monitorLogs = await _examService.GetMonitorsWithLogsAsync(monitorIds);
-            var expertLogs = await _examService.GetExpertsWithLogsAsync(expertIds);
-
-            ViewBag.MonitorsWithLogs = monitorLogs ?? new List<int>();
-            ViewBag.ExpertsWithLogs = expertLogs ?? new List<int>();
-
-            // Entity Model'den ViewModel'e Dönüşüm
-            var viewModel = new ExamDetailsViewModel
-            {
-                Id = exam.Id,
-                Name = exam.Name,
-                Section = new SectionViewModel { Name = exam.Section.Name },
-                District = new DistrictViewModel { Name = exam.District.Name },
-                ExamBulding = new BuildingViewModel { Name = exam.ExamBuilding.Name },
-                ExamDate = exam.ExamDate,
-                Duration = exam.Duration,
-                Water = exam.Water,
-                Food = exam.Food,
-                StudentCount = exam.StudentCount,
-                StartTime = exam.StartTime,
-                EndTime = exam.EndTime,
-                AdmissionTime = exam.AdmissionTime,
-                Notes = exam.Notes ?? string.Empty,
-                InventoryTransport = exam.InventoryTransport ?? string.Empty,
-                ExamCommissions = exam.ExamCommissions.Select(ec => new ExamCommissionViewModel
-                {
-                    Commission = new CommissionViewModel { Name = ec.Commission.Name }
-                }).ToList(),
-                ExamDegrees = exam.ExamDegrees.Select(ec => new ExamDegreeViewModel
-                {
-                    Degree = new DegreeViewModel { Name = ec.Degrees.Name }
-                }).ToList(),
-                Experts = exam.Experts.Select(e => new ExpertViewModelForExam
-                {
-                    Id = e.Id,
-                    Name = e.Name,
-                    Surname = e.Surname,
-                    Fname = e.Fname,
-                    FinCode = e.FinCode,
-                    ExamExpertSubProfessions = e.ExamExpertSubProfessions
-                        .Where(eesp => eesp.SubProfession != null && eesp.Federation != null)
-                        .Select(eesp => new SubProfessionViewModelForExam
-                        {
-                            Name = eesp.SubProfession.Name,
-                            FederationName = eesp.Federation.Name
-                        }).ToList()
-                }).ToList(),
-                Monitors = exam.Monitors.Select(m => new MonitorViewModel
-                {
-                    Id = m.Id,
-                    Name = m.Name,
-                    Surname = m.Surname,
-                    Fname = m.Fname,
-                    FinCode = m.FinCode,
-                    Role = m.Role
-                }).ToList(),
-                ExamRepresentatives = exam.Representatives.Select(er => new RepresentativeViewModel
-                {
-                    Id = er.Id,
-                    Name = er.Name,
-                    Surname = er.Surname,
-                    Fname = er.Fname,
-                    FinCode = er.FinCode,
-                }).ToList(),
-                ExpertsWithLogs = expertLogs ?? new List<int>(),
-            };
+            ViewBag.MonitorsWithLogs = viewModel.MonitorsWithLogs;
+            ViewBag.ExpertsWithLogs = viewModel.ExpertsWithLogs;
 
             return View(viewModel);
         }
 
 
 
+
+        [HttpGet]
         public async Task<IActionResult> ChangeExpert(int examId, int expertId)
         {
-
-            var exam = _context.Exams
-                .Include(e => e.Experts)
-                .FirstOrDefault(e => e.Id == examId);
-            var sectionId = await GetCurrentSectionIdAsync();
-            var subProfession = _context.ExamExpertSubProfessions
-                                        .Include(e => e.SubProfession)
-                                        .Where(e => e.ExamId == examId && e.ExpertId == expertId)
-                                        .Select(e => e.SubProfessionId)
-                                        .FirstOrDefault();
-            if (exam == null) return NotFound();
-
-            var selectedExpertList = exam.Experts.Select(e => e.Id).ToList();
-
-            var expertList = _context.Experts
-                                     .Where(e => e.SectionId == sectionId)
-                                     .Where(e => e.SubProfessions.Any(sp => sp.Id == subProfession) && !selectedExpertList.Contains(e.Id))// 🔥 Yalnız uyğun subprofession olanlar
-                                     .ToList();
-
-            var viewModel = new ChangeExpertViewModel
-            {
-                ExamId = examId,
-                CurrentExpertId = expertId,
-                AvailableExperts = expertList.Select(e => new SelectListItem
-                {
-                    Value = e.Id.ToString(),
-                    Text = $"{e.Name} {e.Surname} ({e.FinCode})"
-                }).ToList()
-            };
+            var viewModel = await _examService.GetChangeExpertViewModelAsync(examId, expertId);
+            if (viewModel == null) return NotFound();
 
             return View(viewModel);
         }
@@ -158,63 +68,8 @@ namespace ForQab.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangeExpert(ChangeExpertViewModel model)
         {
-            var exam = _context.Exams
-                .Include(e => e.Experts)
-                .Include(e => e.ExamExpertSubProfessions) // 🔥 SubProfession ilişkisini de çekiyoruz
-                .FirstOrDefault(e => e.Id == model.ExamId);
-
-            if (exam == null) return NotFound();
-
-            using (var transaction = _context.Database.BeginTransaction()) // 🔥 İşlem sırasında hata olursa geri al
-            {
-                try
-                {
-                    var currentExpert = exam.Experts.FirstOrDefault(e => e.Id == model.CurrentExpertId);
-                    if (currentExpert != null)
-                    {
-                        exam.Experts.Remove(currentExpert);
-
-                        var currentSubProfessions = _context.ExamExpertSubProfessions
-                            .Where(eesp => eesp.ExamId == model.ExamId && eesp.ExpertId == model.CurrentExpertId)
-                            .ToList();
-
-                        if (currentSubProfessions.Any())
-                        {
-                            _context.ExamExpertSubProfessions.RemoveRange(currentSubProfessions);
-                        }
-                    }
-
-                    var newExpert = _context.Experts.FirstOrDefault(e => e.Id == model.NewExpertId);
-                    if (newExpert != null)
-                    {
-                        exam.Experts.Add(newExpert);
-
-                        var subProfession = _context.ExamExpertSubProfessions
-                            .Where(eesp => eesp.ExamId == model.ExamId && eesp.ExpertId == model.CurrentExpertId)
-                            .Select(eesp => new ExamExpertSubProfession
-                            {
-                                ExamId = model.ExamId,
-                                ExpertId = model.NewExpertId,
-                                SubProfessionId = eesp.SubProfessionId,
-                                FederationId = eesp.FederationId
-                            })
-                            .ToList();
-
-                        if (subProfession.Any())
-                        {
-                            _context.ExamExpertSubProfessions.AddRange(subProfession);
-                        }
-                    }
-
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                }
-                catch (Exception)
-                {
-                    await transaction.RollbackAsync();
-                    throw;
-                }
-            }
+            var success = await _examService.ChangeExpertAsync(model.ExamId, model.CurrentExpertId, model.NewExpertId);
+            if (!success) return NotFound();
 
             return RedirectToAction("Details", new { id = model.ExamId });
         }

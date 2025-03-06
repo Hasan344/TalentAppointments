@@ -1,5 +1,5 @@
 ﻿using ForQab.DataAccess.Models;
-using ForQab.Service;
+using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,7 +13,11 @@ public class ExamBuildingController : BaseController
     private readonly MyDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public ExamBuildingController(IExamBuildingService examBuildingService, MyDbContext context, UserManager<ApplicationUser> userManager) : base(context,userManager)
+    public ExamBuildingController(
+        IExamBuildingService examBuildingService,
+        MyDbContext context,
+        UserManager<ApplicationUser> userManager
+    ) : base(context, userManager) // Pass both parameters to BaseController
     {
         _examBuildingService = examBuildingService;
         _context = context;
@@ -24,55 +28,37 @@ public class ExamBuildingController : BaseController
     {
         var sectionId = await GetCurrentSectionIdAsync();
         var examBuildings = await _examBuildingService.GetAllExamBuildingsAsync(sectionId);
-        ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
+        ViewBag.SectionList = await GetSectionSelectListAsync(sectionId);
         return View(examBuildings);
     }
 
     [HttpGet]
     public async Task<IActionResult> Create()
     {
-        var sectionId = await GetCurrentSectionIdAsync();
-        if (sectionId==null)
-        {
-            ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
-        }
-        else
-        ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
+        ViewBag.SectionList = await GetSectionSelectListAsync(await GetCurrentSectionIdAsync());
         return View();
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ExamBuilding examBuilding)
     {
-        var sectionId = await GetCurrentSectionIdAsync();
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            await _examBuildingService.AddExamBuildingAsync(examBuilding);
-            return RedirectToAction(nameof(Index));
+            ViewBag.SectionList = await GetSectionSelectListAsync(await GetCurrentSectionIdAsync());
+            return View(examBuilding);
         }
-        if (sectionId == null)
-        {
-            ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
-        }
-        else
-            ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
-        return View(examBuilding);
+
+        await _examBuildingService.AddExamBuildingAsync(examBuilding);
+        return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Edit(int id)
     {
         var examBuilding = await _examBuildingService.GetExamBuildingByIdAsync(id);
-        var sectionId = await GetCurrentSectionIdAsync();
-        if (examBuilding == null)
-        {
-            return NotFound();
-        }
-        if (sectionId == null)
-        {
-            ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
-        }
-        else
-            ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
+        if (examBuilding == null) return NotFound();
+
+        ViewBag.SectionList = await GetSectionSelectListAsync(await GetCurrentSectionIdAsync());
         return View(examBuilding);
     }
 
@@ -80,48 +66,31 @@ public class ExamBuildingController : BaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ExamBuilding examBuilding)
     {
-        if (id != examBuilding.Id)
+        if (id != examBuilding.Id) return NotFound();
+
+        if (!ModelState.IsValid)
         {
-            return NotFound();
+            ViewBag.SectionList = await GetSectionSelectListAsync(await GetCurrentSectionIdAsync());
+            return View(examBuilding);
         }
 
-        if (ModelState.IsValid)
+        try
         {
-            try
-            {
-                await _examBuildingService.UpdateExamBuildingAsync(examBuilding);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await ExamBuildingExists(examBuilding.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
+            await _examBuildingService.UpdateExamBuildingAsync(examBuilding);
         }
-        var sectionId = await GetCurrentSectionIdAsync(); if (sectionId == null)
+        catch (DbUpdateConcurrencyException)
         {
-            ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
+            if (!await ExamBuildingExists(examBuilding.Id)) return NotFound();
+            throw;
         }
-        else
-            ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
-        return View(examBuilding);
+
+        return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Delete(int id)
     {
         var examBuilding = await _examBuildingService.GetExamBuildingByIdAsync(id);
-        if (examBuilding == null)
-        {
-            return NotFound();
-        }
-
-        return View(examBuilding);
+        return examBuilding == null ? NotFound() : View(examBuilding);
     }
 
     [HttpPost, ActionName("Delete")]
@@ -133,12 +102,20 @@ public class ExamBuildingController : BaseController
     }
 
     private async Task<bool> ExamBuildingExists(int id)
-    {
-        return await _examBuildingService.GetExamBuildingByIdAsync(id) != null;
-    }
+        => await _examBuildingService.GetExamBuildingByIdAsync(id) != null;
+
     private async Task<int?> GetCurrentSectionIdAsync()
     {
         var user = await _userManager.GetUserAsync(User);
-        return user?.SectionId != null ? user.SectionId : null;
+        return user?.SectionId;
+    }
+
+    private async Task<SelectList> GetSectionSelectListAsync(int? sectionId)
+    {
+        var sections = sectionId == null
+            ? await _examBuildingService.GetAllSectionsAsync()
+            : await _examBuildingService.GetSectionsByIdAsync(sectionId.Value);
+
+        return new SelectList(sections, "Id", "Name");
     }
 }
