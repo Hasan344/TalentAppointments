@@ -16,9 +16,10 @@ namespace ForQab.Repository.Concrete
         // Get all sub-professions for a particular expert in a specific exam
         public async Task<List<ExamExpertSubProfession>> GetSubProfessionsByExpertAsync(int examId, int expertId)
         {
-            return await _context.ExamExpertSubProfessions
+            var query = _context.ExamExpertSubProfessions
                 .Where(eesp => eesp.ExamId == examId && eesp.ExpertId == expertId)
                 .ToListAsync();
+            return await query;
         }
 
         // Get a single sub-profession ID for a particular exam and expert

@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ForQab.Presentation.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class ExamController : BaseController
     {
         private readonly IExamService _examService;
@@ -78,9 +78,9 @@ namespace ForQab.Presentation.Controllers
             return View(viewModel);
         }
         [HttpPost]
-        public  IActionResult ChangeMonitor(ChangeMonitorViewModel model)
+        public async Task<IActionResult> ChangeMonitor(ChangeMonitorViewModel model)
         {
-             _examService.ChangeMonitorAsync(model); 
+             await _examService.ChangeMonitorAsync(model); 
             return RedirectToAction("Details", new { id = model.ExamId });
         }
         public async Task<IActionResult> ChangeHeadMonitor(int examId, int monitorId)
@@ -91,9 +91,9 @@ namespace ForQab.Presentation.Controllers
         }
 
         [HttpPost]
-        public IActionResult ChangeHeadMonitor(ChangeMonitorViewModel model)
+        public async Task<IActionResult> ChangeHeadMonitor(ChangeMonitorViewModel model)
         {
-            _examService.ChangeMonitorAsync(model);
+            await _examService.ChangeMonitorAsync(model);
             return RedirectToAction("Details", new { id = model.ExamId });
         }
         public async Task<IActionResult> ChangeWorker(int examId, int monitorId)
@@ -104,9 +104,22 @@ namespace ForQab.Presentation.Controllers
         }
 
         [HttpPost]
-        public IActionResult ChangeWorker(ChangeMonitorViewModel model)
+        public async Task<IActionResult> ChangeWorker(ChangeMonitorViewModel model)
         {
-            _examService.ChangeMonitorAsync(model);
+            await _examService.ChangeMonitorAsync(model);
+            return RedirectToAction("Details", new { id = model.ExamId });
+        }
+        public async Task<IActionResult> ChangeRepresentative(int examId, int representativeId)
+        {
+            var viewModel = await _examService.GetChangeRepresentativeViewModelAsync(examId, representativeId);
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeRepresentative(ChangeRepresentativeViewModel model)
+        {
+            await _examService.ChangeRepresentativeAsync(model);
             return RedirectToAction("Details", new { id = model.ExamId });
         }
 

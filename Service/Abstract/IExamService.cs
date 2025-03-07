@@ -36,7 +36,9 @@ namespace ForQab.Service.Abstract
         Task<ChangeExpertViewModel> GetChangeExpertViewModelAsync(int examId, int expertId);
         Task<bool> ChangeExpertAsync(int examId, int currentExpertId, int newExpertId);
         Task<ChangeMonitorViewModel> GetChangeMonitorViewModelAsync(int examId, int monitorId, int role);
-        Task<bool> ChangeMonitorAsync(ChangeMonitorViewModel model); 
+        Task<ChangeRepresentativeViewModel> GetChangeRepresentativeViewModelAsync(int examId, int representativeId);
+        Task<bool> ChangeMonitorAsync(ChangeMonitorViewModel model);
+        Task<bool> ChangeRepresentativeAsync(ChangeRepresentativeViewModel model);
         Task<CreateExamViewModel> PrepareCreateExamViewModelAsync(int? sectionId);
         Task PopulateViewBagsAsync(int? sectionId, dynamic viewBag);
         Task<EditExamViewModel> PrepareEditExamViewModelAsync(int id, int? sectionId);

@@ -18,5 +18,11 @@ namespace ForQab.Repository.Concrete
             return await _context.DimRepresentatives
                 .ToListAsync();
         }
+        public async Task<List<DimRepresentative>> GetAvailableRepresentativeAsync(List<int> selectedRepresentativeList)
+        {
+            return await _context.DimRepresentatives
+                .Where(dr => !selectedRepresentativeList.Contains(dr.Id))
+                .ToListAsync();
+        }
     }
 }

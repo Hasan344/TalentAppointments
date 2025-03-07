@@ -360,6 +360,12 @@
                                 </small>
                             </div>
                             <div class="col-md-4 text-md-right mt-2 mt-md-0">
+                                <a class="btn btn-sm btn-outline-secondary mr-2"
+                                   asp-action="ChangeRepresentative"
+                                   asp-route-examId="@Model.Id"
+                                   asp-route-representativeId="@rep.Id">
+                                    <i class="bi bi-pencil"></i> Dəyişdir
+                                </a>
                                 <a class="btn btn-sm btn-outline-info"
                                    asp-action="RepresentativeDetails"
                                    asp-route-id="@rep.Id">

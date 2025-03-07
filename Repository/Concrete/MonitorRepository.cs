@@ -111,12 +111,35 @@ namespace ForQab.Repository.Concrete
                 .Where(m => m.Role == role && m.SectionId == sectionId && m.WorkerType == workerType && !selectedMonitorList.Contains(m.Id))
                 .ToListAsync();
         }
+
+        public async Task<List<DimRepresentative>> GetAvailableRepresentativesAsync (List<int> selectedRepresentativeList)
+        {
+            return await _dbContext.DimRepresentatives
+                .Where(m => !selectedRepresentativeList.Contains(m.Id))
+                .ToListAsync();
+        }
+
         public async Task<int?> GetMonitorAttributeByIdAsync(int monitorId, int role)
         {
             return await _dbContext.Monitors
                 .Where(m => m.Id == monitorId && m.Role == role)
-                .Select(m => m.Gender != null ? m.Gender : m.WorkerType)
+                .Select(m => m.WorkerType != null ? m.WorkerType: m.Gender)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<Monitor> GetMonitorByIdAsync(int monitorId)
+        {
+            try
+            {
+                return await _dbContext.Monitors
+                                       .Where(m => m.Id == monitorId)
+                                       .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+               Console.WriteLine($"Error occurred while retrieving monitor with Id {monitorId}: {ex.Message}");
+                throw;
+            }
         }
     }
 }
