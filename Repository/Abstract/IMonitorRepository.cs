@@ -13,7 +13,9 @@ namespace ForQab.Repository.Abstract
         Task DeleteMonitorLogs(int? id);
         Task UpdateAsync(MonitorEditViewModel model); 
         Task<List<Monitor>> GetAvailableMonitorsAsync(int sectionId, int role, int gender, List<int> selectedMonitorList);
-        Task<List<Monitor>> GetAvailableWorkersAsync(int sectionId, int role, int workerType, List<int> selectedMonitorList); 
+        Task<List<Monitor>> GetAvailableWorkersAsync(int sectionId, int role, int workerType, List<int> selectedMonitorList);
+        Task<List<DimRepresentative>> GetAvailableRepresentativesAsync(List<int> selectedRepresentativeList);
         Task<int?> GetMonitorAttributeByIdAsync(int monitorId, int role);
+        Task<Monitor> GetMonitorByIdAsync(int monitorId);
     }
 }

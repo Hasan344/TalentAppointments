@@ -34,6 +34,7 @@ namespace ForQab.Repository.Abstract
         Task<IDbContextTransaction> BeginTransactionAsync();
         Task SaveAsync();
         Task<Exam> GetExamWithMonitorsAsync(int examId);
+        Task<Exam> GetExamWithRepresentativeAsync(int examId);
         //Task<Exam> GetExamWithExpertsByIdAsync(int examId);
         //Task<List<Expert>> GetExpertsByIdsAsync(int[] expertIds);
     }

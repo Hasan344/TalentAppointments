@@ -25,7 +25,7 @@
             {
                 <tr>
                     <td>
-                        <input type="checkbox" name="SelectedWorkerIds" value="@rep.Id" required />
+                        <input type="checkbox" name="SelectedWorkerIds[]" value="@rep.Id" />
                     </td>
                     <td>@rep.Name</td>
                     <td>@rep.Surname</td>
@@ -38,6 +38,7 @@
 
     <button type="submit" class="btn btn-primary">Atama Yap</button>
 </form>
+
 
 
 

@@ -689,6 +689,7 @@ namespace ForQab.Repository.Concrete
             var exam = await _context.Exams
         .Include(e => e.Experts)
         .Include(e => e.ExamExpertSubProfessions)
+            .ThenInclude(e => e.SubProfession)
         .FirstOrDefaultAsync(e => e.Id == examId);
 
             if (exam == null)
@@ -712,6 +713,12 @@ namespace ForQab.Repository.Concrete
         {
             return await _context.Exams
                 .Include(e => e.Monitors)
+                .FirstOrDefaultAsync(e => e.Id == examId);
+        }
+        public async Task<Exam> GetExamWithRepresentativeAsync(int examId)
+        {
+            return await _context.Exams
+                .Include(e => e.Representatives)
                 .FirstOrDefaultAsync(e => e.Id == examId);
         }
         //public async Task<Exam> GetExamWithExpertsByIdAsync(int examId)

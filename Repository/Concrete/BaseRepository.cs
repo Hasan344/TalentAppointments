@@ -56,7 +56,8 @@ namespace ForQab.Repository.Concrete
 
         public async Task<T> GetByIdAsync(int id)
         {
-            return await _dbContext.Set<T>().FindAsync(id);
+            var query = await _dbContext.Set<T>().FindAsync(id);
+            return query;
         }
 
         public async Task<T> GetByIdAsync(int id, Expression<Func<T, bool>> exp = null, params string[] includes)
