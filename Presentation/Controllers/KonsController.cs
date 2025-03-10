@@ -8,6 +8,8 @@ using System.Data;
 using ClosedXML.Excel;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Authorization;
+using ForQab.Service;
+using System.Globalization;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -112,6 +114,8 @@ namespace ForQab.Presentation.Controllers
                 Kons = true,
                 FinCode = expert.FinCode,
                 Profession = expert.Profession,
+                TelEl = expert.TelEl,
+                TelIs = expert.TelIs,
                 SelectedSubProfessions = expert.SubProfessions.Select(sp => sp.Id).ToArray(),
                 SubProfessions = allSubProfessions
                     .Select(sp => new SelectListItem
@@ -289,7 +293,14 @@ namespace ForQab.Presentation.Controllers
                 ModelState.AddModelError("", "Excel faylı yüklənməmişdir.");
                 return RedirectToAction(nameof(Index));
             }
+
             var sectionId = await GetCurrentSectionIdAsync();
+            if (sectionId == null)
+            {
+                ModelState.AddModelError("", "Admin fayl yükləməsi edə bilməz.");
+                return RedirectToAction(nameof(Index));
+            }
+
             using (var stream = new MemoryStream())
             {
                 await excelFile.CopyToAsync(stream);
@@ -301,33 +312,62 @@ namespace ForQab.Presentation.Controllers
                         ModelState.AddModelError("", "Excel faylı düzgün deyil.");
                         return RedirectToAction(nameof(Index));
                     }
-                    if (sectionId == null)
-                    {
-                        ModelState.AddModelError("", "Admin fayl yükləməsi edə bilməz.");
-                        return RedirectToAction(nameof(Index));
-                    }
+
                     var experts = new List<Expert>();
-                    foreach (var row in worksheet.RowsUsed().Skip(1)) // Başlığı atla
+                    var existingFinCodes = _context.Experts.Select(e => e.FinCode).ToHashSet();
+
+                    foreach (var row in worksheet.RowsUsed().Skip(1)) 
                     {
+                        var finCode = row.Cell(4).GetString();
+                        if (string.IsNullOrEmpty(finCode) || existingFinCodes.Contains(finCode))
+                        {
+                            continue; 
+                        }
+
                         var expert = new Expert
                         {
                             Name = row.Cell(1).GetString(),
                             Surname = row.Cell(2).GetString(),
                             Fname = row.Cell(3).GetString(),
-                            SectionId=sectionId,
-                            FinCode = row.Cell(4).GetString(),
-                            Profession=row.Cell(5).GetString(),
-                            Kons=true
-
+                            FinCode = finCode,
+                            Profession = row.Cell(5).IsEmpty() ? null : row.Cell(5).GetString(),
+                            Kons = true,
+                            SectionId = sectionId,
+                            Gender = _context.Genders.FirstOrDefault(g => g.Name == row.Cell(6).GetString())?.Id,
+                            District = _context.Districts.FirstOrDefault(d => d.Name == row.Cell(7).GetString())?.Id,
+                            Federation = _context.Professions.FirstOrDefault(p => p.Name == row.Cell(8).GetString())?.Id,
+                            HesablashmaH = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
+                            Rekvizit = row.Cell(11).GetString(),
+                            Serial = row.Cell(12).GetString(),
+                            SSN = row.Cell(13).GetString(),
+                            Voen = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
+                            BirthDate = row.Cell(15).IsEmpty() ? null
+                                : DateOnly.ParseExact(row.Cell(15).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                            Status = 0,
+                            BankFilial = row.Cell(16).GetString(),
+                            BankFilialCode = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
+                            TelIs = row.Cell(18).IsEmpty() ? null : row.Cell(18).GetString(),
                         };
+                        var subProfessionNames = row.Cell(9).GetString().Split(',').Select(x => x.Trim()).ToList();
+                        foreach (var subProfessionName in subProfessionNames)
+                        {
+                            var subProfession = _context.SubProfessions.FirstOrDefault(sp => sp.Name == subProfessionName);
+                            if (subProfession != null)
+                            {
+                                expert.SubProfessions.Add(subProfession);
+                            }
+                        }
+
                         experts.Add(expert);
                     }
 
-                    await _konsService.BulkAddAsync(experts);
+                    if (experts.Any())
+                    {
+                        await _konsService.BulkAddAsync(experts);
+                    }
                 }
             }
 
-            TempData["SuccessMessage"] = "Expert-lər uğurla idxal edildi.";
             return RedirectToAction(nameof(Index));
         }
     }

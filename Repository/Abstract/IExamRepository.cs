@@ -35,6 +35,7 @@ namespace ForQab.Repository.Abstract
         Task SaveAsync();
         Task<Exam> GetExamWithMonitorsAsync(int examId);
         Task<Exam> GetExamWithRepresentativeAsync(int examId);
+        Task<byte[]> ExportExamMonitorsToWordAsync(int examId);
         //Task<Exam> GetExamWithExpertsByIdAsync(int examId);
         //Task<List<Expert>> GetExpertsByIdsAsync(int[] expertIds);
     }

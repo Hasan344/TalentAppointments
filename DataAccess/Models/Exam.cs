@@ -55,6 +55,7 @@ public partial class Exam
     [InverseProperty("Exams")]
     public virtual District? District { get; set; } = null!;
     public virtual ICollection<ExamCommission> ExamCommissions { get; set; } = new List<ExamCommission>();
+    public virtual ICollection<ExamMonitor> ExamMonitors { get; set; } = new List<ExamMonitor>();
 
     public virtual ICollection<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; } = new List<ExamExpertSubProfession>();
     public virtual ICollection<ExamDegree> ExamDegrees { get; set; } = new List<ExamDegree>();

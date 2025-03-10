@@ -3,7 +3,6 @@ using ForQab.DataAccess.ViewModel.Exam;
 using ForQab.Models.ViewModels;
 using ForQab.Presentation.ViewModels;
 using ForQab.Repository.Abstract;
-using ForQab.Repository.Concrete;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -212,10 +211,6 @@ namespace ForQab.Service
             var exam = await _examRepository.GetExamWithExpertsAndSubProfessionsAsync(examId);
             if (exam == null) return null;
             var sectionId = exam.SectionId;
-            if (_examExpertSubProfessionRepository == null)
-            {
-                Console.WriteLine("_examExpertSubProfessionRepository is null! Check your dependency injection.");
-            }
 
             var subProfession = await _examExpertSubProfessionRepository.GetSubProfessionIdByExpertAsync(examId, expertId);
             if (subProfession == null) return null;
@@ -528,7 +523,9 @@ namespace ForQab.Service
             return viewModel;
         }
 
-
-
+        public Task<byte[]> ExportExamMonitorsToWordAsync(int examId)
+        {
+            return _examRepository.ExportExamMonitorsToWordAsync(examId);
+        }
     }
 }

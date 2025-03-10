@@ -22,6 +22,8 @@ namespace ForQab.Data_Access.ViewModel.Expert
         public Boolean? Kons { get; set; }
         public string? FinCode { get; set; }
         public string? Profession { get; set; }
+        public string? TelIs { get; set; }
+        public string? TelEl { get; set; }
         public int? Federation { get; set; }
         public byte? Gender { get; set; }
         public List<SelectListItem>? SubProfessions { get; set; } // For dropdown list

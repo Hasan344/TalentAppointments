@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ForQab.Presentation.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class ExamController : BaseController
     {
         private readonly IExamService _examService;
@@ -467,6 +467,12 @@ namespace ForQab.Presentation.Controllers
             if (monitor == null)
                 return NotFound();
             return RedirectToAction("Details", "Worker", new { id });
+        }
+        [HttpPost]
+        public async Task<IActionResult> ExportMonitorRegister(int examId)
+        {
+            var fileContents = await _examService.ExportExamMonitorsToWordAsync(examId);
+            return File(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "ExamMonitorRegister.docx");
         }
 
         public async Task<IActionResult> ExportToExcel()

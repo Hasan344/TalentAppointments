@@ -57,6 +57,8 @@ namespace ForQab.Repository.Concrete
                 Voen = expertViewModel.Voen,
                 Gender = expertViewModel.Gender,
                 Federation = expertViewModel.Federation,
+                TelIs = expertViewModel.TelIs,
+                TelEl = expertViewModel.TelEl,
                 Kons = false
             };
 
@@ -105,6 +107,8 @@ namespace ForQab.Repository.Concrete
                 existingExpert.Gender = expert.Gender;
                 existingExpert.Federation = expert.Federation;
                 existingExpert.HesablashmaH = expert.HesablashmaH;
+                existingExpert.TelIs = expert.TelIs;
+                existingExpert.TelEl = expert.TelEl;
 
                 // SubProfessions yeniləməsi
                 if (existingExpert.SubProfessions != null)

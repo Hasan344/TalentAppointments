@@ -409,4 +409,15 @@
             <i class="bi bi-plus-circle"></i> Nümayəndə təyin et
         </a>
     </div> 
+    <div class="text-center mt-4">
+        <form asp-action="ExportMonitorRegister" method="post">
+            <input type="hidden" name="examId" value="@Model.Id" />
+            <button type="submit" class="btn btn-primary px-4 py-2 mx-2" 
+                    style="background-color: @primaryColor; border: none;">
+                <i class="bi bi-download"></i> Nəzarətçi Qeydiyyat Vərəqi
+            </button>
+        </form>
+
+
+    </div> 
 </div>

@@ -1,13 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ForQab.DataAccess.Models
 {
     [Table("exam_monitors")]
     public partial class ExamMonitor
     {
+        [Key]
         [Column("MonitorId")]
         public int MonitorId { get; set; }
-
+        
+        [Key]
         [Column("ExamId")]
         public int ExamId { get; set; }
 

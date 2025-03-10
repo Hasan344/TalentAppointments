@@ -44,6 +44,7 @@ namespace ForQab.Service.Abstract
         Task<EditExamViewModel> PrepareEditExamViewModelAsync(int id, int? sectionId);
         //Task<bool> UpdateExpertsAsync(int examId, int[] selectedExpertIds);
         Task<AssignExpertToExamViewModel> PrepareAssignExpertsViewModelAsync(Exam exam);
+        Task<byte[]> ExportExamMonitorsToWordAsync(int examId);
 
     }
 }
