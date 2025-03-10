@@ -39,6 +39,8 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<ExamCommission> ExamCommissions { get; set; }
 
+    public virtual DbSet<ExamMonitor> ExamMonitors { get; set; }
+
     public virtual DbSet<ExamDegree> ExamDegrees { get; set; }
 
     public virtual DbSet<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; }
@@ -243,6 +245,9 @@ public partial class MyDbContext : DbContext
                         j.HasKey("ExamId", "MonitorId");
                         j.ToTable("Exam_Monitors");
                     });
+
+            modelBuilder.Entity<ExamMonitor>()
+            .HasKey(ec => new { ec.ExamId, ec.MonitorId });
 
             entity.HasMany(d => d.Representatives).WithMany(p => p.Exams)
                 .UsingEntity<Dictionary<string, object>>(

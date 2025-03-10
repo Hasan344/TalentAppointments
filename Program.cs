@@ -70,7 +70,13 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
-app.UsePathBase("/qabiliyyet");
+
+//var pathBase = app.Configuration["PathBase"];
+//if (!string.IsNullOrEmpty(pathBase))
+//{
+//    app.UsePathBase(pathBase);
+//}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -89,6 +95,5 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapRazorPages();
 
 app.Run();

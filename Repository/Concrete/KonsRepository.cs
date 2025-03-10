@@ -65,6 +65,8 @@ namespace ForQab.Repository.Concrete
                 existingExpert.Kons = true;
                 existingExpert.Voen = entity.Voen;
                 existingExpert.HesablashmaH = entity.HesablashmaH;
+                existingExpert.TelIs = entity.TelIs;
+                existingExpert.TelEl = entity.TelEl;
 
                 // SubProfessions yeniləməsi
                 if (entity.SelectedSubProfessions != null)
@@ -131,7 +133,9 @@ namespace ForQab.Repository.Concrete
                 SSN = entity.SSN,
                 Rekvizit = entity.Rekvizit,
                 Voen = entity.Voen,
-                Kons = true
+                Kons = true,
+                TelIs = entity.TelIs,
+                TelEl = entity.TelEl
             };
 
             // Link selected SubProfessions

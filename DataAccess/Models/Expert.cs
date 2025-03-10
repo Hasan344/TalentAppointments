@@ -21,6 +21,13 @@ public partial class Expert
     [Column("fname")]
     [StringLength(100)]
     public string Fname { get; set; } = null!;
+    [Column("tel_is")]
+    [StringLength(50)]
+    public string? TelIs { get; set; } = null!;
+
+    [Column("tel_el")]
+    [StringLength(50)]
+    public string? TelEl { get; set; } = null!;
 
     [Column("section_id")]
     public int? SectionId { get; set; }

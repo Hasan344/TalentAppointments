@@ -144,6 +144,8 @@ namespace ForQab.Presentation.Controllers
                 Profession = expert.Profession,
                 Gender = expert.Gender,
                 Federation = expert.Federation,
+                TelEl = expert.TelEl,
+                TelIs = expert.TelIs,
                 SelectedSubProfessions = expert.SubProfessions.Select(sp => sp.Id).ToArray(),
                 SubProfessions = allSubProfessions
                     .Select(sp => new SelectListItem
@@ -401,7 +403,10 @@ namespace ForQab.Presentation.Controllers
                             Voen = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
                             BirthDate = row.Cell(15).IsEmpty() ? null
                                 : DateOnly.ParseExact(row.Cell(15).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
-                            Status = 0
+                            Status = 0,
+                            BankFilial = row.Cell(16).GetString(),
+                            BankFilialCode = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
+                            TelIs = row.Cell(18).IsEmpty() ? null : row.Cell(18).GetString(),
                         };
 
                         // SubProfessions Many-to-Many əlaqəsi üçün işlənir

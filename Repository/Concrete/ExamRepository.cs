@@ -7,6 +7,7 @@ using ForQab.Presentation.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using ForQab.Repository.Abstract;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.Threading;
 
 namespace ForQab.Repository.Concrete
 {
@@ -187,6 +188,15 @@ namespace ForQab.Repository.Concrete
                 .OrderBy(e => e.AssignmentCount) // Daha az atanmışları önceliklendir
                 .ToListAsync();
 
+            var query = _context.Monitors
+    .Where(e => e.SectionId == exam.SectionId)
+    .Where(e => e.Role == 2)
+    .Where(e => e.Gender == genderId)
+    .Where(e => e.BirthDate >= maxDate)
+    .Where(e => e.Status == 0)
+    .Where(e => e.Archive == 0)
+    .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id));
+            Console.WriteLine(query.ToQueryString());
             if (availableMonitors.Count < numberOfMonitors)
                 throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
 
@@ -721,18 +731,305 @@ namespace ForQab.Repository.Concrete
                 .Include(e => e.Representatives)
                 .FirstOrDefaultAsync(e => e.Id == examId);
         }
-        //public async Task<Exam> GetExamWithExpertsByIdAsync(int examId)
-        //{
-        //    return await _context.Exams
-        //        .Include(e => e.Experts)
-        //        .FirstOrDefaultAsync(e => e.Id == examId);
-        //}
 
-        //public async Task<List<Expert>> GetExpertsByIdsAsync(int[] expertIds)
-        //{
-        //    return await _context.Experts
-        //        .Where(e => expertIds.Contains(e.Id))
-        //        .ToListAsync();
-        //}
+        public async Task<byte[]> ExportExamMonitorsToWordAsync(int examId)
+        {
+            var exam = await _context.Exams.Include(e => e.Section)
+                                           .Include(e => e.Monitors)
+                                           .Where(e => e.Id == examId).FirstOrDefaultAsync();
+
+            if (exam == null) throw new Exception("İmtahan tapılmadı");
+
+            var monitors = await _context.ExamMonitors
+                .Where(em => em.ExamId == examId)
+                .Select(em => em.Monitors)
+                .ToListAsync();
+
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                using (WordprocessingDocument wordDocument = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document, true))
+                {
+                    MainDocumentPart mainPart = wordDocument.AddMainDocumentPart();
+                    mainPart.Document = new Document();
+                    Body body = mainPart.Document.AppendChild(new Body());
+
+                    // Logo placeholder
+                    // You'll need to implement proper image handling
+                    Paragraph imageParagraph = new Paragraph(new Run(new Text("")));
+                    body.AppendChild(imageParagraph);
+
+                    // Title sections
+                    // First line
+                    body.AppendChild(CreateBoldCenteredParagraph("Xüsusi qabiliyyət tələb edən ixtisaslar üzrə qabiliyyət imtahanlarında"));
+
+                    // Second line
+                    body.AppendChild(CreateBoldCenteredParagraph("İŞTİRAK EDƏN NƏZARƏTÇİLƏRİN QEYDİYYAT VƏRƏQİ"));
+
+                    // Direction with italic
+                    Paragraph directionParagraph = new Paragraph(
+                        new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
+                        new Run(new RunProperties(new Bold(),
+                                                new FontSize { Val = "28" }),
+                            new Text("Qabiliyyət istiqaməti: ")),
+                        new Run(new RunProperties(new Bold(),
+                                                new FontSize { Val = "28" }, new Italic()),
+                            new Text(exam.Section?.Name?.ToString() ?? "Not specified"))
+                    );
+                    body.AppendChild(directionParagraph);
+
+                    // Exam building
+                    Paragraph buildingParagraph = new Paragraph(
+                        new ParagraphProperties(new Justification { Val = JustificationValues.Center }), new Run(new RunProperties(new Bold(),
+                                                new FontSize { Val = "28" }),
+                            new Text("Qabiliyyət imtahanının keçirildiyi imtahan binası:___ ")),
+
+                        new Run(new RunProperties(new Bold(),
+                                                new FontSize { Val = "28" }, new Underline { Val = UnderlineValues.Single }),
+                            new Text(exam.ExamBuilding?.Name?.ToString()))
+                    );
+                    body.AppendChild(buildingParagraph);
+
+                    // Line separator
+                    body.AppendChild(CreateBoldCenteredParagraph("______________________________________________________________________"));
+
+                    // Exam date
+                    string day = exam.ExamDate.Day.ToString();
+                    string month = new System.Globalization.CultureInfo("az-Latn-AZ").DateTimeFormat.GetMonthName(exam.ExamDate.Month).ToLower();
+
+                    Paragraph dateParagraph = new Paragraph(
+                        new Run(new RunProperties(new Bold(),
+                                                new FontSize { Val = "28" }),
+                            new Text("İmtahan tarixi: ")),
+                        new Run(new RunProperties(new Bold(), new Underline { Val = UnderlineValues.Single }, new FontSize { Val = "28" }),
+                            new Text(day)),
+                        new Run(new RunProperties(new Bold(),
+                                                new FontSize { Val = "28" }),
+                            new Text("/__")),
+                        new Run(new RunProperties(new Bold(),
+                                                new FontSize { Val = "28" }, new Underline { Val = UnderlineValues.Single }),
+                            new Text(month)),
+                        new Run(new RunProperties(new Bold(),
+                                                new FontSize { Val = "28" }),
+                            new Text($"_______/{exam.ExamDate.Year}-ci il."))
+                    );
+                    body.AppendChild(dateParagraph);
+                    body.AppendChild(new Paragraph(new Run(new Text(""))));
+
+                    // Table with specific structure
+                    Table table = new Table();
+                    TableProperties tblProps = new TableProperties(
+                        new TableBorders(
+                            new TopBorder { Val = BorderValues.Single, Size = 12 },
+                            new BottomBorder { Val = BorderValues.Single, Size = 12 },
+                            new LeftBorder { Val = BorderValues.Single, Size = 12 },
+                            new RightBorder { Val = BorderValues.Single, Size = 12 },
+                            new InsideHorizontalBorder { Val = BorderValues.Single, Size = 6 },
+                            new InsideVerticalBorder { Val = BorderValues.Single, Size = 6 }));
+                    table.AppendChild(tblProps);
+
+                    // Create the full table structure with proper cell spanning
+
+                    // First row - Main headers
+                    TableRow headerRow1 = new TableRow();
+
+                    // Serial number column (S/s)
+                    TableCell cellSs = new TableCell();
+                    cellSs.AppendChild(new Paragraph(new Run(new Text("S/s"))));
+                    cellSs.TableCellProperties = new TableCellProperties();
+                    cellSs.TableCellProperties.AppendChild(new VerticalMerge() { Val = MergedCellValues.Restart });
+                    cellSs.TableCellProperties.AppendChild(new Shading { Fill = "D9D9D9" });
+                    headerRow1.AppendChild(cellSs);
+
+                    // Vəzifəsi header spanning 2 columns
+                    TableCell cellVezifesi = new TableCell();
+                    cellVezifesi.AppendChild(new Paragraph(new Run(new Text("Vəzifəsi (imtahan zalı, məşq zalı)"))));
+                    cellVezifesi.TableCellProperties = new TableCellProperties();
+                    cellVezifesi.TableCellProperties.AppendChild(new GridSpan() { Val = 2 });
+                    cellVezifesi.TableCellProperties.AppendChild(new Shading { Fill = "D9D9D9" });
+                    headerRow1.AppendChild(cellVezifesi);
+
+                    // Soyadı, adı, ata adı
+                    TableCell cellName = new TableCell();
+                    cellName.AppendChild(new Paragraph(new Run(new Text("Soyadı, adı, ata adı"))));
+                    cellName.TableCellProperties = new TableCellProperties();
+                    cellName.TableCellProperties.AppendChild(new VerticalMerge() { Val = MergedCellValues.Restart });
+                    cellName.TableCellProperties.AppendChild(new Shading { Fill = "D9D9D9" });
+                    headerRow1.AppendChild(cellName);
+
+                    // İmza / I növbə
+                    TableCell cellImza1 = new TableCell();
+                    cellImza1.AppendChild(new Paragraph(new Run(new Text("İmza / I növbə"))));
+                    cellImza1.TableCellProperties = new TableCellProperties();
+                    cellImza1.TableCellProperties.AppendChild(new VerticalMerge() { Val = MergedCellValues.Restart });
+                    cellImza1.TableCellProperties.AppendChild(new Shading { Fill = "D9D9D9" });
+                    headerRow1.AppendChild(cellImza1);
+
+                    // İmza / II növbə
+                    TableCell cellImza2 = new TableCell();
+                    cellImza2.AppendChild(new Paragraph(new Run(new Text("İmza / II növbə"))));
+                    cellImza2.TableCellProperties = new TableCellProperties();
+                    cellImza2.TableCellProperties.AppendChild(new VerticalMerge() { Val = MergedCellValues.Restart });
+                    cellImza2.TableCellProperties.AppendChild(new Shading { Fill = "D9D9D9" });
+                    headerRow1.AppendChild(cellImza2);
+
+                    table.AppendChild(headerRow1);
+
+                    // Second row - Subheaders for Vəzifəsi
+                    TableRow headerRow2 = new TableRow();
+
+                    // Continued cell for S/s
+                    TableCell cellSsContinue = new TableCell();
+                    cellSsContinue.AppendChild(new Paragraph());
+                    cellSsContinue.TableCellProperties = new TableCellProperties();
+                    cellSsContinue.TableCellProperties.AppendChild(new VerticalMerge() { Val = MergedCellValues.Continue });
+                    headerRow2.AppendChild(cellSsContinue);
+
+                    // I növbə
+                    TableCell cellInnovbe = new TableCell();
+                    cellInnovbe.AppendChild(new Paragraph(new Run(new Text("I növbə"))));
+                    cellInnovbe.TableCellProperties = new TableCellProperties();
+                    cellInnovbe.TableCellProperties.AppendChild(new Shading { Fill = "D9D9D9" });
+                    headerRow2.AppendChild(cellInnovbe);
+
+                    // II növbə
+                    TableCell cellIInnovbe = new TableCell();
+                    cellIInnovbe.AppendChild(new Paragraph(new Run(new Text("II növbə"))));
+                    cellIInnovbe.TableCellProperties = new TableCellProperties();
+                    cellIInnovbe.TableCellProperties.AppendChild(new Shading { Fill = "D9D9D9" });
+                    headerRow2.AppendChild(cellIInnovbe);
+
+                    // Continued cell for Soyadı, adı, ata adı
+                    TableCell cellNameContinue = new TableCell();
+                    cellNameContinue.AppendChild(new Paragraph());
+                    cellNameContinue.TableCellProperties = new TableCellProperties();
+                    cellNameContinue.TableCellProperties.AppendChild(new VerticalMerge() { Val = MergedCellValues.Continue });
+                    headerRow2.AppendChild(cellNameContinue);
+
+                    // Continued cell for İmza / I növbə
+                    TableCell cellImza1Continue = new TableCell();
+                    cellImza1Continue.AppendChild(new Paragraph());
+                    cellImza1Continue.TableCellProperties = new TableCellProperties();
+                    cellImza1Continue.TableCellProperties.AppendChild(new VerticalMerge() { Val = MergedCellValues.Continue });
+                    headerRow2.AppendChild(cellImza1Continue);
+
+                    // Continued cell for İmza / II növbə
+                    TableCell cellImza2Continue = new TableCell();
+                    cellImza2Continue.AppendChild(new Paragraph());
+                    cellImza2Continue.TableCellProperties = new TableCellProperties();
+                    cellImza2Continue.TableCellProperties.AppendChild(new VerticalMerge() { Val = MergedCellValues.Continue });
+                    headerRow2.AppendChild(cellImza2Continue);
+
+                    table.AppendChild(headerRow2);
+
+                    // Predefined locations as in the document
+                    // Locations list'ini boş olarak tanımlamışsınız, bu şekilde döngü hiç çalışmayacak
+                    // Predefined locations yerine doğrudan monitors sayısına göre döngü oluşturalım
+                    var monitorCount = monitors.Count;
+
+                    // Data rows
+                    for (int i = 0; i < monitorCount; i++)
+                    {
+                        TableRow dataRow = new TableRow();
+
+                        // Row number cell
+                        TableCell cellRowNum = new TableCell();
+                        cellRowNum.AppendChild(new Paragraph(new Run(new Text($"{i + 1}."))));
+                        dataRow.AppendChild(cellRowNum);
+
+                        // First shift location - Boş bırakıyoruz, kullanıcı doldurabilir
+                        TableCell cellLoc1 = new TableCell();
+                        cellLoc1.AppendChild(new Paragraph(new Run(new Text(""))));
+                        dataRow.AppendChild(cellLoc1);
+
+                        // Second shift location - Boş bırakıyoruz, kullanıcı doldurabilir
+                        TableCell cellLoc2 = new TableCell();
+                        cellLoc2.AppendChild(new Paragraph(new Run(new Text(""))));
+                        dataRow.AppendChild(cellLoc2);
+
+                        // Name cell with monitor data
+                        TableCell cellMonitorName = new TableCell();
+                        if (monitors[i] != null)
+                        {
+                            string surname = monitors[i].Surname ?? "";
+                            string name = monitors[i].Name ?? "";
+                            string fName = monitors[i].Fname ?? "";
+                            string fullName = $"{surname} {name} {fName}";
+                            cellMonitorName.AppendChild(new Paragraph(new Run(new Text(fullName))));
+                        }
+                        else
+                        {
+                            cellMonitorName.AppendChild(new Paragraph());
+                        }
+                        dataRow.AppendChild(cellMonitorName);
+
+                        // Signature cells (empty)
+                        TableCell cellSig1 = new TableCell();
+                        cellSig1.AppendChild(new Paragraph());
+                        dataRow.AppendChild(cellSig1);
+
+                        TableCell cellSig2 = new TableCell();
+                        cellSig2.AppendChild(new Paragraph());
+                        dataRow.AppendChild(cellSig2);
+
+                        table.AppendChild(dataRow);
+                    }
+
+                    body.AppendChild(table);
+                    body.AppendChild(new Paragraph(new Run(new Text(""))));
+
+                    // Note
+                    Paragraph noteParagraph = new Paragraph(
+                        new Run(new RunProperties(new Italic()),
+                            new Text("Qeyd. İmtahana gəlməyən iştirakçının qarşısında (imza bölməsində) gəlmədi yazılır."))
+                    );
+                    body.AppendChild(noteParagraph);
+                    body.AppendChild(new Paragraph(new Run(new Text(""))));
+
+                    // Responsible person
+                    body.AppendChild(CreateBoldParagraph("İmtahan günü üçün məsul şəxs: ________/__________________________________/"));
+                    body.AppendChild(CreateParagraph("                                             (imza)          (soyadı, adı, atasının adı)"));
+
+                    mainPart.Document.Save();
+                }
+                return memoryStream.ToArray();
+            }
+        }
+
+        private static Paragraph CreateBoldCenteredParagraph(string text)
+        {
+            return new Paragraph(
+                new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
+                new Run(new RunProperties(
+                    new Bold(),
+                    new RunFonts { Ascii = "Calibri", EastAsia = "Calibri", ComplexScript = "Calibri" },
+                    new FontSize { Val = "28" }),
+                    new Text(text)
+                )
+            );
+        }
+
+        private static Paragraph CreateBoldParagraph(string text)
+        {
+            return new Paragraph(
+                new Run(new RunProperties(
+                    new Bold(),
+                    new RunFonts { Ascii = "Calibri", EastAsia = "Calibri", ComplexScript = "Calibri" },
+                    new FontSize { Val = "28" }),
+                    new Text(text)
+                )
+            );
+        }
+
+        private static Paragraph CreateParagraph(string text)
+        {
+            return new Paragraph(
+                new Run(new RunProperties(
+                    new RunFonts { Ascii = "Calibri", EastAsia = "Calibri", ComplexScript = "Calibri" },
+                    new FontSize { Val = "28" }),
+                    new Text(text)
+                )
+            );
+        }
+
     }
 }

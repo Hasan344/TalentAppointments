@@ -168,5 +168,6 @@ public partial class Monitor
     [Column("uni")]
     [StringLength(50)]
     public string? Uni { get; set; }
+    public virtual ICollection<ExamMonitor> ExamMonitors { get; set; } = new List<ExamMonitor>();
 
 }
