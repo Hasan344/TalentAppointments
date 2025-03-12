@@ -13,7 +13,7 @@ namespace ForQab.Service.Abstract
         Task UpdateExamAsync(Exam exam);
         Task DeleteExamAsync(int id);
         Task<ExamDetailsViewModel> GetExamDetailsAsync(int examId);
-        Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId);
+        Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId, int? roomId);
         Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate);
         Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate);
         Task AssignWorkersToExamAsync(int examId, List<int> selectedWorkerIds);

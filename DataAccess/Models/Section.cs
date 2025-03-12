@@ -24,6 +24,9 @@ public partial class Section
     public virtual ICollection<ExamBuilding> ExamBuildings { get; set; } = new List<ExamBuilding>();
 
     [InverseProperty("Section")]
+    public virtual ICollection<ExamRoom> ExamRooms { get; set; } = new List<ExamRoom>();
+
+    [InverseProperty("Section")]
     public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
 
     [InverseProperty("Section")]

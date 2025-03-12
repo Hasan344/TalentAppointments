@@ -6,7 +6,6 @@ namespace ForQab.DataAccess.ViewModel.Exam
     {
         public int ExamId { get; set; }
         public int SectionId { get; set; }
-
         [Required]
         public List<MonitorAssignmentViewModel> Assignments { get; set; } = new();
     }
@@ -17,5 +16,6 @@ namespace ForQab.DataAccess.ViewModel.Exam
         public int NumberOfMonitors { get; set; }
         public int GenderId { get; set; }
         public DateOnly MaxDate { get; set; }
+        public int? RoomId { get; set; }
     }
 }

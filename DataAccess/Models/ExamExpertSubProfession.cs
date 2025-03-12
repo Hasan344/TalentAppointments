@@ -22,6 +22,9 @@ namespace ForQab.DataAccess.Models
         [Column("Federation_Id")]
         public int FederationId { get; set; }
 
+        [Column("Room_Id")]
+        public int? RoomId { get; set; }
+
         [ForeignKey("ExamId")]
         public virtual Exam Exam { get; set; } = null!;
 
@@ -33,6 +36,9 @@ namespace ForQab.DataAccess.Models
 
         [ForeignKey("FederationId")]
         public virtual Profession Federation { get; set; } = null!;
+
+        [ForeignKey("RoomId")]
+        public virtual ExamRoom ExamRoom { get; set; } = null!;
     }
 
 }

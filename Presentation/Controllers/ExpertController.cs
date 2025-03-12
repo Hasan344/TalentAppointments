@@ -62,6 +62,7 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> Create()
         {
             var sectionId = await GetCurrentSectionIdAsync();
+            ViewBag.Section = sectionId;
             var sections = await _expertService.GetSectionsAsync(sectionId);
             var subProfessions = await _expertService.GetSubProfessionsAsync(sectionId);
             var federations = await _expertService.GetFederationsAsync(sectionId);
@@ -90,6 +91,7 @@ namespace ForQab.Presentation.Controllers
             }
 
             var sectionId = await GetCurrentSectionIdAsync();
+            ViewBag.Section = sectionId;
             // If ModelState is invalid, re-populate dropdown lists
             var sections = await _expertService.GetSectionsAsync(sectionId);
             var subProfessions = await _subProfessionService.GetAllSubProfessionsAsync(sectionId);
@@ -112,6 +114,7 @@ namespace ForQab.Presentation.Controllers
         {
             var expert = await _expertService.GetExpertByIdAsync(id);
             var sectionId = await GetCurrentSectionIdAsync();
+            ViewBag.Section = sectionId;
             var federations = await _expertService.GetFederationsAsync(sectionId);
             if (expert == null)
             {
@@ -192,6 +195,7 @@ namespace ForQab.Presentation.Controllers
             }
 
             var sectionId = await GetCurrentSectionIdAsync();
+            ViewBag.Section = sectionId;
             var sections = await _expertService.GetSectionsAsync(sectionId);
             var federations = await _expertService.GetFederationsAsync(sectionId);
 

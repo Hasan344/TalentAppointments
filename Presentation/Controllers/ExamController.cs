@@ -80,7 +80,7 @@ namespace ForQab.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangeMonitor(ChangeMonitorViewModel model)
         {
-             await _examService.ChangeMonitorAsync(model); 
+            await _examService.ChangeMonitorAsync(model);
             return RedirectToAction("Details", new { id = model.ExamId });
         }
         public async Task<IActionResult> ChangeHeadMonitor(int examId, int monitorId)
@@ -194,6 +194,8 @@ namespace ForQab.Presentation.Controllers
         }
         public async Task<IActionResult> AssignExperts(int id)
         {
+            var section = await GetCurrentSectionIdAsync();
+            ViewBag.Section = section;
             var exam = await _examService.GetExamByIdAsync(id);
             if (exam == null)
             {
@@ -209,6 +211,8 @@ namespace ForQab.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> AssignExperts(AssignExpertToExamViewModel model)
         {
+            var section = await GetCurrentSectionIdAsync();
+            ViewBag.Section = section;
             try
             {
                 bool success = await _examService.AssignExpertsAsync(model);
@@ -497,7 +501,7 @@ namespace ForQab.Presentation.Controllers
             {
                 dt.Rows.Add(
                     exam.Name,
-                    exam.ExamDate.ToString("yyyy-MM-dd"), 
+                    exam.ExamDate.ToString("yyyy-MM-dd"),
                     exam.Duration,
                     exam.Water,
                     exam.Food,
