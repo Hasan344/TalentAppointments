@@ -37,6 +37,8 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<ExamBuilding> ExamBuildings { get; set; }
 
+    public virtual DbSet<ExamRoom> ExamRooms { get; set; }
+
     public virtual DbSet<ExamCommission> ExamCommissions { get; set; }
 
     public virtual DbSet<ExamMonitor> ExamMonitors { get; set; }
@@ -176,6 +178,11 @@ public partial class MyDbContext : DbContext
             .WithMany(c => c.ExamExpertSubProfessions)
             .HasForeignKey(ec => ec.FederationId);
 
+        modelBuilder.Entity<ExamExpertSubProfession>()
+            .HasOne(ec => ec.ExamRoom)
+            .WithMany(c => c.ExamExpertSubProfessions)
+            .HasForeignKey(ec => ec.RoomId);
+
         modelBuilder.Entity<Commission>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__commissi__3213E83F3B4ABE27");
@@ -263,6 +270,12 @@ public partial class MyDbContext : DbContext
                         j.HasKey("ExamId", "RepresentativeId");
                         j.ToTable("Exam_Representatives");
                     });
+
+
+            modelBuilder.Entity<ExamMonitor>()
+                .HasOne(ec => ec.ExamRooms)
+                .WithMany(c => c.ExamMonitors)
+                .HasForeignKey(ec => ec.RoomId);
         });
 
         modelBuilder.Entity<ExamBuilding>(entity =>
@@ -272,6 +285,14 @@ public partial class MyDbContext : DbContext
             entity.HasOne(d => d.Section).WithMany(p => p.ExamBuildings)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__exam_buil__secti__5165187F");
+        });
+
+        modelBuilder.Entity<ExamRoom>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.HasOne(d => d.Section).WithMany(p => p.ExamRooms)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Expert>(entity =>

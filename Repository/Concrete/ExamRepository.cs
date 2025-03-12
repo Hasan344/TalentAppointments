@@ -7,7 +7,9 @@ using ForQab.Presentation.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using ForQab.Repository.Abstract;
 using Microsoft.EntityFrameworkCore.Storage;
-using System.Threading;
+using a = DocumentFormat.OpenXml.Drawing;
+using wp = DocumentFormat.OpenXml.Drawing.Wordprocessing;
+using pic = DocumentFormat.OpenXml.Drawing.Pictures;
 
 namespace ForQab.Repository.Concrete
 {
@@ -85,8 +87,7 @@ namespace ForQab.Repository.Concrete
             await _context.SaveChangesAsync();
         }
 
-
-        public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId)
+        public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId, int? roomId)
         {
 
             var exam = await _context.Exams.Include(e => e.Experts).FirstOrDefaultAsync(e => e.Id == examId);
@@ -98,6 +99,11 @@ namespace ForQab.Repository.Concrete
             if (!federationExists)
             {
                 throw new ArgumentException("Federation does not exist.");
+            }
+            var roomExists = await _context.ExamRooms.AnyAsync(p => p.Id == roomId);
+            if (!roomExists)
+            {
+                throw new ArgumentException("Room does not exist.");
             }
 
             var subProfessions = await _context.SubProfessions
@@ -114,7 +120,7 @@ namespace ForQab.Repository.Concrete
             var experts = await _context.Experts
                 .Where(e => e.SectionId == exam.SectionId &&
                             e.SubProfessions.Any(sp => selectedSubProfessions.Contains(sp.Id)) &&
-                            !assignedExpertIds.Contains(e.Id) && // Daha iyi çevirim
+                            !assignedExpertIds.Contains(e.Id) &&
                             e.Archive == 0 &&
                             e.Status == 0)
                 .ToListAsync();
@@ -141,13 +147,15 @@ namespace ForQab.Repository.Concrete
                     .AnyAsync(ees => ees.ExamId == examId &&
                                      ees.ExpertId == expert.Id &&
                                      ees.SubProfessionId == assignedSubProfession.Id &&
-                                     ees.FederationId == federationId);
+                                     ees.FederationId == federationId &&
+                                     ees.RoomId == roomId);
 
                 bool existsInLocal = _context.ExamExpertSubProfessions.Local
                     .Any(ees => ees.ExamId == examId &&
                                 ees.ExpertId == expert.Id &&
                                 ees.SubProfessionId == assignedSubProfession.Id &&
-                                ees.FederationId == federationId);
+                                ees.FederationId == federationId &&
+                                     ees.RoomId == roomId);
 
                 if (!existsInDatabase && !existsInLocal)
                 {
@@ -156,7 +164,8 @@ namespace ForQab.Repository.Concrete
                         ExamId = examId,
                         ExpertId = expert.Id,
                         SubProfessionId = assignedSubProfession.Id,
-                        FederationId = federationId // Yeni eklendi
+                        FederationId = federationId,
+                        RoomId = roomId
                     });
                 }
             }
@@ -189,13 +198,13 @@ namespace ForQab.Repository.Concrete
                 .ToListAsync();
 
             var query = _context.Monitors
-    .Where(e => e.SectionId == exam.SectionId)
-    .Where(e => e.Role == 2)
-    .Where(e => e.Gender == genderId)
-    .Where(e => e.BirthDate >= maxDate)
-    .Where(e => e.Status == 0)
-    .Where(e => e.Archive == 0)
-    .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id));
+                                .Where(e => e.SectionId == exam.SectionId)
+                                .Where(e => e.Role == 2)
+                                .Where(e => e.Gender == genderId)
+                                .Where(e => e.BirthDate >= maxDate)
+                                .Where(e => e.Status == 0)
+                                .Where(e => e.Archive == 0)
+                                .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id));
             Console.WriteLine(query.ToQueryString());
             if (availableMonitors.Count < numberOfMonitors)
                 throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
@@ -295,6 +304,10 @@ namespace ForQab.Repository.Concrete
                     .ThenInclude(ex => ex.ExamExpertSubProfessions
                         .Where(eesp => eesp.ExamId == id)) // Sadece bu imtahana aid olanlar
                     .ThenInclude(eesp => eesp.Federation)
+                .Include(e => e.Experts)
+                    .ThenInclude(ex => ex.ExamExpertSubProfessions
+                        .Where(eesp => eesp.ExamId == id)) // Sadece bu imtahana aid olanlar
+                    .ThenInclude(eesp => eesp.ExamRoom)
                 .Include(e => e.Monitors)
                 .Include(e => e.ExamDegrees)
                     .ThenInclude(ed => ed.Degrees)
@@ -736,6 +749,7 @@ namespace ForQab.Repository.Concrete
         {
             var exam = await _context.Exams.Include(e => e.Section)
                                            .Include(e => e.Monitors)
+                                           .Include(e => e.ExamBuilding)
                                            .Where(e => e.Id == examId).FirstOrDefaultAsync();
 
             if (exam == null) throw new Exception("İmtahan tapılmadı");
@@ -750,21 +764,18 @@ namespace ForQab.Repository.Concrete
                 using (WordprocessingDocument wordDocument = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document, true))
                 {
                     MainDocumentPart mainPart = wordDocument.AddMainDocumentPart();
-                    mainPart.Document = new Document();
+                    mainPart.Document = new Document(); 
                     Body body = mainPart.Document.AppendChild(new Body());
 
-                    // Logo placeholder
-                    // You'll need to implement proper image handling
-                    Paragraph imageParagraph = new Paragraph(new Run(new Text("")));
-                    body.AppendChild(imageParagraph);
+                    
 
-                    // Title sections
-                    // First line
+                    
                     body.AppendChild(CreateBoldCenteredParagraph("Xüsusi qabiliyyət tələb edən ixtisaslar üzrə qabiliyyət imtahanlarında"));
 
                     // Second line
                     body.AppendChild(CreateBoldCenteredParagraph("İŞTİRAK EDƏN NƏZARƏTÇİLƏRİN QEYDİYYAT VƏRƏQİ"));
-
+                    string logoPath = "wwwroot/img/State_Examination_Center_logo.svg.png";
+                    AddImageToDocument(mainPart, logoPath);
                     // Direction with italic
                     Paragraph directionParagraph = new Paragraph(
                         new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
@@ -781,7 +792,7 @@ namespace ForQab.Repository.Concrete
                     Paragraph buildingParagraph = new Paragraph(
                         new ParagraphProperties(new Justification { Val = JustificationValues.Center }), new Run(new RunProperties(new Bold(),
                                                 new FontSize { Val = "28" }),
-                            new Text("Qabiliyyət imtahanının keçirildiyi imtahan binası:___ ")),
+                            new Text("Qabiliyyət imtahanının keçirildiyi imtahan binası:")),
 
                         new Run(new RunProperties(new Bold(),
                                                 new FontSize { Val = "28" }, new Underline { Val = UnderlineValues.Single }),
@@ -827,12 +838,9 @@ namespace ForQab.Repository.Concrete
                             new InsideVerticalBorder { Val = BorderValues.Single, Size = 6 }));
                     table.AppendChild(tblProps);
 
-                    // Create the full table structure with proper cell spanning
-
-                    // First row - Main headers
+                    
                     TableRow headerRow1 = new TableRow();
 
-                    // Serial number column (S/s)
                     TableCell cellSs = new TableCell();
                     cellSs.AppendChild(new Paragraph(new Run(new Text("S/s"))));
                     cellSs.TableCellProperties = new TableCellProperties();
@@ -840,7 +848,7 @@ namespace ForQab.Repository.Concrete
                     cellSs.TableCellProperties.AppendChild(new Shading { Fill = "D9D9D9" });
                     headerRow1.AppendChild(cellSs);
 
-                    // Vəzifəsi header spanning 2 columns
+                    // Vəzifəsi 
                     TableCell cellVezifesi = new TableCell();
                     cellVezifesi.AppendChild(new Paragraph(new Run(new Text("Vəzifəsi (imtahan zalı, məşq zalı)"))));
                     cellVezifesi.TableCellProperties = new TableCellProperties();
@@ -874,10 +882,8 @@ namespace ForQab.Repository.Concrete
 
                     table.AppendChild(headerRow1);
 
-                    // Second row - Subheaders for Vəzifəsi
                     TableRow headerRow2 = new TableRow();
 
-                    // Continued cell for S/s
                     TableCell cellSsContinue = new TableCell();
                     cellSsContinue.AppendChild(new Paragraph());
                     cellSsContinue.TableCellProperties = new TableCellProperties();
@@ -936,17 +942,14 @@ namespace ForQab.Repository.Concrete
                         cellRowNum.AppendChild(new Paragraph(new Run(new Text($"{i + 1}."))));
                         dataRow.AppendChild(cellRowNum);
 
-                        // First shift location - Boş bırakıyoruz, kullanıcı doldurabilir
                         TableCell cellLoc1 = new TableCell();
                         cellLoc1.AppendChild(new Paragraph(new Run(new Text(""))));
                         dataRow.AppendChild(cellLoc1);
 
-                        // Second shift location - Boş bırakıyoruz, kullanıcı doldurabilir
                         TableCell cellLoc2 = new TableCell();
                         cellLoc2.AppendChild(new Paragraph(new Run(new Text(""))));
                         dataRow.AppendChild(cellLoc2);
 
-                        // Name cell with monitor data
                         TableCell cellMonitorName = new TableCell();
                         if (monitors[i] != null)
                         {
@@ -962,7 +965,6 @@ namespace ForQab.Repository.Concrete
                         }
                         dataRow.AppendChild(cellMonitorName);
 
-                        // Signature cells (empty)
                         TableCell cellSig1 = new TableCell();
                         cellSig1.AppendChild(new Paragraph());
                         dataRow.AppendChild(cellSig1);
@@ -977,7 +979,6 @@ namespace ForQab.Repository.Concrete
                     body.AppendChild(table);
                     body.AppendChild(new Paragraph(new Run(new Text(""))));
 
-                    // Note
                     Paragraph noteParagraph = new Paragraph(
                         new Run(new RunProperties(new Italic()),
                             new Text("Qeyd. İmtahana gəlməyən iştirakçının qarşısında (imza bölməsində) gəlmədi yazılır."))
@@ -985,7 +986,6 @@ namespace ForQab.Repository.Concrete
                     body.AppendChild(noteParagraph);
                     body.AppendChild(new Paragraph(new Run(new Text(""))));
 
-                    // Responsible person
                     body.AppendChild(CreateBoldParagraph("İmtahan günü üçün məsul şəxs: ________/__________________________________/"));
                     body.AppendChild(CreateParagraph("                                             (imza)          (soyadı, adı, atasının adı)"));
 
@@ -1029,6 +1029,63 @@ namespace ForQab.Repository.Concrete
                     new Text(text)
                 )
             );
+        }
+        private void AddImageToDocument(MainDocumentPart mainPart, string imagePath)
+        {
+            ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Png);
+            using (FileStream stream = new FileStream(imagePath, FileMode.Open))
+            {
+                imagePart.FeedData(stream);
+            }
+
+            // Image ilişkilendirmesi için ID al
+            string relationshipId = mainPart.GetIdOfPart(imagePart);
+
+            // Resmi ekle
+            var element =
+                new Drawing(
+                    new wp.Inline(
+                        new wp.Extent { Cx = 990000L, Cy = 792000L }, // Resmin boyutu (ayarlanabilir)
+                        new wp.EffectExtent
+                        {
+                            LeftEdge = 0L,
+                            TopEdge = 0L,
+                            RightEdge = 0L,
+                            BottomEdge = 0L
+                        },
+                        new wp.DocProperties { Id = 1U, Name = "Logo Image" },
+                        new wp.NonVisualGraphicFrameDrawingProperties(
+                            new a.GraphicFrameLocks { NoChangeAspect = true }
+                        ),
+                        new a.Graphic(
+                            new a.GraphicData(
+                                new pic.Picture(
+                                    new pic.NonVisualPictureProperties(
+                                        new pic.NonVisualDrawingProperties { Id = 0U, Name = "Logo.png" },
+                                        new pic.NonVisualPictureDrawingProperties()
+                                    ),
+                                    new pic.BlipFill(
+                                        new a.Blip { Embed = relationshipId },
+                                        new a.Stretch(new a.FillRectangle())
+                                    ),
+                                    new pic.ShapeProperties(
+                                        new a.Transform2D(
+                                            new a.Offset { X = 0L, Y = 0L },
+                                            new a.Extents { Cx = 990000L, Cy = 792000L }
+                                        ),
+                                        new a.PresetGeometry(new a.AdjustValueList()) { Preset = a.ShapeTypeValues.Rectangle }
+                                    )
+                                )
+                            )
+                            { Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture" }
+                        )
+                    )
+                    { DistanceFromTop = (UInt32Value)0U, DistanceFromBottom = (UInt32Value)0U }
+                );
+
+            // Paragraf oluşturarak en üste ekle
+            Paragraph imageParagraph = new Paragraph(new Run(element));
+            mainPart.Document.Body.InsertAt(imageParagraph, 0);
         }
 
     }

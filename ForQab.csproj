@@ -22,12 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\img\idman\" />
     <Folder Include="wwwroot\img\musiqi\" />
     <Folder Include="wwwroot\img\tesviri\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="wwwroot\img\idman\ball-8279729_1920.jpg" />
   </ItemGroup>
 
 </Project>

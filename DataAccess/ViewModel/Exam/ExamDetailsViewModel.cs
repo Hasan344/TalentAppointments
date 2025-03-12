@@ -29,6 +29,7 @@ namespace ForQab.Models.ViewModels
         public List<int> ExpertsWithLogs { get; set; } = new();
         public List<int> MonitorsWithLogs { get; set; } = new();
         public List<Profession> Federations { get; set; } = new();
+        public List<Profession> Rooms { get; set; } = new();
     }
 
     public class SectionViewModel
@@ -97,5 +98,6 @@ namespace ForQab.Models.ViewModels
     {
         public string Name { get; set; } = string.Empty;
         public string FederationName { get; set; } = string.Empty;
+        public string RoomName { get; set; }
     }
 }

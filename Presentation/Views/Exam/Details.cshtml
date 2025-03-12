@@ -120,7 +120,7 @@
                                     @if (expert.ExamExpertSubProfessions.Any())
                                     {
                                         @string.Join(", ", expert.ExamExpertSubProfessions
-                                                 .Select(eesp => $"{eesp.Name} ({eesp.FederationName})"))
+                                                 .Select(eesp => $"{eesp.Name} ({eesp.FederationName})({eesp.RoomName})"))
                                     }
                                     else
                                     {

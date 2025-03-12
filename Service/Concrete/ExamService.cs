@@ -151,6 +151,10 @@ namespace ForQab.Service
                                              .Where(f => f.SectionId == exam.SectionId)
                                              .Select(f => new SelectListItem { Value = f.Id.ToString(), Text = f.Name })
                                              .ToListAsync();
+            var rooms = await _context.ExamRooms
+                                     .Where(r => r.SectionId == exam.SectionId)
+                                     .Select(r => new SelectListItem { Value = r.Id.ToString(), Text = r.Name })
+                                     .ToListAsync();
 
             return new AssignExpertToExamViewModel
             {
@@ -161,7 +165,8 @@ namespace ForQab.Service
                     Text = sp.Name,
                     Value = sp.Id.ToString()
                 }).ToList(),
-                Federations = federations
+                Federations = federations,
+                Rooms = rooms
             };
         }
 
@@ -176,12 +181,14 @@ namespace ForQab.Service
             {
                 exam.Monitors.Remove(currentMonitor);
             }
+            currentMonitor.AssignmentCount--;
 
             var newMonitor = await _monitorRepository.GetMonitorByIdAsync(model.NewMonitorId);
             if (newMonitor != null)
             {
                 exam.Monitors.Add(newMonitor);
             }
+            newMonitor.AssignmentCount++;
 
             await _examRepository.SaveAsync();
             return true;
@@ -245,12 +252,7 @@ namespace ForQab.Service
                     if (currentExpert != null)
                     {
                         exam.Experts.Remove(currentExpert);
-
-                        //var currentSubProfessions = await _examExpertSubProfessionRepository.GetSubProfessionsByExpertAsync(examId, currentExpertId);
-                        //if (currentSubProfessions.Any())
-                        //{
-                        //    await _examExpertSubProfessionRepository.RemoveSubProfessionsAsync(currentSubProfessions);
-                        //}
+                        currentExpert.AssignmentCount--;
                     }
 
                     var newExpert = await _expertRepository.GetByIdAsync(newExpertId);
@@ -269,6 +271,7 @@ namespace ForQab.Service
                                 FederationId = sp.FederationId
                             }).ToList());
                         }
+                        newExpert.AssignmentCount++;
                     }
 
                     await _examRepository.SaveAsync();
@@ -287,9 +290,9 @@ namespace ForQab.Service
             await _examRepository.AddAsync(exam);
         }
 
-        public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId)
+        public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId, int? roomId)
         {
-            await _examRepository.AssignRandomExpertsToExamAsync(examId, numberOfExperts,  selectedSubProfessions, federationId);
+            await _examRepository.AssignRandomExpertsToExamAsync(examId, numberOfExperts,  selectedSubProfessions, federationId, roomId);
         }
         public async Task<bool> AssignExpertsAsync(AssignExpertToExamViewModel model)
         {
@@ -315,7 +318,7 @@ namespace ForQab.Service
             foreach (var assignment in model.Assignments)
             {
                 await _examRepository.AssignRandomExpertsToExamAsync(
-                    model.ExamId, assignment.NumberOfExperts, assignment.SelectedSubProfessions, assignment.FederationId);
+                    model.ExamId, assignment.NumberOfExperts, assignment.SelectedSubProfessions, assignment.FederationId, assignment.RoomId);
             }
 
             return true;
@@ -496,7 +499,8 @@ namespace ForQab.Service
                         .Select(eesp => new SubProfessionViewModelForExam
                         {
                             Name = eesp.SubProfession.Name,
-                            FederationName = eesp.Federation.Name
+                            FederationName = eesp.Federation.Name,
+                            RoomName = eesp.ExamRoom?.Name
                         }).ToList()
                 }).ToList(),
                 Monitors = exam.Monitors.Select(m => new MonitorViewModel
