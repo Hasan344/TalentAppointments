@@ -335,12 +335,12 @@ namespace ForQab.Service
             await _examRepository.AddMonitorLogAsync(log);
         }
 
-        public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate)
+        public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate, int? roomId, bool isreserve)
         {
-            await _examRepository.AssignRandomMonitorsToExamAsync(examId, numberOfMonitors, genderId, maxDate);
+            await _examRepository.AssignRandomMonitorsToExamAsync(examId, numberOfMonitors, genderId, maxDate, roomId, isreserve);
         }
 
-        public async Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate)
+        public async Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate)
         {
             await _examRepository.AssignRandomHeadMonitorsToExamAsync(examId, numberOfMonitors, genderId, maxDate);
         }
@@ -510,7 +510,11 @@ namespace ForQab.Service
                     Surname = m.Surname,
                     Fname = m.Fname,
                     FinCode = m.FinCode,
-                    Role = m.Role
+                    Role = m.Role,
+                    Rooms = m.ExamMonitors.Where(em => em.ExamRooms != null).Select(em => new RoomViewModelForExam
+                    {
+                        RoomName = em.ExamRooms?.Name
+                    }).ToList()
                 }).ToList(),
                 ExamRepresentatives = exam.Representatives.Select(er => new RepresentativeViewModel
                 {
@@ -530,6 +534,36 @@ namespace ForQab.Service
         public Task<byte[]> ExportExamMonitorsToWordAsync(int examId)
         {
             return _examRepository.ExportExamMonitorsToWordAsync(examId);
+        }
+        public async Task RemoveExpertsFromExamAsync(int examId, List<int> expertIds)
+        {
+            var exam = await _examRepository.GetByIdAsync(examId);
+            if (exam == null) throw new ArgumentException("Exam not found");
+
+            var expertsToRemove = exam.Experts.Where(e => expertIds.Contains(e.Id)).ToList();
+            foreach (var expert in expertsToRemove)
+            {
+                exam.Experts.Remove(expert);
+                expert.AssignmentCount--;
+            }
+
+            await _examRepository.SaveAsync();
+        }
+
+        // Birden fazla gözetmeni sınavdan kaldır
+        public async Task RemoveMonitorsFromExamAsync(int examId, List<int> monitorIds)
+        {
+            var exam = await _examRepository.GetByIdAsync(examId);
+            if (exam == null) throw new ArgumentException("Exam not found");
+
+            var monitorsToRemove = exam.Monitors.Where(m => monitorIds.Contains(m.Id)).ToList();
+            foreach (var monitor in monitorsToRemove)
+            {
+                exam.Monitors.Remove(monitor);
+                monitor.AssignmentCount--;
+            }
+
+            await _examRepository.SaveAsync();
         }
     }
 }

@@ -301,5 +301,11 @@ namespace ForQab.Repository.Concrete
                 .Where(e => !excludedExpertIds.Contains(e.Id)) // Exclude already selected experts
                 .ToListAsync();
         }
+        public async Task<List<Expert>> GetExpertsByIdsAsync(List<int> expertIds)
+        {
+            return await _context.Experts
+                .Where(e => expertIds.Contains(e.Id))
+                .ToListAsync();
+        }
     }
 }

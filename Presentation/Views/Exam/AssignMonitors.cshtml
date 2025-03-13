@@ -16,28 +16,54 @@
             </div>
         }
 
-
         <form asp-action="AssignMonitors" method="post">
             <input type="hidden" asp-for="ExamId" />
             <input type="hidden" asp-for="SectionId" />
 
             <div id="monitorContainer">
                 <div class="monitor-form row mb-3 p-3 bg-light rounded-3 shadow-sm">
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Cinsiyyət</label>
-                        <select name="Assignments[0].GenderId" class="form-select">
-                            <option value="2">Qadın</option>
-                            <option value="1">Kişi</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Maksimum Tarix</label>
-                        <input type="date" name="Assignments[0].MaxDate" class="form-control" />
-                    </div>
-                    <div class="col-md-4">
+                    @if (ViewBag.Section == 1)
+                    {
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Cinsiyyət</label>
+                            <select name="Assignments[0].GenderId" class="form-select">
+                                <option value="2">Qadın</option>
+                                <option value="1">Kişi</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Təvəllüd</label>
+                            <input type="date" name="Assignments[0].MaxDate" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Məntəqə</label>
+                            @if (Model.Rooms != null && Model.Rooms.Any())
+                            {
+                                <select name="Assignments[0].RoomId" class="form-select room-dropdown room-select">
+                                    <option value="">Məntəqə seçin</option>
+                                    @foreach (var room in Model.Rooms)
+                                    {
+                                        <option value="@room.Value">@room.Text</option>
+                                    }
+                                </select>
+                            }
+                            else
+                            {
+                                <p>No rooms available.</p>
+                            }
+                            <span asp-validation-for="Assignments[0].RoomId" class="text-danger"></span>
+                        </div>
+                    }
+                    <div class="col-md-3">
                         <label class="form-label fw-semibold">Nəzarətçi sayı</label>
                         <input type="number" name="Assignments[0].NumberOfMonitors" class="form-control" required />
                         <span asp-validation-for="Assignments[0].NumberOfMonitors" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 mt-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="Assignments[0].IsReserve" id="isReserve0" value="true" />
+                            <label class="form-check-label fw-semibold" for="isReserve0">Rezerv Nəzarətçi</label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -49,6 +75,22 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".reserve-checkbox").forEach(function (checkbox) {
+            checkbox.addEventListener("change", function () {
+                let roomSelect = this.closest(".monitor-form").querySelector(".room-select");
+                if (this.checked) {
+                    roomSelect.disabled = true;
+                    roomSelect.value = ""; // Seçimi sıfırla
+                } else {
+                    roomSelect.disabled = false;
+                }
+            });
+        });
+    });
+</script>
 
 <script>
     document.getElementById('addMonitorBtn').addEventListener('click', function () {
@@ -67,5 +109,33 @@
         });
 
         container.appendChild(newForm);
+
+        // Sil butonu ekleme
+        var removeButton = document.createElement('button');
+        removeButton.textContent = '✖';
+        removeButton.type = 'button';
+        removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'remove-expert-btn');
+        removeButton.style.padding = '2px 6px'; // Buton boyutunu küçültme
+        removeButton.style.fontSize = '12px'; // Yazıyı küçültme
+        removeButton.style.marginLeft = '10px'; // Hafif boşluk bırakma
+        removeButton.addEventListener('click', function () {
+            newForm.remove();
+        });
+
+        // Sil butonunu sağ tarafa ekleme
+        var buttonContainer = document.createElement('div');
+        buttonContainer.classList.add('text-end');
+        buttonContainer.appendChild(removeButton);
+
+        newForm.appendChild(buttonContainer);
+        container.appendChild(newForm);
+    });
+
+    // Yeni eklenen satırları silebilme
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('remove-expert-btn')) {
+            event.target.closest('.expert-form').remove();
+        }
+    });
     });
 </script>

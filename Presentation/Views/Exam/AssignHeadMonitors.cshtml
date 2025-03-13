@@ -24,17 +24,6 @@
             <div id="headMonitorContainer">
                 <div class="headmonitor-form row mb-3 p-3 bg-light rounded-3 shadow-sm">
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">Cinsiyyət</label>
-                        <select name="Assignments[0].GenderId" class="form-select">
-                            <option value="0">Qadın</option>
-                            <option value="1">Kişi</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Maksimum Tarix</label>
-                        <input type="date" name="Assignments[0].MaxDate" class="form-control" />
-                    </div>
-                    <div class="col-md-4">
                         <label class="form-label fw-semibold">Nəzarətçi sayı</label>
                         <input type="number" name="Assignments[0].NumberOfMonitors" class="form-control" required />
                         <span asp-validation-for="Assignments[0].NumberOfMonitors" class="text-danger"></span>

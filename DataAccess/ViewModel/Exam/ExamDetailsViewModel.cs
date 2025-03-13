@@ -83,6 +83,8 @@ namespace ForQab.Models.ViewModels
         public string Fname { get; set; } = string.Empty;
         public string FinCode { get; set; } = string.Empty;
         public byte? Role { get; set; }
+        public int? RoomId { get; set; }
+        public List<RoomViewModelForExam> Rooms { get; set; } = new();
     }
     public class ExpertViewModelForExam
     {
@@ -93,11 +95,15 @@ namespace ForQab.Models.ViewModels
         public string FinCode { get; set; } = string.Empty;
         public List<SubProfessionViewModelForExam> ExamExpertSubProfessions { get; set; } = new();
     }
-
     public class SubProfessionViewModelForExam
     {
         public string Name { get; set; } = string.Empty;
         public string FederationName { get; set; } = string.Empty;
+        public string RoomName { get; set; }
+    }
+    public class RoomViewModelForExam
+    {
+        public string Name { get; set; } = string.Empty;
         public string RoomName { get; set; }
     }
 }

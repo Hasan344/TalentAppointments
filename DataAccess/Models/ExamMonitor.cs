@@ -15,7 +15,7 @@ namespace ForQab.DataAccess.Models
         public int ExamId { get; set; }
 
         [Column("RoomId")]
-        public int RoomId { get; set; }
+        public int? RoomId { get; set; }
 
         [ForeignKey("MonitorId")]
         [InverseProperty("ExamMonitors")]
