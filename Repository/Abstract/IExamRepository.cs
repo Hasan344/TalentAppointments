@@ -9,8 +9,8 @@ namespace ForQab.Repository.Abstract
     {
         public Task AddAsync(CreateExamViewModel examViewModel);
         Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId, int? roomId);
-        Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate);
-        Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate);
+        Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate, int? roomId, bool isreserve);
+        Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate);
         Task AssignWorkersToExamAsync(int examId, List<int> selectedWorkerIds);
         Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId);
         Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds);

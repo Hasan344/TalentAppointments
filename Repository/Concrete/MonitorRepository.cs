@@ -141,5 +141,11 @@ namespace ForQab.Repository.Concrete
                 throw;
             }
         }
+        public async Task<List<Monitor>> GetMonitorsByIdsAsync(List<int> monitorIds)
+        {
+            return await _dbContext.Monitors
+                .Where(m => monitorIds.Contains(m.Id))
+                .ToListAsync();
+        }
     }
 }

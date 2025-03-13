@@ -27,6 +27,7 @@ namespace ForQab.Repository.Abstract
         Task BulkAddAsync(IEnumerable<Expert> experts);
         Task<IEnumerable<Expert>> GetExpertLogsAsync();
         Task<IEnumerable<Expert>> GetExpertLogsByExpertIdAsync(int expertId);
-        Task DeleteExpertLogs(int? id);
+        Task DeleteExpertLogs(int? id); 
+        Task<List<Expert>> GetExpertsByIdsAsync(List<int> expertIds);
     }
 }

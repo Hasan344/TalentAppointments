@@ -16,6 +16,7 @@ namespace ForQab.Repository.Abstract
         Task<List<Monitor>> GetAvailableWorkersAsync(int sectionId, int role, int workerType, List<int> selectedMonitorList);
         Task<List<DimRepresentative>> GetAvailableRepresentativesAsync(List<int> selectedRepresentativeList);
         Task<int?> GetMonitorAttributeByIdAsync(int monitorId, int role);
-        Task<Monitor> GetMonitorByIdAsync(int monitorId);
+        Task<Monitor> GetMonitorByIdAsync(int monitorId); 
+        Task<List<Monitor>> GetMonitorsByIdsAsync(List<int> monitorIds);
     }
 }

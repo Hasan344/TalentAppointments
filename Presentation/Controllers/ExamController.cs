@@ -246,6 +246,17 @@ namespace ForQab.Presentation.Controllers
         new SelectListItem { Value = "2", Text = "Digər səbəblərlə bağlı qeyd" }
     };
         }
+        public IActionResult WriteMonitorLog(int examId, int monitorId, byte kind)
+        {
+            var viewModel = new WriteMonitorLogViewModel
+            {
+                ExamId = examId,
+                MonitorId = monitorId,
+                Kind = kind,
+                KindOptions = GetKindOptions()
+            };
+            return View(viewModel);
+        }
 
         [HttpPost]
         public async Task<IActionResult> WriteMonitorLog(WriteMonitorLogViewModel model)
@@ -302,17 +313,23 @@ namespace ForQab.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> AssignMonitors(int id)
         {
+            var sectionId = await GetCurrentSectionIdAsync();
             var exam = await _examService.GetExamByIdAsync(id);
             if (exam == null)
             {
                 return NotFound();
             }
-
+            ViewBag.Section = sectionId;
             ViewBag.ExamName = exam.Name;
             var model = new AssignMonitorsToExamViewModel
             {
                 ExamId = exam.Id,
                 SectionId = exam.SectionId,
+                Rooms = _context.ExamRooms.Where(er => er.SectionId == sectionId).Select(sp => new SelectListItem
+                {
+                    Text = sp.Name,
+                    Value = sp.Id.ToString()
+                }).ToList(),
             };
             return View(model);
         }
@@ -326,12 +343,19 @@ namespace ForQab.Presentation.Controllers
                 {
                     foreach (var assignment in model.Assignments)
                     {
+
+                        int genderId = assignment.GenderId.HasValue ? assignment.GenderId.Value:0;
+                        int roomId = assignment.RoomId.HasValue ? assignment.RoomId.Value : 0;
+                        DateOnly maxDate = assignment.MaxDate.HasValue ? assignment.MaxDate.Value : new DateOnly();
                         await _examService.AssignRandomMonitorsToExamAsync(
                             model.ExamId,
                             assignment.NumberOfMonitors,
-                            assignment.GenderId,
-                            assignment.MaxDate
+                            genderId,
+                            maxDate,
+                            roomId,
+                            assignment.IsReserve
                         );
+                        Console.WriteLine($"Monitor: {assignment.NumberOfMonitors}, IsReserve: {assignment.IsReserve}");
                     }
 
                     TempData["SuccessMessage"] = "İmtahan rəhbərləri uğurla təyin edildi!";
@@ -565,6 +589,45 @@ namespace ForQab.Presentation.Controllers
             await _examService.AssignRepresentativesToExamAsync(model.ExamId, new List<int> { model.SelectedRepresentativeId.Value });
 
             return RedirectToAction(nameof(Details), new { id = model.ExamId });
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteExperts(int examId, List<int> expertIds)
+        {
+            try
+            {
+                await _examService.RemoveExpertsFromExamAsync(examId, expertIds);
+                return RedirectToAction("Details", new { id = examId });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteMonitors(int examId, List<int> monitorIds)
+        {
+            try
+            {
+                await _examService.RemoveMonitorsFromExamAsync(examId, monitorIds);
+                return RedirectToAction("Details", new { id = examId });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteHeadMonitors(int examId, List<int> monitorIds)
+        {
+            try
+            {
+                await _examService.RemoveMonitorsFromExamAsync(examId, monitorIds);
+                return RedirectToAction("Details", new { id = examId });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
     }

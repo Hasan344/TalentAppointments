@@ -14,8 +14,8 @@ namespace ForQab.Service.Abstract
         Task DeleteExamAsync(int id);
         Task<ExamDetailsViewModel> GetExamDetailsAsync(int examId);
         Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId, int? roomId);
-        Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate);
-        Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int genderId, DateOnly maxDate);
+        Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate, int? roomId, bool isreserve);
+        Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate);
         Task AssignWorkersToExamAsync(int examId, List<int> selectedWorkerIds);
         Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId);
         Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds);
@@ -45,6 +45,8 @@ namespace ForQab.Service.Abstract
         //Task<bool> UpdateExpertsAsync(int examId, int[] selectedExpertIds);
         Task<AssignExpertToExamViewModel> PrepareAssignExpertsViewModelAsync(Exam exam);
         Task<byte[]> ExportExamMonitorsToWordAsync(int examId);
+        Task RemoveExpertsFromExamAsync(int examId, List<int> expertIds);
+        Task RemoveMonitorsFromExamAsync(int examId, List<int> monitorIds);
 
     }
 }
