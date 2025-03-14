@@ -86,4 +86,7 @@ public partial class Exam
 
     [Column("student_count")]
     public int? StudentCount { get; set; }
+
+    [InverseProperty("Exam")]
+    public virtual ICollection<MonitorLog> MonitorLogs { get; set; } = new List<MonitorLog>();
 }

@@ -329,9 +329,11 @@ namespace ForQab.Service
             {
                 SupervisorId = model.MonitorId,
                 Note = model.Note,
-                Kind = model.Kind
+                Kind = model.Kind,
+                ExamId = model.ExamId,
+                UserName = model.UserName,
+                Time = DateTime.Now,
             };
-
             await _examRepository.AddMonitorLogAsync(log);
         }
 
@@ -418,9 +420,9 @@ namespace ForQab.Service
             return await _examRepository.GetExpertSubProfessionsByExamIdAsync(examId);
         }
 
-        public async Task AssignWorkersToExamAsync(int examId, List<int> selectedWorkerIds)
+        public async Task AssignWorkersToExamAsync(int examId)
         {
-            await _examRepository.AssignWorkersToExamAsync(examId, selectedWorkerIds);
+            await _examRepository.AssignWorkersToExamAsync(examId);
         }
 
         public Task<MemoryStream> ExportExamScheduleToWord()

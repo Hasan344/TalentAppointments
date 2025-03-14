@@ -82,7 +82,6 @@ namespace ForQab.Repository.Concrete
                 }
             }
 
-
             await _context.Exams.AddAsync(exam);
             await _context.SaveChangesAsync();
         }
@@ -535,7 +534,7 @@ namespace ForQab.Repository.Concrete
                 .ToListAsync();
         }
 
-        public async Task AssignWorkersToExamAsync(int examId, List<int> selectedWorkerIds)
+        public async Task AssignWorkersToExamAsync(int examId)
         {
             var exam = await _context.Exams
                 .Include(e => e.Monitors)
@@ -547,13 +546,9 @@ namespace ForQab.Repository.Concrete
             }
 
             var selectedWorkers = await _context.Monitors
-                .Where(r => selectedWorkerIds.Contains(r.Id))
+                .Where(r => r.ExamBuildingId == exam.ExamBuldingId)
                 .ToListAsync();
 
-            if (selectedWorkers.Count != selectedWorkerIds.Count)
-            {
-                throw new ArgumentException("One or more selected representatives not found.");
-            }
 
             foreach (var rep in selectedWorkers)
             {

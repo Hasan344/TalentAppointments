@@ -98,90 +98,6 @@
     <!-- Assigned Experts Section -->
     <div class="mt-4">
         <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Ekspertlər</h4>
-
-        @if (Model.Experts.Any())
-        {
-            <form asp-action="DeleteExperts" method="post">
-                <input type="hidden" name="examId" value="@Model.Id" />
-                <div class="mb-3">
-                    <input type="checkbox" id="selectAllExperts" onchange="toggleCheckboxes('expertIds', this.checked)" />
-                    <label for="selectAllExperts" class="ml-2">Bütün Ekspertləri Seç</label>
-                </div>
-                <ul class="list-group list-group-flush">
-                    @foreach (var expert in Model.Experts)
-                    {
-                        var hasLog = Model.ExpertsWithLogs != null && Model.ExpertsWithLogs.Contains(expert.Id);
-                        <li class="list-group-item">
-                            <div class="row align-items-center">
-                                <div class="col-md-1">
-                                    <input type="checkbox" name="expertIds" value="@expert.Id" />
-                                </div>
-                                <div class="col-md-7">
-                                    <h6 class="mb-0">
-                                        @expert.Name @expert.Surname @expert.Fname
-                                    </h6>
-                                    <small class="text-muted">
-                                        FinCode: @expert.FinCode
-                                    </small>
-                                    <br />
-                                    <small class="text-muted">
-                                        <strong>İxtisaslaşma:</strong>
-                                        @if (expert.ExamExpertSubProfessions.Any())
-                                        {
-                                            @string.Join(", ", expert.ExamExpertSubProfessions
-                                                     .Select(eesp => $"{eesp.Name} ({eesp.FederationName})({eesp.RoomName})"))
-                                        }
-                                        else
-                                        {
-                                            <span>--- (Təyin olunmayıb) ---</span>
-                                        }
-                                    </small>
-                                    @if (hasLog)
-                                    {
-                                        <span class="badge ml-2" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;">Qeydi var</span>
-                                    }
-                                </div>
-                                <div class="col-md-4 text-md-right mt-2 mt-md-0">
-                                    <a class="btn btn-sm btn-outline-secondary mr-2"
-                                       asp-action="ChangeExpert"
-                                       asp-route-examId="@Model.Id"
-                                       asp-route-expertId="@expert.Id">
-                                        <i class="bi bi-pencil"></i> Dəyişdir
-                                    </a>
-                                    <a class="btn btn-sm btn-outline-primary"
-                                       asp-action="WriteExpertLog"
-                                       asp-route-examId="@Model.Id"
-                                       asp-route-expertId="@expert.Id">
-                                        <i class="bi bi-chat"></i> Xüsusi qeyd yaz
-                                    </a>
-                                    <a class="btn btn-sm btn-outline-info"
-                                       asp-action="ExpertDetails"
-                                       asp-route-id="@expert.Id">
-                                        <i class="bi bi-eye"></i> Detallara Bax
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                    }
-                </ul>
-                <div class="text-center mt-3">
-                    <div class="text-center mt-3">
-                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteExpertsForm">
-                            <i class="bi bi-trash"></i> Seçilmişləri Sil
-                        </button>
-                    </div>
-                </div>
-            </form>
-        }
-        else
-        {
-            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir ekspert təyin edilməyib.</p>
-        }
-    </div>
-
-    <!-- Assigned Experts Section -->
-    <div class="mt-4">
-        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Ekspertlər</h4>
         @if (Model.Experts.Any())
         {
             <form asp-action="DeleteExperts" method="post" id="deleteExpertsForm">
@@ -510,9 +426,12 @@
         <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
             <i class="bi bi-person-plus"></i> İmtahan rəhbəri Təyin Et
         </a>
-        <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignWorkers" asp-route-id="@Model.Id">
-            <i class="bi bi-person-plus"></i> İşçi Təyin Et
-        </a>
+        <form asp-action="AssignWorkers" asp-route-id="@Model.Id" method="post" style="display: inline;">
+            <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
+                <i class="bi bi-person-plus"></i> İşçi Təyin Et
+            </button>
+        </form>
+
         <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignRepresentatives" asp-route-examId="@Model.Id">
             <i class="bi bi-plus-circle"></i> Nümayəndə təyin et
         </a>

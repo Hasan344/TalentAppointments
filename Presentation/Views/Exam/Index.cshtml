@@ -21,6 +21,7 @@
         <table class="table table-bordered table-striped table-hover shadow-sm">
             <thead class="table-light">
                 <tr>
+                    <th>ID</th>
                     <th>Adı</th>
                     <th>Tarix</th>
                     <th>Müddət</th>
@@ -33,14 +34,15 @@
                 </tr>
             </thead>
             <tbody>
-            @foreach (var item in Model)
-            {
-                <tr class="align-middle">
-                    <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                    <td>@Html.DisplayFor(modelItem => item.ExamDate)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Duration)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Water)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Food)</td>
+                @foreach (var item in Model)
+                {
+                    <tr class="align-middle">
+                        <td>@Html.DisplayFor(modelItem => item.Id)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                        <td>@Html.DisplayFor(modelItem => item.ExamDate)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Duration)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Water)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Food)</td>
                         <td>
                             @if (item.ExamCommissions != null && item.ExamCommissions.Any())
                             {
@@ -56,23 +58,23 @@
                                 <span>---</span>
                             }
                         </td>
-                    <td>@Html.DisplayFor(modelItem => item.ExamBuilding.Name)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Section.Name)</td>
-                    <td>
-                        <div class="btn-group" role="group">
-                            <a class="btn btn-outline-warning btn-sm p-1" asp-action="Edit" asp-route-id="@item.Id">
-                                <i class="bi bi-pencil-square" style="font-size: 0.75rem;"></i> Redaktə
-                            </a>
-                            <a class="btn btn-outline-info btn-sm p-1" asp-action="Details" asp-route-id="@item.Id">
-                                <i class="bi bi-eye" style="font-size: 0.75rem;"></i> Detallar
-                            </a>
-                            <a class="btn btn-outline-danger btn-sm p-1" asp-action="Delete" asp-route-id="@item.Id">
-                                <i class="bi bi-trash" style="font-size: 0.75rem;"></i> Sil
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-            }
+                        <td>@Html.DisplayFor(modelItem => item.ExamBuilding.Name)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Section.Name)</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a class="btn btn-outline-warning btn-sm p-1" asp-action="Edit" asp-route-id="@item.Id">
+                                    <i class="bi bi-pencil-square" style="font-size: 0.75rem;"></i> Redaktə
+                                </a>
+                                <a class="btn btn-outline-info btn-sm p-1" asp-action="Details" asp-route-id="@item.Id">
+                                    <i class="bi bi-eye" style="font-size: 0.75rem;"></i> Detallar
+                                </a>
+                                <a class="btn btn-outline-danger btn-sm p-1" asp-action="Delete" asp-route-id="@item.Id">
+                                    <i class="bi bi-trash" style="font-size: 0.75rem;"></i> Sil
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
@@ -101,9 +103,9 @@
             border: 1px solid #dee2e6;
         }
 
-        .table-bordered th, .table-bordered td {
-            border: 1px solid #dee2e6;
-        }
+            .table-bordered th, .table-bordered td {
+                border: 1px solid #dee2e6;
+            }
 
         .table-striped tbody tr:nth-of-type(odd) {
             background-color: #f7f7f7;
@@ -138,30 +140,30 @@
             color: #ffc107;
         }
 
-        .btn-outline-warning:hover {
-            background-color: #ffc107;
-            color: #fff;
-        }
+            .btn-outline-warning:hover {
+                background-color: #ffc107;
+                color: #fff;
+            }
 
         .btn-outline-info {
             border-color: #17a2b8;
             color: #17a2b8;
         }
 
-        .btn-outline-info:hover {
-            background-color: #17a2b8;
-            color: #fff;
-        }
+            .btn-outline-info:hover {
+                background-color: #17a2b8;
+                color: #fff;
+            }
 
         .btn-outline-danger {
             border-color: #dc3545;
             color: #dc3545;
         }
 
-        .btn-outline-danger:hover {
-            background-color: #dc3545;
-            color: #fff;
-        }
+            .btn-outline-danger:hover {
+                background-color: #dc3545;
+                color: #fff;
+            }
 
         /* Header and Text Styles */
         .text-primary {
@@ -199,6 +201,5 @@
             font-size: 1rem;
         }
 
-        
     </style>
 }
