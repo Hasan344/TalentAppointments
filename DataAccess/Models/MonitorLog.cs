@@ -23,4 +23,19 @@ public partial class MonitorLog
 
     [Column("kind")]
     public byte Kind { get; set; }
+
+    [Column("time")]
+    public DateTime? Time { get; set; }
+
+    [Column("user_name")]
+    [StringLength(150)]
+    public string? UserName { get; set; }
+
+    [Column("exam_id")]
+    public int ExamId { get; set; }
+
+    [ForeignKey("ExamId")]
+    [InverseProperty("MonitorLogs")]
+    public virtual Exam Exam { get; set; } = null!;
+
 }

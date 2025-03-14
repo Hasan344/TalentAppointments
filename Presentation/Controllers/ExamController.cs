@@ -246,13 +246,15 @@ namespace ForQab.Presentation.Controllers
         new SelectListItem { Value = "2", Text = "Digər səbəblərlə bağlı qeyd" }
     };
         }
-        public IActionResult WriteMonitorLog(int examId, int monitorId, byte kind)
+        public async Task<IActionResult> WriteMonitorLog(int examId, int monitorId, byte kind)
         {
+            var user = await _userManager.GetUserAsync(User); // Giriş yapan kullanıcıyı al
             var viewModel = new WriteMonitorLogViewModel
             {
                 ExamId = examId,
                 MonitorId = monitorId,
                 Kind = kind,
+                UserName = user?.UserName,
                 KindOptions = GetKindOptions()
             };
             return View(viewModel);
@@ -267,6 +269,7 @@ namespace ForQab.Presentation.Controllers
                 return View(model);
             }
 
+            model.UserName = (await _userManager.GetUserAsync(User))?.FirstName;
             await _examService.AddMonitorLogAsync(model);
             return RedirectToAction("Details", new { id = model.ExamId });
         }
@@ -431,39 +434,34 @@ namespace ForQab.Presentation.Controllers
             return View(model);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> AssignWorkers(int id)
-        {
-            var exam = await _examService.GetExamByIdAsync(id);
-            var workers = await _examService.GetAvailableWorkersAsync(exam.ExamBuldingId);
+        //[HttpGet]
+        //public async Task<IActionResult> AssignWorkers(int id)
+        //{
+        //    var exam = await _examService.GetExamByIdAsync(id);
+        //    var workers = await _examService.GetAvailableWorkersAsync(exam.ExamBuldingId);
 
-            var viewModel = new AssignWorkersToExamViewModel
-            {
-                ExamId = id,
-                Assignments = workers.Select(r => new WorkerAssignmentViewModel
-                {
-                    Id = r.Id,
-                    Name = r.Name,
-                    Surname = r.Surname,
-                    FinCode = r.FinCode,
-                    WorkerType = r.WorkerTypeNavigation.Name
-                }).ToList()
-            };
-            return View(viewModel);
-        }
+        //    var viewModel = new AssignWorkersToExamViewModel
+        //    {
+        //        ExamId = id,
+        //        Assignments = workers.Select(r => new WorkerAssignmentViewModel
+        //        {
+        //            Id = r.Id,
+        //            Name = r.Name,
+        //            Surname = r.Surname,
+        //            FinCode = r.FinCode,
+        //            WorkerType = r.WorkerTypeNavigation.Name
+        //        }).ToList()
+        //    };
+        //    return View(viewModel);
+        //}
 
         [HttpPost]
-        public async Task<IActionResult> AssignWorkers(AssignWorkersToExamViewModel model)
+        public async Task<IActionResult> AssignWorkers(int id)
         {
-            if (model.SelectedWorkerIds == null)
-            {
-                ModelState.AddModelError(nameof(model.SelectedWorkerIds), "Zəhmət olmazsa bir işçi seçin.");
-                return View(model);
-            }
 
-            await _examService.AssignWorkersToExamAsync(model.ExamId, model.SelectedWorkerIds);
+            await _examService.AssignWorkersToExamAsync(id);
 
-            return RedirectToAction(nameof(Details), new { id = model.ExamId });
+            return RedirectToAction(nameof(Details), new { id});
         }
 
         public IActionResult ExpertDetails(int id)

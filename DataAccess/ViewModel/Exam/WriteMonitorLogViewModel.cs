@@ -11,6 +11,7 @@ namespace ForQab.DataAccess.ViewModel.Exam
         [Required(ErrorMessage = "Lütfen qeyd daxil edin.")]
         [StringLength(4000, ErrorMessage = "Qeyd maksimum 4000 simvol ola bilər.")]
         public string? Note { get; set; }
+        public string? UserName { get; set; }
         public byte Kind { get; set; } = 0;
         public List<SelectListItem> KindOptions { get; set; } = new List<SelectListItem>();
     }
