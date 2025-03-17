@@ -43,7 +43,7 @@ namespace ForQab.Presentation.Controllers
             {
                 UserName = model.UserName,
                 LastName = model.LastName,
-                FirstName = model.UserName,
+                FirstName = model.FirstName,
                 Email = model.UserName
             };
 

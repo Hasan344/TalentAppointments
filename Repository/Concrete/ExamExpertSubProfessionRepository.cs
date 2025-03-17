@@ -1,6 +1,7 @@
 ﻿using ForQab.DataAccess.Models;
 using ForQab.Repository.Abstract;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace ForQab.Repository.Concrete
 {
@@ -12,8 +13,6 @@ namespace ForQab.Repository.Concrete
         {
             _context = context;
         }
-
-        // Get all sub-professions for a particular expert in a specific exam
         public async Task<List<ExamExpertSubProfession>> GetSubProfessionsByExpertAsync(int examId, int expertId)
         {
             var query = _context.ExamExpertSubProfessions
@@ -22,7 +21,6 @@ namespace ForQab.Repository.Concrete
             return await query;
         }
 
-        // Get a single sub-profession ID for a particular exam and expert
         public async Task<int> GetSubProfessionIdByExpertAsync(int examId, int expertId)
         {
             var result = await _context.ExamExpertSubProfessions
@@ -42,26 +40,44 @@ namespace ForQab.Repository.Concrete
             return result;
         }
 
-        // Remove multiple sub-professions
         public async Task RemoveSubProfessionsAsync(List<ExamExpertSubProfession> subProfessions)
         {
             _context.ExamExpertSubProfessions.RemoveRange(subProfessions);
             await _context.SaveChangesAsync();
         }
 
-        // Add multiple sub-professions
         public async Task AddSubProfessionsAsync(List<ExamExpertSubProfession> subProfessions)
         {
             await _context.ExamExpertSubProfessions.AddRangeAsync(subProfessions);
             await _context.SaveChangesAsync();
         }
 
-        // Get sub-profession for a given exam and expert combination (return as a list)
         public async Task<List<ExamExpertSubProfession>> GetSubProfessionByExamAndExpertAsync(int examId, int expertId)
         {
             return await _context.ExamExpertSubProfessions
                 .Where(eesp => eesp.ExamId == examId && eesp.ExpertId == expertId)
                 .ToListAsync();
+        }
+        public async Task AddSubProfessionsAsync(IEnumerable<ExamExpertSubProfession> subProfessions)
+        {
+            await _context.ExamExpertSubProfessions.AddRangeAsync(subProfessions);
+        }
+
+        public async Task RemoveByExpertAsync(int examId, int expertId)
+        {
+            var subProfessions = _context.ExamExpertSubProfessions
+                .Where(eesp => eesp.ExamId == examId && eesp.ExpertId == expertId);
+
+            _context.ExamExpertSubProfessions.RemoveRange(subProfessions);
+        }
+        public async Task<List<ExamExpertSubProfession>> GetAllAsync(Expression<Func<ExamExpertSubProfession, bool>> predicate)
+        {
+            return await _context.ExamExpertSubProfessions.Where(predicate).ToListAsync();
+        }
+
+        public void RemoveRange(IEnumerable<ExamExpertSubProfession> entities)
+        {
+            _context.ExamExpertSubProfessions.RemoveRange(entities);
         }
     }
 

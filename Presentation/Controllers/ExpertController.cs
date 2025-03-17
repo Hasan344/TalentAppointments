@@ -94,7 +94,7 @@ namespace ForQab.Presentation.Controllers
             ViewBag.Section = sectionId;
             // If ModelState is invalid, re-populate dropdown lists
             var sections = await _expertService.GetSectionsAsync(sectionId);
-            var subProfessions = await _subProfessionService.GetAllSubProfessionsAsync(sectionId);
+            var subProfessions = await _expertService.GetSubProfessionsAsync(sectionId);
             var federations = await _expertService.GetFederationsAsync(sectionId);
 
 

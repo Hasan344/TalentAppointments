@@ -59,7 +59,9 @@ namespace ForQab.Repository.Concrete
                 Federation = expertViewModel.Federation,
                 TelIs = expertViewModel.TelIs,
                 TelEl = expertViewModel.TelEl,
-                Kons = false
+                Kons = false,
+                Status = 0,
+                Archive = 0
             };
 
             // Link selected SubProfessions

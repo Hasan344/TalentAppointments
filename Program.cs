@@ -42,6 +42,7 @@ builder.Services.AddScoped<INaturaRepository, NaturaRepository>();
 builder.Services.AddScoped<IWorkerService, WorkerService>();
 builder.Services.AddScoped<IWorkerRepository, WorkerRepository>(); 
 builder.Services.AddScoped<ISectionRepository, SectionRepository>();
+builder.Services.AddScoped<IExamMonitorRepository, ExamMonitorRepository>();
 builder.Services.AddScoped<IExamExpertSubProfessionRepository, ExamExpertSubProfessionRepository>();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {

@@ -8,6 +8,10 @@ namespace ForQab.ViewModel
         [DataType(DataType.Text)]
         public string? UserName { get; set; }
 
+        [Required(ErrorMessage = "Ad yazılmalıdır")]
+        [DataType(DataType.Text)]
+        public string? FirstName { get; set; }
+
         [Required(ErrorMessage = "Soyad yazılmalıdır")]
         [DataType(DataType.Text)]
         public string? LastName { get; set; }

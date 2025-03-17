@@ -3,6 +3,7 @@ using ForQab.DataAccess.ViewModel.Exam;
 using ForQab.Models.ViewModels;
 using ForQab.Presentation.ViewModels;
 using ForQab.Repository.Abstract;
+using ForQab.Repository.Concrete;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -17,9 +18,10 @@ namespace ForQab.Service
         private readonly ISectionRepository _sectionRepository;
         private readonly IMonitorRepository _monitorRepository;
         private readonly IRepresentativeRepository _representativeRepository;
+        private readonly IExamMonitorRepository _examMonitorRepository;
         private readonly MyDbContext _context;
 
-        public ExamService(IExamRepository examRepository, IExpertRepository expertRepository, ISectionRepository sectionRepository, IExamExpertSubProfessionRepository examExpertSubProfessionRepository, IMonitorRepository monitorRepository, MyDbContext context, IRepresentativeRepository representativeRepository)
+        public ExamService(IExamRepository examRepository, IExpertRepository expertRepository, ISectionRepository sectionRepository, IExamExpertSubProfessionRepository examExpertSubProfessionRepository, IMonitorRepository monitorRepository, MyDbContext context, IRepresentativeRepository representativeRepository, IExamMonitorRepository examMonitorRepository)
         {
             _examRepository = examRepository;
             _expertRepository = expertRepository;
@@ -28,6 +30,7 @@ namespace ForQab.Service
             _monitorRepository = monitorRepository;
             _context = context;
             _representativeRepository = representativeRepository;
+            _examMonitorRepository = examMonitorRepository;
         }
         public async Task<CreateExamViewModel> PrepareCreateExamViewModelAsync(int? sectionId)
         {
@@ -171,28 +174,7 @@ namespace ForQab.Service
         }
 
 
-        public async Task<bool> ChangeMonitorAsync(ChangeMonitorViewModel model)
-        {
-            var exam = await _examRepository.GetExamWithMonitorsAsync(model.ExamId);
-            if (exam == null) return false;
-
-            var currentMonitor = exam.Monitors.FirstOrDefault(m => m.Id == model.CurrentMonitorId);
-            if (currentMonitor != null)
-            {
-                exam.Monitors.Remove(currentMonitor);
-            }
-            currentMonitor.AssignmentCount--;
-
-            var newMonitor = await _monitorRepository.GetMonitorByIdAsync(model.NewMonitorId);
-            if (newMonitor != null)
-            {
-                exam.Monitors.Add(newMonitor);
-            }
-            newMonitor.AssignmentCount++;
-
-            await _examRepository.SaveAsync();
-            return true;
-        }
+        
         public async Task<bool> ChangeRepresentativeAsync(ChangeRepresentativeViewModel model)
         {
             var exam = await _examRepository.GetExamWithRepresentativeAsync(model.ExamId);
@@ -238,6 +220,35 @@ namespace ForQab.Service
                 }).ToList()
             };
         }
+        public async Task<bool> ChangeMonitorAsync(ChangeMonitorViewModel model)
+        {
+            var exam = await _examRepository.GetExamWithMonitorsAsync(model.ExamId);
+            if (exam == null) return false;
+
+            var currentExamMonitor = await _examMonitorRepository.GetByExamAndMonitorAsync(model.ExamId, model.CurrentMonitorId);
+            int? roomId = currentExamMonitor?.RoomId; // Odayı sakla
+
+            if (currentExamMonitor != null)
+            {
+                _examMonitorRepository.Remove(currentExamMonitor);
+            }
+
+            var currentMonitor = await _monitorRepository.GetByIdAsync(model.CurrentMonitorId);
+            var newMonitor = await _monitorRepository.GetByIdAsync(model.NewMonitorId);
+
+            var newExamMonitor = new ExamMonitor
+            {
+                ExamId = model.ExamId,
+                MonitorId = model.NewMonitorId,
+                RoomId = roomId // Eski odasını ata
+            };
+
+            currentMonitor.AssignmentCount--;
+            newMonitor.AssignmentCount++;
+            await _examMonitorRepository.AddAsync(newExamMonitor);
+            await _examRepository.SaveAsync();
+            return true;
+        }
 
         public async Task<bool> ChangeExpertAsync(int examId, int currentExpertId, int newExpertId)
         {
@@ -248,32 +259,32 @@ namespace ForQab.Service
             {
                 try
                 {
-                    var currentExpert = exam.Experts.FirstOrDefault(e => e.Id == currentExpertId);
-                    if (currentExpert != null)
-                    {
-                        exam.Experts.Remove(currentExpert);
-                        currentExpert.AssignmentCount--;
-                    }
+                    var currentExamExpertSubProfessions = await _examExpertSubProfessionRepository.GetSubProfessionsByExpertAsync(examId, currentExpertId);
+                    var subProfessions = currentExamExpertSubProfessions.ToList();
 
+                    var currentExpert = await _expertRepository.GetByIdAsync(currentExpertId);
                     var newExpert = await _expertRepository.GetByIdAsync(newExpertId);
-                    if (newExpert != null)
+
+                    if (subProfessions.Any())
                     {
+                        var newExamExpertSubProfessions = subProfessions.Select(sp => new ExamExpertSubProfession
+                        {
+                            ExamId = examId,
+                            ExpertId = newExpertId,
+                            SubProfessionId = sp.SubProfessionId,
+                            FederationId = sp.FederationId,
+                            RoomId = sp.RoomId // Odayı devret
+                        }).ToList();
+
+                        exam.Experts.Remove(currentExpert);
                         exam.Experts.Add(newExpert);
 
-                        var subProfession = await _examExpertSubProfessionRepository.GetSubProfessionsByExpertAsync(examId, currentExpertId);
-                        if (subProfession.Any())
-                        {
-                            await _examExpertSubProfessionRepository.AddSubProfessionsAsync(subProfession.Select(sp => new ExamExpertSubProfession
-                            {
-                                ExamId = examId,
-                                ExpertId = newExpertId,
-                                SubProfessionId = sp.SubProfessionId,
-                                FederationId = sp.FederationId
-                            }).ToList());
-                        }
-                        newExpert.AssignmentCount++;
+                        await _examExpertSubProfessionRepository.RemoveByExpertAsync(examId, currentExpertId); // Eskiyi sil
+                        await _examExpertSubProfessionRepository.AddSubProfessionsAsync(newExamExpertSubProfessions); // Yeniye ekle
                     }
 
+                    currentExpert.AssignmentCount--;
+                    newExpert.AssignmentCount++;
                     await _examRepository.SaveAsync();
                     await transaction.CommitAsync();
                     return true;
@@ -285,7 +296,7 @@ namespace ForQab.Service
                 }
             }
         }
-            public async Task AddExamAsync(CreateExamViewModel exam)
+        public async Task AddExamAsync(CreateExamViewModel exam)
         {
             await _examRepository.AddAsync(exam);
         }
@@ -337,9 +348,9 @@ namespace ForQab.Service
             await _examRepository.AddMonitorLogAsync(log);
         }
 
-        public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate, int? roomId, bool isreserve)
+        public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate, int? roomId)
         {
-            await _examRepository.AssignRandomMonitorsToExamAsync(examId, numberOfMonitors, genderId, maxDate, roomId, isreserve);
+            await _examRepository.AssignRandomMonitorsToExamAsync(examId, numberOfMonitors, genderId, maxDate, roomId);
         }
 
         public async Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate)
@@ -462,8 +473,6 @@ namespace ForQab.Service
 
             // Fetch logs for experts
             var expertLogs = await _examRepository.GetExpertsWithLogsAsync(expertIds);
-            Console.WriteLine($"Monitor Logs Count: {monitorLogs.Count}");
-            Console.WriteLine($"Expert Logs Count: {expertLogs.Count}");
             var viewModel = new ExamDetailsViewModel
             {
                 Id = exam.Id,
@@ -542,12 +551,16 @@ namespace ForQab.Service
             var exam = await _examRepository.GetByIdAsync(examId);
             if (exam == null) throw new ArgumentException("Exam not found");
 
+            var examExpertSubProfessions = await _examExpertSubProfessionRepository
+                        .GetAllAsync(x => x.ExamId == examId && expertIds.Contains(x.ExpertId));
+
             var expertsToRemove = exam.Experts.Where(e => expertIds.Contains(e.Id)).ToList();
             foreach (var expert in expertsToRemove)
             {
                 exam.Experts.Remove(expert);
                 expert.AssignmentCount--;
             }
+            _examExpertSubProfessionRepository.RemoveRange(examExpertSubProfessions);
 
             await _examRepository.SaveAsync();
         }

@@ -355,8 +355,7 @@ namespace ForQab.Presentation.Controllers
                             assignment.NumberOfMonitors,
                             genderId,
                             maxDate,
-                            roomId,
-                            assignment.IsReserve
+                            roomId
                         );
                         Console.WriteLine($"Monitor: {assignment.NumberOfMonitors}, IsReserve: {assignment.IsReserve}");
                     }
@@ -433,27 +432,6 @@ namespace ForQab.Presentation.Controllers
 
             return View(model);
         }
-
-        //[HttpGet]
-        //public async Task<IActionResult> AssignWorkers(int id)
-        //{
-        //    var exam = await _examService.GetExamByIdAsync(id);
-        //    var workers = await _examService.GetAvailableWorkersAsync(exam.ExamBuldingId);
-
-        //    var viewModel = new AssignWorkersToExamViewModel
-        //    {
-        //        ExamId = id,
-        //        Assignments = workers.Select(r => new WorkerAssignmentViewModel
-        //        {
-        //            Id = r.Id,
-        //            Name = r.Name,
-        //            Surname = r.Surname,
-        //            FinCode = r.FinCode,
-        //            WorkerType = r.WorkerTypeNavigation.Name
-        //        }).ToList()
-        //    };
-        //    return View(viewModel);
-        //}
 
         [HttpPost]
         public async Task<IActionResult> AssignWorkers(int id)

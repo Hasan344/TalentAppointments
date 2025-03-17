@@ -172,10 +172,11 @@ namespace ForQab.Repository.Concrete
             await _context.SaveChangesAsync();
         }
 
-        public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate, int? roomId, bool isreserve)
+        public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate, int? roomId)
         {
             var exam = await _context.Exams
-                .Include(e => e.Monitors) // Mevcut nəzarətçiləri yüklə
+                .Include(e => e.Monitors) 
+                .Include(e => e.ExamMonitors) 
                 .FirstOrDefaultAsync(e => e.Id == examId);
 
             if (exam == null)
@@ -187,38 +188,49 @@ namespace ForQab.Repository.Concrete
                 .Where(e => e.Role == 2)
                 .Where(e => e.Status == 0)
                 .Where(e => e.Archive == 0)
-                .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id)) // Daha önce atanmışları çıkar
-                .OrderBy(e => e.AssignmentCount) // Daha az atanmışları önceliklendir
+                .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id)) 
+                .OrderBy(e => e.AssignmentCount)
                 .ToListAsync();
-            if(exam.SectionId == 1)
+
+            if (exam.SectionId == 1)
             {
                 availableMonitors = availableMonitors
                 .Where(e => e.Gender == genderId)
-                .Where(e => e.BirthDate >= maxDate) // Daha önce atanmışları çıkar
+                .Where(e => e.BirthDate >= maxDate)
                 .OrderBy(e => e.AssignmentCount).ToList();
             }
+
             if (availableMonitors.Count < numberOfMonitors)
                 throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
 
             List<int> availableRooms = new List<int>();
 
-            if (exam.SectionId == 2 && isreserve == false)
+            if (exam.SectionId == 2 || exam.SectionId == 5)
             {
+                var assignedRoomIds = exam.ExamMonitors
+                    .Where(m => m.RoomId.HasValue)
+                    .Select(m => m.RoomId.Value)
+                    .ToHashSet();
+
                 availableRooms = await _context.ExamRooms
-                    .Where(r => r.SectionId == exam.SectionId)
+                    .Where(r => r.SectionId == exam.SectionId && !assignedRoomIds.Contains(r.Id)) 
                     .OrderBy(r => r.Id)
                     .Select(r => r.Id)
                     .ToListAsync();
             }
 
-            // Belirlenen sayıda nəzarətçiyi seç
             var selectedMonitors = availableMonitors.Take(numberOfMonitors).ToList();
 
             for (int i = 0; i < selectedMonitors.Count; i++)
             {
-                int assignedRoomId = (exam.SectionId == 2 && isreserve == false)
-                    ? availableRooms[i % availableRooms.Count] 
-                    : roomId.Value;
+                int? assignedRoomId = ((exam.SectionId == 2 || exam.SectionId == 5) && availableRooms.Count > 0)
+                    ? availableRooms.First() 
+                    : roomId;
+
+                if (assignedRoomId != null && (exam.SectionId == 2 || exam.SectionId == 5))
+                {
+                    availableRooms.RemoveAt(0); 
+                }
 
                 exam.ExamMonitors.Add(new ExamMonitor
                 {
@@ -230,8 +242,36 @@ namespace ForQab.Repository.Concrete
                 selectedMonitors[i].AssignmentCount++;
             }
 
+            if (exam.SectionId == 2 || exam.SectionId == 5)
+            {
+                int additionalMonitorsCount = 0;
+
+                if (numberOfMonitors >= 6 && numberOfMonitors <= 10)
+                    additionalMonitorsCount = 1;
+                else if (numberOfMonitors >= 11 && numberOfMonitors <= 21)
+                    additionalMonitorsCount = 2;
+                else if (numberOfMonitors >= 22)
+                    additionalMonitorsCount = 3;
+
+                var extraMonitors = availableMonitors
+                    .Skip(numberOfMonitors) 
+                    .Take(additionalMonitorsCount)
+                    .ToList();
+
+                foreach (var monitor in extraMonitors)
+                {
+                    exam.ExamMonitors.Add(new ExamMonitor
+                    {
+                        ExamId = examId,
+                        MonitorId = monitor.Id,
+                        RoomId = null
+                    });
+                }
+            }
+
             await _context.SaveChangesAsync();
         }
+
 
         public async Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate)
         {

@@ -38,15 +38,8 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> Create()
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            if (sectionId == null)
-            {
-                ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
-            }
-            else
-            {
-                ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
-            }
-            ViewBag.ProfessionList = new SelectList(await _context.Professions.ToListAsync(), "Id", "Name");
+            ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
+            ViewBag.ProfessionList = new SelectList(await _context.Professions.Where(p => p.SectionId == sectionId).ToListAsync(), "Id", "Name");
             return View();
         }
 
@@ -61,16 +54,8 @@ namespace ForQab.Presentation.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Re-populate dropdown lists if ModelState is invalid if (sectionId == null)
-            if (sectionId == null)
-            {
-                ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
-            }
-            else
-            {
-                ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
-            }
-            ViewBag.ProfessionList = new SelectList(await _context.Professions.ToListAsync(), "Id", "Name");
+            ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
+            ViewBag.ProfessionList = new SelectList(await _context.Professions.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
             return View(subProfession);
         }
 
@@ -84,15 +69,9 @@ namespace ForQab.Presentation.Controllers
 
             if (!await IsSectionValidAsync<SubProfession>(id))
                 return Forbid();
-            if (sectionId == null)
-            {
-                ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
-            }
-            else
-            {
-                ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
-            }
-            ViewBag.ProfessionList = new SelectList(await _context.Professions.ToListAsync(), "Id", "Name");
+
+            ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
+            ViewBag.ProfessionList = new SelectList(await _context.Professions.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
             return View(subProfession);
         }
 
@@ -120,16 +99,10 @@ namespace ForQab.Presentation.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var sectionId = await GetCurrentSectionIdAsync(); 
-            if (sectionId == null)
-            {
-                ViewBag.SectionList = new SelectList(await _context.Sections.ToListAsync(), "Id", "Name");
-            }
-            else
-            {
-                ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
-            }
-            ViewBag.ProfessionList = new SelectList(await _context.Professions.ToListAsync(), "Id", "Name");
+            var sectionId = await GetCurrentSectionIdAsync();
+
+            ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
+            ViewBag.ProfessionList = new SelectList(await _context.Professions.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
             return View(subProfession);
         }
 

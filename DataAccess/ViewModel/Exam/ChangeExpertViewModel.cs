@@ -7,6 +7,7 @@ namespace ForQab.DataAccess.ViewModel.Exam
         public int ExamId { get; set; }
         public int CurrentExpertId { get; set; }
         public int NewExpertId { get; set; }
+        public int RoomId { get; set; }
         public List<SelectListItem> AvailableExperts { get; set; }
     }
 }
