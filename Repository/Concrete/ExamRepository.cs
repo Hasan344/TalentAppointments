@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using a = DocumentFormat.OpenXml.Drawing;
 using wp = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using pic = DocumentFormat.OpenXml.Drawing.Pictures;
+using Monitor = ForQab.DataAccess.Models.Monitor;
 
 namespace ForQab.Repository.Concrete
 {
@@ -122,21 +123,42 @@ namespace ForQab.Repository.Concrete
                             !assignedExpertIds.Contains(e.Id) &&
                             e.Archive == 0 &&
                             e.Status == 0)
+                .Include(e => e.Exams)
                 .ToListAsync();
 
+            var availableExperts = new List<Expert>();
 
+            foreach (var expert in experts)
+            {
+                var isAssignedToAnotherExam = await _context.ExamExpertSubProfessions
+                    .AnyAsync(ees => ees.ExpertId == expert.Id && ees.Exam.ExamDate == exam.ExamDate);
 
-            if (experts.Count < numberOfExperts)
+                if (!isAssignedToAnotherExam)
+                {
+                    availableExperts.Add(expert);
+                }
+            }
+
+            if (availableExperts.Count < numberOfExperts)
             {
                 throw new InvalidOperationException("Not enough experts available.");
             }
 
-            var selectedExperts = experts.OrderBy(e => e.AssignmentCount).Take(numberOfExperts).ToList();
+            var selectedExperts = availableExperts.OrderBy(e => e.AssignmentCount).Take(numberOfExperts).ToList();
             var shuffledSubProfessions = subProfessions.OrderBy(x => Guid.NewGuid()).ToList();
 
             for (int i = 0; i < selectedExperts.Count; i++)
             {
                 var expert = selectedExperts[i];
+
+                var isAssignedToAnotherExam = await _context.ExamExpertSubProfessions
+            .AnyAsync(ees => ees.ExpertId == expert.Id && ees.Exam.ExamDate == exam.ExamDate);
+
+                if (isAssignedToAnotherExam)
+                {
+                    continue; 
+                }
+
                 exam.Experts.Add(expert);
                 expert.AssignmentCount++;
 
@@ -175,8 +197,8 @@ namespace ForQab.Repository.Concrete
         public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate, int? roomId)
         {
             var exam = await _context.Exams
-                .Include(e => e.Monitors) 
-                .Include(e => e.ExamMonitors) 
+                .Include(e => e.Monitors)
+                .Include(e => e.ExamMonitors)
                 .FirstOrDefaultAsync(e => e.Id == examId);
 
             if (exam == null)
@@ -188,20 +210,39 @@ namespace ForQab.Repository.Concrete
                 .Where(e => e.Role == 2)
                 .Where(e => e.Status == 0)
                 .Where(e => e.Archive == 0)
-                .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id)) 
+                .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id))
                 .OrderBy(e => e.AssignmentCount)
                 .ToListAsync();
 
             if (exam.SectionId == 1)
             {
                 availableMonitors = availableMonitors
-                .Where(e => e.Gender == genderId)
-                .Where(e => e.BirthDate >= maxDate)
-                .OrderBy(e => e.AssignmentCount).ToList();
+                    .Where(e => e.Gender == genderId)
+                    .Where(e => e.BirthDate >= maxDate)
+                    .OrderBy(e => e.AssignmentCount)
+                    .ToList();
             }
 
-            if (availableMonitors.Count < numberOfMonitors)
-                throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
+            List<Monitor> selectedMonitors = new List<Monitor>();
+
+            foreach (var monitor in availableMonitors)
+            {
+                var isAssignedToAnotherExam = await _context.ExamMonitors
+                    .AnyAsync(em => em.MonitorId == monitor.Id && em.Exams.ExamDate == exam.ExamDate);
+
+                if (!isAssignedToAnotherExam)
+                {
+                    selectedMonitors.Add(monitor);
+                }
+
+                if (selectedMonitors.Count == numberOfMonitors)
+                    break;
+            }
+
+            if (selectedMonitors.Count < numberOfMonitors)
+            {
+                throw new InvalidOperationException("Not enough monitors available.");
+            }
 
             List<int> availableRooms = new List<int>();
 
@@ -213,33 +254,33 @@ namespace ForQab.Repository.Concrete
                     .ToHashSet();
 
                 availableRooms = await _context.ExamRooms
-                    .Where(r => r.SectionId == exam.SectionId && !assignedRoomIds.Contains(r.Id)) 
+                    .Where(r => r.SectionId == exam.SectionId && !assignedRoomIds.Contains(r.Id))
                     .OrderBy(r => r.Id)
                     .Select(r => r.Id)
                     .ToListAsync();
             }
 
-            var selectedMonitors = availableMonitors.Take(numberOfMonitors).ToList();
-
             for (int i = 0; i < selectedMonitors.Count; i++)
             {
+                var monitor = selectedMonitors[i];
+
                 int? assignedRoomId = ((exam.SectionId == 2 || exam.SectionId == 5) && availableRooms.Count > 0)
-                    ? availableRooms.First() 
+                    ? availableRooms.First()
                     : roomId;
 
                 if (assignedRoomId != null && (exam.SectionId == 2 || exam.SectionId == 5))
                 {
-                    availableRooms.RemoveAt(0); 
+                    availableRooms.RemoveAt(0);
                 }
 
                 exam.ExamMonitors.Add(new ExamMonitor
                 {
                     ExamId = examId,
-                    MonitorId = selectedMonitors[i].Id,
+                    MonitorId = monitor.Id,
                     RoomId = assignedRoomId
                 });
 
-                selectedMonitors[i].AssignmentCount++;
+                monitor.AssignmentCount++;
             }
 
             if (exam.SectionId == 2 || exam.SectionId == 5)
@@ -254,23 +295,30 @@ namespace ForQab.Repository.Concrete
                     additionalMonitorsCount = 3;
 
                 var extraMonitors = availableMonitors
-                    .Skip(numberOfMonitors) 
+                    .Skip(numberOfMonitors)
                     .Take(additionalMonitorsCount)
                     .ToList();
 
                 foreach (var monitor in extraMonitors)
                 {
-                    exam.ExamMonitors.Add(new ExamMonitor
+                    var isAssignedToAnotherExam = await _context.ExamMonitors
+                        .AnyAsync(em => em.MonitorId == monitor.Id && em.Exams.ExamDate == exam.ExamDate);
+
+                    if (!isAssignedToAnotherExam)
                     {
-                        ExamId = examId,
-                        MonitorId = monitor.Id,
-                        RoomId = null
-                    });
+                        exam.ExamMonitors.Add(new ExamMonitor
+                        {
+                            ExamId = examId,
+                            MonitorId = monitor.Id,
+                            RoomId = null
+                        });
+                    }
                 }
             }
 
             await _context.SaveChangesAsync();
         }
+
 
 
         public async Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate)
@@ -452,6 +500,7 @@ namespace ForQab.Repository.Concrete
             existingExam.StudentCount = exam.StudentCount;
             existingExam.AdmissionTime = exam.AdmissionTime;
             existingExam.DistrictId = exam.DistrictId;
+            existingExam.ExamDate = exam.ExamDate;
 
             // Mevcut ExamCommissions'ları temizle
             if (existingExam.ExamCommissions != null)

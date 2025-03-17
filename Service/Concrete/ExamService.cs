@@ -7,6 +7,9 @@ using ForQab.Repository.Concrete;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using DocumentFormat.OpenXml;
 
 namespace ForQab.Service
 {
@@ -80,7 +83,7 @@ namespace ForQab.Service
         {
             var sections = sectionId == null ? _context.Sections : _context.Sections.Where(s => s.Id == sectionId);
             var examBuildings = sectionId == null ? _context.ExamBuildings : _context.ExamBuildings.Where(e => e.SectionId == sectionId);
-            var districts = _context.Districts ;
+            var districts = _context.Districts;
             var commissions = sectionId == null ? _context.Commissions : _context.Commissions.Where(c => c.SectionId == sectionId);
             var degrees = _context.Degrees;
             var subCommissions = sectionId == null ? _context.SubCommissions : _context.SubCommissions.Where(sc => sc.SectionId == sectionId);
@@ -123,7 +126,7 @@ namespace ForQab.Service
             if (exam == null) return null;
 
             var selectedRepresentativeList = exam.Representatives.Select(m => m.Id).ToList();
-            var availableRepresentatives =await _monitorRepository.GetAvailableRepresentativesAsync(selectedRepresentativeList);
+            var availableRepresentatives = await _monitorRepository.GetAvailableRepresentativesAsync(selectedRepresentativeList);
 
             return new ChangeRepresentativeViewModel
             {
@@ -174,7 +177,7 @@ namespace ForQab.Service
         }
 
 
-        
+
         public async Task<bool> ChangeRepresentativeAsync(ChangeRepresentativeViewModel model)
         {
             var exam = await _examRepository.GetExamWithRepresentativeAsync(model.ExamId);
@@ -303,7 +306,7 @@ namespace ForQab.Service
 
         public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId, int? roomId)
         {
-            await _examRepository.AssignRandomExpertsToExamAsync(examId, numberOfExperts,  selectedSubProfessions, federationId, roomId);
+            await _examRepository.AssignRandomExpertsToExamAsync(examId, numberOfExperts, selectedSubProfessions, federationId, roomId);
         }
         public async Task<bool> AssignExpertsAsync(AssignExpertToExamViewModel model)
         {
@@ -389,17 +392,17 @@ namespace ForQab.Service
 
         public async Task<int?> GetSectionIdByExamIdAsync(int examId)
         {
-           return await _examRepository.GetSectionIdByExamIdAsync(examId);
+            return await _examRepository.GetSectionIdByExamIdAsync(examId);
         }
 
         public async Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds, int[] degreeIds)
         {
-            await _examRepository.UpdateExamAsync(exam, commissionIds,degreeIds);
+            await _examRepository.UpdateExamAsync(exam, commissionIds, degreeIds);
         }
 
         public async Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId)
         {
-           return await _examRepository.GetCommissionsAsync(sectionId);
+            return await _examRepository.GetCommissionsAsync(sectionId);
         }
 
         public async Task AddExpertLogAsync(WriteExpertLogsViewModel model)
@@ -422,9 +425,9 @@ namespace ForQab.Service
         {
             return await _examRepository.GetExpertsWithLogsAsync(expertIds);
         }
-        public  List<Expert> GetExpertsByExam(int examId)
+        public List<Expert> GetExpertsByExam(int examId)
         {
-            return  _examRepository.GetExpertsByExam(examId);
+            return _examRepository.GetExpertsByExam(examId);
         }
         public async Task<List<ExamExpertSubProfession>> GetExpertSubProfessionsByExamIdAsync(int examId)
         {
@@ -454,6 +457,178 @@ namespace ForQab.Service
         public Task<List<DataAccess.Models.Monitor>> GetAvailableWorkersAsync(int buildingId)
         {
             return _examRepository.GetAvailableWorkersAsync(buildingId);
+        }
+
+        public async Task<byte[]> ExportExamToWordAsync(int examId)
+        {
+            var exam = await _context.Exams
+                .Include(e => e.ExamMonitors).ThenInclude(em => em.Monitors)
+                .Include(e => e.ExamMonitors).ThenInclude(em => em.ExamRooms)
+                .Include(e => e.ExamExpertSubProfessions).ThenInclude(eesp => eesp.Expert)
+                .Include(e => e.ExamExpertSubProfessions).ThenInclude(eesp => eesp.SubProfession)
+                .Include(e => e.ExamExpertSubProfessions).ThenInclude(eesp => eesp.ExamRoom)
+                .Include(e => e.ExamBuilding)
+                .FirstOrDefaultAsync(e => e.Id == examId);
+
+            if (exam == null) throw new Exception("Exam not found");
+
+            using var ms = new MemoryStream();
+            using (var wordDocument = WordprocessingDocument.Create(ms, WordprocessingDocumentType.Document, true))
+            {
+                var mainPart = wordDocument.AddMainDocumentPart();
+                mainPart.Document = new Document();
+                var body = mainPart.Document.AppendChild(new Body());
+
+                // Başlıqlar
+                body.AppendChild(CreateCenteredBoldParagraph("NƏZARƏTÇİLƏRİN VƏ EKSPERTLƏRİN QEYDİYYAT VƏRƏQİ", 16));
+                body.AppendChild(CreateMixedBoldParagraph("İmtahanın adı: ", exam.Name, 14));
+                body.AppendChild(CreateMixedBoldParagraph("İmtahan binası: ", $"{exam.ExamBuilding?.Code} {exam.ExamBuilding?.Name}", 14));
+                body.AppendChild(CreateMixedBoldParagraph("İmtahan tarixi: ", $"{exam.ExamDate} Saat {exam.StartTime}", 14));
+
+                // Cədvəl
+                Table table = new Table();
+
+                // Cədvəl dizaynı (Tam səhifəyə yayılsın)
+                TableProperties tblProp = new TableProperties(
+                    new TableWidth { Width = "100%", Type = TableWidthUnitValues.Pct },
+                    new TableBorders(
+                        new TopBorder { Val = BorderValues.Single, Size = 12 },
+                        new BottomBorder { Val = BorderValues.Single, Size = 12 },
+                        new LeftBorder { Val = BorderValues.Single, Size = 12 },
+                        new RightBorder { Val = BorderValues.Single, Size = 12 },
+                        new InsideHorizontalBorder { Val = BorderValues.Single, Size = 12 },
+                        new InsideVerticalBorder { Val = BorderValues.Single, Size = 12 }
+                    )
+                );
+                table.AppendChild(tblProp);
+
+                // Başlıq sətri
+                var headerRow = new TableRow();
+                headerRow.Append(CreateTableCell("S/s", true, 1000));          // DAR
+                headerRow.Append(CreateTableCell("Məntəqə kodu", true, 1500)); // DAR
+                headerRow.Append(CreateTableCell("Vəzifə", true, 3000));
+                headerRow.Append(CreateTableCell("Soyadı, adı, ata adı", true, 6000));
+                headerRow.Append(CreateTableCell("İmza", true, 2000));
+                table.Append(headerRow);
+
+                // Ekspertlər
+                int rowIndex = 1;
+                foreach (var expert in exam.ExamExpertSubProfessions)
+                {
+                    var row = new TableRow();
+                    row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
+                    row.Append(CreateTableCell(expert.ExamRoom?.Name, false, 1500));
+                    row.Append(CreateTableCell($"Ekspert-{expert.SubProfession?.Name} ", false, 3000));
+                    row.Append(CreateTableCell(expert.Expert.Name + " " + expert.Expert.Surname + " " + expert.Expert.Fname, false, 6000));
+                    row.Append(CreateTableCell("", false, 2000));
+                    table.Append(row);
+                    rowIndex++;
+                }
+
+                // Nəzarətçilər
+                foreach (var monitor in exam.ExamMonitors.Where(em => em.Monitors.Role == 2))
+                {
+                    var row = new TableRow();
+                    row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
+                    row.Append(CreateTableCell(monitor.ExamRooms?.Name, false, 1500));
+                    row.Append(CreateTableCell("Nəzarətçi ", false, 3000));
+                    row.Append(CreateTableCell(monitor.Monitors.Name + " " + monitor.Monitors.Surname + " " + monitor.Monitors.Fname, false, 6000));
+                    row.Append(CreateTableCell("", false, 2000));
+                    table.Append(row);
+                    rowIndex++;
+                }
+
+                body.AppendChild(table);
+                body.AppendChild(CreateItalicParagraph("Qeyd. İmtahana gəlməyən nəzarətçilərin qarşısında (imza bölməsində) iştirakçıların imtahan binasına buraxılışı başlandıqdan sonra “gəlmədi” yazılır.", 10));
+
+                // İmtahan rəhbəri
+                foreach (var monitor in exam.ExamMonitors.Where(em => em.Monitors.Role == 1))
+                {
+                    var fullNameWithSignature = $"{monitor.Monitors.Name} {monitor.Monitors.Surname} {monitor.Monitors.Fname} /________/";
+                    body.AppendChild(CreateMixedBoldParagraph("\nİmtahan rəhbəri: ", fullNameWithSignature, 12));
+
+                }
+
+                // Qeyd: İmtahana gəlməyən nəzarətçilərin yazılması
+                
+                mainPart.Document.Save();
+            }
+
+            return ms.ToArray();
+        }
+
+        private static Paragraph CreateItalicParagraph(string text, int fontSize)
+        {
+            return new Paragraph(
+                new Run(
+                    new RunProperties(new Italic(), new FontSize { Val = (fontSize * 2).ToString() }),
+                    new Text(text)
+                )
+            );
+        }
+
+        private static Paragraph CreateMixedBoldParagraph(string boldText, string normalText, int fontSize)
+        {
+            return new Paragraph(
+                new Run(
+                    new RunProperties(new Bold(), new FontSize { Val = (fontSize * 2).ToString() }),
+                    new Text(boldText) // Bold olan hissə
+                ),
+                new Run(
+                    new RunProperties(new FontSize { Val = (fontSize * 2).ToString() }),
+                    new Text(normalText) // Normal olan hissə
+                )
+            );
+        }
+
+
+
+        // **YENİ METOD: Qalın (Bold) paragraf yaratmaq**
+        private static Paragraph CreateBoldParagraph(string text, int fontSize)
+        {
+            return new Paragraph(
+                new Run(
+                    new RunProperties(new Bold(), new FontSize { Val = (fontSize * 2).ToString() }),
+                    new Text(text)
+                )
+            );
+        }
+
+        // Normal mətn paragrafı yaratmaq
+        private static Paragraph CreateParagraph(string text, int fontSize)
+        {
+            return new Paragraph(
+                new Run(
+                    new RunProperties(new FontSize { Val = (fontSize * 2).ToString() }),
+                    new Text(text)
+                )
+            );
+        }
+
+        // Cədvəl hüceyrəsi yaratmaq
+        private static TableCell CreateTableCell(string text, bool bold, int width)
+        {
+            return new TableCell(
+                new TableCellProperties(new TableCellWidth { Type = TableWidthUnitValues.Dxa, Width = width.ToString() }),
+                new Paragraph(
+                    new Run(
+                        new RunProperties(new Bold { Val = bold }),
+                        new Text(text)
+                    )
+                )
+            );
+        }
+        private static Paragraph CreateCenteredBoldParagraph(string text, int fontSize)
+        {
+            return new Paragraph(
+                new ParagraphProperties(
+                    new Justification { Val = JustificationValues.Center } // Mərkəzə uyğunlaşdırma
+                ),
+                new Run(
+                    new RunProperties(new Bold(), new FontSize { Val = (fontSize * 2).ToString() }),
+                    new Text(text)
+                )
+            );
         }
         public async Task<ExamDetailsViewModel> GetExamDetailsAsync(int examId)
         {
