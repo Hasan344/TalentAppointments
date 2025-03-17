@@ -19,7 +19,7 @@
 
             <div id="expertContainer">
                 <div class="expert-form row mb-3 p-3 bg-light rounded-3 shadow-sm">
-                    @if(ViewBag.Section == 1)
+                    @if (ViewBag.Section == 1 || ViewBag.Section == 4)
                     {
                         <div class="col-md-3">
                             <label class="form-label fw-semibold">Ekspert sayı</label>
@@ -63,38 +63,35 @@
                             <span asp-validation-for="Assignments[0].RoomId" class="text-danger"></span>
                         </div>
                     }else
-                    @if (ViewBag.Section == 2)
+                    @if (@ViewBag.Section == 2 || @ViewBag.Section == 5)
                     {
-                        @for (int i = 0; i < 4; i++)
-                        {
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Ekspert sayı</label>
-                                <input type="number" name="Assignments[@i].NumberOfExperts" class="form-control" value="1" required disabled />
-                                <span asp-validation-for="Assignments[@i].NumberOfExperts" class="text-danger"></span>
+                                <input type="number" name="Assignments[0].NumberOfExperts" class="form-control" value="1" required  />
+                                <span asp-validation-for="Assignments[0].NumberOfExperts" class="text-danger"></span>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Təhsil müəssisəsi</label>
-                                <select name="Assignments[@i].FederationId" class="form-select federation-dropdown" required>
+                                <select name="Assignments[0].FederationId" class="form-select federation-dropdown" required>
                                     <option value="">Təhsil müəssisəsi seçin</option>
                                     @foreach (var federation in Model.Federations)
                                     {
                                         <option value="@federation.Value">@federation.Text</option>
                                     }
                                 </select>
-                                <span asp-validation-for="Assignments[@i].FederationId" class="text-danger"></span>
+                                <span asp-validation-for="Assignments[0].FederationId" class="text-danger"></span>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Sub-Professions</label>
-                                <select name="Assignments[@i].SelectedSubProfessions" class="form-select sub-profession-dropdown" required>
+                                <select name="Assignments[0].SelectedSubProfessions" class="form-select sub-profession-dropdown" required>
                                     <option value="">Sub-Profession seçin</option>
                                     @foreach (var sp in Model.SubProfessions)
                                     {
                                         <option value="@sp.Value">@sp.Text</option>
                                     }
                                 </select>
-                                <span asp-validation-for="Assignments[@i].SelectedSubProfessions" class="text-danger"></span>
+                                <span asp-validation-for="Assignments[0].SelectedSubProfessions" class="text-danger"></span>
                             </div>
-                        }
                     }
 
                 </div>
@@ -130,9 +127,9 @@
         removeButton.textContent = '✖';
         removeButton.type = 'button';
         removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'remove-expert-btn');
-        removeButton.style.padding = '2px 6px'; // Buton boyutunu küçültme
-        removeButton.style.fontSize = '12px'; // Yazıyı küçültme
-        removeButton.style.marginLeft = '10px'; // Hafif boşluk bırakma
+        removeButton.style.padding = '2px 6px'; 
+        removeButton.style.fontSize = '12px'; 
+        removeButton.style.marginLeft = '10px'; 
         removeButton.addEventListener('click', function () {
             newForm.remove();
         });

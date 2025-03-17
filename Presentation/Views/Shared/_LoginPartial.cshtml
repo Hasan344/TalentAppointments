@@ -8,8 +8,9 @@
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
+    var user = await UserManager.GetUserAsync(User);
     <li class="nav-item">
-        <a id="manage" class="nav-link text-light"   title="Manage">Hello @UserManager.GetUserName(User)!</a>
+            <a id="manage" class="nav-link text-light" title="Manage">  İstifadəçi: @(user?.FirstName ?? "Naməlum")!</a>    
     </li>
     <li class="nav-item">
             <form id="logoutForm" class="form-inline" asp-controller="Account" asp-action="Logout">
@@ -19,7 +20,7 @@
 }
 else
 {
-    <li class="nav-item">
+    <li class="nav-item">   
             <a class="nav-link text-light" id="register" asp-controller="Account" asp-action="Register">Register</a>
     </li>
     <li class="nav-item">
