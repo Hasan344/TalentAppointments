@@ -47,6 +47,7 @@ namespace ForQab.Service.Abstract
         Task<byte[]> ExportExamMonitorsToWordAsync(int examId);
         Task RemoveExpertsFromExamAsync(int examId, List<int> expertIds);
         Task RemoveMonitorsFromExamAsync(int examId, List<int> monitorIds);
+        Task<byte[]> ExportExamToWordAsync(int examId);
 
     }
 }

@@ -475,7 +475,7 @@ namespace ForQab.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> ExportMonitorRegister(int examId)
         {
-            var fileContents = await _examService.ExportExamMonitorsToWordAsync(examId);
+            var fileContents = await _examService.ExportExamToWordAsync(examId);
             return File(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "ExamMonitorRegister.docx");
         }
 

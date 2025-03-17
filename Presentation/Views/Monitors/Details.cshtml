@@ -107,6 +107,39 @@
                 </button>
             </form>
         </div>
+        <div class="mt-4">
+            <h3 style="color: #0056b3; font-weight: bold;">Nəzarətçinin iştirak etdiyi imtahanlar</h3>
+            <table class="table table-bordered mt-3">
+                <thead>
+                    <tr>
+                        <th>İmtahan Id</th>
+                        <th>İmtahan Tarixi</th>
+                        <th>Zal</th>
+                        <th>Başlama Saatı</th>
+                        <th>Bitmə Saatı</th>
+                        <th>İmtahan Detallarına Keçid</th> <!-- Yeni sütun ekledik -->
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var examMonitor in Model.ExamMonitors)
+                    {
+                        <tr>
+                            <td>@examMonitor.Exams.Id</td>
+                            <td>@examMonitor.Exams.ExamDate</td>
+                            <td>@examMonitor.ExamRooms.Name</td>
+                            <td>@examMonitor.Exams.StartTime</td>
+                            <td>@examMonitor.Exams.EndTime</td>
+                            <td>
+                                <a class="btn btn-info btn-sm" asp-controller="Exam" asp-action="Details" asp-route-id="@examMonitor.Exams.Id">
+                                    İmtahan Detalları
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
 
         <!-- Modal (Pop-up) -->
         <div class="modal fade" id="statusReasonModal" tabindex="-1" aria-labelledby="statusReasonModalLabel" aria-hidden="true">
