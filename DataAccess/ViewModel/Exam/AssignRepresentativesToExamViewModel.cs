@@ -1,11 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
 
 namespace ForQab.DataAccess.ViewModel.Exam
 {
     public class AssignRepresentativesToExamViewModel
     {
         public int ExamId { get; set; }
-        public int? SelectedRepresentativeId { get; set; }
+        public List<int> SelectedRepresentativeIds { get; set; } = new();
         public List<RepresentativeViewModelForAssign> Representatives { get; set; } = new();
     }
 

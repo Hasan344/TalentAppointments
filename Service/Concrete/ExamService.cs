@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml;
+using System.Threading;
 
 namespace ForQab.Service
 {
@@ -462,12 +463,13 @@ namespace ForQab.Service
         public async Task<byte[]> ExportExamToWordAsync(int examId)
         {
             var exam = await _context.Exams
-                .Include(e => e.ExamMonitors).ThenInclude(em => em.Monitors)
+                .Include(e => e.ExamMonitors).ThenInclude(em => em.Monitors).ThenInclude(em => em.WorkerTypeNavigation)
                 .Include(e => e.ExamMonitors).ThenInclude(em => em.ExamRooms)
                 .Include(e => e.ExamExpertSubProfessions).ThenInclude(eesp => eesp.Expert)
                 .Include(e => e.ExamExpertSubProfessions).ThenInclude(eesp => eesp.SubProfession)
                 .Include(e => e.ExamExpertSubProfessions).ThenInclude(eesp => eesp.ExamRoom)
                 .Include(e => e.ExamBuilding)
+                .Include(e => e.Representatives)
                 .FirstOrDefaultAsync(e => e.Id == examId);
 
             if (exam == null) throw new Exception("Exam not found");
@@ -479,16 +481,14 @@ namespace ForQab.Service
                 mainPart.Document = new Document();
                 var body = mainPart.Document.AppendChild(new Body());
 
-                // Başlıqlar
-                body.AppendChild(CreateCenteredBoldParagraph("NƏZARƏTÇİLƏRİN VƏ EKSPERTLƏRİN QEYDİYYAT VƏRƏQİ", 16));
-                body.AppendChild(CreateMixedBoldParagraph("İmtahanın adı: ", exam.Name, 14));
-                body.AppendChild(CreateMixedBoldParagraph("İmtahan binası: ", $"{exam.ExamBuilding?.Code} {exam.ExamBuilding?.Name}", 14));
-                body.AppendChild(CreateMixedBoldParagraph("İmtahan tarixi: ", $"{exam.ExamDate} Saat {exam.StartTime}", 14));
+                body.AppendChild(CreateCenteredBoldParagraph("İMTAHANDAKI İŞÇİ HEYƏTİN QEYDİYYAT VƏRƏQİ", 16));
+                body.AppendChild(CreateMixedBoldParagraph("İmtahanın adı: ", "\u00A0" + exam.Name, 14));
+                body.AppendChild(CreateMixedBoldParagraph("İmtahan binası: ", "\u00A0" + exam.ExamBuilding?.Code + " " + exam.ExamBuilding?.Name, 14));
+                body.AppendChild(CreateMixedBoldParagraph("İmtahan tarixi: ", "\u00A0" + exam.ExamDate + " Saat " + exam.StartTime, 14));
 
-                // Cədvəl
+
                 Table table = new Table();
 
-                // Cədvəl dizaynı (Tam səhifəyə yayılsın)
                 TableProperties tblProp = new TableProperties(
                     new TableWidth { Width = "100%", Type = TableWidthUnitValues.Pct },
                     new TableBorders(
@@ -502,16 +502,14 @@ namespace ForQab.Service
                 );
                 table.AppendChild(tblProp);
 
-                // Başlıq sətri
                 var headerRow = new TableRow();
-                headerRow.Append(CreateTableCell("S/s", true, 1000));          // DAR
-                headerRow.Append(CreateTableCell("Məntəqə kodu", true, 1500)); // DAR
+                headerRow.Append(CreateTableCell("S/s", true, 1000));         
+                headerRow.Append(CreateTableCell("Məntəqə kodu", true, 1500));
                 headerRow.Append(CreateTableCell("Vəzifə", true, 3000));
                 headerRow.Append(CreateTableCell("Soyadı, adı, ata adı", true, 6000));
                 headerRow.Append(CreateTableCell("İmza", true, 2000));
                 table.Append(headerRow);
 
-                // Ekspertlər
                 int rowIndex = 1;
                 foreach (var expert in exam.ExamExpertSubProfessions)
                 {
@@ -525,7 +523,6 @@ namespace ForQab.Service
                     rowIndex++;
                 }
 
-                // Nəzarətçilər
                 foreach (var monitor in exam.ExamMonitors.Where(em => em.Monitors.Role == 2))
                 {
                     var row = new TableRow();
@@ -537,19 +534,48 @@ namespace ForQab.Service
                     table.Append(row);
                     rowIndex++;
                 }
+                foreach (var monitor in exam.ExamMonitors.Where(em => em.Monitors.Role == 5))
+                {
+                    var row = new TableRow();
+                    row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
+                    row.Append(CreateTableCell(monitor.ExamRooms?.Name, false, 1500));
+                    row.Append(CreateTableCell(monitor.Monitors.WorkerTypeNavigation?.Name, false, 3000));
+                    row.Append(CreateTableCell(monitor.Monitors.Name + " " + monitor.Monitors.Surname + " " + monitor.Monitors.Fname, false, 6000));
+                    row.Append(CreateTableCell("", false, 2000));
+                    table.Append(row);
+                    rowIndex++;
+                }
+                foreach (var representative in exam.Representatives)
+                {
+                    var row = new TableRow();
+                    row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
+                    row.Append(CreateTableCell(" ", false, 1500));
+                    row.Append(CreateTableCell("DİM Nümayəndəsi", false, 3000));
+                    row.Append(CreateTableCell(representative.Name + " " + representative.Surname + " " + representative.Fname, false, 6000));
+                    row.Append(CreateTableCell("", false, 2000));
+                    table.Append(row);
+                    rowIndex++;
+                }
+                foreach (var monitor in exam.ExamMonitors.Where(em => em.Monitors.Role == 1))
+                {
+                    var row = new TableRow();
+                    row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
+                    row.Append(CreateTableCell(monitor.ExamRooms?.Name, false, 1500));
+                    row.Append(CreateTableCell("İmtahan rəhbəri ", false, 3000));
+                    row.Append(CreateTableCell(monitor.Monitors.Name + " " + monitor.Monitors.Surname + " " + monitor.Monitors.Fname, false, 6000));
+                    row.Append(CreateTableCell("", false, 2000));
+                    table.Append(row);
+                    rowIndex++;
+                }
 
                 body.AppendChild(table);
                 body.AppendChild(CreateItalicParagraph("Qeyd. İmtahana gəlməyən nəzarətçilərin qarşısında (imza bölməsində) iştirakçıların imtahan binasına buraxılışı başlandıqdan sonra “gəlmədi” yazılır.", 10));
 
-                // İmtahan rəhbəri
-                foreach (var monitor in exam.ExamMonitors.Where(em => em.Monitors.Role == 1))
+                if(exam.SectionId == 1)
                 {
-                    var fullNameWithSignature = $"{monitor.Monitors.Name} {monitor.Monitors.Surname} {monitor.Monitors.Fname} /________/";
-                    body.AppendChild(CreateMixedBoldParagraph("\nİmtahan rəhbəri: ", fullNameWithSignature, 12));
-
+                    body.AppendChild(CreateCenteredBoldParagraph("\nÜmumi imtahan rəhbəri: _________ / _______________________ / ", 12));
                 }
 
-                // Qeyd: İmtahana gəlməyən nəzarətçilərin yazılması
                 
                 mainPart.Document.Save();
             }
@@ -583,7 +609,6 @@ namespace ForQab.Service
 
 
 
-        // **YENİ METOD: Qalın (Bold) paragraf yaratmaq**
         private static Paragraph CreateBoldParagraph(string text, int fontSize)
         {
             return new Paragraph(
@@ -594,7 +619,6 @@ namespace ForQab.Service
             );
         }
 
-        // Normal mətn paragrafı yaratmaq
         private static Paragraph CreateParagraph(string text, int fontSize)
         {
             return new Paragraph(
@@ -605,7 +629,6 @@ namespace ForQab.Service
             );
         }
 
-        // Cədvəl hüceyrəsi yaratmaq
         private static TableCell CreateTableCell(string text, bool bold, int width)
         {
             return new TableCell(
@@ -639,14 +662,11 @@ namespace ForQab.Service
                 return null;
             }
 
-            // Fetch the monitors and experts with logs sequentially
             var monitorIds = exam.Monitors.Select(m => m.Id).ToList();
             var expertIds = exam.Experts.Select(m => m.Id).ToList();
 
-            // Fetch logs for monitors
             var monitorLogs = await _examRepository.GetMonitorsWithLogsAsync(monitorIds);
 
-            // Fetch logs for experts
             var expertLogs = await _examRepository.GetExpertsWithLogsAsync(expertIds);
             var viewModel = new ExamDetailsViewModel
             {
@@ -740,7 +760,6 @@ namespace ForQab.Service
             await _examRepository.SaveAsync();
         }
 
-        // Birden fazla gözetmeni sınavdan kaldır
         public async Task RemoveMonitorsFromExamAsync(int examId, List<int> monitorIds)
         {
             var exam = await _examRepository.GetByIdAsync(examId);
