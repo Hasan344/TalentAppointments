@@ -476,7 +476,7 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> ExportMonitorRegister(int examId)
         {
             var fileContents = await _examService.ExportExamToWordAsync(examId);
-            return File(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "ExamMonitorRegister.docx");
+            return File(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"Exam Id:{examId}.docx");
         }
 
         public async Task<IActionResult> ExportToExcel()
@@ -556,15 +556,15 @@ namespace ForQab.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> AssignRepresentatives(AssignRepresentativesToExamViewModel model)
         {
-            if (model.SelectedRepresentativeId == null)
+            if (model.SelectedRepresentativeIds == null || !model.SelectedRepresentativeIds.Any())
             {
-                ModelState.AddModelError(nameof(model.SelectedRepresentativeId), "Lütfen bir Representative seçin.");
+                ModelState.AddModelError("", "Lütfen en az bir temsilci seçin.");
                 return View(model);
             }
 
-            await _examService.AssignRepresentativesToExamAsync(model.ExamId, new List<int> { model.SelectedRepresentativeId.Value });
+            await _examService.AssignRepresentativesToExamAsync(model.ExamId, model.SelectedRepresentativeIds);
 
-            return RedirectToAction(nameof(Details), new { id = model.ExamId });
+            return RedirectToAction("Details", new { id = model.ExamId });
         }
         [HttpPost]
         public async Task<IActionResult> DeleteExperts(int examId, List<int> expertIds)

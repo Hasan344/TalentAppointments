@@ -417,6 +417,7 @@
         <a class="btn btn-secondary px-4 py-2 mx-2" style="background-color: @secondaryColor; border: none;" asp-action="Index">
             <i class="bi bi-arrow-left"></i> Siyahıya Qayıt
         </a>
+
         <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignExperts" asp-route-id="@Model.Id">
             <i class="bi bi-person-plus"></i> Ekspert Təyin Et
         </a>
@@ -441,7 +442,7 @@
             <input type="hidden" name="examId" value="@Model.Id" />
             <button type="submit" class="btn btn-primary px-4 py-2 mx-2"
                     style="background-color: @primaryColor; border: none;">
-                <i class="bi bi-download"></i> Nəzarətçi Qeydiyyat Vərəqi
+                <i class="bi bi-download"></i> Qeydiyyat Vərəqi
             </button>
         </form>
 

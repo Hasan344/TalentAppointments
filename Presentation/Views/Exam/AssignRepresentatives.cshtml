@@ -2,10 +2,10 @@
 @model AssignRepresentativesToExamViewModel
 
 @{
-    ViewData["Title"] = "Representative Atama";
+    ViewData["Title"] = "Nümayəndə təyin etmə";
 }
 
-<h2>Representative Atama</h2>
+<h2>Nümayəndə təyin etmə</h2>
 
 <form asp-action="AssignRepresentatives" method="post">
     <input type="hidden" asp-for="ExamId" />
@@ -20,15 +20,15 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var rep in Model.Representatives)
+            @for (var i = 0; i < Model.Representatives.Count; i++)
             {
                 <tr>
                     <td>
-                        <input type="radio" name="SelectedRepresentativeId" value="@rep.Id" required />
+                        <input type="checkbox" name="SelectedRepresentativeIds" value="@Model.Representatives[i].Id" />
                     </td>
-                    <td>@rep.Name</td>
-                    <td>@rep.Surname</td>
-                    <td>@rep.FinCode</td>
+                    <td>@Model.Representatives[i].Name</td>
+                    <td>@Model.Representatives[i].Surname</td>
+                    <td>@Model.Representatives[i].FinCode</td>
                 </tr>
             }
         </tbody>
@@ -36,3 +36,4 @@
 
     <button type="submit" class="btn btn-primary">Atama Yap</button>
 </form>
+
