@@ -10,10 +10,29 @@
     <h1 class="text-center mb-4 ">İmtahan idarəetməsi</h1>
 
     <!-- Create New Exam Button -->
-    <div class="mb-4 text-end">
-        <a class="btn btn-sm btn-success shadow-sm" asp-action="Create">
-            <i class="bi bi-plus-circle"></i> Yeni imtahan yarat
-        </a>
+    <div class="mb-4 d-flex justify-content-between">
+        <div>
+            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="District" asp-action="Index">
+                <i class="bi bi-geo-alt"></i> Rayonlar
+            </a>
+            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="SubProfession" asp-action="Index">
+                <i class="bi bi-briefcase"></i> İxtisaslar
+            </a>
+            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="ExamBuilding" asp-action="Index">
+                <i class="bi bi-building"></i> İmtahan binaları
+            </a>
+            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="Commission" asp-action="Index">
+                <i class="bi "></i> Komissiyalar
+            </a>
+            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="Federation" asp-action="Index">
+                <i class="bi "></i> Federasiyalar
+            </a>
+        </div>
+        <div>
+            <a class="btn btn-sm btn-success shadow-sm" asp-action="Create">
+                <i class="bi bi-plus-circle"></i> Yeni imtahan yarat
+            </a>
+        </div>
     </div>
 
     <!-- Table with Bordered and Modern Design -->

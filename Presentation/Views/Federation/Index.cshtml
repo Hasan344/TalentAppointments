@@ -1,12 +1,11 @@
-﻿@model IEnumerable<ForQab.DataAccess.Models.SubProfession>
+﻿@model IEnumerable<ForQab.DataAccess.Models.Profession>
 
-<h2>İxtisaslar</h2>
+<h2>Federasiyalar</h2>
 
 <table class="table table-striped">
     <thead>
         <tr>
             <th>Ad</th>
-            <th>Federasiya</th> 
             <th>Bölmə</th>
             <th>Əməliyyatlar</th>
         </tr>
@@ -16,7 +15,6 @@
         {
                 <tr>
                     <td>@item.Name</td>
-                     <td>@(item.Profession != null ? item.Profession.Name : "Məlumat yoxdur")</td> 
                     <td>@(item.Section != null ? item.Section.Name : "Məlumat yoxdur")</td> 
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Edit</a>
@@ -27,4 +25,4 @@
     </tbody>
 </table>
 
-<a asp-action="Create" class="btn btn-primary">İxtisas Yarat</a>
+<a asp-action="Create" class="btn btn-primary">Federasiya Yarat</a>

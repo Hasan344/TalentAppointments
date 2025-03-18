@@ -19,7 +19,7 @@ public partial class Profession
 
     [ForeignKey("SectionId")]
     [InverseProperty("Professions")]
-    public virtual Section Section { get; set; } = null!;
+    public virtual Section? Section { get; set; } = null!;
 
     [InverseProperty("Profession")]
     public virtual ICollection<SubProfession> SubProfessions { get; set; } = new List<SubProfession>();
