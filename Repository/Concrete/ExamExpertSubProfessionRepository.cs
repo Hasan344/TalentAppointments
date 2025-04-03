@@ -37,7 +37,7 @@ namespace ForQab.Repository.Concrete
                 Console.WriteLine($"SubProfessionId {result} found for ExamId: {examId}, ExpertId: {expertId}");
             }
 
-            return result;
+            return (int)result;
         }
 
         public async Task RemoveSubProfessionsAsync(List<ExamExpertSubProfession> subProfessions)

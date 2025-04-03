@@ -25,15 +25,12 @@ namespace ForQab.Presentation.Filters
             {
                 var id = (int)context.ActionArguments["id"];
 
-                // Get the current user and their SectionId
                 var user = await _userManager.GetUserAsync(context.HttpContext.User);
                 var sectionId = user?.SectionId;
 
-                // Resolve DbContext dynamically
                 var dbContext = (DbContext)_serviceProvider.GetService(typeof(MyDbContext));
                 var dbSet = dbContext.Set<T>();
 
-                // Find the entity by ID
                 var entity = await dbSet.FindAsync(id);
                 if (entity == null)
                 {
@@ -41,7 +38,6 @@ namespace ForQab.Presentation.Filters
                     return;
                 }
 
-                // Check if the SectionId matches
                 var sectionIdProperty = typeof(T).GetProperty("SectionId");
                 if (sectionIdProperty == null)
                 {

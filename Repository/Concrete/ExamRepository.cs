@@ -11,6 +11,7 @@ using a = DocumentFormat.OpenXml.Drawing;
 using wp = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using pic = DocumentFormat.OpenXml.Drawing.Pictures;
 using Monitor = ForQab.DataAccess.Models.Monitor;
+using NuGet.Packaging;
 
 namespace ForQab.Repository.Concrete
 {
@@ -1186,5 +1187,70 @@ namespace ForQab.Repository.Concrete
             mainPart.Document.Body.InsertAt(imageParagraph, 0);
         }
 
+        public async Task AssignExpertsForMXToExamAsync(AssignExpertForMXToExamViewModel viewModel)
+        {
+            var exam = await _context.Exams
+                .Include(e => e.Experts) // Exam ile Experts ilişkisini yüklüyoruz
+                .FirstOrDefaultAsync(e => e.Id == viewModel.ExamId);
+
+            if (exam == null) return; // Eğer sınav bulunamazsa işlemi durdur
+
+            // Yeni ExamExpertSubProfession kayıtlarını oluştur
+            var examExpertList = viewModel.ExpertForms
+                .Select(expertForm => new ExamExpertSubProfession
+                {
+                    ExpertId = expertForm.ExpertId,
+                    ExamId = viewModel.ExamId,
+                    RoomId = expertForm.RoomId
+                })
+                .ToList();
+
+            // Yeni uzmanları ekleyelim (duplicate kontrolü yaparak)
+            foreach (var expertForm in viewModel.ExpertForms)
+            {
+                if (!exam.Experts.Any(e => e.Id == expertForm.ExpertId)) // Daha önce eklenmemişse ekle
+                {
+                    var expert = await _context.Experts.FindAsync(expertForm.ExpertId);
+                    if (expert != null)
+                    {
+                        exam.Experts.Add(expert);
+                    }
+                }
+            }
+
+            await _context.ExamExpertSubProfessions.AddRangeAsync(examExpertList);
+            await _context.SaveChangesAsync();
+        }
+
+
+
+        public async Task AssignMonitorsForMXToExamAsync(AssignMonitorForMXToExamViewModel viewModel)
+        {
+            var examMonitorList = viewModel.MonitorForms
+                .Select(monitorForm => new ExamMonitor
+                {
+                    MonitorId = monitorForm.MonitorId,
+                    ExamId = viewModel.ExamId,
+                    RoomId = monitorForm.RoomId
+                })
+                .ToList();
+
+            await _context.ExamMonitors.AddRangeAsync(examMonitorList);
+            await _context.SaveChangesAsync();
+        }
+        public async Task AssignWorkersForMXToExamAsync(AssignWorkerForMXToExamViewModel viewModel)
+        {
+            var examMonitorList = viewModel.MonitorForms
+                .Select(monitorForm => new ExamMonitor
+                {
+                    MonitorId = monitorForm.MonitorId,
+                    ExamId = viewModel.ExamId
+                })
+                .ToList();
+
+
+            await _context.ExamMonitors.AddRangeAsync(examMonitorList);
+            await _context.SaveChangesAsync();
+        }
     }
 }

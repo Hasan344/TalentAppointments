@@ -6,7 +6,6 @@ using ForQab.DataAccess.Models;
 
 namespace ForQab.Presentation.Controllers;
 
-
 [Authorize]
 public class HomeController : Controller
 {

@@ -58,7 +58,6 @@ namespace ForQab.Presentation.Controllers
             return View(monitor);
         }
 
-        // GET: Monitors/Create
         public async Task<IActionResult> Create()
         {
             var sectionId = await GetCurrentSectionIdAsync();
@@ -70,9 +69,6 @@ namespace ForQab.Presentation.Controllers
             return View();
         }
 
-        // POST: Monitors/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Monitor monitor)
@@ -82,13 +78,11 @@ namespace ForQab.Presentation.Controllers
 
             if (!result.IsValid)
             {
-                // FluentValidation hatalarını ModelState’e ekleyelim ki View içinde gösterilebilsin.
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                 }
 
-                // Hatalarla birlikte tekrar View’a döneceğiz.
                 await LoadViewData(monitor);
                 return View(monitor);
             }
@@ -96,16 +90,14 @@ namespace ForQab.Presentation.Controllers
             if (ModelState.IsValid)
             {
                 await _naturaService.AddAsync(monitor);
-                TempData["SuccessMessage"] = "İmtahan rəhbəri uğurla əlavə edildi.";
+                TempData["SuccessMessage"] = "Natura uğurla əlavə edildi.";
                 return RedirectToAction(nameof(Index));
             }
 
-            // Model geçersizse, sayfayı tekrar doldur ve hata mesajlarını göster.
             await LoadViewData(monitor);
             return View(monitor);
         }
 
-        // GET: Monitors/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var monitor = await _naturaService.GetByIdAsync(id);
@@ -121,9 +113,6 @@ namespace ForQab.Presentation.Controllers
             return View(monitor);
         }
 
-        // POST: Monitors/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Monitor monitor)

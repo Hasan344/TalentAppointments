@@ -9,6 +9,7 @@ using System.Data;
 using ForQab.Presentation.ViewModels;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Authorization;
+using ForQab.Migrations;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -50,6 +51,7 @@ namespace ForQab.Presentation.Controllers
 
             ViewBag.MonitorsWithLogs = viewModel.MonitorsWithLogs;
             ViewBag.ExpertsWithLogs = viewModel.ExpertsWithLogs;
+            ViewBag.SectionId = await GetCurrentSectionIdAsync();
 
             return View(viewModel);
         }
@@ -236,15 +238,158 @@ namespace ForQab.Presentation.Controllers
             model = await _examService.PrepareAssignExpertsViewModelAsync(exam);
             return View(model);
         }
+        [HttpGet]
+        public async Task<IActionResult> AssignExpertsForMX(int examId)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+
+            var rooms = await _context.ExamRooms.Where(er => er.SectionId == sectionId)
+        .Select(r => new RoomSelectListItem
+        {
+            Value = r.Id,
+            Text = r.Name
+        })
+        .ToListAsync();
+
+            var viewModel = new AssignExpertForMXToExamViewModel
+            {
+                ExamId = examId,
+                SectionId = (int)sectionId,
+                Rooms = rooms
+            };
+
+            return View(viewModel);
+        }
+
+        // POST: Ekspertleri atama işlemi
+        [HttpPost]
+        public async Task<IActionResult> AssignExpertsForMX(AssignExpertForMXToExamViewModel viewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Bütün bölmələri doldurun.";
+                return RedirectToAction(nameof(AssignExpertsForMX), new { examId = viewModel.ExamId, sectionId = viewModel.SectionId });
+            }
+
+            try
+            {
+                await _examService.AssignExpertsForMXToExamAsync(viewModel);
+                return RedirectToAction("Details", new { id = viewModel.ExamId });
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Ekspert təyinatı zamanı bir xəta baş verdi.";
+                return RedirectToAction(nameof(AssignExpertsForMX), new { examId = viewModel.ExamId, sectionId = viewModel.SectionId });
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> AssignMonitorsForMX(int examId)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var rooms = await _context.ExamRooms.Where(er => er.SectionId == sectionId)
+                .Select(r => new RoomSelectListItem
+                {
+                    Value = r.Id,
+                    Text = r.Name
+                })
+                .ToListAsync();
+
+            var roles = await _context.Roles.Where(r => r.Id <3)
+                .Select(w => new SelectListItem
+                {
+                    Value = w.Id.ToString(),
+                    Text = w.Name // Eğer Name kolonu varsa
+                })
+                .ToListAsync();
+
+            var viewModel = new AssignMonitorForMXToExamViewModel
+            {
+                ExamId = examId,
+                SectionId = (int)sectionId,
+                Rooms = rooms,
+                Roles = roles
+            };
+
+            return View(viewModel);
+        }
+
+
+        // POST: Ekspertleri atama işlemi
+        [HttpPost]
+        public async Task<IActionResult> AssignMonitorsForMX(AssignMonitorForMXToExamViewModel viewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Bütün bölmələri doldurun.";
+                return RedirectToAction(nameof(AssignMonitorsForMX), new { examId = viewModel.ExamId, sectionId = viewModel.SectionId });
+            }
+
+            try
+            {
+                await _examService.AssignMonitorsForMXToExamAsync(viewModel);
+                return RedirectToAction("Details", new { id = viewModel.ExamId });
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Təyinat zamanı bir xəta baş verdi.";
+                return RedirectToAction(nameof(AssignMonitorsForMX), new { examId = viewModel.ExamId, sectionId = viewModel.SectionId });
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> AssignWorkersForMX(int examId)
+        {
+
+            var workerTypes = await _context.WorkerTypes // WorkerType tablonuz varsa kullanın
+                .Select(w => new SelectListItem
+                {
+                    Value = w.Id.ToString(),
+                    Text = w.Name // Eğer Name kolonu varsa
+                })
+                .ToListAsync();
+
+            var sectionId = await GetCurrentSectionIdAsync();
+
+            var viewModel = new AssignWorkerForMXToExamViewModel
+            {
+                ExamId = examId,
+                SectionId = (int)sectionId,
+                WorkerTypes = workerTypes
+            };
+
+            return View(viewModel);
+        }
+
+
+        // POST: Ekspertleri atama işlemi
+        [HttpPost]
+        public async Task<IActionResult> AssignWorkersForMX(AssignWorkerForMXToExamViewModel viewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Bütün bölmələri doldurun.";
+                return RedirectToAction(nameof(AssignMonitorsForMX), new { examId = viewModel.ExamId, sectionId = viewModel.SectionId });
+            }
+
+            try
+            {
+                await _examService.AssignWorkersForMXToExamAsync(viewModel);
+                return RedirectToAction("Details", new { id = viewModel.ExamId });
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Təyinat zamanı bir xəta baş verdi.";
+                return RedirectToAction(nameof(AssignMonitorsForMX), new { examId = viewModel.ExamId, sectionId = viewModel.SectionId });
+            }
+        }
 
         private List<SelectListItem> GetKindOptions()
         {
             return new List<SelectListItem>
-    {
-        new SelectListItem { Value = "0", Text = "Gəlməyən haqqında qeyd" },
-        new SelectListItem { Value = "1", Text = "Xaric olan haqqında qeyd" },
-        new SelectListItem { Value = "2", Text = "Digər səbəblərlə bağlı qeyd" }
-    };
+            {
+                new SelectListItem { Value = "0", Text = "Gəlməyən haqqında qeyd" },
+                new SelectListItem { Value = "1", Text = "Xaric olan haqqında qeyd" },
+                new SelectListItem { Value = "2", Text = "Digər səbəblərlə bağlı qeyd" }
+            };
         }
         public async Task<IActionResult> WriteMonitorLog(int examId, int monitorId, byte kind)
         {
@@ -360,7 +505,7 @@ namespace ForQab.Presentation.Controllers
                         Console.WriteLine($"Monitor: {assignment.NumberOfMonitors}, IsReserve: {assignment.IsReserve}");
                     }
 
-                    TempData["SuccessMessage"] = "İmtahan rəhbərləri uğurla təyin edildi!";
+                    TempData["SuccessMessage"] = "Nəzarətçilər uğurla təyin edildi!";
                     return RedirectToAction(nameof(Details), new { id = model.ExamId });
                 }
                 catch (Exception ex)
@@ -420,7 +565,7 @@ namespace ForQab.Presentation.Controllers
                 catch (Exception ex)
                 {
                     ModelState.AddModelError(string.Empty, ex.Message);
-                    ViewBag.ErrorMessage = ex.Message; // Alternatif olarak
+                    ViewBag.ErrorMessage = ex.Message; 
                 }
             }
 
@@ -511,7 +656,6 @@ namespace ForQab.Presentation.Controllers
                 );
             }
 
-            // Excel dosyasını oluştur
             using (var workbook = new XLWorkbook())
             {
                 workbook.Worksheets.Add(dt, "Exams");
@@ -604,6 +748,51 @@ namespace ForQab.Presentation.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetExpertsByKons(bool kons)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var experts = await _context.Experts
+                .Where(e => e.Kons == kons && e.SectionId == sectionId).OrderBy(e => e.Name)
+                .Select(e => new SelectListItem
+                {
+                    Value = e.Id.ToString(),
+                    Text = e.Name + " " + e.Surname + " " + e.Fname 
+                })
+                .ToListAsync();
+
+            return Json(experts);
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetMonitorsByType(byte workerType)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var monitors = await _context.Monitors
+                .Where(e => e.WorkerType == workerType && e.SectionId == sectionId).OrderBy(e => e.Name)
+                .Select(e => new SelectListItem
+                {
+                    Value = e.Id.ToString(),
+                    Text = e.Name + " " + e.Surname + " " + e.Fname 
+                })
+                .ToListAsync();
+
+            return Json(monitors);
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetMonitorsByRole(int role)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var monitors = await _context.Monitors
+                .Where(e => e.Role == role && e.SectionId == sectionId).OrderBy(e => e.Name)
+                .Select(e => new SelectListItem
+                {
+                    Value = e.Id.ToString(),
+                    Text = e.Name + " " + e.Surname + " " + e.Fname
+                })
+                .ToListAsync();
+
+            return Json(monitors);
         }
 
     }

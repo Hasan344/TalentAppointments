@@ -1,0 +1,135 @@
+﻿@using ForQab.DataAccess.ViewModel.Exam
+@model AssignExpertForMXToExamViewModel
+
+<link rel="stylesheet" href="~/css/expert/Edit.css" asp-append-version="true" />
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-4 p-4">
+        <h2 class="mb-4 text-center text-dark fw-bold">İmtahana Ekspert və Konsertmeyster təyin Et</h2>
+        <h4 class="text-center text-muted">@ViewBag.ExamName</h4>
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger text-center">@TempData["ErrorMessage"]</div>
+        }
+
+        <form asp-action="AssignExpertsForMX" method="post" id="assignForm">
+            <input type="hidden" asp-for="ExamId" />
+            <input type="hidden" asp-for="SectionId" />
+
+            <div id="expertContainer">
+                <!-- İlk form burada olacak -->
+            </div>
+
+            <div class="mt-4 d-flex justify-content-center gap-3">
+                <button type="button" id="addExpertBtn" class="btn btn-outline-success px-4 py-2">Yeni Ekspert +</button>
+                <button type="submit" class="btn btn-primary px-4 py-2">Ekspert Təyin Et</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<template id="expertTemplate">
+    <div class="expert-form border p-3 mt-3 rounded shadow-sm">
+        <div class="mb-3">
+            <label class="form-label fw-bold">Kons Seçimi</label>
+            <select class="form-control konsSelect" name="ExpertForms[{{index}}].Kons">
+                <option value="">Seçin...</option>
+                <option value="false">Expert</option>
+                <option value="true">Konsertmeyster</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Expert Listesi</label>
+            <select class="form-control expertSelect" name="ExpertForms[{{index}}].ExpertId">
+                <option value="">Önce Kons seçin...</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Oda Seçimi</label>
+            <select class="form-control roomSelect" name="ExpertForms[{{index}}].RoomId">
+                <option value="">Oda seçin...</option>
+                @foreach (var room in Model.Rooms)
+                {
+                    <option value="@room.Value">@room.Text</option>
+                }
+            </select>
+        </div>
+
+        <button type="button" class="btn btn-danger btn-sm remove-expert-btn">✖ Eksperti Sil</button>
+    </div>
+</template>
+
+
+<script>
+    document.getElementById('addExpertBtn').addEventListener('click', function () {
+    var container = document.getElementById('expertContainer');
+    var template = document.getElementById('expertTemplate').innerHTML;
+
+    var index = container.children.length; // Yeni indeks belirle
+    template = template.replace(/{{index}}/g, index); // Indexleri güncelle
+
+    var div = document.createElement("div");
+    div.innerHTML = template;
+    container.appendChild(div);
+});
+
+// Dinamik olarak eklenen form satırlarını silme
+document.addEventListener('click', function (event) {
+    if (event.target.classList.contains('remove-expert-btn')) {
+        event.target.closest('.expert-form').remove();
+    }
+});
+
+
+    // Kons seçimine göre ekspert listesini dinamik olarak doldurma
+    document.addEventListener('change', function (event) {
+        if (event.target.classList.contains('konsSelect')) {
+            var konsValue = event.target.value;
+            var expertSelect = event.target.closest('.expert-form').querySelector('.expertSelect');
+
+            if (!konsValue) {
+                expertSelect.innerHTML = '<option value="">Önce Kons seçin...</option>';
+                return;
+            }
+
+            fetch(`/Exam/GetExpertsByKons?kons=${konsValue}`)
+                .then(response => response.json())
+                .then(data => {
+                    expertSelect.innerHTML = '<option value="">Seçin...</option>';
+                    data.forEach(expert => {
+                        var option = document.createElement("option");
+                        option.value = expert.value;
+                        option.textContent = expert.text;
+                        expertSelect.appendChild(option);
+                    });
+                });
+        }
+    });
+</script>
+
+<script>
+    document.getElementById("konsSelect").addEventListener("change", function () {
+        var konsValue = this.value;
+        var expertSelect = document.getElementById("expertSelect");
+        
+        if (!konsValue) {
+            expertSelect.innerHTML = '<option value="">Önce Kons seçin...</option>';
+            return;
+        }
+
+        fetch(`/Exam/GetExpertsByKons?kons=${konsValue}`)
+            .then(response => response.json())
+            .then(data => {
+                expertSelect.innerHTML = '<option value="">Seçin...</option>';
+                data.forEach(expert => {
+                    var option = document.createElement("option");
+                    option.value = expert.value;
+                    option.textContent = expert.text;
+                    expertSelect.appendChild(option);
+                });
+            });
+    });
+</script>
