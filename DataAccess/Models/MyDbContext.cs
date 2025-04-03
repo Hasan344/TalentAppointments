@@ -77,6 +77,8 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<WorkerType> WorkerTypes { get; set; }
 
+    public virtual DbSet<FinancialRate> FinancialRates { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
