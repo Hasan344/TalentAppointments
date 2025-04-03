@@ -6,21 +6,17 @@ namespace ForQab.DataAccess.Models
     [Table("Exam_Expert_SubProfessions")]
     public class ExamExpertSubProfession
     {
-        [Key]
         [Column("Exam_Id")]
         public int ExamId { get; set; }
 
-        [Key]
         [Column("Expert_Id")]
         public int ExpertId { get; set; }
 
-        [Key]
         [Column("SubProfession_Id")]
-        public int SubProfessionId { get; set; }
+        public int? SubProfessionId { get; set; }
 
-        [Key]
         [Column("Federation_Id")]
-        public int FederationId { get; set; }
+        public int? FederationId { get; set; }
 
         [Column("Room_Id")]
         public int? RoomId { get; set; }

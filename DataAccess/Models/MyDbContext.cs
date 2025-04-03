@@ -155,7 +155,7 @@ public partial class MyDbContext : DbContext
 
         modelBuilder.Entity<ExamExpertSubProfession>(entity =>
         {
-            entity.HasKey(e => new { e.ExamId, e.ExpertId, e.SubProfessionId, e.FederationId });
+            entity.HasKey(e => new { e.ExamId, e.ExpertId});
         });
 
         modelBuilder.Entity<ExamExpertSubProfession>()

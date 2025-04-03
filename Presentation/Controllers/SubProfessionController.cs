@@ -55,7 +55,7 @@ namespace ForQab.Presentation.Controllers
             }
 
             ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
-            ViewBag.ProfessionList = new SelectList(await _context.Professions.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
+            ViewBag.ProfessionList = new SelectList(await _context.Professions.Where(s => s.SectionId == sectionId).ToListAsync(), "Id", "Name");
             return View(subProfession);
         }
 
@@ -71,7 +71,7 @@ namespace ForQab.Presentation.Controllers
                 return Forbid();
 
             ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
-            ViewBag.ProfessionList = new SelectList(await _context.Professions.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
+            ViewBag.ProfessionList = new SelectList(await _context.Professions.Where(s => s.SectionId == sectionId).ToListAsync(), "Id", "Name");
             return View(subProfession);
         }
 
@@ -102,7 +102,7 @@ namespace ForQab.Presentation.Controllers
             var sectionId = await GetCurrentSectionIdAsync();
 
             ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
-            ViewBag.ProfessionList = new SelectList(await _context.Professions.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
+            ViewBag.ProfessionList = new SelectList(await _context.Professions.Where(s => s.SectionId == sectionId).ToListAsync(), "Id", "Name");
             return View(subProfession);
         }
 

@@ -356,7 +356,18 @@ namespace ForQab.Service
         {
             await _examRepository.AssignRandomMonitorsToExamAsync(examId, numberOfMonitors, genderId, maxDate, roomId);
         }
-
+        public async Task AssignExpertsForMXToExamAsync(AssignExpertForMXToExamViewModel viewModel)
+        {
+            await _examRepository.AssignExpertsForMXToExamAsync(viewModel);
+        }
+        public async Task AssignMonitorsForMXToExamAsync(AssignMonitorForMXToExamViewModel viewModel)
+        {
+            await _examRepository.AssignMonitorsForMXToExamAsync(viewModel);
+        }
+        public async Task AssignWorkersForMXToExamAsync(AssignWorkerForMXToExamViewModel viewModel)
+        {
+            await _examRepository.AssignWorkersForMXToExamAsync(viewModel);
+        }
         public async Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate)
         {
             await _examRepository.AssignRandomHeadMonitorsToExamAsync(examId, numberOfMonitors, genderId, maxDate);
@@ -503,7 +514,7 @@ namespace ForQab.Service
                 table.AppendChild(tblProp);
 
                 var headerRow = new TableRow();
-                headerRow.Append(CreateTableCell("S/s", true, 1000));         
+                headerRow.Append(CreateTableCell("S/s", true, 1000));
                 headerRow.Append(CreateTableCell("Məntəqə kodu", true, 1500));
                 headerRow.Append(CreateTableCell("Vəzifə", true, 3000));
                 headerRow.Append(CreateTableCell("Soyadı, adı, ata adı", true, 6000));
@@ -571,12 +582,12 @@ namespace ForQab.Service
                 body.AppendChild(table);
                 body.AppendChild(CreateItalicParagraph("Qeyd. İmtahana gəlməyən nəzarətçilərin qarşısında (imza bölməsində) iştirakçıların imtahan binasına buraxılışı başlandıqdan sonra “gəlmədi” yazılır.", 10));
 
-                if(exam.SectionId == 1)
+                if (exam.SectionId == 1)
                 {
                     body.AppendChild(CreateCenteredBoldParagraph("\nÜmumi imtahan rəhbəri: _________ / _______________________ / ", 12));
                 }
 
-                
+
                 mainPart.Document.Save();
             }
 
@@ -700,12 +711,13 @@ namespace ForQab.Service
                     Surname = e.Surname,
                     Fname = e.Fname,
                     FinCode = e.FinCode,
+                    Kons = e.Kons,
                     ExamExpertSubProfessions = e.ExamExpertSubProfessions
-                        .Where(eesp => eesp.SubProfession != null && eesp.Federation != null)
+                        //.Where(eesp => eesp.SubProfession != null && eesp.Federation != null)
                         .Select(eesp => new SubProfessionViewModelForExam
                         {
-                            Name = eesp.SubProfession.Name,
-                            FederationName = eesp.Federation.Name,
+                            Name = eesp.SubProfession?.Name,
+                            FederationName = eesp.Federation?.Name,
                             RoomName = eesp.ExamRoom?.Name
                         }).ToList()
                 }).ToList(),
@@ -717,6 +729,11 @@ namespace ForQab.Service
                     Fname = m.Fname,
                     FinCode = m.FinCode,
                     Role = m.Role,
+                    WorkerType = _context.WorkerTypes
+                                            .Where(wt => wt.Id == m.WorkerType)
+                                            .Select(wt => wt.Name)
+                                            .FirstOrDefault(),
+
                     Rooms = m.ExamMonitors.Where(em => em.ExamRooms != null).Select(em => new RoomViewModelForExam
                     {
                         RoomName = em.ExamRooms?.Name

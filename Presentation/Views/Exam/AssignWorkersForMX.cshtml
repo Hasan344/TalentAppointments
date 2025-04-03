@@ -1,0 +1,128 @@
+﻿@using ForQab.DataAccess.ViewModel.Exam
+@model AssignWorkerForMXToExamViewModel
+
+<link rel="stylesheet" href="~/css/expert/Edit.css" asp-append-version="true" />
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-4 p-4">
+        <h2 class="mb-4 text-center text-dark fw-bold">İmtahana digər işçiləri təyin Et</h2>
+        <h4 class="text-center text-muted">@ViewBag.ExamName</h4>
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger text-center">@TempData["ErrorMessage"]</div>
+        }
+
+        <form asp-action="AssignMonitorsForMX" method="post" id="assignForm">
+            <input type="hidden" asp-for="ExamId" />
+            <input type="hidden" asp-for="SectionId" />
+
+            <div id="monitorContainer">
+                <!-- İlk form burada olacak -->
+            </div>
+
+            <div class="mt-4 d-flex justify-content-center gap-3">
+                <button type="button" id="addMonitorBtn" class="btn btn-outline-success px-4 py-2">Yeni Ekspert +</button>
+                <button type="submit" class="btn btn-primary px-4 py-2">Ekspert Təyin Et</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<template id="monitorTemplate">
+    <div class="monitor-form border p-3 mt-3 rounded shadow-sm">
+        <div class="mb-3">
+            <label class="form-label fw-bold">Worker Type</label>
+            <select class="form-control typeSelect" name="MonitorForms[{{index}}].WorkerType">
+                <option value="">Seçin...</option>
+                @foreach (var type in Model.WorkerTypes)
+                {
+                    <option value="@type.Value">@type.Text</option>
+                }
+            </select>
+        </div>
+
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Monitor Listesi</label>
+            <select class="form-control monitorSelect" name="MonitorForms[{{index}}].MonitorId">
+                <option value="">Önce type seçin...</option>
+            </select>
+        </div>
+
+
+        <button type="button" class="btn btn-danger btn-sm remove-monitor-btn">✖ Eksperti Sil</button>
+    </div>
+</template>
+
+
+<script>
+    document.getElementById('addMonitorBtn').addEventListener('click', function () {
+    var container = document.getElementById('monitorContainer');
+    var template = document.getElementById('monitorTemplate').innerHTML;
+
+    var index = container.children.length; // Yeni indeks belirle
+    template = template.replace(/{{index}}/g, index); // Indexleri güncelle
+
+    var div = document.createElement("div");
+    div.innerHTML = template;
+    container.appendChild(div);
+});
+
+document.addEventListener('click', function (event) {
+    if (event.target.classList.contains('remove-monitor-btn')) {
+        event.target.closest('.monitor-form').remove();
+    }
+});
+
+
+    document.addEventListener('change', function (event) {
+    if (event.target.classList.contains('typeSelect')) {
+        var typeValue = event.target.value;
+        var monitorSelect = event.target.closest('.monitor-form').querySelector('.monitorSelect');
+
+        if (!typeValue) {
+            monitorSelect.innerHTML = '<option value="">Önce type seçin...</option>';
+            return;
+        }
+
+        fetch(`/Exam/GetMonitorsByType?workerType=${typeValue}`)
+            .then(response => response.json())
+            .then(data => {
+                monitorSelect.innerHTML = '<option value="">Seçin...</option>';
+                data.forEach(monitor => {
+                    var option = document.createElement("option");
+                    option.value = monitor.value;
+                    option.textContent = monitor.text;
+                    monitorSelect.appendChild(option);
+                });
+            });
+    }
+});
+
+</script>
+
+@* <script>
+    document.getElementById("typeSelect").addEventListener("change", function () {
+        var typeValue = this.value;
+        var monitorSelect = document.getElementById("monitorSelect");
+        
+        if (!typeValue) {
+            monitorSelect.innerHTML = '<option value="">Önce type seçin...</option>';
+            return;
+        }
+
+        fetch(`/Exam/GetMonitorsByType?type=${typeValue}`)
+            .then(response => response.json())
+            .then(data => {
+                monitorSelect.innerHTML = '<option value="">Seçin...</option>';
+                data.forEach(monitor => {
+                    var option = document.createElement("option");
+                    option.value = monitor.value;
+                    option.textContent = monitor.text;
+                    monitorSelect.appendChild(option);
+                });
+            });
+    });
+</script>
+ *@

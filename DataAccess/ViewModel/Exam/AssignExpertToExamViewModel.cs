@@ -15,6 +15,7 @@ namespace ForQab.DataAccess.ViewModel.Exam
         public int SelectedFederation { get; set; }
         public int[]? SelectedFederations { get; set; }
         public List<ExpertAssignmentViewModel> Assignments { get; set; } = new();
+        public Boolean? Kons { get; set; }
     }
 
     public class ExpertAssignmentViewModel
