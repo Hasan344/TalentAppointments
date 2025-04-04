@@ -9,7 +9,6 @@ using System.Data;
 using ForQab.Presentation.ViewModels;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Authorization;
-using ForQab.Migrations;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -294,7 +293,7 @@ namespace ForQab.Presentation.Controllers
                 })
                 .ToListAsync();
 
-            var roles = await _context.Roles.Where(r => r.Id <3)
+            var roles = await _context.Roles.Where(r => r.Id < 3)
                 .Select(w => new SelectListItem
                 {
                     Value = w.Id.ToString(),
@@ -492,7 +491,7 @@ namespace ForQab.Presentation.Controllers
                     foreach (var assignment in model.Assignments)
                     {
 
-                        int genderId = assignment.GenderId.HasValue ? assignment.GenderId.Value:0;
+                        int genderId = assignment.GenderId.HasValue ? assignment.GenderId.Value : 0;
                         int roomId = assignment.RoomId.HasValue ? assignment.RoomId.Value : 0;
                         DateOnly maxDate = assignment.MaxDate.HasValue ? assignment.MaxDate.Value : new DateOnly();
                         await _examService.AssignRandomMonitorsToExamAsync(
@@ -565,7 +564,7 @@ namespace ForQab.Presentation.Controllers
                 catch (Exception ex)
                 {
                     ModelState.AddModelError(string.Empty, ex.Message);
-                    ViewBag.ErrorMessage = ex.Message; 
+                    ViewBag.ErrorMessage = ex.Message;
                 }
             }
 
@@ -584,7 +583,16 @@ namespace ForQab.Presentation.Controllers
 
             await _examService.AssignWorkersToExamAsync(id);
 
-            return RedirectToAction(nameof(Details), new { id});
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignVolunteers(int id)
+        {
+
+            await _examService.AssignVolunteersToExamAsync(id);
+
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         public IActionResult ExpertDetails(int id)
@@ -758,7 +766,7 @@ namespace ForQab.Presentation.Controllers
                 .Select(e => new SelectListItem
                 {
                     Value = e.Id.ToString(),
-                    Text = e.Name + " " + e.Surname + " " + e.Fname 
+                    Text = e.Name + " " + e.Surname + " " + e.Fname
                 })
                 .ToListAsync();
 
@@ -773,7 +781,7 @@ namespace ForQab.Presentation.Controllers
                 .Select(e => new SelectListItem
                 {
                     Value = e.Id.ToString(),
-                    Text = e.Name + " " + e.Surname + " " + e.Fname 
+                    Text = e.Name + " " + e.Surname + " " + e.Fname
                 })
                 .ToListAsync();
 
@@ -794,6 +802,17 @@ namespace ForQab.Presentation.Controllers
 
             return Json(monitors);
         }
+        public IActionResult ExportExamData()
+        {
+            return View(); // Tarih seçimi için bir form gösterilecek
+        }
 
+        [HttpPost]
+        
+        public async Task<IActionResult> ExportExamData(DateOnly selectedDate)
+        {
+            var fileContent = await _examService.GetExamDataForExport(selectedDate);
+            return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"ExamData_{selectedDate}.xlsx");
+        }
     }
 }

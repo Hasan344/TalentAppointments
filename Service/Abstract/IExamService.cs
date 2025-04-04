@@ -17,6 +17,7 @@ namespace ForQab.Service.Abstract
         Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate, int? roomId);
         Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate);
         Task AssignWorkersToExamAsync(int examId);
+        Task AssignVolunteersToExamAsync(int examId);
         Task AssignExpertsForMXToExamAsync(AssignExpertForMXToExamViewModel viewModel);
         Task AssignMonitorsForMXToExamAsync(AssignMonitorForMXToExamViewModel viewModel);
         Task AssignWorkersForMXToExamAsync(AssignWorkerForMXToExamViewModel viewModel);
@@ -51,6 +52,7 @@ namespace ForQab.Service.Abstract
         Task RemoveExpertsFromExamAsync(int examId, List<int> expertIds);
         Task RemoveMonitorsFromExamAsync(int examId, List<int> monitorIds);
         Task<byte[]> ExportExamToWordAsync(int examId);
+        Task<byte[]> GetExamDataForExport(DateOnly selectedDate);
 
     }
 }

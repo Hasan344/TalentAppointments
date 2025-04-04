@@ -32,7 +32,7 @@
 <template id="expertTemplate">
     <div class="expert-form border p-3 mt-3 rounded shadow-sm">
         <div class="mb-3">
-            <label class="form-label fw-bold">Kons Seçimi</label>
+            <label class="form-label fw-bold">Vəzifə Seçimi</label>
             <select class="form-control konsSelect" name="ExpertForms[{{index}}].Kons">
                 <option value="">Seçin...</option>
                 <option value="false">Expert</option>
@@ -41,14 +41,14 @@
         </div>
 
         <div class="mb-3">
-            <label class="form-label fw-bold">Expert Listesi</label>
+            <label class="form-label fw-bold">Ekspert Siyahısı</label>
             <select class="form-control expertSelect" name="ExpertForms[{{index}}].ExpertId">
                 <option value="">Önce Kons seçin...</option>
             </select>
         </div>
 
         <div class="mb-3">
-            <label class="form-label fw-bold">Oda Seçimi</label>
+            <label class="form-label fw-bold">Otaq Seçimi</label>
             <select class="form-control roomSelect" name="ExpertForms[{{index}}].RoomId">
                 <option value="">Oda seçin...</option>
                 @foreach (var room in Model.Rooms)

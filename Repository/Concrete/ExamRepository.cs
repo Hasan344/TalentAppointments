@@ -11,7 +11,6 @@ using a = DocumentFormat.OpenXml.Drawing;
 using wp = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using pic = DocumentFormat.OpenXml.Drawing.Pictures;
 using Monitor = ForQab.DataAccess.Models.Monitor;
-using NuGet.Packaging;
 
 namespace ForQab.Repository.Concrete
 {
@@ -647,7 +646,30 @@ namespace ForQab.Repository.Concrete
 
             await _context.SaveChangesAsync();
         }
+        public async Task AssignVolunteersToExamAsync(int examId)
+        {
+            var exam = await _context.Exams
+                .Include(e => e.Monitors)
+                .Where(e => e.SectionId == 1)
+                .FirstOrDefaultAsync(e => e.Id == examId);
 
+            if (exam == null)
+            {
+                throw new ArgumentException("Exam not found.");
+            }
+
+            var selectedVolunteers = await _context.Monitors
+                .Where(r => r.Role == 4)
+                .ToListAsync();
+
+
+            foreach (var rep in selectedVolunteers)
+            {
+                exam.Monitors.Add(rep);
+            }
+
+            await _context.SaveChangesAsync();
+        }
         public async Task<MemoryStream> ExportExamScheduleToWord()
         {
             var exams = await _context.Exams

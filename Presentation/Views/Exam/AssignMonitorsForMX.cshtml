@@ -22,8 +22,8 @@
             </div>
 
             <div class="mt-4 d-flex justify-content-center gap-3">
-                <button type="button" id="addMonitorBtn" class="btn btn-outline-success px-4 py-2">Yeni Ekspert +</button>
-                <button type="submit" class="btn btn-primary px-4 py-2">Ekspert Təyin Et</button>
+                <button type="button" id="addMonitorBtn" class="btn btn-outline-success px-4 py-2">Yeni Nəzarətçi +</button>
+                <button type="submit" class="btn btn-primary px-4 py-2">Nəzarətçi Təyin Et</button>
             </div>
         </form>
     </div>
@@ -32,7 +32,7 @@
 <template id="monitorTemplate">
     <div class="monitor-form border p-3 mt-3 rounded shadow-sm">
         <div class="mb-3">
-            <label class="form-label fw-bold">Tip</label>
+            <label class="form-label fw-bold">Vəzifə</label>
             <select class="form-control roleSelect" name="MonitorForms[{{index}}].Role">
                 <option value="">Seçin...</option>
                 @foreach (var role in Model.Roles)
@@ -44,14 +44,14 @@
 
 
         <div class="mb-3">
-            <label class="form-label fw-bold">Monitor Listesi</label>
+            <label class="form-label fw-bold">Siyahı</label>
             <select class="form-control monitorSelect" name="MonitorForms[{{index}}].MonitorId">
-                <option value="">Önce role seçin...</option>
+                <option value="">Əvvəlcə vəzifə seçin...</option>
             </select>
         </div>
 
         <div class="mb-3">
-            <label class="form-label fw-bold">Oda Seçimi</label>
+            <label class="form-label fw-bold">Otaq Seçimi</label>
             <select class="form-control roomSelect" name="MonitorForms[{{index}}].RoomId">
                 <option value="">Oda seçin...</option>
                 @foreach (var room in Model.Rooms)
@@ -61,7 +61,7 @@
             </select>
         </div>
 
-        <button role="button" class="btn btn-danger btn-sm remove-monitor-btn">✖ Eksperti Sil</button>
+        <button role="button" class="btn btn-danger btn-sm remove-monitor-btn">✖ Nəzarətçini Sil</button>
     </div>
 </template>
 

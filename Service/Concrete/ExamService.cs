@@ -11,6 +11,8 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml;
 using System.Threading;
+using ClosedXML.Excel;
+using Monitor = ForQab.DataAccess.Models.Monitor;
 
 namespace ForQab.Service
 {
@@ -450,6 +452,11 @@ namespace ForQab.Service
         {
             await _examRepository.AssignWorkersToExamAsync(examId);
         }
+        
+        public async Task AssignVolunteersToExamAsync(int examId)
+        {
+            await _examRepository.AssignVolunteersToExamAsync(examId);
+        }
 
         public Task<MemoryStream> ExportExamScheduleToWord()
         {
@@ -790,6 +797,179 @@ namespace ForQab.Service
             }
 
             await _examRepository.SaveAsync();
+        }
+        public async Task<byte[]> GetExamDataForExport(DateOnly selectedDate)
+        {
+            var exams = _context.Exams
+                .Include(e => e.Monitors)
+                    .ThenInclude(em => em.WorkerTypeNavigation)
+                .Include(e => e.Experts)
+                .Where(e => e.ExamDate == selectedDate)
+                .ToList();
+
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add("Exam Data");
+
+            worksheet.Cell(1, 1).Value = "Vəsiqə nömrəsi";
+            worksheet.Cell(1, 2).Value = "Rayon";
+            worksheet.Cell(1, 3).Value = "SOY";
+            worksheet.Cell(1, 4).Value = "ADI";
+            worksheet.Cell(1, 5).Value = "ATA";
+            worksheet.Cell(1, 6).Value = "BINA";
+            worksheet.Cell(1, 7).Value = "IMT_KOD";
+            worksheet.Cell(1, 8).Value = "IL";
+            worksheet.Cell(1, 9).Value = "IMT_GUN";
+            worksheet.Cell(1, 10).Value = "IMT_AY";
+            worksheet.Cell(1, 11).Value = "imt_vezife";
+            worksheet.Cell(1, 12).Value = "Muqavile";
+            worksheet.Cell(1, 13).Value = "MuqavileNo";
+            worksheet.Cell(1, 14).Value = "CINS";
+            worksheet.Cell(1, 15).Value = "SERIYA_P";
+            worksheet.Cell(1, 16).Value = "NUM_POSP";
+            worksheet.Cell(1, 17).Value = "TELEFON";
+            worksheet.Cell(1, 18).Value = "SV_PINKOD";
+            worksheet.Cell(1, 19).Value = "VOEN";
+            worksheet.Cell(1, 20).Value = "Hesablashma";
+            worksheet.Cell(1, 21).Value = "rekvizit";
+            worksheet.Cell(1, 22).Value = "SSN";
+            worksheet.Cell(1, 23).Value = "Bank_Filialı";
+            worksheet.Cell(1, 24).Value = "Bank_Filial_Kodu";
+            worksheet.Cell(1, 25).Value = "Novbe";
+            worksheet.Cell(1, 26).Value = "İstiqamət";
+
+            int row = 2;
+            foreach (var exam in exams)
+            {
+                foreach (var monitor in exam.Monitors) // Her Monitor için ayrı satır
+                {
+                    worksheet.Cell(row, 1).Value = monitor.VNum;
+                    worksheet.Cell(row, 2).Value = exam.DistrictId;
+                    worksheet.Cell(row, 3).Value = monitor.Surname;
+                    worksheet.Cell(row, 4).Value = monitor.Name;
+                    worksheet.Cell(row, 5).Value = monitor.Fname;
+                    worksheet.Cell(row, 6).Value = exam.ExamBuldingId;
+                    worksheet.Cell(row, 7).Value = 38;
+                    worksheet.Cell(row, 8).Value = exam.ExamDate.Year;
+                    worksheet.Cell(row, 9).Value = exam.ExamDate.Day;
+                    worksheet.Cell(row, 10).Value = exam.ExamDate.Month;
+                    if (monitor.Role == 2 && exam.SectionId != 2)
+                    {
+                        worksheet.Cell(row, 11).Value = "1,2";
+                    }
+                    else if (monitor.Role == 1 && exam.SectionId != 2)
+                    {
+                        worksheet.Cell(row, 11).Value = "3,1";
+                    }
+                    else if (monitor.WorkerType == 1)
+                    {
+                        worksheet.Cell(row, 11).Value = "30";
+                    }
+                    else if (monitor.WorkerType == 2)
+                    {
+                        worksheet.Cell(row, 11).Value = "29";
+                    }
+                    else if (monitor.WorkerType == 3)
+                    {
+                        worksheet.Cell(row, 11).Value = "30,1";
+                    }
+                    else if (monitor.Role == 1 && exam.SectionId == 2 && (exam.EndTime.Value - exam.StartTime.Value).Hours == 6)
+                    {
+                        worksheet.Cell(row, 11).Value = "92";
+                    }
+                    else if (monitor.Role == 1 && exam.SectionId == 2 && (exam.EndTime.Value - exam.StartTime.Value).TotalHours == 4.5)
+                    {
+                        worksheet.Cell(row, 11).Value = "93";
+                    }
+                    else if (monitor.Role == 1 && exam.SectionId == 2)
+                    {
+                        worksheet.Cell(row, 11).Value = "3,1";
+                    }
+                    else if (monitor.Role == 2 && exam.SectionId == 2 && (exam.EndTime.Value - exam.StartTime.Value).Hours == 6)
+                    {
+                        worksheet.Cell(row, 11).Value = "90";
+                    }
+                    else if (monitor.Role == 2 && exam.SectionId == 2 && (exam.EndTime.Value - exam.StartTime.Value).TotalHours == 4.5)
+                    {
+                        worksheet.Cell(row, 11).Value = "91";
+                    }
+
+                    else if (monitor.Role == 2 && exam.SectionId == 2)
+                    {
+                        worksheet.Cell(row, 11).Value = "1,2";
+                    }
+                    worksheet.Cell(row, 12).Value = monitor.ContractDate?.ToString() ?? "";
+                    worksheet.Cell(row, 13).Value = monitor.ContractNo;
+                    worksheet.Cell(row, 14).Value = monitor.Gender;
+                    worksheet.Cell(row, 15).Value = "";
+                    worksheet.Cell(row, 16).Value = monitor.Serial ?? "";
+                    worksheet.Cell(row, 17).Value = monitor.TelIs;
+                    worksheet.Cell(row, 18).Value = monitor.FinCode;
+                    worksheet.Cell(row, 19).Value = monitor.Voen;
+                    worksheet.Cell(row, 20).Value = monitor.HesablashmaH;
+                    worksheet.Cell(row, 21).Value = monitor.Rekvizit;
+                    worksheet.Cell(row, 22).Value = monitor.SSN;
+                    worksheet.Cell(row, 23).Value = monitor.BankFilial;
+                    worksheet.Cell(row, 24).Value = monitor.BankFilialCode;
+                    worksheet.Cell(row, 25).Value = exam.Shift;
+                    worksheet.Cell(row, 26).Value = exam.SectionId;
+                    row++;
+                }
+                if (exam.SectionId != 1)
+                {
+                    foreach (var expert in exam.Experts) // Her Monitor için ayrı satır
+                    {
+                        worksheet.Cell(row, 1).Value = "";
+                        worksheet.Cell(row, 2).Value = exam.DistrictId;
+                        worksheet.Cell(row, 3).Value = expert.Surname;
+                        worksheet.Cell(row, 4).Value = expert.Name;
+                        worksheet.Cell(row, 5).Value = expert.Fname;
+                        worksheet.Cell(row, 6).Value = exam.ExamBuldingId;
+                        worksheet.Cell(row, 7).Value = 38;
+                        worksheet.Cell(row, 8).Value = exam.ExamDate.Year;
+                        worksheet.Cell(row, 9).Value = exam.ExamDate.Day;
+                        worksheet.Cell(row, 10).Value = exam.ExamDate.Month;
+                        if (expert.Kons == false)
+                        {
+                            worksheet.Cell(row, 11).Value = "6";
+                        }
+                        else if (expert.Kons == true)
+                        {
+                            worksheet.Cell(row, 11).Value = "6,1";
+                        }
+                        worksheet.Cell(row, 12).Value = /*expert.ContractDate?.ToString() ??*/ "";
+                        worksheet.Cell(row, 13).Value = /*expert.ContractNo*/ "";
+                        worksheet.Cell(row, 14).Value = expert.Gender;
+                        worksheet.Cell(row, 15).Value = "";
+                        worksheet.Cell(row, 16).Value = expert.Serial ?? "";
+                        worksheet.Cell(row, 17).Value = expert.TelIs;
+                        worksheet.Cell(row, 18).Value = expert.FinCode;
+                        worksheet.Cell(row, 19).Value = expert.Voen;
+                        worksheet.Cell(row, 20).Value = expert.HesablashmaH;
+                        worksheet.Cell(row, 21).Value = expert.Rekvizit;
+                        worksheet.Cell(row, 22).Value = expert.SSN;
+                        worksheet.Cell(row, 23).Value = expert.BankFilial;
+                        worksheet.Cell(row, 24).Value = expert.BankFilialCode;
+                        worksheet.Cell(row, 25).Value = exam.Shift;
+                        worksheet.Cell(row, 26).Value = exam.SectionId;
+                        row++;
+                    }
+                }
+
+            }
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            return stream.ToArray();
+        }
+
+        private string GetMonitorRoleValue(Monitor monitor, Exam exam)
+        {
+            if (monitor.Role == 2 && exam.SectionId != 2) return "1,2";
+            if (monitor.Role == 1 && exam.SectionId != 2) return "3,1";
+            if (monitor.WorkerType == 1) return "30";
+            if (monitor.WorkerType == 2) return "29";
+            if (monitor.WorkerType == 3) return "30,1";
+            return "";
         }
     }
 }
