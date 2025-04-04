@@ -15,3 +15,4 @@ public partial class FinancialRate
     public string Article { get; set; } = null!;
     [Column(TypeName = "decimal(18,2)")]
     public decimal Rate { get; set; }
+}

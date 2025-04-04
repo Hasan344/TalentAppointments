@@ -385,7 +385,28 @@
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir İmtahan rəhbəri təyin edilməyib.</p>
         }
     </div>
+    @if(ViewBag.SectionId == 1)
+    {
+         <!-- Assigned Volunteers Section -->
+    <div class="mt-4">
+        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Könüllülər</h4>
+        @{
+            var volunteers = Model.Monitors.Where(m => m.Role == 4);
+        }
+        @if (volunteers.Any())
+        {
+            <p class="text-center fw-semibold" style="color: #198754; font-size: 1.2rem; letter-spacing: 0.5px;">
+                 <i class="fas fa-check-circle" style="color: #198754;"></i> Könüllülər təyin edilmişdir.
+            </p>
 
+        }
+        else
+        {
+            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir könüllü təyin edilməyib.</p>
+        }
+    </div>
+    }
+   
 
     <!-- Assigned Workers Section -->
     <div class="mt-4">
@@ -434,7 +455,7 @@
         }
         else
         {
-            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nəzarətçi təyin edilməyib.</p>
+            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir işçi təyin edilməyib.</p>
         }
     </div>
     <!-- Assigned Representatives Section -->
@@ -478,13 +499,20 @@
         }
         else
         {
-            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nəzarətçi təyin edilməyib.</p>
+            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nümayəndə təyin edilməyib.</p>
         }
     </div>
 
 
-
+    <div class="text-center mt-4">
     
+            <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="Edit" asp-route-id="@Model.Id">
+                <i class="bi bi-pencil"></i> Redaktə Et
+            </a>
+            <a class="btn btn-secondary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="Index">
+                <i class="bi bi-arrow-left"></i> Siyahıya Qayıt
+            </a>
+            </div>
     @if(ViewBag.SectionId == 3 || @ViewBag.SectionId == 4 )
     {
 
@@ -492,33 +520,27 @@
             <a asp-action="AssignExpertsForMX"
                asp-controller="Exam"
                asp-route-examId="@Model.Id"
-               class="btn btn-primary">
-                Ekspert və Konsertmeyster Təyin Et
+               class="btn btn-primary px-4 py-2 mx-2">
+                <i class="bi bi-person-plus"></i>Ekspert və Konsertmeyster Təyin Et
             </a>
             <a asp-action="AssignMonitorsForMX"
                asp-controller="Exam"
                asp-route-examId="@Model.Id"
-               class="btn btn-primary">
+               class="btn btn-primary px-4 py-2 mx-2">
+               <i class="bi bi-person-plus"></i>
                 Nəzarətçi və İmtahan rəhbəri Təyin Et
             </a>
-            <a asp-action="AssignWorkersForMX"
-               asp-controller="Exam"
-               asp-route-examId="@Model.Id"
-               class="btn btn-primary">
-                Digər işçiləri Təyin Et
-            </a>
+            <form asp-action="AssignWorkers" asp-route-id="@Model.Id" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
+                    <i class="bi bi-person-plus"></i> İşçi Təyin Et
+                </button>
+            </form>
         </div>
     }
     else
     {
         <!-- Action Buttons -->
-        <div class="text-center mt-4">
-            <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="Edit" asp-route-id="@Model.Id">
-                <i class="bi bi-pencil"></i> Redaktə Et
-            </a>
-            <a class="btn btn-secondary px-4 py-2 mx-2" style="background-color: @secondaryColor; border: none;" asp-action="Index">
-                <i class="bi bi-arrow-left"></i> Siyahıya Qayıt
-            </a>
+         <div class="text-center mt-4">
 
             <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignExperts" asp-route-id="@Model.Id">
                 <i class="bi bi-person-plus"></i> Ekspert Təyin Et
@@ -538,6 +560,15 @@
             <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignRepresentatives" asp-route-examId="@Model.Id">
                 <i class="bi bi-plus-circle"></i> Nümayəndə təyin et
             </a>
+        </div>
+    }
+     @if(ViewBag.SectionId == 1)
+    { <div class="text-center mt-4">
+        <form asp-action="AssignVolunteers" asp-route-id="@Model.Id" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
+                    <i class="bi bi-person-plus"></i> Könüllü Təyin Et
+                </button>
+            </form>
         </div>
     }
     <div class="text-center mt-4">

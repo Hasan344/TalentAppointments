@@ -65,7 +65,7 @@ namespace ForQab.Presentation.Controllers
         // POST: Volunteer/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Surname,Fname,Region,SectionId,0,Gender,Role,VNum,Profession,Workplace,Position,Age,Foto,TelEv,TelIs,FinCode,Serial,District")] DataAccess.Models.Monitor monitor)
+        public async Task<IActionResult> Create(Monitor monitor)
         {
             var validator = new VolunteerValidator();
             var result = validator.Validate(monitor);

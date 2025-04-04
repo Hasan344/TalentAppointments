@@ -10,7 +10,7 @@ namespace ForQab.Presentation.Validators
             RuleFor(m => m.Name).NotEmpty();
             RuleFor(m => m.Surname).NotEmpty();
             RuleFor(m => m.Fname).NotEmpty();
-            RuleFor(m => m.BirthDate).NotNull();
+            //RuleFor(m => m.BirthDate).NotNull();
         }
     }
 }
