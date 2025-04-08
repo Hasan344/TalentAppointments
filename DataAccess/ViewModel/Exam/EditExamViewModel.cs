@@ -26,13 +26,13 @@ namespace ForQab.DataAccess.ViewModel.Exam
 
         [Required]
         [Column(TypeName = "decimal(10, 1)")]
-        public decimal Duration { get; set; }
+        public decimal? Duration { get; set; }
 
         [Required]
-        public int Water { get; set; }
+        public int? Water { get; set; }
 
         [Required]
-        public int Food { get; set; }
+        public int? Food { get; set; }
 
         [StringLength(2000)]
         public string? Notes { get; set; }

@@ -31,6 +31,20 @@ namespace ForQab.Presentation.Controllers
         {
             var sectionId = await GetCurrentSectionIdAsync();
             var exams = await _examService.GetExamsBySectionIdAsync(sectionId);
+            ViewBag.Section = sectionId;
+            return View(exams);
+        }
+
+        public async Task<IActionResult> Assesments()
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var exams = await _examService.GetExamsBySectionIdAsyncForAssesment(sectionId);
+            return View(exams);
+        }
+        public async Task<IActionResult> Appeals()
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var exams = await _examService.GetExamsBySectionIdAsyncForAppeal(sectionId);
             return View(exams);
         }
 
@@ -49,6 +63,44 @@ namespace ForQab.Presentation.Controllers
             }
 
             ViewBag.MonitorsWithLogs = viewModel.MonitorsWithLogs;
+            ViewBag.ExpertsWithLogs = viewModel.ExpertsWithLogs;
+            ViewBag.SectionId = await GetCurrentSectionIdAsync();
+
+            return View(viewModel);
+        }
+        public async Task<IActionResult> DetailsOfAssesment(int id)
+        {
+            var viewModel = await _examService.GetExamDetailsAsync(id);
+
+            if (viewModel == null)
+            {
+                return NotFound();
+            }
+
+            if (!await IsSectionValidAsync<Exam>(id))
+            {
+                return Forbid();
+            }
+
+            ViewBag.ExpertsWithLogs = viewModel.ExpertsWithLogs;
+            ViewBag.SectionId = await GetCurrentSectionIdAsync();
+
+            return View(viewModel);
+        }
+        public async Task<IActionResult> DetailsOfAppeal(int id)
+        {
+            var viewModel = await _examService.GetExamDetailsAsync(id);
+
+            if (viewModel == null)
+            {
+                return NotFound();
+            }
+
+            if (!await IsSectionValidAsync<Exam>(id))
+            {
+                return Forbid();
+            }
+
             ViewBag.ExpertsWithLogs = viewModel.ExpertsWithLogs;
             ViewBag.SectionId = await GetCurrentSectionIdAsync();
 
@@ -146,6 +198,46 @@ namespace ForQab.Presentation.Controllers
             await _examService.AddExamAsync(exam);
             return RedirectToAction(nameof(Index));
         }
+        public async Task<IActionResult> CreateForAssesment()
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateForAssesment(CreateExamViewModelForAssesment exam)
+        {
+            if (!ModelState.IsValid)
+            {
+                var sectionId = await GetCurrentSectionIdAsync();
+                await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
+                return View(exam);
+            }
+
+            await _examService.AddExamAsyncForAssesment(exam);
+            return RedirectToAction(nameof(Assesments));
+        }
+        public async Task<IActionResult> CreateForAppeal()
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateForAppeal(CreateExamViewModelForAssesment exam)
+        {
+            if (!ModelState.IsValid)
+            {
+                var sectionId = await GetCurrentSectionIdAsync();
+                await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
+                return View(exam);
+            }
+
+            await _examService.AddExamAsyncForAssesment(exam);
+            return RedirectToAction(nameof(Appeals));
+        }
 
         public async Task<IActionResult> Edit(int id)
         {
@@ -171,6 +263,56 @@ namespace ForQab.Presentation.Controllers
 
             await _examService.UpdateExamAsync(exam, selectedCommissions, selectedDegrees);
             return RedirectToAction(nameof(Index));
+        }
+        public async Task<IActionResult> EditForAssesment(int id)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var viewModel = await _examService.PrepareEditExamViewModelAsyncForAssesment(id, sectionId);
+
+            if (viewModel == null) return NotFound();
+            if (!await IsSectionValidAsync<Exam>(id)) return Forbid();
+
+            await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditForAssesment(EditExamViewModelForAssesment exam)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            if (!ModelState.IsValid)
+            {
+                await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
+                return View(exam);
+            }
+
+            await _examService.UpdateExamAsync(exam);
+            return RedirectToAction(nameof(Assesments));
+        }
+        public async Task<IActionResult> EditForAppeal(int id)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var viewModel = await _examService.PrepareEditExamViewModelAsyncForAssesment(id, sectionId);
+
+            if (viewModel == null) return NotFound();
+            if (!await IsSectionValidAsync<Exam>(id)) return Forbid();
+
+            await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditForAppeal(EditExamViewModelForAssesment exam)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            if (!ModelState.IsValid)
+            {
+                await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
+                return View(exam);
+            }
+
+            await _examService.UpdateExamAsync(exam);
+            return RedirectToAction(nameof(Appeals));
         }
 
         public async Task<IActionResult> Delete(int id)
@@ -626,9 +768,15 @@ namespace ForQab.Presentation.Controllers
             return RedirectToAction("Details", "Worker", new { id });
         }
         [HttpPost]
-        public async Task<IActionResult> ExportMonitorRegister(int examId)
+        public async Task<IActionResult> ExportContingentRegister(int examId)
         {
             var fileContents = await _examService.ExportExamToWordAsync(examId);
+            return File(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"Exam Id:{examId}.docx");
+        }
+        [HttpPost]
+        public async Task<IActionResult> ExportExpertRegister(int examId)
+        {
+            var fileContents = await _examService.ExportExamToWordAsyncForMX(examId);
             return File(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"Exam Id:{examId}.docx");
         }
 

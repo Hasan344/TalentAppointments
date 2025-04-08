@@ -3,14 +3,12 @@ using ForQab.DataAccess.ViewModel.Exam;
 using ForQab.Models.ViewModels;
 using ForQab.Presentation.ViewModels;
 using ForQab.Repository.Abstract;
-using ForQab.Repository.Concrete;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml;
-using System.Threading;
 using ClosedXML.Excel;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 
@@ -49,6 +47,17 @@ namespace ForQab.Service
                 Degrees = degrees.Select(d => new SelectListItem { Text = d.Name, Value = d.Id.ToString() }).ToList()
             };
         }
+        //public async Task<CreateExamViewModelForAssesment> PrepareCreateExamViewModelAsyncForAssesment(int? sectionId)
+        //{
+        //    var commissions = await _examRepository.GetCommissionsAsync(sectionId);
+        //    var degrees = await _context.Degrees.ToListAsync();
+
+        //    return new CreateExamViewModelForAssesment
+        //    {
+        //        Commissions = commissions.Select(sp => new SelectListItem { Text = sp.Name, Value = sp.Id.ToString() }).ToList(),
+        //        Degrees = degrees.Select(d => new SelectListItem { Text = d.Name, Value = d.Id.ToString() }).ToList()
+        //    };
+        //}
         public async Task<EditExamViewModel> PrepareEditExamViewModelAsync(int id, int? sectionId)
         {
             var exam = await _examRepository.GetByIdAsync(id);
@@ -79,6 +88,22 @@ namespace ForQab.Service
                 Commissions = commissions.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }).ToList(),
                 SelectedDegrees = exam.ExamDegrees?.Select(ed => ed.DegreeId).ToArray(),
                 Degrees = degrees.Select(d => new SelectListItem { Value = d.Id.ToString(), Text = d.Name }).ToList()
+            };
+        }
+        public async Task<EditExamViewModelForAssesment> PrepareEditExamViewModelAsyncForAssesment(int id, int? sectionId)
+        {
+            var exam = await _examRepository.GetByIdAsync(id);
+            if (exam == null) return null;
+
+            return new EditExamViewModelForAssesment
+            {
+                Id = exam.Id,
+                Name = exam.Name,
+                SectionId = exam.SectionId,
+                DistrictId = exam.DistrictId,
+                ExamBuldingId = exam.ExamBuldingId,
+                ExamDate = exam.ExamDate,
+                Shift = exam.Shift,
             };
         }
 
@@ -320,16 +345,16 @@ namespace ForQab.Service
             foreach (var assignment in model.Assignments)
             {
                 if (assignment.SelectedSubProfessions == null || !assignment.SelectedSubProfessions.Any())
-                    throw new Exception("Alt ixtisas sahəsi seçilməyib!");
+                    throw new Exception("İxtisas seçimi doğru deyil!");
 
                 var availableExpertsCount = await _examRepository.GetAvailableExpertsCountAsync(
                     sectionId.Value, assignment.SelectedSubProfessions);
 
-                if (assignment.NumberOfExperts > availableExpertsCount)
-                    throw new Exception(
-                        $"{assignment.NumberOfExperts} sayda ekspert təyin etmək istədiniz, " +
-                        $"lakin mövcud ekspert sayı {availableExpertsCount}-dır!"
-                    );
+                //if (assignment.NumberOfExperts > availableExpertsCount)
+                //    throw new Exception(
+                //        $"{assignment.NumberOfExperts} sayda ekspert təyin etmək istədiniz, " +
+                //        $"lakin mövcud ekspert sayı {availableExpertsCount}-dır!"
+                //    );
             }
 
             foreach (var assignment in model.Assignments)
@@ -378,7 +403,6 @@ namespace ForQab.Service
         {
             await _examRepository.DeleteAsync(id);
         }
-
         public async Task<IEnumerable<Exam>> GetAllExamsAsync()
         {
             return await _examRepository.GetAllAsync();
@@ -391,9 +415,17 @@ namespace ForQab.Service
 
         public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId)
         {
-            return await _examRepository.GetExamsBySectionIdAsync(sectionId);
+            return await _examRepository.GetExamsBySectionIdAsync(sectionId,1);
+        }
+        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAssesment(int? sectionId)
+        {
+            return await _examRepository.GetExamsBySectionIdAsync(sectionId, 2);
         }
 
+        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAppeal(int? sectionId)
+        {
+            return await _examRepository.GetExamsBySectionIdAsync(sectionId, 3);
+        }
         public async Task<IEnumerable<SubProfession>> GetSubprofessionsBySectionIdAsync(int? sectionId)
         {
             return await _examRepository.GetSubProfessionsBySectionIdAsync(sectionId);
@@ -413,7 +445,10 @@ namespace ForQab.Service
         {
             await _examRepository.UpdateExamAsync(exam, commissionIds, degreeIds);
         }
-
+        public async Task UpdateExamAsync(EditExamViewModelForAssesment exam)
+        {
+            await _examRepository.UpdateExamAsync(exam);
+        }
         public async Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId)
         {
             return await _examRepository.GetCommissionsAsync(sectionId);
@@ -529,17 +564,21 @@ namespace ForQab.Service
                 table.Append(headerRow);
 
                 int rowIndex = 1;
-                foreach (var expert in exam.ExamExpertSubProfessions)
+                if(exam.SectionId != 3 && exam.SectionId != 4)
                 {
-                    var row = new TableRow();
-                    row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
-                    row.Append(CreateTableCell(expert.ExamRoom?.Name, false, 1500));
-                    row.Append(CreateTableCell($"Ekspert-{expert.SubProfession?.Name} ", false, 3000));
-                    row.Append(CreateTableCell(expert.Expert.Name + " " + expert.Expert.Surname + " " + expert.Expert.Fname, false, 6000));
-                    row.Append(CreateTableCell("", false, 2000));
-                    table.Append(row);
-                    rowIndex++;
+                    foreach (var expert in exam.ExamExpertSubProfessions)
+                    {
+                        var row = new TableRow();
+                        row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
+                        row.Append(CreateTableCell(expert.ExamRoom?.Name, false, 1500));
+                        row.Append(CreateTableCell($"Ekspert-{expert.SubProfession?.Name} ", false, 3000));
+                        row.Append(CreateTableCell(expert.Expert.Name + " " + expert.Expert.Surname + " " + expert.Expert.Fname, false, 6000));
+                        row.Append(CreateTableCell("", false, 2000));
+                        table.Append(row);
+                        rowIndex++;
+                    }
                 }
+                
 
                 foreach (var monitor in exam.ExamMonitors.Where(em => em.Monitors.Role == 2))
                 {
@@ -587,7 +626,84 @@ namespace ForQab.Service
                 }
 
                 body.AppendChild(table);
-                body.AppendChild(CreateItalicParagraph("Qeyd. İmtahana gəlməyən nəzarətçilərin qarşısında (imza bölməsində) iştirakçıların imtahan binasına buraxılışı başlandıqdan sonra “gəlmədi” yazılır.", 10));
+                body.AppendChild(CreateItalicParagraph("Qeyd. İmtahana gəlməyənlərin qarşısında (imza bölməsində) iştirakçıların imtahan binasına buraxılışı başlandıqdan sonra “gəlmədi” yazılır.", 10));
+
+                if (exam.SectionId == 1)
+                {
+                    body.AppendChild(CreateCenteredBoldParagraph("\nÜmumi imtahan rəhbəri: _________ / _______________________ / ", 12));
+                }
+
+
+                mainPart.Document.Save();
+            }
+
+            return ms.ToArray();
+        }
+        public async Task<byte[]> ExportExamToWordAsyncForMX(int examId)
+        {
+            var exam = await _context.Exams
+                .Include(e => e.ExamMonitors).ThenInclude(em => em.Monitors).ThenInclude(em => em.WorkerTypeNavigation)
+                .Include(e => e.ExamMonitors).ThenInclude(em => em.ExamRooms)
+                .Include(e => e.ExamExpertSubProfessions).ThenInclude(eesp => eesp.Expert)
+                .Include(e => e.ExamExpertSubProfessions).ThenInclude(eesp => eesp.SubProfession)
+                .Include(e => e.ExamExpertSubProfessions).ThenInclude(eesp => eesp.ExamRoom)
+                .Include(e => e.ExamBuilding)
+                .Include(e => e.Representatives)
+                .FirstOrDefaultAsync(e => e.Id == examId);
+
+            if (exam == null) throw new Exception("Exam not found");
+
+            using var ms = new MemoryStream();
+            using (var wordDocument = WordprocessingDocument.Create(ms, WordprocessingDocumentType.Document, true))
+            {
+                var mainPart = wordDocument.AddMainDocumentPart();
+                mainPart.Document = new Document();
+                var body = mainPart.Document.AppendChild(new Body());
+
+                body.AppendChild(CreateCenteredBoldParagraph("İMTAHANDAKI EKSPERTLƏRİN QEYDİYYAT VƏRƏQİ", 16));
+                body.AppendChild(CreateMixedBoldParagraph("İmtahanın adı: ", "\u00A0" + exam.Name, 14));
+                body.AppendChild(CreateMixedBoldParagraph("İmtahan binası: ", "\u00A0" + exam.ExamBuilding?.Code + " " + exam.ExamBuilding?.Name, 14));
+                body.AppendChild(CreateMixedBoldParagraph("İmtahan tarixi: ", "\u00A0" + exam.ExamDate + " Saat " + exam.StartTime, 14));
+
+
+                Table table = new Table();
+
+                TableProperties tblProp = new TableProperties(
+                    new TableWidth { Width = "100%", Type = TableWidthUnitValues.Pct },
+                    new TableBorders(
+                        new TopBorder { Val = BorderValues.Single, Size = 12 },
+                        new BottomBorder { Val = BorderValues.Single, Size = 12 },
+                        new LeftBorder { Val = BorderValues.Single, Size = 12 },
+                        new RightBorder { Val = BorderValues.Single, Size = 12 },
+                        new InsideHorizontalBorder { Val = BorderValues.Single, Size = 12 },
+                        new InsideVerticalBorder { Val = BorderValues.Single, Size = 12 }
+                    )
+                );
+                table.AppendChild(tblProp);
+
+                var headerRow = new TableRow();
+                headerRow.Append(CreateTableCell("S/s", true, 1000));
+                headerRow.Append(CreateTableCell("Zal (Məntəqə kodu)", true, 1500));
+                headerRow.Append(CreateTableCell("Vəzifə", true, 3000));
+                headerRow.Append(CreateTableCell("Soyadı, adı, ata adı", true, 6000));
+                headerRow.Append(CreateTableCell("İmza", true, 2000));
+                table.Append(headerRow);
+
+                int rowIndex = 1;
+                    foreach (var expert in exam.ExamExpertSubProfessions)
+                    {
+                        var row = new TableRow();
+                        row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
+                        row.Append(CreateTableCell(expert.ExamRoom?.Name, false, 1500));
+                        row.Append(CreateTableCell($"Ekspert-{expert.SubProfession?.Name} ", false, 3000));
+                        row.Append(CreateTableCell(expert.Expert.Name + " " + expert.Expert.Surname + " " + expert.Expert.Fname, false, 6000));
+                        row.Append(CreateTableCell("", false, 2000));
+                        table.Append(row);
+                        rowIndex++;
+                    }
+
+                body.AppendChild(table);
+                body.AppendChild(CreateItalicParagraph("Qeyd. İmtahana gəlməyən ekspertlərin qarşısında (imza bölməsində) iştirakçıların imtahan binasına buraxılışı başlandıqdan sonra “gəlmədi” yazılır.", 10));
 
                 if (exam.SectionId == 1)
                 {
@@ -719,6 +835,7 @@ namespace ForQab.Service
                     Fname = e.Fname,
                     FinCode = e.FinCode,
                     Kons = e.Kons,
+                    Tel = e.TelIs,
                     ExamExpertSubProfessions = e.ExamExpertSubProfessions
                         //.Where(eesp => eesp.SubProfession != null && eesp.Federation != null)
                         .Select(eesp => new SubProfessionViewModelForExam
@@ -736,6 +853,7 @@ namespace ForQab.Service
                     Fname = m.Fname,
                     FinCode = m.FinCode,
                     Role = m.Role,
+                    Tel = m.TelIs,
                     WorkerType = _context.WorkerTypes
                                             .Where(wt => wt.Id == m.WorkerType)
                                             .Select(wt => wt.Name)
@@ -970,6 +1088,16 @@ namespace ForQab.Service
             if (monitor.WorkerType == 2) return "29";
             if (monitor.WorkerType == 3) return "30,1";
             return "";
+        }
+
+        public async Task AddExamAsyncForAssesment(CreateExamViewModelForAssesment exam)
+        {
+            await _examRepository.AddAsyncForAssesment(exam);
+        }
+
+        public Task AddExamAsyncForAppeal(CreateExamViewModel exam)
+        {
+            throw new NotImplementedException();
         }
     }
 }

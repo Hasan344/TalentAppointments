@@ -33,6 +33,7 @@ namespace ForQab.Repository.Concrete
                 Duration = entity.Duration,
                 Food = entity.Food,
                 StudentCount = entity.StudentCount,
+                Type = entity.Type,
                 Notes = entity.Notes,
                 Water = entity.Water,
                 InventoryTransport = entity.InventoryTransport,
@@ -86,43 +87,59 @@ namespace ForQab.Repository.Concrete
             await _context.Exams.AddAsync(exam);
             await _context.SaveChangesAsync();
         }
-
+        public async Task AddAsyncForAssesment(CreateExamViewModelForAssesment entity)
+        {
+            var exam = new Exam
+            {
+                Name = entity.Name,
+                SectionId = entity.SectionId,
+                ExamBuldingId = entity.ExamBuldingId,
+                ExamDate = entity.ExamDate,
+                Type = entity.Type,
+                Shift = entity.Shift,
+                DistrictId = entity.DistrictId,
+            };
+            await _context.Exams.AddAsync(exam);
+            await _context.SaveChangesAsync();
+        }
         public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId, int? roomId)
         {
 
             var exam = await _context.Exams.Include(e => e.Experts).FirstOrDefaultAsync(e => e.Id == examId);
             if (exam == null)
             {
-                throw new ArgumentException("Exam not found");
+                throw new ArgumentException("İmtahan tapılmadı");
             }
             var federationExists = await _context.Professions.AnyAsync(p => p.Id == federationId);
             if (!federationExists)
             {
-                throw new ArgumentException("Federation does not exist.");
+                throw new ArgumentException("Müəssisə seçimi doğru deyil");
             }
-            var roomExists = await _context.ExamRooms.AnyAsync(p => p.Id == roomId);
-            if (!roomExists)
+            if(exam.SectionId == 1)
             {
-                throw new ArgumentException("Room does not exist.");
+                var roomExists = await _context.ExamRooms.AnyAsync(p => p.Id == roomId);
+                if (!roomExists)
+                {
+                    throw new ArgumentException("Otaq seçimi doğru deyil.");
+                }
             }
-
             var subProfessions = await _context.SubProfessions
                 .Where(sp => selectedSubProfessions.Contains(sp.Id))
                 .ToListAsync();
 
             if (subProfessions.Count != selectedSubProfessions.Length)
             {
-                throw new ArgumentException("One or more subprofessions not found.");
+                throw new ArgumentException("İxtisas seçimi doğru deyil.");
             }
 
-            var assignedExpertIds = exam.Experts.Select(ex => ex.Id).ToList(); // Önceden listeye al
+            var assignedExpertIds = exam.Experts.Select(ex => ex.Id).ToList(); 
 
             var experts = await _context.Experts
                 .Where(e => e.SectionId == exam.SectionId &&
                             e.SubProfessions.Any(sp => selectedSubProfessions.Contains(sp.Id)) &&
                             !assignedExpertIds.Contains(e.Id) &&
                             e.Archive == 0 &&
-                            e.Status == 0)
+                            e.Status == 0 && e.Federation == federationId)
                 .Include(e => e.Exams)
                 .ToListAsync();
 
@@ -141,7 +158,7 @@ namespace ForQab.Repository.Concrete
 
             if (availableExperts.Count < numberOfExperts)
             {
-                throw new InvalidOperationException("Not enough experts available.");
+                throw new InvalidOperationException("Yetərli sayda ekspert yoxdur.");
             }
 
             var selectedExperts = availableExperts.OrderBy(e => e.AssignmentCount).Take(numberOfExperts).ToList();
@@ -418,7 +435,7 @@ namespace ForQab.Repository.Concrete
         }
 
 
-        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId)
+        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int type)
         {
             return sectionId is null
                 ? await _context.Exams
@@ -429,6 +446,7 @@ namespace ForQab.Repository.Concrete
                                 .Include(e => e.Experts)
                                 .Include(e => e.Monitors)
                                 .Include(e => e.District)
+                                .Where(e => e.Type == type)
                                 .ToListAsync()
                 : await _context.Exams
                                 .Include(e => e.Section)
@@ -439,6 +457,7 @@ namespace ForQab.Repository.Concrete
                                 .Include(e => e.Monitors)
                                 .Include(e => e.District)
                                 .Where(e => e.SectionId == sectionId)
+                                .Where(e => e.Type == type)
                                 .ToListAsync();
         }
 
@@ -549,6 +568,32 @@ namespace ForQab.Repository.Concrete
             }
 
             // Değişiklikleri kaydet
+            _context.Exams.Update(existingExam);
+            await _context.SaveChangesAsync();
+        }
+        public async Task UpdateExamAsync(EditExamViewModelForAssesment exam)
+        {
+            // Mevcut Exam'i bul ve ilişkili verileri include et
+            var existingExam = await _context.Exams
+                .Include(e => e.ExamCommissions)
+                    .ThenInclude(ec => ec.Commission)
+                .Include(e => e.ExamBuilding)
+                .Include(e => e.Section)
+                .Include(e => e.ExamDegrees)
+                    .ThenInclude(e => e.Degrees)
+                .FirstOrDefaultAsync(e => e.Id == exam.Id);
+
+            if (existingExam == null)
+                throw new ArgumentException("Exam not found");
+
+            existingExam.Id = exam.Id;
+            existingExam.Name = exam.Name;
+            existingExam.SectionId = exam.SectionId;
+            existingExam.ExamBuldingId = exam.ExamBuldingId;
+            existingExam.Shift = exam.Shift;
+            existingExam.DistrictId = exam.DistrictId;
+            existingExam.ExamDate = exam.ExamDate;
+
             _context.Exams.Update(existingExam);
             await _context.SaveChangesAsync();
         }

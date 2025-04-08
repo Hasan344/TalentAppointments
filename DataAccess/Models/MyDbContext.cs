@@ -37,6 +37,8 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<ExamBuilding> ExamBuildings { get; set; }
 
+    public virtual DbSet<ExamType> ExamTypes { get; set; }
+
     public virtual DbSet<ExamRoom> ExamRooms { get; set; }
 
     public virtual DbSet<ExamCommission> ExamCommissions { get; set; }
@@ -213,6 +215,10 @@ public partial class MyDbContext : DbContext
             entity.HasOne(d => d.ExamBuilding).WithMany(p => p.Exams)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__exams__exam_buld__59C55456");
+
+            entity.HasOne(d => d.ExamType).WithMany(p => p.Exams)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__exams__types");
 
             entity.HasOne(d => d.District).WithMany(p => p.Exams)
                 .OnDelete(DeleteBehavior.ClientSetNull);

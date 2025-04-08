@@ -228,7 +228,7 @@ namespace ForQab.Service
         new DataColumn("VÖEN"),
         new DataColumn("Bank filialı"),
         new DataColumn("Bank filial kodu"),
-        new DataColumn("Bölmə"),
+        new DataColumn("İstiqamət"),
         new DataColumn("Rayon"),
             });
 

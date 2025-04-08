@@ -12,9 +12,9 @@ namespace ForQab.Models.ViewModels
         public DistrictViewModel District { get; set; } = new();
         public BuildingViewModel ExamBulding { get; set; } = new();
         public DateOnly ExamDate { get; set; }
-        public decimal Duration { get; set; }
-        public double Water { get; set; }
-        public int Food { get; set; }
+        public decimal? Duration { get; set; }
+        public double? Water { get; set; }
+        public int? Food { get; set; }
         public int? StudentCount { get; set; }
         public TimeSpan? StartTime { get; set; }
         public TimeSpan? EndTime { get; set; }
@@ -85,6 +85,7 @@ namespace ForQab.Models.ViewModels
         public byte? Role { get; set; }
         public int? RoomId { get; set; }
         public string? WorkerType { get; set; }
+        public string? Tel {  get; set; } 
         public List<RoomViewModelForExam> Rooms { get; set; } = new();
     }
     public class ExpertViewModelForExam
@@ -95,6 +96,7 @@ namespace ForQab.Models.ViewModels
         public string Fname { get; set; } = string.Empty;
         public string FinCode { get; set; } = string.Empty;
         public bool? Kons { get; set; }
+        public string? Tel { get; set; }
         public List<SubProfessionViewModelForExam> ExamExpertSubProfessions { get; set; } = new();
     }
     public class SubProfessionViewModelForExam
