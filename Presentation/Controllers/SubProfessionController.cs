@@ -38,6 +38,7 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> Create()
         {
             var sectionId = await GetCurrentSectionIdAsync();
+            ViewBag.Section = sectionId;
             ViewBag.SectionList = new SelectList(await _context.Sections.Where(s => s.Id == sectionId).ToListAsync(), "Id", "Name");
             ViewBag.ProfessionList = new SelectList(await _context.Professions.Where(p => p.SectionId == sectionId).ToListAsync(), "Id", "Name");
             return View();

@@ -5,6 +5,7 @@
 <table class="table table-striped">
     <thead>
         <tr>
+            <th>#</th>
             <th>Ad</th>
             <th>Soyad</th>
             <th>Ata adı</th>
@@ -13,9 +14,13 @@
         </tr>
     </thead>
     <tbody>
+        @{
+            int rowNumber = 1;
+        }
         @foreach (var item in Model)
         {
             <tr>
+                <td>@rowNumber</td>
                 <td>@item.Name</td>
                 <td>@item.Surname</td>
                 <td>@item.Fname</td>
@@ -26,6 +31,7 @@
                    
                 </td>
             </tr>
+            rowNumber++;
         }
     </tbody>
 </table>
