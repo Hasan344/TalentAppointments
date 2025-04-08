@@ -144,9 +144,13 @@
                                     }
                                 </div>
                                 <div class="col-md-4 text-md-right mt-2 mt-md-0">
-                                    <a class="btn btn-sm btn-outline-secondary mr-2" asp-action="ChangeExpert" asp-route-examId="@Model.Id" asp-route-expertId="@expert.Id">
-                                        <i class="bi bi-pencil"></i> Dəyişdir
-                                    </a>
+                                    <div class="d-inline">
+                                        <input type="hidden" name="examId" value="@Model.Id" id="examId_@expert.Id" />
+                                        <input type="hidden" name="expertId" value="@expert.Id" id="expertId_@expert.Id" />
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="changeExpert('@Model.Id', '@expert.Id')">
+                                            <i class="bi bi-arrow-repeat"></i> Dəyiş
+                                        </button>
+                                    </div>
                                     <a class="btn btn-sm btn-outline-primary" asp-action="WriteExpertLog" asp-route-examId="@Model.Id" asp-route-expertId="@expert.Id">
                                         <i class="bi bi-chat"></i> Xüsusi qeyd yaz
                                     </a>
@@ -654,4 +658,25 @@
             this.__triggerButton = event.relatedTarget; // Modal'ı açan butonu kaydet
         });
     </script>
+
+    <script>
+    function changeExpert(examId, expertId) {
+        const formData = new FormData();
+        formData.append('examId', examId);
+        formData.append('expertId', expertId);
+
+        fetch('/Exam/ChangeExpert', { // Controller adını kendi yapınıza göre ayarlayın
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = '/Exam/Details?id=' + examId; // Yönlendirme
+            } else {
+                console.error('Hata oluştu');
+            }
+        })
+        .catch(error => console.error('Hata:', error));
+    }
+</script>
 }

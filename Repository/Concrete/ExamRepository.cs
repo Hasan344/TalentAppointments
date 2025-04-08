@@ -115,7 +115,7 @@ namespace ForQab.Repository.Concrete
             {
                 throw new ArgumentException("Müəssisə seçimi doğru deyil");
             }
-            if(exam.SectionId == 1)
+            if (exam.SectionId == 1)
             {
                 var roomExists = await _context.ExamRooms.AnyAsync(p => p.Id == roomId);
                 if (!roomExists)
@@ -132,7 +132,7 @@ namespace ForQab.Repository.Concrete
                 throw new ArgumentException("İxtisas seçimi doğru deyil.");
             }
 
-            var assignedExpertIds = exam.Experts.Select(ex => ex.Id).ToList(); 
+            var assignedExpertIds = exam.Experts.Select(ex => ex.Id).ToList();
 
             var experts = await _context.Experts
                 .Where(e => e.SectionId == exam.SectionId &&
@@ -173,7 +173,7 @@ namespace ForQab.Repository.Concrete
 
                 if (isAssignedToAnotherExam)
                 {
-                    continue; 
+                    continue;
                 }
 
                 exam.Experts.Add(expert);
@@ -930,12 +930,12 @@ namespace ForQab.Repository.Concrete
                 using (WordprocessingDocument wordDocument = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document, true))
                 {
                     MainDocumentPart mainPart = wordDocument.AddMainDocumentPart();
-                    mainPart.Document = new Document(); 
+                    mainPart.Document = new Document();
                     Body body = mainPart.Document.AppendChild(new Body());
 
-                    
 
-                    
+
+
                     body.AppendChild(CreateBoldCenteredParagraph("Xüsusi qabiliyyət tələb edən ixtisaslar üzrə qabiliyyət imtahanlarında"));
 
                     // Second line
@@ -1004,7 +1004,7 @@ namespace ForQab.Repository.Concrete
                             new InsideVerticalBorder { Val = BorderValues.Single, Size = 6 }));
                     table.AppendChild(tblProps);
 
-                    
+
                     TableRow headerRow1 = new TableRow();
 
                     TableCell cellSs = new TableCell();
@@ -1319,5 +1319,7 @@ namespace ForQab.Repository.Concrete
             await _context.ExamMonitors.AddRangeAsync(examMonitorList);
             await _context.SaveChangesAsync();
         }
+
+        
     }
 }

@@ -43,7 +43,7 @@ namespace ForQab.Service.Abstract
         List<Expert> GetExpertsByExam(int examId);
         Task<List<ExamExpertSubProfession>> GetExpertSubProfessionsByExamIdAsync(int examId);
         Task<ChangeExpertViewModel> GetChangeExpertViewModelAsync(int examId, int expertId);
-        Task<bool> ChangeExpertAsync(int examId, int currentExpertId, int newExpertId);
+        Task<bool> ChangeExpertAsync(int examId, int currentExpertId);
         Task<ChangeMonitorViewModel> GetChangeMonitorViewModelAsync(int examId, int monitorId, int role);
         Task<ChangeRepresentativeViewModel> GetChangeRepresentativeViewModelAsync(int examId, int representativeId);
         Task<bool> ChangeMonitorAsync(ChangeMonitorViewModel model);
