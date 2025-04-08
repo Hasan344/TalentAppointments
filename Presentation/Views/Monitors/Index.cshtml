@@ -53,6 +53,7 @@
         <table class="table table-hover table-bordered align-middle shadow-sm">
             <thead class="table-dark">
                 <tr>
+                    <th>#</th>
                     <th>Ad</th>
                     <th>Soyad</th>
                     <th>Ata adı</th>
@@ -70,9 +71,13 @@
                 </tr>
             </thead>
             <tbody>
+                @{
+                    int rowNumber = 1;
+                }
                 @foreach (var item in Model)
                 {
                     <tr class="align-middle @(item.Status == 1 ? "table-danger" : "")">
+                        <td>@rowNumber</td>
                         <td>@Html.DisplayFor(modelItem => item.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.Surname)</td>
                         <td>@Html.DisplayFor(modelItem => item.Fname)</td>
@@ -94,6 +99,7 @@
                             </div>
                         </td>
                     </tr>
+                    rowNumber++;
                 }
             </tbody>
         </table>

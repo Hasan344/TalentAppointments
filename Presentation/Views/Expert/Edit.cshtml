@@ -127,7 +127,7 @@
                         <span asp-validation-for="Federation" class="text-danger"></span>
                     </div>
                 }
-                @if (ViewBag.Section == 2)
+                @if (ViewBag.Section == 2 || @ViewBag.Section == 5)
                 {
                     <div class="mb-3">
                         <label asp-for="Federation" class="form-label">Təhsil müəssisəsi</label>
@@ -137,7 +137,7 @@
                         <span asp-validation-for="Federation" class="text-danger"></span>
                     </div>
                 }
-                @if (@ViewBag.Section == 3 || @ViewBag.Section == 4)
+                @if (@ViewBag.Section == 3 || @ViewBag.Section == 4 || @ViewBag.SectionId == 6)
                 {
                     <div class="mb-3">
                         <label asp-for="Federation" class="form-label">Təhsil səviyyəsi</label>
@@ -152,7 +152,7 @@
                 <div class="mb-3">
                     <label class="form-label">Alt Peşələr</label>
                     <select asp-for="SelectedSubProfessions" id="SelectedSubProfessions" class="form-select" multiple style="background-color: #23272a; color: #ffffff;">
-                        @if (ViewBag.Section == 2)
+                        @if (ViewBag.Section == 2 || @ViewBag.Section == 5)
                         {
                             @foreach (var sp in Model.SubProfessions)
                             {

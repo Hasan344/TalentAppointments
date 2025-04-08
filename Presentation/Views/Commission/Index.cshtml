@@ -5,6 +5,7 @@
 <table class="table table-striped">
     <thead>
         <tr>
+            <th>#</th>
             <th>Komissiya nömrəsi</th>
             <th>Name</th>
             <th>Section Id</th>
@@ -12,9 +13,13 @@
         </tr>
     </thead>
     <tbody>
+        @{
+            int rowNumber = 1;
+        }
         @foreach (var item in Model)
         {
             <tr>
+                <td>@rowNumber</td>
                 <td>@item.CommissionNo</td>
                 <td>@item.Name</td>
                 <td>@item.Section.Name</td>
@@ -23,6 +28,7 @@
                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
                 </td>
             </tr>
+            rowNumber++;
         }
     </tbody>
 </table>

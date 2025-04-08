@@ -5,6 +5,7 @@
 <table class="table table-striped">
     <thead>
         <tr>
+            <th>#</th>
             <th>Ad</th>
             <th>Federasiya</th> 
             <th>İstiqamət</th>
@@ -12,17 +13,22 @@
         </tr>
     </thead>
     <tbody>
+        @{
+            int rowNumber = 1;
+        }
         @foreach (var item in Model)
         {
-                <tr>
+            <tr>
+                    <td>@rowNumber</td>
                     <td>@item.Name</td>
-                     <td>@(item.Profession != null ? item.Profession.Name : "Məlumat yoxdur")</td> 
+                    <td>@(item.Profession != null ? item.Profession.Name : "Məlumat yoxdur")</td> 
                     <td>@(item.Section != null ? item.Section.Name : "Məlumat yoxdur")</td> 
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Edit</a>
                         <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
                     </td>
-                </tr>
+            </tr>
+            rowNumber++;
         }
     </tbody>
 </table>

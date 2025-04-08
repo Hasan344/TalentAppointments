@@ -176,7 +176,7 @@
     </div> 
 
 
-    @if(ViewBag.SectionId == 3 || @ViewBag.SectionId == 4 )
+    @if(ViewBag.SectionId == 3 || @ViewBag.SectionId == 4 || @ViewBag.SectionId == 6 )
     {
     <!-- Assigned Kons Section -->
     <div class="mt-4">
@@ -524,7 +524,7 @@
                 <i class="bi bi-arrow-left"></i> Siyahıya Qayıt
             </a>
             </div>
-    @if(ViewBag.SectionId == 3 || @ViewBag.SectionId == 4 )
+    @if(ViewBag.SectionId == 3 || @ViewBag.SectionId == 4 || @ViewBag.SectionId == 6 )
     {
 
         <div class="text-center mt-4">
@@ -590,7 +590,7 @@
                 <i class="bi bi-download"></i> Qeydiyyat Vərəqi
             </button>
         </form>
-        @if(ViewBag.SectionId == 3 || ViewBag.SectionId == 4)
+        @if(ViewBag.SectionId == 3 || ViewBag.SectionId == 4 || @ViewBag.SectionId == 6)
         {
             <form asp-action="ExportExpertRegister" method="post">
                 <input type="hidden" name="examId" value="@Model.Id" />

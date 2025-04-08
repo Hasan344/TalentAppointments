@@ -27,7 +27,7 @@
             <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="Federation" asp-action="Index">
                 <i class="bi "></i> Federasiyalar
             </a>
-            @if (ViewBag.Section == 2)
+            @if (ViewBag.Section == 2 || @ViewBag.Section == 5)
             {
                 <a class="btn btn-sm btn-secondary shadow-sm" asp-action="Assesments">
                     <i class="bi bi-pen"></i> Qiymətləndirmələr
@@ -48,6 +48,7 @@
         <table class="table table-bordered table-striped table-hover shadow-sm">
             <thead class="table-light">
                 <tr>
+                    <th>#</th>
                     <th>ID</th>
                     <th>Adı</th>
                     <th>Tarix</th>
@@ -61,9 +62,13 @@
                 </tr>
             </thead>
             <tbody>
+                @{
+                    int rowNumber = 1;
+                }
                 @foreach (var item in Model)
                 {
                     <tr class="align-middle">
+                        <td>@rowNumber</td>
                         <td>@Html.DisplayFor(modelItem => item.Id)</td>
                         <td>@Html.DisplayFor(modelItem => item.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.ExamDate)</td>
@@ -101,6 +106,7 @@
                             </div>
                         </td>
                     </tr>
+                    rowNumber++;
                 }
             </tbody>
         </table>
