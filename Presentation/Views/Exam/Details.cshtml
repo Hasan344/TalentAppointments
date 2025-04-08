@@ -19,7 +19,7 @@
                 <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Ad:</dt>
                 <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.Name</dd>
 
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Bölmə:</dt>
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İstiqamət:</dt>
                 <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.Section.Name</dd>
 
                 <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Rayon:</dt>
@@ -120,7 +120,7 @@
                                 </div>
                                 <div class="col-md-7">
                                     <h6 class="mb-0">
-                                        @expert.Name @expert.Surname @expert.Fname
+                                        @expert.Name @expert.Surname @expert.Fname @expert.Tel
                                     </h6>
                                     <small class="text-muted">
                                         FinCode: @expert.FinCode
@@ -170,6 +170,8 @@
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir ekspert təyin edilməyib.</p>
         }
     </div> 
+
+
     @if(ViewBag.SectionId == 3 || @ViewBag.SectionId == 4 )
     {
     <!-- Assigned Kons Section -->
@@ -189,6 +191,11 @@
                 <ul class="list-group list-group-flush">
                     @foreach (var expert in kons)
                     {
+                        var tel = expert.Tel;
+                            if (!string.IsNullOrEmpty(tel) && tel.Length == 10)
+                            {
+                                tel = $"{tel.Substring(0, 3)}-{tel.Substring(3, 3)}-{tel.Substring(6, 2)}-{tel.Substring(8, 2)}";
+                            }
                         var hasLog = Model.ExpertsWithLogs != null && Model.ExpertsWithLogs.Contains(expert.Id);
                         <li class="list-group-item">
                             <div class="row align-items-center">
@@ -197,7 +204,7 @@
                                 </div>
                                 <div class="col-md-7">
                                     <h6 class="mb-0">
-                                        @expert.Name @expert.Surname @expert.Fname
+                                        @expert.Name @expert.Surname @expert.Fname @expert.Tel
                                     </h6>
                                     <small class="text-muted">
                                         FinCode: @expert.FinCode
@@ -274,7 +281,7 @@
                                 </div>
                                 <div class="col-md-7">
                                     <h6 class="mb-0">
-                                        @monitor.Name @monitor.Surname @monitor.Fname
+                                        @monitor.Name @monitor.Surname @monitor.Fname @monitor.Tel
                                     </h6>
                                     <small class="text-muted">
                                         FinCode: @monitor.FinCode
@@ -348,7 +355,7 @@
                                 </div>
                                 <div class="col-md-7">
                                     <h6 class="mb-0">
-                                        @monitor.Name @monitor.Surname @monitor.Fname
+                                        @monitor.Name @monitor.Surname @monitor.Fname @monitor.Tel
                                     </h6>
                                     <small class="text-muted">
                                         FinCode: @monitor.FinCode
@@ -424,7 +431,7 @@
                         <div class="row align-items-center">
                             <div class="col-md-8">
                                 <h6 class="mb-0">
-                                    @worker.Name @worker.Surname @worker.Fname --- @worker.WorkerType
+                                    @worker.Name @worker.Surname @worker.Fname -- @worker.WorkerType  
                                 </h6>
                                 <small class="text-muted">
                                     FinCode: @worker.FinCode
@@ -572,13 +579,23 @@
         </div>
     }
     <div class="text-center mt-4">
-        <form asp-action="ExportMonitorRegister" method="post">
+        <form asp-action="ExportContingentRegister" method="post">
             <input type="hidden" name="examId" value="@Model.Id" />
             <button type="submit" class="btn btn-primary px-4 py-2 mx-2"
                     style="background-color: @primaryColor; border: none;">
                 <i class="bi bi-download"></i> Qeydiyyat Vərəqi
             </button>
         </form>
+        @if(ViewBag.SectionId == 3 || ViewBag.SectionId == 4)
+        {
+            <form asp-action="ExportExpertRegister" method="post">
+                <input type="hidden" name="examId" value="@Model.Id" />
+                <button type="submit" class="btn btn-primary px-4 py-2 mx-2"
+                        style="background-color: @primaryColor; border: none;">
+                    <i class="bi bi-download"></i> Ekspert Qeydiyyat Vərəqi
+                </button>
+            </form>
+        }
 
     </div>
 </div>

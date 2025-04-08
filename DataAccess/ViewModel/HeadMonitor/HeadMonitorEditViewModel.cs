@@ -16,7 +16,7 @@ namespace ForQab.DataAccess.ViewModel.HeadMonitor
         public string? Fname { get; set; }
         public string? Region { get; set; }
 
-        [Required(ErrorMessage = "Bölmə seçilməlidir")]
+        [Required(ErrorMessage = "İstiqamət seçilməlidir")]
         public int SectionId { get; set; }
         public List<SelectListItem>? Sections { get; set; }
         public byte? Gender { get; set; }

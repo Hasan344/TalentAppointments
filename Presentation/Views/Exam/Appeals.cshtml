@@ -6,41 +6,12 @@
 }
 
 <div class="container mt-5">
-    <!-- Page Title -->
-    <h1 class="text-center mb-4 ">İmtahan idarəetməsi</h1>
 
-    <!-- Create New Exam Button -->
     <div class="mb-4 d-flex justify-content-between">
         <div>
-            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="District" asp-action="Index">
-                <i class="bi bi-geo-alt"></i> Rayonlar
-            </a>
-            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="SubProfession" asp-action="Index">
-                <i class="bi bi-briefcase"></i> İxtisaslar
-            </a>
-            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="ExamBuilding" asp-action="Index">
-                <i class="bi bi-building"></i> İmtahan binaları
-            </a>
-            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="Commission" asp-action="Index">
-                <i class="bi "></i> Komissiyalar
-            </a>
-            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="Federation" asp-action="Index">
-                <i class="bi "></i> Federasiyalar
-            </a>
-            @if (ViewBag.Section == 2)
-            {
-                <a class="btn btn-sm btn-secondary shadow-sm" asp-action="Assesments">
-                    <i class="bi bi-pen"></i> Qiymətləndirmələr
+                <a class="btn btn-sm btn-success shadow-sm" asp-action="CreateForAppeal">
+                    <i class="bi bi-plus-circle"></i> Yeni apellyasiya yarat
                 </a>
-                <a class="btn btn-sm btn-secondary shadow-sm" asp-action="Appeals">
-                    <i class="bi bi-pen"></i> Apellyasiya
-                </a>
-            }
-        </div>
-        <div>
-            <a class="btn btn-sm btn-success shadow-sm" asp-action="Create">
-                <i class="bi bi-plus-circle"></i> Yeni imtahan yarat
-            </a>
         </div>
     </div>
 
@@ -89,10 +60,10 @@
                         <td>@Html.DisplayFor(modelItem => item.Section.Name)</td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a class="btn btn-outline-warning btn-sm p-1" asp-action="Edit" asp-route-id="@item.Id">
+                                <a class="btn btn-outline-warning btn-sm p-1" asp-action="EditForAppeal" asp-route-id="@item.Id">
                                     <i class="bi bi-pencil-square" style="font-size: 0.75rem;"></i> Redaktə
                                 </a>
-                                <a class="btn btn-outline-info btn-sm p-1" asp-action="Details" asp-route-id="@item.Id">
+                                <a class="btn btn-outline-info btn-sm p-1" asp-action="DetailsOfAppeal" asp-route-id="@item.Id">
                                     <i class="bi bi-eye" style="font-size: 0.75rem;"></i> Detallar
                                 </a>
                                 <a class="btn btn-outline-danger btn-sm p-1" asp-action="Delete" asp-route-id="@item.Id">
@@ -106,44 +77,12 @@
         </table>
     </div>
     <div class="mb-4 text-end">
-        <button class="btn btn-sm btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#exportModal">
-            <i class="bi bi-table"></i> Maliyyə Exceli al
-        </button>
-        <a class="btn btn-sm btn-success shadow-sm" asp-action="ExportToExcel">
-            <i class="bi bi-download"></i> Excel-ə çıxarış
-        </a>
-        <a class="btn btn-sm btn-primary shadow-sm" asp-action="ExportToWord">
-            <i class="bi bi-download"></i> Word-ə çıxarış
-        </a>
-        <a class="btn btn-secondary px-4 py-2 mx-2" border: none;" asp-controller="Home" asp-action="Index">
-            <i class="bi bi-home"></i> Ana səhifəyə qayıt
+        <a class="btn btn-secondary px-4 py-2 mx-2"  border: none;" asp-controller="Exam" asp-action="Index">
+            <i class="bi bi-home"></i> İmtahanlara qayıt
         </a>
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exportModalLabel">Tarix seçin</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="exportForm" asp-action="ExportExamData" method="post">
-                    <div class="mb-3">
-                        <label for="selectedDate" class="form-label">Tarix:</label>
-                        <input type="date" id="selectedDate" name="selectedDate" class="form-control" value="@DateTime.Now.ToString("dd-MM-yyyy")" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
-                <button type="submit" form="exportForm" class="btn btn-primary">Excelə çıxar</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 @section Styles {

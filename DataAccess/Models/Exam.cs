@@ -27,13 +27,13 @@ public partial class Exam
     public DateOnly ExamDate { get; set; }
 
     [Column("duration", TypeName = "decimal(10, 1)")]
-    public decimal Duration { get; set; }
+    public decimal? Duration { get; set; }
 
     [Column("water")]
-    public int Water { get; set; }
+    public int? Water { get; set; }
 
     [Column("food")]
-    public int Food { get; set; }
+    public int? Food { get; set; }
 
     [Column("notes")]
     [StringLength(2000)]
@@ -50,6 +50,10 @@ public partial class Exam
     [ForeignKey("SectionId")]
     [InverseProperty("Exams")]
     public virtual Section? Section { get; set; } = null!;
+
+    [ForeignKey("Type")]
+    [InverseProperty("Exams")]
+    public virtual ExamType? ExamType { get; set; } = null!;
 
     [ForeignKey("DistrictId")]
     [InverseProperty("Exams")]
@@ -86,6 +90,9 @@ public partial class Exam
 
     [Column("student_count")]
     public int? StudentCount { get; set; }
+
+    [Column("Type")]
+    public int? Type { get; set; }
 
     [InverseProperty("Exam")]
     public virtual ICollection<MonitorLog> MonitorLogs { get; set; } = new List<MonitorLog>();

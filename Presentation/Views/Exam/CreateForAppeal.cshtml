@@ -1,0 +1,78 @@
+﻿@model ForQab.Presentation.ViewModels.CreateExamViewModelForAssesment
+
+@{
+    ViewData["Title"] = "Apellyasiya Yarat";
+}
+
+<div class="container py-4" style="background-color: #174D38; border-radius: 10px; color: #ffffff;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="text-center mb-4">@ViewData["Title"]</h1>
+            <hr style="border-color: #7289da;" />
+
+            <form asp-action="CreateForAppeal" method="post" class="p-3">
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">İmtahanın Adı</label>
+                    <input asp-for="Name" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SectionId" class="form-label">İstiqamət</label>
+                    <select asp-for="SectionId" class="form-select" asp-items="ViewBag.SectionList" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>İstiqamət Seçin</option>
+                    </select>
+                    <span asp-validation-for="SectionId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="DistrictId" class="form-label">Rayon</label>
+                    <select asp-for="DistrictId" class="form-select" asp-items="ViewBag.DistrictList" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Rayon Seçin</option>
+                    </select>
+                    <span asp-validation-for="DistrictId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <input type="hidden" asp-for="Type" value="3" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ExamBuldingId" class="form-label">İmtahan Binasi</label>
+                    <select asp-for="ExamBuldingId" class="form-select" asp-items="ViewBag.ExamBuildingList" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>İmtahan Binasi Seçin</option>
+                    </select>
+                    <span asp-validation-for="ExamBuldingId" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ExamDate" class="form-label">Tarix</label>
+                        <input asp-for="ExamDate" type="date" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                        <span asp-validation-for="ExamDate" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Shift" class="form-label">Növbə</label>
+                        <input asp-for="Shift" type="number" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                        <span asp-validation-for="Shift" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">Geri</a>
+                    <button type="submit" class="btn btn-primary" style="background-color: #7289da; border-color: #7289da;">Yarat</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -34,6 +34,8 @@ namespace ForQab.Presentation.ViewModels
 
         [Required]
         public int? StudentCount { get; set; }
+        [Required]
+        public int? Type { get; set; }
 
         [StringLength(2000)]
         public string? Notes { get; set; }

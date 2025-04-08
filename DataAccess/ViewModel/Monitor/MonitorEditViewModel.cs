@@ -18,7 +18,7 @@ namespace ForQab.DataAccess.ViewModel.Monitor
         public string? FinCode { get; set; }
         public string? Serial { get; set; }
 
-        [Required(ErrorMessage = "Bölmə seçilməlidir")]
+        [Required(ErrorMessage = "İstiqamət seçilməlidir")]
         public int SectionId { get; set; }
         public List<SelectListItem>? Sections { get; set; }
 

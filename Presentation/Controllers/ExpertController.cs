@@ -298,7 +298,7 @@ namespace ForQab.Presentation.Controllers
                 new DataColumn("Ad"),
                 new DataColumn("Soyad"),
                 new DataColumn("Ata adı"),
-                new DataColumn("Bölmə"),
+                new DataColumn("İstiqamət"),
                 new DataColumn("Fin kodu"),
                 new DataColumn("Peşə"),
                 new DataColumn("Doğum tarixi"),
