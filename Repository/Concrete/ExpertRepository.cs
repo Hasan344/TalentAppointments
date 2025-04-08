@@ -309,5 +309,14 @@ namespace ForQab.Repository.Concrete
                 .Where(e => expertIds.Contains(e.Id))
                 .ToListAsync();
         }
+        public async Task<Expert?> FindSuitableExpertAsync(int? subProfessionId, int? federationId, int currentExpertId)
+        {
+            return await _context.Experts
+                                    .Where(e => e.SubProfessions.Any(sp => sp.Id == subProfessionId)
+                                                && e.Federation == federationId
+                                                && e.Id != currentExpertId)
+                                    .FirstOrDefaultAsync();
+
+        }
     }
 }

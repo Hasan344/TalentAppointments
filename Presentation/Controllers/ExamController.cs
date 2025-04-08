@@ -106,22 +106,22 @@ namespace ForQab.Presentation.Controllers
 
             return View(viewModel);
         }
-        [HttpGet]
-        public async Task<IActionResult> ChangeExpert(int examId, int expertId)
-        {
-            var viewModel = await _examService.GetChangeExpertViewModelAsync(examId, expertId);
-            if (viewModel == null) return NotFound();
+        //[HttpGet]
+        //public async Task<IActionResult> ChangeExpert(int examId, int expertId)
+        //{
+        //    var viewModel = await _examService.GetChangeExpertViewModelAsync(examId, expertId);
+        //    if (viewModel == null) return NotFound();
 
-            return View(viewModel);
-        }
+        //    return View(viewModel);
+        //}
 
         [HttpPost]
-        public async Task<IActionResult> ChangeExpert(ChangeExpertViewModel model)
+        public async Task<IActionResult> ChangeExpert(int examId, int expertId)
         {
-            var success = await _examService.ChangeExpertAsync(model.ExamId, model.CurrentExpertId, model.NewExpertId);
+            var success = await _examService.ChangeExpertAsync(examId, expertId);
             if (!success) return NotFound();
 
-            return RedirectToAction("Details", new { id = model.ExamId });
+            return RedirectToAction("Details", new { id = examId });
         }
 
         public async Task<IActionResult> ChangeMonitor(int examId, int monitorId)

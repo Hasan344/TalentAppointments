@@ -29,5 +29,6 @@ namespace ForQab.Repository.Abstract
         Task<IEnumerable<Expert>> GetExpertLogsByExpertIdAsync(int expertId);
         Task DeleteExpertLogs(int? id); 
         Task<List<Expert>> GetExpertsByIdsAsync(List<int> expertIds);
+        Task<Expert?> FindSuitableExpertAsync(int? subProfessionId, int? federationId, int currentExpertId);
     }
 }
