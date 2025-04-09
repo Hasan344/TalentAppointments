@@ -99,6 +99,40 @@
             </button>
         </form>
     </div>
+    <div class="mt-4">
+        <h3 style="color: #0056b3; font-weight: bold;">Ekspertin iştirak etdiyi imtahanlar</h3>
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>İmtahan Id</th>
+                    <th>İmtahan Tarixi</th>
+                    <th>Zal</th>
+                    <th>Başlama Saatı</th>
+                    <th>Bitmə Saatı</th>
+                    <th>İxtisas</th>
+                    <th>İmtahan Detallarına Keçid</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var examExpertSubProfession in Model.ExamExpertSubProfessions)
+                {
+                    <tr>
+                        <td>@examExpertSubProfession.Exam.Id</td>
+                        <td>@examExpertSubProfession.Exam.ExamDate</td>
+                        <td>@examExpertSubProfession.ExamRoom?.Name</td>
+                        <td>@examExpertSubProfession.Exam.StartTime</td>
+                        <td>@examExpertSubProfession.Exam.EndTime</td>
+                        <td>@examExpertSubProfession.SubProfession?.Name</td>
+                        <td>
+                            <a class="btn btn-info btn-sm" asp-controller="Exam" asp-action="Details" asp-route-id="@examExpertSubProfession.Exam.Id">
+                                İmtahan Detalları
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 
     <!-- Modal (Pop-up) -->
     <div class="modal fade" id="statusReasonModal" tabindex="-1" aria-labelledby="statusReasonModalLabel" aria-hidden="true">
