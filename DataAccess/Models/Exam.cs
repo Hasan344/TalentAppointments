@@ -68,6 +68,10 @@ public partial class Exam
     [InverseProperty("Exams")]
     public virtual ICollection<DimRepresentative> Representatives { get; set; } = new List<DimRepresentative>();
 
+    [InverseProperty("Exam")]
+    public virtual ICollection<ExamRepresentative> ExamRepresentatives { get; set; } = new List<ExamRepresentative>();
+
+
     [ForeignKey("ExamId")]
     [InverseProperty("Exams")]
     public virtual ICollection<Expert> Experts { get; set; } = new List<Expert>();

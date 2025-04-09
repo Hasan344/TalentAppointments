@@ -1,0 +1,70 @@
+﻿@using ForQab.DataAccess.Models
+@model DimRepresentative
+
+@{
+    ViewData["Title"] = "DİM Nümayəndəsi";
+    string primaryColor = "#0056b3"; 
+    string secondaryColor = "#6c757d";
+}
+
+<div class="container py-5" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+
+    <div class="row">
+        <div class="col-md-6">
+            <dl class="row">
+        <dt class="col-sm-3">ID:</dt>
+        <dd class="col-sm-9">@Model.Id</dd>
+
+        <dt class="col-sm-3">Ad:</dt>
+        <dd class="col-sm-9">@Model.Name</dd>
+
+        <dt class="col-sm-3">Soyad:</dt>
+        <dd class="col-sm-9">@Model.Surname</dd>
+
+        <dt class="col-sm-3">Ata Adı:</dt>
+        <dd class="col-sm-9">@Model.Fname</dd>
+
+        <dt class="col-sm-3">FİN Kodu:</dt>
+        <dd class="col-sm-9">@Model.FinCode</dd>
+    </dl>
+</div>
+    </div>
+</div>
+<div class="mt-4">
+    <h3 style="color: #0056b3; font-weight: bold;">DİM Nümayəndəsinin iştirak etdiyi imtahanlar</h3>
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>İmtahan Id</th>
+                <th>İmtahan Tarixi</th>
+                <th>Başlama Saatı</th>
+                <th>Bitmə Saatı</th>
+                <th>İmtahan Detallarına Keçid</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var examRepresentatives in Model.ExamRepresentatives)
+            {
+                <tr>
+                    <td>@examRepresentatives.Exam.Id</td>
+                    <td>@examRepresentatives.Exam.ExamDate</td>
+                    <td>@examRepresentatives.Exam.StartTime</td>
+                    <td>@examRepresentatives.Exam.EndTime</td>
+                    <td>
+                        <a class="btn btn-info btn-sm" asp-controller="Exam" asp-action="Details" asp-route-id="@examRepresentatives.Exam.Id">
+                            İmtahan Detalları
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="text-center mt-4">
+    <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="Edit" asp-route-id="@Model?.Id">
+        <i class="bi bi-pencil"></i> Düzəliş et
+    </a>
+    <a class="btn btn-secondary px-4 py-2 mx-2" style="background-color: @secondaryColor; border: none;" asp-action="Index">
+        <i class="bi bi-arrow-left"></i> Siyahıya qayıt
+    </a>
+</div>
