@@ -2,7 +2,7 @@
 @model DimRepresentative
 
 @{
-    ViewData["Title"] = "DİM Nümayəndəsini sil";
+    ViewData["Title"] = "Nazirlik nümayəndəsini sil";
 }
 
 <div class="container py-4" style="background-color: #2c2f33; border-radius: 10px; color: #ffffff;">
@@ -11,7 +11,7 @@
             <h1 class="text-center mb-4">@ViewData["Title"]</h1>
             <hr style="border-color: #7289da;" />
 
-            <form asp-controller="Representative" asp-action="Delete" method="post" class="p-3">
+            <form asp-controller="MinistryRepresentative" asp-action="Delete" method="post" class="p-3">
                 <input type="hidden" asp-for="Id" />
 
                 <div class="mb-4 text-center">

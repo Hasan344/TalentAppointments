@@ -175,6 +175,19 @@ namespace ForQab.Presentation.Controllers
             await _examService.ChangeRepresentativeAsync(model);
             return RedirectToAction("Details", new { id = model.ExamId });
         }
+        public async Task<IActionResult> ChangeMinistryRepresentative(int examId, int representativeId)
+        {
+            var viewModel = await _examService.GetChangeMinistryRepresentativeViewModelAsync(examId, representativeId);
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeMinistryRepresentative(ChangeRepresentativeViewModel model)
+        {
+            await _examService.ChangeMinistryRepresentativeAsync(model);
+            return RedirectToAction("Details", new { id = model.ExamId });
+        }
 
         public async Task<IActionResult> Create()
         {
@@ -858,11 +871,43 @@ namespace ForQab.Presentation.Controllers
         {
             if (model.SelectedRepresentativeIds == null || !model.SelectedRepresentativeIds.Any())
             {
-                ModelState.AddModelError("", "Lütfen en az bir temsilci seçin.");
+                ModelState.AddModelError("", "Ən azı bir DİM Nümayəndəsi seçilməlidir.");
                 return View(model);
             }
 
             await _examService.AssignRepresentativesToExamAsync(model.ExamId, model.SelectedRepresentativeIds);
+
+            return RedirectToAction("Details", new { id = model.ExamId });
+        }
+        public async Task<IActionResult> AssignMinistryRepresentatives(int examId)
+        {
+            var representatives = await _examService.GetAvailableMinistryRepresentativesAsync();
+
+            var viewModel = new AssignRepresentativesToExamViewModel
+            {
+                ExamId = examId,
+                Representatives = representatives.Select(r => new RepresentativeViewModelForAssign
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    Surname = r.Surname,
+                    FinCode = r.FinCode
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignMinistryRepresentatives(AssignRepresentativesToExamViewModel model)
+        {
+            if (model.SelectedRepresentativeIds == null || !model.SelectedRepresentativeIds.Any())
+            {
+                ModelState.AddModelError("", "Ən azı bir Nazirlik Nümayəndəsi seçilməlidir.");
+                return View(model);
+            }
+
+            await _examService.AssignMinistryRepresentativesToExamAsync(model.ExamId, model.SelectedRepresentativeIds);
 
             return RedirectToAction("Details", new { id = model.ExamId });
         }
@@ -952,7 +997,7 @@ namespace ForQab.Presentation.Controllers
         }
         public IActionResult ExportExamData()
         {
-            return View(); // Tarih seçimi için bir form gösterilecek
+            return View(); 
         }
 
         [HttpPost]

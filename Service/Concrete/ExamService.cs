@@ -22,10 +22,11 @@ namespace ForQab.Service
         private readonly ISectionRepository _sectionRepository;
         private readonly IMonitorRepository _monitorRepository;
         private readonly IRepresentativeRepository _representativeRepository;
+        private readonly IMinistryRepresentativeRepository _ministryRepresentativeRepository;
         private readonly IExamMonitorRepository _examMonitorRepository;
         private readonly MyDbContext _context;
 
-        public ExamService(IExamRepository examRepository, IExpertRepository expertRepository, ISectionRepository sectionRepository, IExamExpertSubProfessionRepository examExpertSubProfessionRepository, IMonitorRepository monitorRepository, MyDbContext context, IRepresentativeRepository representativeRepository, IExamMonitorRepository examMonitorRepository)
+        public ExamService(IExamRepository examRepository, IExpertRepository expertRepository, ISectionRepository sectionRepository, IExamExpertSubProfessionRepository examExpertSubProfessionRepository, IMonitorRepository monitorRepository, MyDbContext context, IRepresentativeRepository representativeRepository, IExamMonitorRepository examMonitorRepository, IMinistryRepresentativeRepository ministryRepresentativeRepository)
         {
             _examRepository = examRepository;
             _expertRepository = expertRepository;
@@ -35,6 +36,7 @@ namespace ForQab.Service
             _context = context;
             _representativeRepository = representativeRepository;
             _examMonitorRepository = examMonitorRepository;
+            _ministryRepresentativeRepository = ministryRepresentativeRepository;
         }
         public async Task<CreateExamViewModel> PrepareCreateExamViewModelAsync(int? sectionId)
         {
@@ -154,7 +156,7 @@ namespace ForQab.Service
             if (exam == null) return null;
 
             var selectedRepresentativeList = exam.Representatives.Select(m => m.Id).ToList();
-            var availableRepresentatives = await _monitorRepository.GetAvailableRepresentativesAsync(selectedRepresentativeList);
+            var availableRepresentatives = await _representativeRepository.GetAvailableRepresentativeAsync(selectedRepresentativeList);
 
             return new ChangeRepresentativeViewModel
             {
@@ -167,17 +169,25 @@ namespace ForQab.Service
                 }).ToList()
             };
         }
-        //public async Task<bool> UpdateExpertsAsync(int examId, int[] selectedExpertIds)
-        //{
-        //    var exam = await _examRepository.GetExamWithExpertsByIdAsync(examId);
-        //    if (exam == null) return false;
+        public async Task<ChangeRepresentativeViewModel> GetChangeMinistryRepresentativeViewModelAsync(int examId, int representativeId)
+        {
+            var exam = await _examRepository.GetExamWithRepresentativeAsync(examId);
+            if (exam == null) return null;
 
-        //    var selectedExperts = await _expertRepository.GetExpertsByIdsAsync(selectedExpertIds);
-        //    exam.Experts = selectedExperts;
+            var selectedRepresentativeList = exam.Representatives.Select(m => m.Id).ToList();
+            var availableRepresentatives = await _ministryRepresentativeRepository.GetAvailableRepresentativeAsync(selectedRepresentativeList);
 
-        //    await _examRepository.SaveChangesAsync();
-        //    return true;
-        //}
+            return new ChangeRepresentativeViewModel
+            {
+                ExamId = examId,
+                CurrentRepresentativeId = representativeId,
+                AvailableRepresentatives = availableRepresentatives.Select(m => new SelectListItem
+                {
+                    Value = m.Id.ToString(),
+                    Text = $"{m.Name} {m.Surname} ({m.FinCode})"
+                }).ToList()
+            };
+        }
         public async Task<AssignExpertToExamViewModel> PrepareAssignExpertsViewModelAsync(Exam exam)
         {
             var availableSubProfessions = await GetSubprofessionsBySectionIdAsync(exam.SectionId);
@@ -207,6 +217,26 @@ namespace ForQab.Service
 
 
         public async Task<bool> ChangeRepresentativeAsync(ChangeRepresentativeViewModel model)
+        {
+            var exam = await _examRepository.GetExamWithRepresentativeAsync(model.ExamId);
+            if (exam == null) return false;
+
+            var currentRepresentative = exam.Representatives.FirstOrDefault(m => m.Id == model.CurrentRepresentativeId);
+            if (currentRepresentative != null)
+            {
+                exam.Representatives.Remove(currentRepresentative);
+            }
+
+            var newRepresentative = await _representativeRepository.GetByIdAsync(model.NewRepresentativeId);
+            if (newRepresentative != null)
+            {
+                exam.Representatives.Add(newRepresentative);
+            }
+
+            await _examRepository.SaveAsync();
+            return true;
+        }
+        public async Task<bool> ChangeMinistryRepresentativeAsync(ChangeRepresentativeViewModel model)
         {
             var exam = await _examRepository.GetExamWithRepresentativeAsync(model.ExamId);
             if (exam == null) return false;
@@ -518,6 +548,15 @@ namespace ForQab.Service
         public Task<List<DimRepresentative>> GetAvailableRepresentativesAsync()
         {
             return _examRepository.GetAvailableRepresentativesAsync();
+        }
+        public Task AssignMinistryRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds)
+        {
+            return _examRepository.AssignMinistryRepresentativesToExamAsync(examId, selectedRepresentativeIds);
+        }
+
+        public Task<List<DimRepresentative>> GetAvailableMinistryRepresentativesAsync()
+        {
+            return _examRepository.GetAvailableMinistryRepresentativesAsync();
         }
 
         public Task<List<DataAccess.Models.Monitor>> GetAvailableWorkersAsync(int buildingId)

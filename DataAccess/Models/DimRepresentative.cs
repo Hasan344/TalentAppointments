@@ -29,6 +29,9 @@ public partial class DimRepresentative
     [StringLength(50)]
     public string FinCode { get; set; } = null!;
 
+    [Column("type")]
+    public int Type { get; set; }
+
     [ForeignKey("RepresentativeId")]
     [InverseProperty("Representatives")]
     public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();

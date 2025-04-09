@@ -581,6 +581,13 @@
                 </button>
             </form>
         </div>
+     <div class="text-center mt-4">
+        <form asp-action="AssignMinistryRepresentatives" asp-route-id="@Model.Id" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
+                    <i class="bi bi-person-plus"></i> Nazirlik nümayəndəsi Təyin Et
+                </button>
+            </form>
+        </div>
     }
     <div class="text-center mt-4">
         <form asp-action="ExportContingentRegister" method="post">
