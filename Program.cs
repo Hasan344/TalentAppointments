@@ -46,6 +46,8 @@ builder.Services.AddScoped<IFederationService, FederationService>();
 builder.Services.AddScoped<ISectionRepository, SectionRepository>();
 builder.Services.AddScoped<IExamMonitorRepository, ExamMonitorRepository>();
 builder.Services.AddScoped<IExamExpertSubProfessionRepository, ExamExpertSubProfessionRepository>();
+builder.Services.AddScoped<IMinistryRepresentativeService, MinistryRepresentativeService>();
+builder.Services.AddScoped<IMinistryRepresentativeRepository, MinistryRepresentativeRepository>();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireNonAlphanumeric = false;

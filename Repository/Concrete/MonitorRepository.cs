@@ -112,13 +112,6 @@ namespace ForQab.Repository.Concrete
                 .ToListAsync();
         }
 
-        public async Task<List<DimRepresentative>> GetAvailableRepresentativesAsync (List<int> selectedRepresentativeList)
-        {
-            return await _dbContext.DimRepresentatives
-                .Where(m => !selectedRepresentativeList.Contains(m.Id))
-                .ToListAsync();
-        }
-
         public async Task<int?> GetMonitorAttributeByIdAsync(int monitorId, int role)
         {
             return await _dbContext.Monitors

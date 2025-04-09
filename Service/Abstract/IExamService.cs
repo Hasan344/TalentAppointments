@@ -28,6 +28,8 @@ namespace ForQab.Service.Abstract
         Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAppeal(int? sectionId);
         Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds);
         Task<List<DimRepresentative>> GetAvailableRepresentativesAsync();
+        public Task AssignMinistryRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds);
+        public Task<List<DimRepresentative>> GetAvailableMinistryRepresentativesAsync();
         Task<List<DataAccess.Models.Monitor>> GetAvailableWorkersAsync(int buildingId);
         Task<IEnumerable<SubProfession>> GetSubprofessionsBySectionIdAsync(int? sectionId);
         public Task<bool> AssignExpertsAsync(AssignExpertToExamViewModel model);
@@ -48,6 +50,8 @@ namespace ForQab.Service.Abstract
         Task<ChangeRepresentativeViewModel> GetChangeRepresentativeViewModelAsync(int examId, int representativeId);
         Task<bool> ChangeMonitorAsync(ChangeMonitorViewModel model);
         Task<bool> ChangeRepresentativeAsync(ChangeRepresentativeViewModel model);
+        Task<ChangeRepresentativeViewModel> GetChangeMinistryRepresentativeViewModelAsync(int examId, int representativeId);
+        Task<bool> ChangeMinistryRepresentativeAsync(ChangeRepresentativeViewModel model);
         Task<CreateExamViewModel> PrepareCreateExamViewModelAsync(int? sectionId);
         //Task<CreateExamViewModel> PrepareCreateExamViewModelAsyncForAssesment(int? sectionId);
         //Task<CreateExamViewModel> PrepareCreateExamViewModelAsyncForAppeal(int? sectionId);

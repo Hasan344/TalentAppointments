@@ -833,7 +833,11 @@ namespace ForQab.Repository.Concrete
 
         public async Task<List<DimRepresentative>> GetAvailableRepresentativesAsync()
         {
-            return await _context.DimRepresentatives.OrderBy(dr => dr.Surname).ToListAsync();
+            return await _context.DimRepresentatives.OrderBy(dr => dr.Surname).Where(dr => dr.Type == 1).ToListAsync();
+        }
+        public async Task<List<DimRepresentative>> GetAvailableMinistryRepresentativesAsync()
+        {
+            return await _context.DimRepresentatives.OrderBy(dr => dr.Surname).Where(dr => dr.Type == 2).ToListAsync();
         }
 
         public async Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds)
@@ -844,16 +848,45 @@ namespace ForQab.Repository.Concrete
 
             if (exam == null)
             {
-                throw new ArgumentException("Exam not found.");
+                throw new ArgumentException("İmtahan tapılmadı.");
             }
 
             var selectedRepresentatives = await _context.DimRepresentatives
                 .Where(r => selectedRepresentativeIds.Contains(r.Id))
+                .Where(dr => dr.Type == 1)
                 .ToListAsync();
 
             if (selectedRepresentatives.Count != selectedRepresentativeIds.Count)
             {
-                throw new ArgumentException("One or more selected representatives not found.");
+                throw new ArgumentException("Seçilmiş sayıda DİM nümayəndəsi yoxdur.");
+            }
+
+            foreach (var rep in selectedRepresentatives)
+            {
+                exam.Representatives.Add(rep);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+        public async Task AssignMinistryRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds)
+        {
+            var exam = await _context.Exams
+                .Include(e => e.Representatives)
+                .FirstOrDefaultAsync(e => e.Id == examId);
+
+            if (exam == null)
+            {
+                throw new ArgumentException("İmtahan tapılmadı.");
+            }
+
+            var selectedRepresentatives = await _context.DimRepresentatives
+                .Where(r => selectedRepresentativeIds.Contains(r.Id))
+                .Where(dr => dr.Type == 2)
+                .ToListAsync();
+
+            if (selectedRepresentatives.Count != selectedRepresentativeIds.Count)
+            {
+                throw new ArgumentException("Seçilmiş sayıda Nazirlik nümayəndəsi yoxdur.");
             }
 
             foreach (var rep in selectedRepresentatives)
