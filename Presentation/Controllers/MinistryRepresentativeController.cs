@@ -27,6 +27,16 @@ namespace ForQab.Presentation.Controllers
             return View(commissions);
         }
         [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var representative = await _representativeService.GetRepresentativeByIdAsync(id);
+            if (representative == null)
+            {
+                return NotFound();
+            }
+
+            return View(representative);
+        }
         public ActionResult Create()
         {
             return View();

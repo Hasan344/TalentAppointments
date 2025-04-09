@@ -45,6 +45,8 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<ExamMonitor> ExamMonitors { get; set; }
 
+    public virtual DbSet<ExamRepresentative> ExamRepresentatives { get; set; }
+
     public virtual DbSet<ExamDegree> ExamDegrees { get; set; }
 
     public virtual DbSet<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; }
@@ -200,6 +202,8 @@ public partial class MyDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__dim_repr__3213E83F4D403BCE");
         });
+        modelBuilder.Entity<ExamRepresentative>()
+            .HasKey(ec => new { ec.ExamId, ec.RepresentativeId });
 
         modelBuilder.Entity<District>(entity =>
         {

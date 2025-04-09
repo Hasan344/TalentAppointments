@@ -34,5 +34,8 @@ public partial class DimRepresentative
 
     [ForeignKey("RepresentativeId")]
     [InverseProperty("Representatives")]
-    public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
+    public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>(); 
+    [InverseProperty("Representative")]
+    public virtual ICollection<ExamRepresentative> ExamRepresentatives { get; set; } = new List<ExamRepresentative>();
+
 }
