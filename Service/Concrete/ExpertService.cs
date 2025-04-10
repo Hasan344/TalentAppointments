@@ -107,12 +107,12 @@ public class ExpertService : IExpertService
     }
     public async Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId)
     {
-        var includes = new string[] { "DistrictNavigation", "SubProfessions", "Section", "GenderNavigation", "FederationNavigation" };
+        var includes = new string[] { "DistrictNavigation", "ExpertsProfessions", "Section", "GenderNavigation", "FederationNavigation" };
         return await _expertRepository.GetAllAsync(sectionId,null,includes);
     }
     public async Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? federationId, int? subProfessionId)
     {
-        var includes = new string[] { "DistrictNavigation", "SubProfessions", "Section", "GenderNavigation", "FederationNavigation" };
+        var includes = new string[] { "DistrictNavigation", "ExpertsProfessions", "Section", "GenderNavigation", "FederationNavigation" };
 
         var query = await _expertRepository.GetAllAsync(sectionId, null, includes); 
         if (genderId.HasValue)
@@ -155,14 +155,14 @@ public class ExpertService : IExpertService
 
         if (subProfessionId.HasValue && subProfessionId > 0)
         {
-            query = query.Where(m => m.SubProfessions.Any(sp => sp.Id == subProfessionId.Value)).ToList();
+            query = query.Where(m => m.ExpertsProfessions.Any(sp => sp.SubProfessionId == subProfessionId.Value)).ToList();
         }
 
         return query;
     }
     public async Task<IEnumerable<Expert>> GetArchivedExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId)
     {
-        var includes = new string[] { "DistrictNavigation", "SubProfessions", "Section", "GenderNavigation", "FederationNavigation" };
+        var includes = new string[] { "DistrictNavigation", "ExpertsProfessions", "Section", "GenderNavigation", "FederationNavigation" };
 
         var query = await _expertRepository.GetAllArchivedAsync(sectionId, null, includes);
         if (genderId.HasValue)
@@ -199,7 +199,7 @@ public class ExpertService : IExpertService
 
         if (subProfessionId.HasValue && subProfessionId > 0)
         {
-            query = query.Where(m => m.SubProfessions.Any(sp => sp.Id == subProfessionId.Value)).ToList();
+            query = query.Where(m => m.ExpertsProfessions.Any(sp => sp.SubProfessionId == subProfessionId.Value)).ToList();
         }
 
         return query;

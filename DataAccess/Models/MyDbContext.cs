@@ -52,6 +52,8 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<ExamDegree> ExamDegrees { get; set; }
 
+    public virtual DbSet<ExpertsProfession> ExpertsProfessions { get; set; }
+
     public virtual DbSet<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; }
 
     public virtual DbSet<ExamSubCommission> ExamSubCommissions { get; set; }
@@ -132,6 +134,10 @@ public partial class MyDbContext : DbContext
 
         modelBuilder.Entity<ExamCommission>()
             .HasKey(ec => new { ec.ExamId, ec.CommissionId }); // Composite key tanımlayın
+
+        modelBuilder.Entity<ExpertsProfession>()
+            .HasKey(ec => new { ec.ExpertId, ec.SubProfessionId });
+
 
         modelBuilder.Entity<ExamCommission>()
             .HasOne(ec => ec.Exam)
@@ -327,25 +333,23 @@ public partial class MyDbContext : DbContext
 
             entity.HasOne(d => d.Section).WithMany(p => p.Experts).HasConstraintName("FK_Experts_Sections");
 
-            entity.HasMany(d => d.SubProfessions).WithMany(p => p.Experts)
-                .UsingEntity<Dictionary<string, object>>(
-                    "ExpertsProfession",
-                    r => r.HasOne<SubProfession>().WithMany()
-                        .HasForeignKey("SubProfessionId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__experts_professions"),
-                    l => l.HasOne<Expert>().WithMany()
-                        .HasForeignKey("ExpertId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__experts_professions__60A75C0F"),
-                    j =>
-                    {
-                        j.HasKey("ExpertId", "SubProfessionId");
-                        j.ToTable("experts_professions");
-                        j.IndexerProperty<int>("ExpertId").HasColumnName("expert_id");
-                        j.IndexerProperty<int>("SubProfessionId").HasColumnName("sub_profession_id");
-                    });
+            
+
         });
+        modelBuilder.Entity<ExpertsProfession>()
+                .HasKey(ep => new { ep.ExpertId, ep.SubProfessionId });
+
+        modelBuilder.Entity<ExpertsProfession>()
+            .HasOne(ep => ep.Expert)
+            .WithMany(e => e.ExpertsProfessions)
+            .HasForeignKey(ep => ep.ExpertId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ExpertsProfession>()
+            .HasOne(ep => ep.SubProfession)
+            .WithMany(sp => sp.ExpertsProfessions)
+            .HasForeignKey(ep => ep.SubProfessionId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ExpertLog>(entity =>
         {

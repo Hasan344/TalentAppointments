@@ -74,7 +74,7 @@ namespace ForQab.Service
                 query = query.Where(m => m.BirthDate.Value.Year <= endYear.Value).ToList();
             if (subProfessionId.HasValue && subProfessionId > 0)
             {
-                query = query.Where(m => m.SubProfessions.Any(sp => sp.Id == subProfessionId.Value)).ToList();
+                query = query.Where(m => m.ExpertsProfessions.Any(sp => sp.SubProfessionId == subProfessionId.Value)).ToList();
             }
             return query;
         }

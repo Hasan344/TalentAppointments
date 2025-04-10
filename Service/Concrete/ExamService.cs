@@ -615,7 +615,7 @@ namespace ForQab.Service
                 table.Append(headerRow);
 
                 int rowIndex = 1;
-                if(exam.SectionId != 3 && exam.SectionId != 4)
+                if(exam.SectionId != 3 && exam.SectionId != 4 && exam.SectionId != 6)
                 {
                     foreach (var expert in exam.ExamExpertSubProfessions)
                     {
@@ -746,7 +746,8 @@ namespace ForQab.Service
                         var row = new TableRow();
                         row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
                         row.Append(CreateTableCell(expert.ExamRoom?.Name, false, 1500));
-                        row.Append(CreateTableCell($"Ekspert-{expert.SubProfession?.Name} ", false, 3000));
+                        var vez = expert.Expert.Kons == false ? "Ekspert" : "Konsertmeyster";
+                        row.Append(CreateTableCell($"{vez}-{expert.SubProfession?.Name} ", false, 3000));
                         row.Append(CreateTableCell(expert.Expert.Name + " " + expert.Expert.Surname + " " + expert.Expert.Fname, false, 6000));
                         row.Append(CreateTableCell("", false, 2000));
                         table.Append(row);
@@ -755,11 +756,6 @@ namespace ForQab.Service
 
                 body.AppendChild(table);
                 body.AppendChild(CreateItalicParagraph("Qeyd. İmtahana gəlməyən ekspertlərin qarşısında (imza bölməsində) iştirakçıların imtahan binasına buraxılışı başlandıqdan sonra “gəlmədi” yazılır.", 10));
-
-                if (exam.SectionId == 1)
-                {
-                    body.AppendChild(CreateCenteredBoldParagraph("\nÜmumi imtahan rəhbəri: _________ / _______________________ / ", 12));
-                }
 
 
                 mainPart.Document.Save();

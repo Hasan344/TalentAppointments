@@ -26,9 +26,9 @@
 
                         <dt class="col-sm-4 font-weight-bold">İxtisas:</dt>
                         <dd class="col-sm-8">
-                            @if (Model.SubProfessions != null && Model.SubProfessions.Any())
+                            @if (Model.ExpertsProfessions != null && Model.ExpertsProfessions.Any())
                             {
-                                @string.Join(", ", Model.SubProfessions.Select(sp => sp.Name))
+                                @string.Join(", ", Model.ExpertsProfessions.Select(sp => sp.SubProfession.Name))
                             }
                             else
                             {

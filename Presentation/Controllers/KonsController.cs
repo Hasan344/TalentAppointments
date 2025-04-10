@@ -116,7 +116,7 @@ namespace ForQab.Presentation.Controllers
                 Profession = expert.Profession,
                 TelEl = expert.TelEl,
                 TelIs = expert.TelIs,
-                SelectedSubProfessions = expert.SubProfessions.Select(sp => sp.Id).ToArray(),
+                SelectedSubProfessions = expert.ExpertsProfessions.Select(sp => sp.SubProfessionId).ToArray(),
                 SubProfessions = allSubProfessions
                     .Select(sp => new SelectListItem
                     {
@@ -252,8 +252,8 @@ namespace ForQab.Presentation.Controllers
             // Verileri doldur
             foreach (var expert in experts)
             {
-                var subProfessions = expert.SubProfessions != null && expert.SubProfessions.Any()
-                    ? string.Join(", ", expert.SubProfessions.Select(sp => sp.Name))
+                var subProfessions = expert.ExpertsProfessions != null && expert.ExpertsProfessions.Any()
+                    ? string.Join(", ", expert.ExpertsProfessions.Select(sp => sp.SubProfession.Name))
                     : "---";
 
                 dt.Rows.Add(
@@ -354,7 +354,11 @@ namespace ForQab.Presentation.Controllers
                             var subProfession = _context.SubProfessions.FirstOrDefault(sp => sp.Name == subProfessionName);
                             if (subProfession != null)
                             {
-                                expert.SubProfessions.Add(subProfession);
+                                expert.ExpertsProfessions.Add(new Models.ExpertsProfession 
+                                { 
+                                 Expert = expert,
+                                    SubProfession = subProfession
+                                });
                             }
                         }
 

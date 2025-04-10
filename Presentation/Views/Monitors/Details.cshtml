@@ -43,9 +43,19 @@
 
                 <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İş yeri:</dt>
                 <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Workplace)</dd>
-@* 
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Vəzifə:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Position)</dd> *@
+
+                <dl class="row">
+                    <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İxtisas:</dt>
+                    <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">
+                        @if (Model.MonitorsProfessions != null && Model.MonitorsProfessions.Any())
+                        {
+                            @string.Join(", ", Model.MonitorsProfessions.Select(sp => sp.SubProfession?.Name))
+                        }
+                        else
+                        {
+                            <span style="color: @secondaryColor;">---</span>
+                        }
+                    </dd>
             </dl>
         </div>
     </div>

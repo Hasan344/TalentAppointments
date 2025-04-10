@@ -2,6 +2,7 @@
 using ForQab.Data_Access.ViewModel;
 using ForQab.Data_Access.ViewModel.Expert;
 using ForQab.DataAccess.Models;
+using ForQab.Models;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -149,7 +150,7 @@ namespace ForQab.Presentation.Controllers
                 Federation = expert.Federation,
                 TelEl = expert.TelEl,
                 TelIs = expert.TelIs,
-                SelectedSubProfessions = expert.SubProfessions.Select(sp => sp.Id).ToArray(),
+                SelectedSubProfessions = expert.ExpertsProfessions.Select(sp => sp.SubProfessionId).ToArray(),
                 SubProfessions = allSubProfessions
                     .Select(sp => new SelectListItem
                     {
@@ -314,8 +315,8 @@ namespace ForQab.Presentation.Controllers
             // Verileri doldur
             foreach (var expert in experts)
             {
-                var subProfessions = expert.SubProfessions != null && expert.SubProfessions.Any()
-                    ? string.Join(", ", expert.SubProfessions.Select(sp => sp.Name))
+                var subProfessions = expert.ExpertsProfessions != null && expert.ExpertsProfessions.Any()
+                    ? string.Join(", ", expert.ExpertsProfessions.Select(sp => sp.SubProfession.Name))
                     : "---";
 
                 dt.Rows.Add(
@@ -380,12 +381,13 @@ namespace ForQab.Presentation.Controllers
                     var experts = new List<Expert>();
                     var existingFinCodes = _context.Experts.Select(e => e.FinCode).ToHashSet();
 
-                    foreach (var row in worksheet.RowsUsed().Skip(1)) // Başlığı atla
+                    foreach (var row in worksheet.RowsUsed().Skip(1)) 
                     {
                         var finCode = row.Cell(4).GetString();
                         if (string.IsNullOrEmpty(finCode) || existingFinCodes.Contains(finCode))
                         {
-                            continue; // Mövcud və ya boş FinCode-ları əlavə etmə
+                            ModelState.AddModelError("", "Eyni fin kodda ekspert daxil edilməyə çalışıldı.");
+                            return RedirectToAction(nameof(Index));
                         }
 
                         var expert = new Expert
@@ -401,14 +403,14 @@ namespace ForQab.Presentation.Controllers
                             District = _context.Districts.FirstOrDefault(d => d.Name == row.Cell(7).GetString())?.Id,
                             Federation = _context.Professions.FirstOrDefault(p => p.Name == row.Cell(8).GetString())?.Id,
                             HesablashmaH = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
-                            Rekvizit = row.Cell(11).GetString(),
-                            Serial = row.Cell(12).GetString(),
-                            SSN = row.Cell(13).GetString(),
+                            Rekvizit = row.Cell(11).IsEmpty() ? null : row.Cell(11).GetString(),
+                            Serial = row.Cell(12).IsEmpty() ? null : row.Cell(12).GetString(),
+                            SSN = row.Cell(13).IsEmpty() ? null : row.Cell(13).GetString(),
                             Voen = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
                             BirthDate = row.Cell(15).IsEmpty() ? null
                                 : DateOnly.ParseExact(row.Cell(15).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
                             Status = 0,
-                            BankFilial = row.Cell(16).GetString(),
+                            BankFilial = row.Cell(16).IsEmpty() ? null : row.Cell(16).GetString(),
                             BankFilialCode = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
                             TelIs = row.Cell(18).IsEmpty() ? null : row.Cell(18).GetString(),
                         };
@@ -420,7 +422,12 @@ namespace ForQab.Presentation.Controllers
                             var subProfession = _context.SubProfessions.FirstOrDefault(sp => sp.Name == subProfessionName);
                             if (subProfession != null)
                             {
-                                expert.SubProfessions.Add(subProfession);
+                                expert.ExpertsProfessions.Add(new ExpertsProfession
+                                {
+                                    Expert = expert, 
+                                    SubProfession = subProfession 
+                                });
+
                             }
                         }
 

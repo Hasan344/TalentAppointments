@@ -121,12 +121,12 @@
                         <td>@Html.DisplayFor(modelItem => item.Fname)</td>
                         <td>@Html.DisplayFor(modelItem => item.Section.Name)</td>
                         <td>
-                            @if (item.SubProfessions != null && item.SubProfessions.Any())
+                            @if (item.ExpertsProfessions != null && item.ExpertsProfessions.Any())
                             {
                                 <ul class="list-unstyled mb-0">
-                                    @foreach (var subProfession in item.SubProfessions)
+                                    @foreach (var subProfession in item.ExpertsProfessions)
                                     {
-                                        <li>@subProfession.Name</li>
+                                        <li>@subProfession.SubProfession.Name</li>
                                     }
                                 </ul>
                             }

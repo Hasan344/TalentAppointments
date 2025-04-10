@@ -32,12 +32,10 @@ public partial class SubProfession
     [InverseProperty("SubProfessions")]
     public virtual Section? Section { get; set; } = null!;
 
-    [ForeignKey("SubProfessionId")]
-    [InverseProperty("SubProfessions")]
-    public virtual ICollection<Expert> Experts { get; set; } = new List<Expert>();
-
     [InverseProperty("SubProfession")]
     public virtual ICollection<MonitorsProfession> MonitorsProfessions { get; set; } = new List<MonitorsProfession>();
 
     public virtual ICollection<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; } = new List<ExamExpertSubProfession>();
+    public virtual ICollection<ExpertsProfession> ExpertsProfessions { get; set; } = new List<ExpertsProfession>(); 
+    public ICollection<Expert> Experts { get; set; }
 }
