@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using ForQab.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ForQab.DataAccess.Models;
@@ -169,5 +170,9 @@ public partial class Monitor
     [StringLength(50)]
     public string? Uni { get; set; }
     public virtual ICollection<ExamMonitor> ExamMonitors { get; set; } = new List<ExamMonitor>();
+
+    [InverseProperty("Monitor")]
+    public virtual ICollection<MonitorsProfession> MonitorsProfessions { get; set; } = new List<MonitorsProfession>();
+
 
 }

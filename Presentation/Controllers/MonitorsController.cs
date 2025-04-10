@@ -10,6 +10,10 @@ using System.Data;
 using ForQab.Presentation.Validators;
 using ForQab.DataAccess.ViewModel.Monitor;
 using ForQab.Service.Abstract;
+using ForQab.Data_Access.ViewModel;
+using ForQab.Service;
+using ForQab.Migrations;
+using System.Threading;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -65,17 +69,27 @@ namespace ForQab.Presentation.Controllers
         {
             var sectionId = await GetCurrentSectionIdAsync();
             var sections = await _monitorService.GetSectionsAsync(sectionId);
+            var subProfessions = await _monitorService.GetSubProfessionsAsync(sectionId);
+
+            var viewModel = new MonitorViewModel
+            {
+                SubProfessions = subProfessions.Select(sp => new SelectListItem
+                {
+                    Text = sp.Name,
+                    Value = sp.Id.ToString()
+                }).ToList()
+            };
             ViewBag.SectionList = new SelectList(sections, "Id", "Name");
             ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
             ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name");
             ViewData["District"] = new SelectList(_context.Districts, "Id", "Name");
-            return View();
+            return View(viewModel);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Monitor monitor)
+        public async Task<IActionResult> Create(MonitorViewModel monitor)
         {
-            var validator = new HeadMonitorValidator();
+            var validator = new MonitorValidator();
             var result = validator.Validate(monitor);
 
             if (!result.IsValid)
@@ -102,17 +116,17 @@ namespace ForQab.Presentation.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var monitor = await _monitorService.GetByIdAsync(id);
-            if (monitor == null)
+            try
+            {
+                var monitor = await _monitorService.GetByIdAsync(id);
+                await LoadViewData(monitor);
+                var viewModel = await _monitorService.GetMonitorForEditAsync(id);
+                return View(viewModel);
+            }
+            catch (KeyNotFoundException)
             {
                 return NotFound();
             }
-            if (!await IsSectionValidAsync<Monitor>(id))
-            {
-                return Forbid();
-            }
-            await LoadViewData(monitor);
-            return View(monitor);
         }
 
         [HttpPost]
@@ -132,7 +146,7 @@ namespace ForQab.Presentation.Controllers
 
             try
             {
-                await _monitorService.UpdateModelAsync(monitor);
+                await _monitorService.UpdateAsync(monitor);
                 return RedirectToAction("Index");
             }
             catch (KeyNotFoundException ex)
@@ -278,6 +292,16 @@ namespace ForQab.Presentation.Controllers
             return RedirectToAction(nameof(Index));
         }
         private async Task LoadViewData(Monitor monitor)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var sections = await _monitorService.GetSectionsAsync(sectionId);
+
+            ViewBag.SectionList = new SelectList(sections, "Id", "Name");
+            ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name", monitor.Gender);
+            ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name", monitor.Role);
+            ViewData["District"] = new SelectList(_context.Districts, "Id", "Name", monitor.District);
+        }
+        private async Task LoadViewData(MonitorViewModel monitor)
         {
             var sectionId = await GetCurrentSectionIdAsync();
             var sections = await _monitorService.GetSectionsAsync(sectionId);

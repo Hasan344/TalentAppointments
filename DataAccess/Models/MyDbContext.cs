@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ForQab.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ForQab.DataAccess.Models;
@@ -44,6 +45,8 @@ public partial class MyDbContext : DbContext
     public virtual DbSet<ExamCommission> ExamCommissions { get; set; }
 
     public virtual DbSet<ExamMonitor> ExamMonitors { get; set; }
+
+    public virtual DbSet<MonitorsProfession> MonitorsProfessions { get; set; }
 
     public virtual DbSet<ExamRepresentative> ExamRepresentatives { get; set; }
 
@@ -163,6 +166,9 @@ public partial class MyDbContext : DbContext
         {
             entity.HasKey(e => new { e.ExamId, e.ExpertId});
         });
+
+        modelBuilder.Entity<MonitorsProfession>()
+            .HasKey(ec => new { ec.MonitorId, ec.SubProfessionId });
 
         modelBuilder.Entity<ExamExpertSubProfession>()
             .HasOne(ec => ec.Exam)
@@ -369,7 +375,26 @@ public partial class MyDbContext : DbContext
 
             entity.HasOne(d => d.ExamBuilding).WithMany(p => p.Monitors).HasConstraintName("FK__monitor_building");
 
-            entity.HasOne(d => d.Section).WithMany(p => p.Monitors).HasConstraintName("FK__superviso__secti__60A75C0F");
+            entity.HasOne(d => d.Section).WithMany(p => p.Monitors).HasConstraintName("FK__superviso__secti__60A75C0F"); 
+            
+        //    entity.HasMany(d => d.SubProfessions).WithMany(p => p.Monitors)
+        //        .UsingEntity<Dictionary<string, object>>(
+        //            "MonitorsProfession",
+        //            r => r.HasOne<SubProfession>().WithMany()
+        //                .HasForeignKey("SubProfessionId")
+        //                .OnDelete(DeleteBehavior.ClientSetNull)
+        //                .HasConstraintName("FK__monitors_professions"),
+        //            l => l.HasOne<Monitor>().WithMany()
+        //                .HasForeignKey("MonitorId")
+        //                .OnDelete(DeleteBehavior.ClientSetNull)
+        //                .HasConstraintName("FK__monitors_professions__60A75C0F"),
+        //            j =>
+        //            {
+        //                j.HasKey("MonitorId", "SubProfessionId");
+        //                j.ToTable("monitors_professions");
+        //                j.IndexerProperty<int>("MonitorId").HasColumnName("monitor_id");
+        //                j.IndexerProperty<int>("SubProfessionId").HasColumnName("sub_profession_id");
+        //            });
         });
 
         modelBuilder.Entity<MonitorLog>(entity =>

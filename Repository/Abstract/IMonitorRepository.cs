@@ -17,5 +17,6 @@ namespace ForQab.Repository.Abstract
         Task<int?> GetMonitorAttributeByIdAsync(int monitorId, int role);
         Task<Monitor> GetMonitorByIdAsync(int monitorId); 
         Task<List<Monitor>> GetMonitorsByIdsAsync(List<int> monitorIds);
+        Task<IEnumerable<SubProfession>> GetSubProfessionsAsync(int? sectionId);
     }
 }

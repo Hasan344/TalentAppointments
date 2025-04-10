@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ForQab.DataAccess.ViewModel.Monitor
 {
-    public class MonitorEditViewModel
+    public class MonitorViewModel
     {
         public int Id { get; set; }
 
@@ -12,7 +12,6 @@ namespace ForQab.DataAccess.ViewModel.Monitor
 
         [Required(ErrorMessage = "Soyad boş ola bilməz")]
         public string Surname { get; set; }
-
         public string? Fname { get; set; }
         public string? Region { get; set; }
         public string? FinCode { get; set; }
@@ -33,14 +32,19 @@ namespace ForQab.DataAccess.ViewModel.Monitor
         public string? Voen { get; set; }
         public string? BankFilial { get; set; }
         public string? BankFilialCode { get; set; }
-
-        [Required(ErrorMessage = "Rayon seçilməlidir")]
-        public byte District { get; set; }
-        public List<SelectListItem>? Districts { get; set; }
+        public int? Role { get; set; }
+        public int? Status { get; set; }
+        public int? AssignmentCount { get; set; }
+        public int? Archive { get; set; }
         public string? VNum { get; set; }
         public string? Workplace { get; set; }
         public string? HesablashmaH { get; set; }
         public string? TelIs { get; set; }
+        
+
+        [Required(ErrorMessage = "Rayon seçilməlidir")]
+        public byte District { get; set; }
+        public List<SelectListItem>? Districts { get; set; }
         public List<SelectListItem>? SubProfessions { get; set; } 
         public int[]? SelectedSubProfessions { get; set; } 
     }

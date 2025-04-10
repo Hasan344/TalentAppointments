@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using ForQab.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ForQab.DataAccess.Models;
@@ -34,5 +35,9 @@ public partial class SubProfession
     [ForeignKey("SubProfessionId")]
     [InverseProperty("SubProfessions")]
     public virtual ICollection<Expert> Experts { get; set; } = new List<Expert>();
+
+    [InverseProperty("SubProfession")]
+    public virtual ICollection<MonitorsProfession> MonitorsProfessions { get; set; } = new List<MonitorsProfession>();
+
     public virtual ICollection<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; } = new List<ExamExpertSubProfession>();
 }

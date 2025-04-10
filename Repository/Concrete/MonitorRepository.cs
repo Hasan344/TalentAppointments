@@ -5,6 +5,7 @@ using ForQab.DataAccess.ViewModel.Monitor;
 using ForQab.DataAccess.ViewModel.Worker;
 using ForQab.Repository.Abstract;
 using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 using System.Linq.Expressions;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 namespace ForQab.Repository.Concrete
@@ -139,6 +140,15 @@ namespace ForQab.Repository.Concrete
             return await _dbContext.Monitors
                 .Where(m => monitorIds.Contains(m.Id))
                 .ToListAsync();
+        }
+
+        public async Task<IEnumerable<SubProfession>> GetSubProfessionsAsync(int? sectionId)
+        {
+            if (sectionId == null)
+            {
+                return _dbContext.SubProfessions.ToList();
+            }
+            return _dbContext.SubProfessions.Where(e => e.SectionId == sectionId).ToList();
         }
     }
 }
