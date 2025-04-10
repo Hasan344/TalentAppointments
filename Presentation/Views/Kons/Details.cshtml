@@ -41,9 +41,9 @@
                 <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İxtisas:</dt>
                 <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">
 
-                    @if (Model.SubProfessions != null && Model.SubProfessions.Any())
+                    @if (Model.ExpertsProfessions != null && Model.ExpertsProfessions.Any())
                     {
-                        @string.Join(", ", Model.SubProfessions.Select(sp => sp.Name))
+                        @string.Join(", ", Model.ExpertsProfessions.Select(sp => sp.SubProfession.Name))
                     }
                     else
                     {

@@ -3,7 +3,6 @@ using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Monitor;
 using ForQab.Models;
 using ForQab.Repository.Abstract;
-using ForQab.Repository.Concrete;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -86,7 +85,7 @@ namespace ForQab.Service
         public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId)
         {
 
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorsProfessions" };
             var query = await _monitorRepository.GetAllAsync(sectionId, 2, null, includes);
             return await _monitorRepository.GetAllAsync(sectionId, 2, null, includes);
         }
@@ -94,7 +93,7 @@ namespace ForQab.Service
         public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
 
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorsProfessions" };
             var query = await _monitorRepository.GetAllAsync(sectionId, 2, null, includes);
             if (genderId.HasValue )
             {
@@ -133,7 +132,7 @@ namespace ForQab.Service
 
         public async Task<Monitor> GetByIdAsync(int id)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding", "ExamMonitors.Exams", "ExamMonitors.ExamRooms" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding", "ExamMonitors.Exams", "ExamMonitors.ExamRooms", "MonitorsProfessions.SubProfession" };
 
             return await _monitorRepository.GetByIdAsync(id, null, includes);
         }
@@ -294,11 +293,11 @@ namespace ForQab.Service
                 }
             }
 
-            return "HeadMonitor-lər uğurla idxal edildi.";
+            return "Nəzarətçilər uğurla idxal edildi.";
         }
         public async Task<byte[]> ExportToExcelAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorsProfessions" };
 
             // Filtreleri içeren veri çekme işlemi
             var monitors = await _monitorRepository.GetAllAsync(sectionId, 2, null, includes);
@@ -397,7 +396,7 @@ namespace ForQab.Service
 
         public async Task<IEnumerable<Monitor>> GetAllArchivedAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorsProfessions" };
             var query = await _monitorRepository.GetAllAsync(sectionId, 2, null, includes);
             if (genderId.HasValue && genderId > 0)
             {
@@ -458,8 +457,8 @@ namespace ForQab.Service
         public async Task<MonitorEditViewModel> GetMonitorForEditAsync(int id)
         {
             var monitor = await _context.Monitors
-                .Include(m => m.MonitorsProfessions) // MonitorsProfessions ilişkisini yüklüyoruz
-                .ThenInclude(mp => mp.SubProfession) // SubProfession verilerini de getiriyoruz
+                .Include(m => m.MonitorsProfessions) 
+                    .ThenInclude(mp => mp.SubProfession) 
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (monitor == null)

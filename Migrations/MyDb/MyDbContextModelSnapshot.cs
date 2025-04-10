@@ -21,20 +21,20 @@ namespace ForQab.Migrations.MyDb
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ExpertSubProfession", b =>
-                {
-                    b.Property<int>("ExpertId")
-                        .HasColumnType("int");
+            //modelBuilder.Entity("ExpertSubProfession", b =>
+            //    {
+            //        b.Property<int>("ExpertId")
+            //            .HasColumnType("int");
 
-                    b.Property<int>("SubProfessionId")
-                        .HasColumnType("int");
+            //        b.Property<int>("SubProfessionId")
+            //            .HasColumnType("int");
 
-                    b.HasKey("ExpertId", "SubProfessionId");
+            //        b.HasKey("ExpertId", "SubProfessionId");
 
-                    b.HasIndex("SubProfessionId");
+            //        b.HasIndex("SubProfessionId");
 
-                    b.ToTable("ExpertSubProfession");
-                });
+            //        b.ToTable("ExpertSubProfession");
+            //    });
 
             modelBuilder.Entity("ForQab.Models.Commission", b =>
                 {
@@ -554,20 +554,20 @@ namespace ForQab.Migrations.MyDb
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ExpertSubProfession", b =>
-                {
-                    b.HasOne("ForQab.Models.Expert", null)
-                        .WithMany()
-                        .HasForeignKey("ExpertId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            //modelBuilder.Entity("ExpertSubProfession", b =>
+            //    {
+            //        b.HasOne("ForQab.Models.Expert", null)
+            //            .WithMany()
+            //            .HasForeignKey("ExpertId")
+            //            .OnDelete(DeleteBehavior.Cascade)
+            //            .IsRequired();
 
-                    b.HasOne("ForQab.Models.SubProfession", null)
-                        .WithMany()
-                        .HasForeignKey("SubProfessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            //        b.HasOne("ForQab.Models.SubProfession", null)
+            //            .WithMany()
+            //            .HasForeignKey("SubProfessionId")
+            //            .OnDelete(DeleteBehavior.Cascade)
+            //            .IsRequired();
+            //    });
 
             modelBuilder.Entity("ForQab.Models.Commission", b =>
                 {

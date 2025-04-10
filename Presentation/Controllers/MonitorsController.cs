@@ -79,6 +79,7 @@ namespace ForQab.Presentation.Controllers
                     Value = sp.Id.ToString()
                 }).ToList()
             };
+            ViewBag.Section = sectionId;
             ViewBag.SectionList = new SelectList(sections, "Id", "Name");
             ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
             ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name");
@@ -118,9 +119,11 @@ namespace ForQab.Presentation.Controllers
         {
             try
             {
+                var sectionId = await GetCurrentSectionIdAsync();
                 var monitor = await _monitorService.GetByIdAsync(id);
                 await LoadViewData(monitor);
                 var viewModel = await _monitorService.GetMonitorForEditAsync(id);
+                ViewBag.Section = sectionId;
                 return View(viewModel);
             }
             catch (KeyNotFoundException)

@@ -136,7 +136,7 @@ namespace ForQab.Repository.Concrete
 
             var experts = await _context.Experts
                 .Where(e => e.SectionId == exam.SectionId &&
-                            e.SubProfessions.Any(sp => selectedSubProfessions.Contains(sp.Id)) &&
+                            e.ExpertsProfessions.Any(sp => selectedSubProfessions.Contains(sp.SubProfessionId)) &&
                             !assignedExpertIds.Contains(e.Id) &&
                             e.Archive == 0 &&
                             e.Status == 0 && e.Federation == federationId)
@@ -484,7 +484,7 @@ namespace ForQab.Repository.Concrete
         {
             return await _context.Experts
                 .Where(e => e.SectionId == sectionId)
-                .Where(e => e.SubProfessions.Any(sp => selectedSubProfessions.Contains(sp.Id)))
+                .Where(e => e.ExpertsProfessions.Any(sp => selectedSubProfessions.Contains(sp.SubProfessionId)))
                 .CountAsync();
         }
 

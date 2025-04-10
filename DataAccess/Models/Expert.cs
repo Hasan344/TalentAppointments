@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ForQab.Models;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ForQab.DataAccess.Models;
@@ -39,10 +40,7 @@ public partial class Expert
     [ForeignKey("ExpertId")]
     [InverseProperty("Experts")]
     public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
-
-    [ForeignKey("ExpertId")]
-    [InverseProperty("Experts")]
-    public virtual ICollection<SubProfession> SubProfessions { get; set; } = new List<SubProfession>();
+    public virtual ICollection<ExpertsProfession> ExpertsProfessions { get; set; } = new List<ExpertsProfession>();
 
     [Column("birth_date")]
     public DateOnly? BirthDate { get; set; }
@@ -125,5 +123,6 @@ public partial class Expert
     [Column("status_reason")]
     [StringLength(2000)]
     public string? StatusReason { get; set; }
-    public virtual ICollection<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; } = new List<ExamExpertSubProfession>();
+    public virtual ICollection<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; } = new List<ExamExpertSubProfession>(); 
+    public ICollection<SubProfession> SubProfessions { get; set; }
 }

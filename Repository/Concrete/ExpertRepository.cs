@@ -20,7 +20,8 @@ namespace ForQab.Repository.Concrete
         {
             return await _context.Experts
                 .Include(e => e.Section)
-                .Include(e => e.SubProfessions)
+                .Include(e => e.ExpertsProfessions)
+                    .ThenInclude(e => e.SubProfession)
                 .Include(e => e.DistrictNavigation)
                 .Include(e => e.GenderNavigation)
                 .Include(e => e.FederationNavigation)
@@ -31,7 +32,8 @@ namespace ForQab.Repository.Concrete
         {
             return await _context.Experts
                 .Include(e => e.Section)
-                .Include(e => e.SubProfessions)
+                .Include(e => e.ExpertsProfessions)
+                    .ThenInclude(e => e.SubProfession)
                 .Include(e => e.DistrictNavigation)
                 .Include(e => e.GenderNavigation)
                 .Include(e => e.FederationNavigation)
@@ -76,7 +78,11 @@ namespace ForQab.Repository.Concrete
                     var subProfession = await _context.SubProfessions.FindAsync(subProfessionId);
                     if (subProfession != null)
                     {
-                        expert.SubProfessions.Add(subProfession);
+                        expert.ExpertsProfessions.Add(new Models.ExpertsProfession
+                        {
+                            Expert = expert,
+                            SubProfession = subProfession
+                        });
                     }
                 }
             }
@@ -88,7 +94,7 @@ namespace ForQab.Repository.Concrete
         public async Task UpdateAsync(ExpertEditViewModel expert)
         {
             var existingExpert = await _context.Experts
-                .Include(e => e.SubProfessions)
+                .Include(e => e.ExpertsProfessions)
                 .Include(e => e.DistrictNavigation)
                 .Include(e => e.GenderNavigation)
                 .Include(e => e.FederationNavigation)
@@ -117,9 +123,9 @@ namespace ForQab.Repository.Concrete
                 existingExpert.TelEl = expert.TelEl;
 
                 // SubProfessions yeniləməsi
-                if (existingExpert.SubProfessions != null)
+                if (existingExpert.ExpertsProfessions != null)
                 {
-                    existingExpert.SubProfessions.Clear();
+                    existingExpert.ExpertsProfessions.Clear();
                 }
                 if (expert.SelectedSubProfessions != null)
                 {
@@ -128,7 +134,11 @@ namespace ForQab.Repository.Concrete
                         var subProfession = await _context.SubProfessions.FindAsync(subProfessionId);
                         if (subProfession != null)
                         {
-                            existingExpert.SubProfessions.Add(subProfession);
+                            existingExpert.ExpertsProfessions.Add(new Models.ExpertsProfession 
+                            {
+                            SubProfession = subProfession,
+                                Expert = existingExpert
+                            });
                         }
                     }
                 }
@@ -146,7 +156,7 @@ namespace ForQab.Repository.Concrete
         public async Task DeleteAsync(int id)
         {
             var expert = await _context.Experts
-                .Include(e => e.SubProfessions)
+                .Include(e => e.ExpertsProfessions)
                 .Include(e => e.DistrictNavigation)
                 .Include(e => e.GenderNavigation)
                 .Include(e => e.FederationNavigation)
@@ -169,12 +179,15 @@ namespace ForQab.Repository.Concrete
         public async Task AddSubProfessionToExpertAsync(int expertId, SubProfession subProfession)
         {
             var expert = await _context.Experts
-                .Include(e => e.SubProfessions)
+                .Include(e => e.ExpertsProfessions)
                 .FirstOrDefaultAsync(e => e.Id == expertId);
 
             if (expert != null)
             {
-                expert.SubProfessions.Add(subProfession);
+                expert.ExpertsProfessions.Add(new Models.ExpertsProfession {
+                    ExpertId = expertId,
+                    SubProfessionId = subProfession.Id
+                });
                 await _context.SaveChangesAsync();
             }
         }
@@ -182,15 +195,15 @@ namespace ForQab.Repository.Concrete
         public async Task RemoveSubProfessionFromExpertAsync(int expertId, int subProfessionId)
         {
             var expert = await _context.Experts
-                .Include(e => e.SubProfessions)
+                .Include(e => e.ExpertsProfessions)
                 .FirstOrDefaultAsync(e => e.Id == expertId);
 
             if (expert != null)
             {
-                var subProfession = expert.SubProfessions.FirstOrDefault(sp => sp.Id == subProfessionId);
+                var subProfession = expert.ExpertsProfessions.FirstOrDefault(sp => sp.SubProfessionId == subProfessionId);
                 if (subProfession != null)
                 {
-                    expert.SubProfessions.Remove(subProfession);
+                    expert.ExpertsProfessions.Remove(subProfession);
                     await _context.SaveChangesAsync();
                 }
             }
@@ -203,7 +216,7 @@ namespace ForQab.Repository.Concrete
                             EF.Functions.Like(e.Surname, $"%{name}%") ||
                             EF.Functions.Like(e.Fname, $"%{name}%"))
                 .Include(e => e.Section)
-                .Include(e => e.SubProfessions)
+                .Include(e => e.ExpertsProfessions)
                 .ToListAsync();
         }
 
@@ -303,7 +316,7 @@ namespace ForQab.Repository.Concrete
         {
             return await _context.Experts
                 .Where(e => e.SectionId == sectionId)
-                .Where(e => e.SubProfessions.Any(sp => sp.Id == subProfessionId)) // Match the correct SubProfession
+                .Where(e => e.ExpertsProfessions.Any(sp => sp.SubProfessionId == subProfessionId)) // Match the correct SubProfession
                 .Where(e => !excludedExpertIds.Contains(e.Id)) // Exclude already selected experts
                 .ToListAsync();
         }
@@ -316,7 +329,7 @@ namespace ForQab.Repository.Concrete
         public async Task<Expert?> FindSuitableExpertAsync(int? subProfessionId, int? federationId, int currentExpertId)
         {
             return await _context.Experts
-                                    .Where(e => e.SubProfessions.Any(sp => sp.Id == subProfessionId)
+                                    .Where(e => e.ExpertsProfessions.Any(sp => sp.SubProfessionId == subProfessionId)
                                                 && e.Federation == federationId
                                                 && e.Id != currentExpertId)
                                     .FirstOrDefaultAsync();

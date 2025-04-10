@@ -464,29 +464,29 @@ namespace ForQab.Migrations.MyDb
                         principalColumn: "id");
                 });
 
-            migrationBuilder.CreateTable(
-                name: "ExpertSubProfession",
-                columns: table => new
-                {
-                    ExpertId = table.Column<int>(type: "int", nullable: false),
-                    SubProfessionId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ExpertSubProfession", x => new { x.ExpertId, x.SubProfessionId });
-                    table.ForeignKey(
-                        name: "FK_ExpertSubProfession_experts_ExpertId",
-                        column: x => x.ExpertId,
-                        principalTable: "experts",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ExpertSubProfession_sub_professions_SubProfessionId",
-                        column: x => x.SubProfessionId,
-                        principalTable: "sub_professions",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            //migrationBuilder.CreateTable(
+            //    name: "ExpertSubProfession",
+            //    columns: table => new
+            //    {
+            //        ExpertId = table.Column<int>(type: "int", nullable: false),
+            //        SubProfessionId = table.Column<int>(type: "int", nullable: false)
+            //    },
+            //    constraints: table =>
+            //    {
+            //        table.PrimaryKey("PK_ExpertSubProfession", x => new { x.ExpertId, x.SubProfessionId });
+            //        table.ForeignKey(
+            //            name: "FK_ExpertSubProfession_experts_ExpertId",
+            //            column: x => x.ExpertId,
+            //            principalTable: "experts",
+            //            principalColumn: "id",
+            //            onDelete: ReferentialAction.Cascade);
+            //        table.ForeignKey(
+            //            name: "FK_ExpertSubProfession_sub_professions_SubProfessionId",
+            //            column: x => x.SubProfessionId,
+            //            principalTable: "sub_professions",
+            //            principalColumn: "id",
+            //            onDelete: ReferentialAction.Cascade);
+            //    });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
