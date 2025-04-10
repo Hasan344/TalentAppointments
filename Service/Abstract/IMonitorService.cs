@@ -9,7 +9,8 @@ namespace ForQab.Service.Abstract
         Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId);
         Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear);
         Task<IEnumerable<Monitor>> GetAllArchivedAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear);
-        Task AddAsync(Monitor entity);
+        Task AddAsync(MonitorViewModel entity);
+        Task UpdateAsync(MonitorEditViewModel entity);
         Task UpdateAsync(Monitor entity);
         Task DeleteAsync(int id);
         Task<IEnumerable<Section>> GetSectionsAsync(int? sectionId);
@@ -20,5 +21,7 @@ namespace ForQab.Service.Abstract
         Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId);
         Task DeleteMonitorLogs(int? id);
         Task UpdateModelAsync(MonitorEditViewModel model);
+        Task<IEnumerable<SubProfession>> GetSubProfessionsAsync(int? sectionId);
+        Task<MonitorEditViewModel> GetMonitorForEditAsync(int id);
     }
 }

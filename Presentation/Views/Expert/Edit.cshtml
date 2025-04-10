@@ -152,7 +152,7 @@
                 <div class="mb-3">
                     <label class="form-label">Alt Peşələr</label>
                     <select asp-for="SelectedSubProfessions" id="SelectedSubProfessions" class="form-select" multiple style="background-color: #23272a; color: #ffffff;">
-                        @if (ViewBag.Section == 2 || @ViewBag.Section == 5)
+                        @if (ViewBag.Section != 1)
                         {
                             @foreach (var sp in Model.SubProfessions)
                             {
@@ -184,7 +184,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     var section = @ViewBag.Section;
-    if (section === 1 || section === 3 || section === 4) {
+    if (section === 1) {
     $(document).ready(function () {
         $("#Federation").change(function () {
             var federationId = $(this).val();

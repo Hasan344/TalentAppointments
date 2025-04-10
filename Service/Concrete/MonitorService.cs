@@ -1,8 +1,11 @@
 ﻿using ClosedXML.Excel;
 using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Monitor;
+using ForQab.Models;
 using ForQab.Repository.Abstract;
+using ForQab.Repository.Concrete;
 using ForQab.Service.Abstract;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Globalization;
@@ -21,9 +24,59 @@ namespace ForQab.Service
             _context = context;
         }
 
-        public async Task AddAsync(Monitor entity)
+        public async Task AddAsync(MonitorViewModel entity)
         {
-            await _monitorRepository.AddAsync(entity);
+            var monitor = new Monitor
+            {
+                Name = entity.Name,
+                Surname = entity.Surname,
+                Fname = entity.Fname,
+                Region = entity.Region,
+                FinCode = entity.FinCode,
+                Serial = entity.Serial,
+                SectionId = entity.SectionId,
+                Gender = entity.Gender,
+                BirthDate = entity.BirthDate,
+                ContractNo = entity.ContractNo,
+                ContractDate = entity.ContractDate,
+                Uni = entity.Uni,
+                Position = entity.Position,
+                Profession = entity.Profession,
+                SSN = entity.SSN,
+                Rekvizit = entity.Rekvizit,
+                Voen = entity.Voen,
+                BankFilial = entity.BankFilial,
+                BankFilialCode = entity.BankFilialCode,
+                Role = (byte?)entity.Role, 
+                Status = (byte?)entity.Status, 
+                AssignmentCount = entity.AssignmentCount,
+                Archive = (byte)(entity.Archive ?? 0), 
+                VNum = entity.VNum,
+                Workplace = entity.Workplace,
+                HesablashmaH = entity.HesablashmaH,
+                TelIs = entity.TelIs,
+                District = entity.District,
+                ExamMonitors = new List<ExamMonitor>(),
+            };
+            await _monitorRepository.AddAsync(monitor);
+
+            if (entity.SelectedSubProfessions != null && entity.SelectedSubProfessions.Any())
+            {
+                var subProfessions = await _context.SubProfessions
+                    .Where(sp => entity.SelectedSubProfessions.Contains(sp.Id))
+                    .ToListAsync();
+
+                foreach (var subProf in subProfessions)
+                {
+                    var monitorSubProfession = new MonitorsProfession
+                    {
+                        MonitorId = monitor.Id,
+                        SubProfessionId = subProf.Id
+                    };
+                    _context.MonitorsProfessions.Add(monitorSubProfession);
+                }
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task DeleteAsync(int id)
@@ -94,6 +147,75 @@ namespace ForQab.Service
         {
             await _monitorRepository.UpdateAsync(entity);
         }
+
+        public async Task UpdateAsync(MonitorEditViewModel entity)
+        {
+            var existingMonitor = await _context.Monitors.Where(m => m.Id == entity.Id)
+                .Include(m => m.MonitorsProfessions) 
+                .ThenInclude(mp => mp.SubProfession) 
+                .FirstOrDefaultAsync();
+
+            if (existingMonitor == null)
+            {
+                throw new Exception("Monitor tapılmadı");
+            }
+
+            // Temel bilgileri güncelle
+            existingMonitor.Name = entity.Name;
+            existingMonitor.Surname = entity.Surname;
+            existingMonitor.Fname = entity.Fname;
+            existingMonitor.Region = entity.Region;
+            existingMonitor.FinCode = entity.FinCode;
+            existingMonitor.Serial = entity.Serial;
+            existingMonitor.SectionId = entity.SectionId;
+            existingMonitor.Gender = entity.Gender;
+            existingMonitor.BirthDate = entity.BirthDate;
+            existingMonitor.ContractNo = entity.ContractNo;
+            existingMonitor.ContractDate = entity.ContractDate;
+            existingMonitor.Uni = entity.Uni;
+            existingMonitor.Position = entity.Position;
+            existingMonitor.Profession = entity.Profession;
+            existingMonitor.SSN = entity.SSN;
+            existingMonitor.Rekvizit = entity.Rekvizit;
+            existingMonitor.Voen = entity.Voen;
+            existingMonitor.BankFilial = entity.BankFilial;
+            existingMonitor.BankFilialCode = entity.BankFilialCode;
+            existingMonitor.District = entity.District;
+            existingMonitor.VNum = entity.VNum;
+            existingMonitor.Workplace = entity.Workplace;
+            existingMonitor.HesablashmaH = entity.HesablashmaH;
+            existingMonitor.TelIs = entity.TelIs;
+
+            if (entity.SelectedSubProfessions != null)
+            {
+                _context.MonitorsProfessions.RemoveRange(existingMonitor.MonitorsProfessions);
+                await _context.SaveChangesAsync(); // Persist the removal first
+
+                foreach (var subProfessionId in entity.SelectedSubProfessions)
+                {
+                    var subProfession = await _context.SubProfessions.FindAsync(subProfessionId);
+                    if (subProfession != null)
+                    {
+                        // Check if the combination of MonitorId and SubProfessionId already exists
+                        var exists = await _context.MonitorsProfessions
+                            .AnyAsync(mp => mp.MonitorId == existingMonitor.Id && mp.SubProfessionId == subProfession.Id);
+
+                        if (!exists)
+                        {
+                            _context.MonitorsProfessions.Add(new MonitorsProfession
+                            {
+                                MonitorId = existingMonitor.Id,
+                                SubProfessionId = subProfession.Id
+                            });
+                        }
+                    }
+                }
+            }
+
+            _context.Monitors.Update(existingMonitor);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task BulkAddAsync(IEnumerable<Monitor> monitors)
         {
             await _monitorRepository.BulkAddAsync(monitors);
@@ -329,5 +451,66 @@ namespace ForQab.Service
         {
             await _monitorRepository.UpdateAsync(model);
         }
+        public Task<IEnumerable<SubProfession>> GetSubProfessionsAsync(int? sectionId)
+        {
+            return _monitorRepository.GetSubProfessionsAsync(sectionId);
+        }
+        public async Task<MonitorEditViewModel> GetMonitorForEditAsync(int id)
+        {
+            var monitor = await _context.Monitors
+                .Include(m => m.MonitorsProfessions) // MonitorsProfessions ilişkisini yüklüyoruz
+                .ThenInclude(mp => mp.SubProfession) // SubProfession verilerini de getiriyoruz
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (monitor == null)
+            {
+                throw new KeyNotFoundException("Monitor not found");
+            }
+
+            var sectionId = monitor.SectionId;
+            var subProfessions = await GetSubProfessionsAsync(sectionId);
+
+            return new MonitorEditViewModel
+            {
+                Id = monitor.Id,
+                Name = monitor.Name,
+                Surname = monitor.Surname,
+                Fname = monitor.Fname,
+                Region = monitor.Region,
+                FinCode = monitor.FinCode,
+                Serial = monitor.Serial,
+                SectionId = (int)sectionId,
+                Gender = monitor.Gender,
+                BirthDate = monitor.BirthDate,
+                ContractNo = monitor.ContractNo,
+                ContractDate = monitor.ContractDate,
+                Uni = monitor.Uni,
+                Position = monitor.Position,
+                Profession = monitor.Profession,
+                SSN = monitor.SSN,
+                Rekvizit = monitor.Rekvizit,
+                Voen = monitor.Voen,
+                BankFilial = monitor.BankFilial,
+                BankFilialCode = monitor.BankFilialCode,
+                District = (byte)monitor.District,
+                VNum = monitor.VNum,
+                Workplace = monitor.Workplace,
+                HesablashmaH = monitor.HesablashmaH,
+                TelIs = monitor.TelIs,
+
+                // Monitor'e atanmış SubProfession ID'lerini çekiyoruz
+                SelectedSubProfessions = monitor.MonitorsProfessions
+                    .Select(mp => mp.SubProfessionId)
+                    .ToArray(),
+
+                // Kullanıcıya gösterilecek tüm SubProfessions
+                SubProfessions = subProfessions.Select(sp => new SelectListItem
+                {
+                    Text = sp.Name,
+                    Value = sp.Id.ToString()
+                }).ToList()
+            };
+        }
+
     }
 }

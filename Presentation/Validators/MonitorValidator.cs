@@ -1,9 +1,10 @@
 ﻿using FluentValidation;
+using ForQab.DataAccess.ViewModel.Monitor;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 
 namespace ForQab.Presentation.Validators
 {
-    public class MonitorValidator : AbstractValidator<Monitor>
+    public class MonitorValidator : AbstractValidator<MonitorViewModel>
     {
         public MonitorValidator() {
             RuleFor(m => m.Name).NotEmpty();

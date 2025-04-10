@@ -1,4 +1,4 @@
-﻿@model ForQab.DataAccess.Models.Monitor
+﻿@model ForQab.DataAccess.ViewModel.Monitor.MonitorViewModel
 
 @{
     ViewData["Title"] = "Nəzarətçi əlavə et";
@@ -111,12 +111,6 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="TelEv" class="form-label">Ev Telefonu</label>
-                    <input asp-for="TelEv" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="TelEv" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
                     <label asp-for="TelIs" class="form-label">İş Telefonu</label>
                     <input asp-for="TelIs" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="TelIs" class="text-danger"></span>
@@ -181,7 +175,21 @@
                     <input asp-for="ContractNo" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="ContractNo" class="text-danger"></span>
                 </div>
-
+                @if (ViewBag.Section == 3)
+                        {
+                <div class="mb-3">
+                    <label class="form-label">Alt Peşələr</label>
+                    <select asp-for="SelectedSubProfessions" id="SelectedSubProfessions" class="form-select" multiple style="background-color: #23272a; color: #ffffff;">
+                        
+                            @foreach (var sp in Model.SubProfessions)
+                            {
+                                <option value="@sp.Value">@sp.Text</option>
+                            }
+                        
+                    </select>
+                    <span asp-validation-for="SelectedSubProfessions" class="text-danger"></span>
+                </div>
+                }
                 <div class="d-flex justify-content-between">
                     <a asp-action="Index" class="btn btn-secondary" style="background-color: #2f3136; color: #ffffff;">Geri</a>
                     <button type="submit" class="btn btn-primary" style="background-color: #7289da; border-color: #7289da;">Yarat</button>
