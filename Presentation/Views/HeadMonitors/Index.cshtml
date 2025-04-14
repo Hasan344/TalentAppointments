@@ -5,9 +5,9 @@
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 
-@if (TempData["SuccessMessage"] != null)
+@if (TempData["Message"] != null)
 {
-    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    <div class="alert alert-success">@TempData["Message"]</div>
 }
 
 <link rel="stylesheet" href="~/css/Monitors/Index.css" asp-append-version="true" />

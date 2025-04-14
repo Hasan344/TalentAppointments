@@ -17,6 +17,9 @@ public partial class Section
     [StringLength(100)]
     public string Name { get; set; } = null!;
 
+    [Column("sect_code")]
+    public int? SectCode { get; set; } = null!;
+
     [InverseProperty("Section")]
     public virtual ICollection<Commission> Commissions { get; set; } = new List<Commission>();
 

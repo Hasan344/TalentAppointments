@@ -123,43 +123,53 @@ namespace ForQab.Service
 
                     var districts = await _context.Districts.ToListAsync();
                     var sections = await _context.Sections.ToListAsync();
-                    var genders = await _context.Genders.ToListAsync();
+                    var workerTypes = await _context.WorkerTypes.ToListAsync();
 
                     foreach (var row in worksheet.RowsUsed().Skip(1)) // Başlığı atla
                     {
-                        string genderName = row.Cell(5).GetValue<string>();
-                        string districtName = row.Cell(9).GetString();
-                        string sectionName = row.Cell(4).GetString();
-                        byte? genderId = genders.FirstOrDefault(g => g.Name == genderName)?.Id;
+                        string finCode = row.Cell(11).IsEmpty() ? null : row.Cell(11).GetString();
+
+                        if (!string.IsNullOrEmpty(finCode))
+                        {
+                            bool exists = await _context.Monitors.AnyAsync(m => m.FinCode == finCode);
+                            if (exists)
+                            {
+                                return $"'{finCode}' FinCode-a sahib istifadəçi artıq mövcuddur. İdxala icazə verilmir.";
+                            }
+                        }
+                        string districtName = row.Cell(1).GetString();
+                        string sectionName = row.Cell(5).GetString();
+                        string typeName = row.Cell(13).GetString();
                         int? districtId = districts.FirstOrDefault(d => d.Name == districtName)?.Id;
                         int? sectionId = sections.FirstOrDefault(s => s.Name == sectionName)?.Id;
+                        string? typeId = workerTypes.FirstOrDefault(w => w.Name == typeName)?.Id.ToString();
 
                         var monitor = new Monitor
                         {
-                            Name = row.Cell(1).GetString(),
                             Surname = row.Cell(2).GetString(),
-                            Fname = row.Cell(3).GetString(),
+                            Name = row.Cell(3).GetString(),
+                            Fname = row.Cell(4).GetString(),
                             Archive = 0,
-                            Gender = genderId,
+                            Status = 0,
+                            AssignmentCount = 0,
+                            Gender = row.Cell(8).GetValue<byte>(),
                             Role = 5,
-                            VNum = row.Cell(6).IsEmpty() ? null : row.Cell(6).GetValue<string?>(),
-                            Profession = row.Cell(7).IsEmpty() ? null : row.Cell(7).GetString(),
-                            Workplace = row.Cell(8).IsEmpty() ? null : row.Cell(8).GetString(),
-                            Position = row.Cell(7).IsEmpty() ? null : row.Cell(7).GetString(),
-                            BirthDate = row.Cell(10).IsEmpty() ? null
-                                : DateOnly.ParseExact(row.Cell(10).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
-                            TelEv = row.Cell(11).IsEmpty() ? null : row.Cell(11).GetString(),
-                            TelIs = row.Cell(12).IsEmpty() ? null : row.Cell(12).GetString(),
-                            FinCode = row.Cell(13).IsEmpty() ? null : row.Cell(13).GetString(),
-                            Serial = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
+                            BirthDate = row.Cell(12).IsEmpty() ? null
+                                : DateOnly.ParseExact(row.Cell(12).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                            TelIs = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
+                            FinCode = finCode,
+                            Serial = row.Cell(9).IsEmpty() ? null : row.Cell(9).GetString(),
                             SectionId = sectionId,
                             District = districtId,
-                            SSN = row.Cell(15).GetString(),
+                            ContractDate = row.Cell(6).IsEmpty() ? null
+                                : DateOnly.ParseExact(row.Cell(6).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                            ContractNo = row.Cell(7).IsEmpty() ? null : row.Cell(7).GetString(),
+                            SSN = row.Cell(17).GetString(),
                             Rekvizit = row.Cell(16).GetString(),
-                            HesablashmaH = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
-                            Voen = row.Cell(18).IsEmpty() ? null : row.Cell(18).GetString(),
-                            BankFilial = row.Cell(19).GetString(),
-                            BankFilialCode = row.Cell(20).GetString(),
+                            HesablashmaH = row.Cell(15).IsEmpty() ? null : row.Cell(15).GetString(),
+                            Voen = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
+                            BankFilial = row.Cell(18).GetString(),
+                            BankFilialCode = row.Cell(19).GetString(),
                         };
 
                         monitors.Add(monitor);

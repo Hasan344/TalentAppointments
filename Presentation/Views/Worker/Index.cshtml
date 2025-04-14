@@ -4,6 +4,10 @@
     ViewData["Title"] = "Nəzarətçilər";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
 
 <link rel="stylesheet" href="~/css/Monitors/Index.css" asp-append-version="true" />
 

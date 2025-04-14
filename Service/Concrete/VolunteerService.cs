@@ -76,44 +76,43 @@ namespace ForQab.Service
                     var monitors = new List<Monitor>();
 
                     var districts = await _context.Districts.ToListAsync();
-                    var sections = await _context.Sections.ToListAsync();
                     var genders = await _context.Genders.ToListAsync();
 
                     foreach (var row in worksheet.RowsUsed().Skip(1)) // Başlığı atla
                     {
+                        string finCode = row.Cell(8).IsEmpty() ? null : row.Cell(8).GetString();
+                         
+                        if (!string.IsNullOrEmpty(finCode))
+                        {
+                            bool exists = await _context.Monitors.AnyAsync(m => m.FinCode == finCode);
+                            if (exists)
+                            {
+                                return $"'{finCode}' FinCode-a sahib istifadəçi artıq mövcuddur. İdxala icazə verilmir.";
+                            }
+                        }
                         string genderName = row.Cell(5).GetValue<string>();
-                        string districtName = row.Cell(9).GetString();
-                        string sectionName = row.Cell(4).GetString();
+                        string districtName = row.Cell(1).GetString();
                         byte? genderId = genders.FirstOrDefault(g => g.Name == genderName)?.Id;
                         int? districtId = districts.FirstOrDefault(d => d.Name == districtName)?.Id;
-                        int? sectionId = sections.FirstOrDefault(s => s.Name == sectionName)?.Id;
 
                         var monitor = new Monitor
                         {
-                            Name = row.Cell(1).GetString(),
                             Surname = row.Cell(2).GetString(),
-                            Fname = row.Cell(3).GetString(),
+                            Name = row.Cell(3).GetString(),
+                            Fname = row.Cell(4).GetString(),
                             Archive = 0,
-                            Gender = genderId,
+                            Status = 0,
+                            AssignmentCount = 0,
+                            Gender = row.Cell(5).GetValue<byte>(),
                             Role = 4,
-                            VNum = row.Cell(6).IsEmpty() ? null : row.Cell(6).GetValue<string?>(),
-                            Profession = row.Cell(7).IsEmpty() ? null : row.Cell(7).GetString(),
-                            Workplace = row.Cell(8).IsEmpty() ? null : row.Cell(8).GetString(),
-                            Position = row.Cell(7).IsEmpty() ? null : row.Cell(7).GetString(),
-                            BirthDate = row.Cell(10).IsEmpty() ? null
-                                : DateOnly.ParseExact(row.Cell(10).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
-                            TelEv = row.Cell(11).IsEmpty() ? null : row.Cell(11).GetString(),
-                            TelIs = row.Cell(12).IsEmpty() ? null : row.Cell(12).GetString(),
-                            FinCode = row.Cell(13).IsEmpty() ? null : row.Cell(13).GetString(),
-                            Serial = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
-                            SectionId = sectionId,
+                            BirthDate = row.Cell(9).IsEmpty() ? null
+                                : DateOnly.ParseExact(row.Cell(9).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                            TelIs = row.Cell(7).IsEmpty() ? null : row.Cell(7).GetString(),
+                            FinCode = finCode,
+                            Serial = row.Cell(6).IsEmpty() ? null : row.Cell(6).GetString(),
+                            SectionId = 1,
                             District = districtId,
-                            SSN = row.Cell(15).GetString(),
-                            Rekvizit = row.Cell(16).GetString(),
-                            HesablashmaH = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
-                            Voen = row.Cell(18).IsEmpty() ? null : row.Cell(18).GetString(),
-                            BankFilial = row.Cell(19).GetString(),
-                            BankFilialCode = row.Cell(20).GetString(),
+                            Uni = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
                         };
 
                         monitors.Add(monitor);

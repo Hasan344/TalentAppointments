@@ -392,8 +392,8 @@ namespace ForQab.Presentation.Controllers
 
                         var expert = new Expert
                         {
-                            Name = row.Cell(1).GetString(),
-                            Surname = row.Cell(2).GetString(),
+                            Name = row.Cell(2).GetString(),
+                            Surname = row.Cell(1).GetString(),
                             Fname = row.Cell(3).GetString(),
                             FinCode = finCode,
                             Profession = row.Cell(5).IsEmpty() ? null : row.Cell(5).GetString(),
