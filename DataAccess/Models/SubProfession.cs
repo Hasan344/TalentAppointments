@@ -37,5 +37,5 @@ public partial class SubProfession
 
     public virtual ICollection<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; } = new List<ExamExpertSubProfession>();
     public virtual ICollection<ExpertsProfession> ExpertsProfessions { get; set; } = new List<ExpertsProfession>(); 
-    public ICollection<Expert> Experts { get; set; }
+    public ICollection<Expert>? Experts { get; set; }
 }

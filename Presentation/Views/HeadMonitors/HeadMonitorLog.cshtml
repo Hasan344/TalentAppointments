@@ -51,7 +51,7 @@
                                             <form asp-action="DeleteLogs" method="post">
                                                 <input type="hidden" name="id" value="@log.Id" />
                                                 <button type="submit" class="btn btn-danger btn-sm"
-                                                        onclick="return confirm('Bu logu silmək istədiyinizə əminsiniz?');">
+                                                        onclick="return confirm('Bu qeydi silmək istədiyinizə əminsiniz?');">
                                                     Sil
                                                 </button>
                                             </form>
@@ -76,7 +76,7 @@
     else
     {
         <div class="alert alert-info">
-            Sistemdə heç bir Monitor tapılmadı.
+            Sistemdə heç bir rəhbər tapılmadı.
         </div>
     }
     <div class="mt-3">

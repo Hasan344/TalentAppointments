@@ -27,7 +27,7 @@
                             <span asp-validation-for="Assignments[0].NumberOfExperts" class="text-danger"></span>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label fw-semibold">Federation</label>
+                            <label class="form-label fw-semibold">Federasiya</label>
                             <select name="Assignments[0].FederationId" class="form-select federation-dropdown" required>
                                 <option value="">Federation seçin</option>
                                 @foreach (var federation in Model.Federations)
@@ -39,9 +39,9 @@
                             <span asp-validation-for="Assignments[0].FederationId" class="text-danger"></span>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label fw-semibold">Sub-Professions</label>
+                            <label class="form-label fw-semibold">İxtisas</label>
                             <select name="Assignments[0].SelectedSubProfessions" class="form-select sub-profession-dropdown" required>
-                                <option value="">Sub-Profession seçin</option>
+                                <option value="">Seçin</option>
                                 @foreach (var sp in Model.SubProfessions)
                                 {
                                     <option value="@sp.Value">@sp.Text</option>
@@ -82,9 +82,9 @@
                                 <span asp-validation-for="Assignments[0].FederationId" class="text-danger"></span>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold">Sub-Professions</label>
+                                <label class="form-label fw-semibold">Fənn</label>
                                 <select name="Assignments[0].SelectedSubProfessions" class="form-select sub-profession-dropdown" required>
-                                    <option value="">Sub-Profession seçin</option>
+                                    <option value="">Seçin</option>
                                     @foreach (var sp in Model.SubProfessions)
                                     {
                                         <option value="@sp.Value">@sp.Text</option>

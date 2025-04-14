@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="~/css/Monitors/Index.css" asp-append-version="true" />
 <div class="container mt-5">
     <!-- Səhifə Başlığı -->
-    <h1 class="text-center mb-4">İmtahan Rəhbərləri İdarəetməsi</h1>
+    <h1 class="text-center mb-4">Arxivlənmiş İmtahan Rəhbərləri</h1>
 
     <!-- Yeni Monitor Yarat Düyməsi -->
     <div class="mb-4 text-end">
@@ -92,15 +92,11 @@
                     <th>Ad</th>
                     <th>Soyad</th>
                     <th>Ata adı</th>
-                    <th>Cins</th> @*
-                    <th>Rol</th>
-                    <th>Vəsiqə nömrəsi</th> *@
+                    <th>Cins</th>
                     <th>Doğum tarixi</th>
                     <th>Peşə</th>
                     <th>İş yeri</th>
-                    @* <th>Vəzifə</th> *@
-                    <th>Ev telefonu</th>
-                    <th>İş telefonu</th>
+                    <th>Telefonu</th>
                     <th>FİN Kodu</th>
                     <th>Seriya</th>
                     <th>İstiqamət</th>
@@ -115,14 +111,10 @@
                         <td>@Html.DisplayFor(modelItem => item.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.Surname)</td>
                         <td>@Html.DisplayFor(modelItem => item.Fname)</td>
-                        <td>@Html.DisplayFor(modelItem => item.GenderNavigation.Name)</td>@*
-                    <td>@Html.DisplayFor(modelItem => item.RoleNavigation.Name)</td>
-                    <td>@Html.DisplayFor(modelItem => item.VNum)</td> *@
+                        <td>@Html.DisplayFor(modelItem => item.GenderNavigation.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.BirthDate)</td>
                         <td>@Html.DisplayFor(modelItem => item.Profession)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Workplace)</td>@*
-                    <td>@Html.DisplayFor(modelItem => item.Position)</td> *@
-                        <td>@Html.DisplayFor(modelItem => item.TelEv)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Workplace)</td>
                         <td>@Html.DisplayFor(modelItem => item.TelIs)</td>
                         <td>@Html.DisplayFor(modelItem => item.FinCode)</td>
                         <td>@Html.DisplayFor(modelItem => item.Serial)</td>

@@ -646,9 +646,9 @@ namespace ForQab.Repository.Concrete
         }
         public async Task<List<int>> GetExpertsWithLogsAsync(List<int> expertIds)
         {
-            return await _context.MonitorLogs
-                                 .Where(log => expertIds.Contains(log.SupervisorId))
-                                 .Select(log => log.SupervisorId)
+            return await _context.ExpertLogs
+                                 .Where(log => expertIds.Contains(log.ExpertId))
+                                 .Select(log => log.ExpertId)
                                  .Distinct()
                                  .ToListAsync();
         }

@@ -41,6 +41,8 @@ namespace ForQab.Repository.Concrete
                     .ThenInclude(e => e.Exam)
                 .Include(e => e.ExamExpertSubProfessions)
                     .ThenInclude(e => e.SubProfession)
+                .Include(e => e.ExamExpertSubProfessions)
+                    .ThenInclude(e => e.ExamRoom)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 

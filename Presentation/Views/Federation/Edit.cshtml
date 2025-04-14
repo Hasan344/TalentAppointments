@@ -2,7 +2,7 @@
 @model Profession
 
 @{
-    ViewData["Title"] = "Federasiya redaktə et";
+    ViewData["Title"] = "Redaktə et";
 }
 
 <div class="container py-4" style="background-color: #2c2f33; border-radius: 10px; color: #ffffff;">
@@ -16,7 +16,7 @@
                 <input type="hidden" asp-for="Id" />
 
                 <div class="mb-3">
-                    <label asp-for="Name" class="form-label">İxtisasın Adı</label>
+                    <label asp-for="Name" class="form-label">Adı</label>
                     <input asp-for="Name" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>

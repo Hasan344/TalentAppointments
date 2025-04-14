@@ -22,9 +22,6 @@
                     <th>ID</th>
                     <th>Adı</th>
                     <th>Tarix</th>
-                    <th>İştirakçı sayı</th>
-                    <th>Su</th>
-                    <th>Yemək</th>
                     <th>Komissiya</th>
                     <th>İmtahan binası</th>
                     <th>İstiqamət</th>
@@ -38,9 +35,6 @@
                         <td>@Html.DisplayFor(modelItem => item.Id)</td>
                         <td>@Html.DisplayFor(modelItem => item.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.ExamDate)</td>
-                        <td>@Html.DisplayFor(modelItem => item.StudentCount)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Water)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Food)</td>
                         <td>
                             @if (item.ExamCommissions != null && item.ExamCommissions.Any())
                             {

@@ -43,14 +43,14 @@
         <div class="mb-3">
             <label class="form-label fw-bold">Ekspert Siyahısı</label>
             <select class="form-control expertSelect" name="ExpertForms[{{index}}].ExpertId">
-                <option value="">Önce Kons seçin...</option>
+                <option value="">Əvvəlcə vəzifə seçin...</option>
             </select>
         </div>
 
         <div class="mb-3">
             <label class="form-label fw-bold">Otaq Seçimi</label>
             <select class="form-control roomSelect" name="ExpertForms[{{index}}].RoomId">
-                <option value="">Oda seçin...</option>
+                <option value="">Seçin...</option>
                 @foreach (var room in Model.Rooms)
                 {
                     <option value="@room.Value">@room.Text</option>

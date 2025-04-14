@@ -1,20 +1,20 @@
-﻿@model IEnumerable<ForQab.DataAccess.Models.Monitor>
+﻿@model IEnumerable<ForQab.DataAccess.Models.Expert>
 
 @{
-    ViewData["Title"] = "Bütün Monitor Qeydləri";
+    ViewData["Title"] = "Bütün ekspert Qeydləri";
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4">Bütün Monitor Qeydləri</h2>
+    <h2 class="mb-4">Bütün ekspert Qeydləri</h2>
     @if (Model.Any())
     {
-        foreach (var monitor in Model)
+        foreach (var expert in Model)
         {
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">
-                        @monitor.Name @monitor.Surname @monitor.Fname
-                        <small>(FinCode: @monitor.FinCode)</small>
+                        @expert.Name @expert.Surname @expert.Fname
+                        <small>(FinCode: @expert.FinCode)</small>
                     </h5>
                 </div>
                 <div class="card-body p-0">
@@ -27,10 +27,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if (monitor.MonitorLogs != null && monitor.MonitorLogs.Any())
+                            @if (expert.ExpertLogs != null && expert.ExpertLogs.Any())
                             {
                                 int count = 1;
-                                foreach (var log in monitor.MonitorLogs)
+                                foreach (var log in expert.ExpertLogs)
                                 {
                                     <tr>
                                         <th scope="row">@count</th>
@@ -56,7 +56,7 @@
                                             <form asp-action="DeleteLogs" method="post">
                                                 <input type="hidden" name="id" value="@log.Id" />
                                                 <button type="submit" class="btn btn-danger btn-sm"
-                                                        onclick="return confirm('Bu logu silmək istədiyinizə əminsiniz?');">
+                                                        onclick="return confirm('Bu qeydi silmək istədiyinizə əminsiniz?');">
                                                     Sil
                                                 </button>
                                             </form>
@@ -80,7 +80,7 @@
     else
     {
         <div class="alert alert-info">
-            Sistemdə heç bir Monitor tapılmadı.
+            Sistemdə heç bir ekspert tapılmadı.
         </div>
     }
     <div class="mt-3">

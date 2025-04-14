@@ -61,8 +61,7 @@
                     <th>Doğum tarixi</th>
                     <th>Peşə</th>
                     <th>İş yeri</th>
-                    <th>Ev tel.</th>
-                    <th>İş tel.</th>
+                    <th>Tel.</th>
                     <th>FİN Kodu</th>
                     <th>Seriya</th>
                     <th>İstiqamət</th>
@@ -85,7 +84,6 @@
                         <td>@Html.DisplayFor(modelItem => item.BirthDate)</td>
                         <td>@Html.DisplayFor(modelItem => item.Profession)</td>
                         <td>@Html.DisplayFor(modelItem => item.Workplace)</td>
-                        <td>@Html.DisplayFor(modelItem => item.TelEv)</td>
                         <td>@Html.DisplayFor(modelItem => item.TelIs)</td>
                         <td>@Html.DisplayFor(modelItem => item.FinCode)</td>
                         <td>@Html.DisplayFor(modelItem => item.Serial)</td>
@@ -93,9 +91,9 @@
                         <td>@Html.DisplayFor(modelItem => item.DistrictNavigation.Name)</td>
                         <td class="text-center">
                             <div class="btn-group">
-                                <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a>
-                                <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@item.Id"><i class="bi bi-eye"></i></a>
-                                <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash"></i></a>
+                                <a class="btn btn-warning btn-sm" asp-action="Redaktə" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a>
+                                <a class="btn btn-info btn-sm" asp-action="Detallar" asp-route-id="@item.Id"><i class="bi bi-eye"></i></a>
+                                <a class="btn btn-danger btn-sm" asp-action="Sil" asp-route-id="@item.Id"><i class="bi bi-trash"></i></a>
                             </div>
                         </td>
                     </tr>
