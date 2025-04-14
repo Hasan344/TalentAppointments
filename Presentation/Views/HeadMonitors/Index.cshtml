@@ -17,7 +17,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
-            <a class="btn btn-success" asp-action="Create"><i class="bi bi-plus-circle"></i> Yeni Monitor</a>
+            <a class="btn btn-success" asp-action="Create"><i class="bi bi-plus-circle"></i> Yeni rəhbər əlavə et</a>
             <a class="btn btn-outline-primary" href="@Url.Action("ExportToExcel", "HeadMonitors", new { searchName = ViewContext.HttpContext.Request.Query["searchName"], finCode = ViewContext.HttpContext.Request.Query["finCode"], serial = ViewContext.HttpContext.Request.Query["serial"], genderId = ViewContext.HttpContext.Request.Query["genderId"], district = ViewContext.HttpContext.Request.Query["district"] })">
                 <i class="bi bi-file-earmark-excel"></i> Excel'e çıxarış
             </a>
@@ -61,8 +61,7 @@
                     <th>Doğum tarixi</th>
                     <th>Peşə</th>
                     <th>İş yeri</th>
-                    <th>Ev tel.</th>
-                    <th>İş tel.</th>
+                    <th>Tel.</th>
                     <th>FİN Kodu</th>
                     <th>Seriya</th>
                     <th>İstiqamət</th>
@@ -85,7 +84,6 @@
                         <td>@item.BirthDate</td>
                         <td>@item.Profession</td>
                         <td>@item.Workplace</td>
-                        <td>@item.TelEv</td>
                         <td>@item.TelIs</td>
                         <td>@item.FinCode</td>
                         <td>@item.Serial</td>
@@ -93,9 +91,9 @@
                         <td>@item.DistrictNavigation.Name</td>
                         <td class="text-center">
                             <div class="btn-group">
-                                <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a>
-                                <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@item.Id"><i class="bi bi-eye"></i></a>
-                                <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash"></i></a>
+                                <a class="btn btn-warning btn-sm" asp-action="Redaktə" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a>
+                                <a class="btn btn-info btn-sm" asp-action="Detallar" asp-route-id="@item.Id"><i class="bi bi-eye"></i></a>
+                                <a class="btn btn-danger btn-sm" asp-action="Sil" asp-route-id="@item.Id"><i class="bi bi-trash"></i></a>
                             </div>
                         </td>
                     </tr>

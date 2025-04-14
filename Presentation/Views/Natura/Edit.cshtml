@@ -8,7 +8,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <h1 class="text-center mb-4">@ViewData["Title"]</h1>
-            <h4 class="text-center mb-3">Nəzarətçiyə düzəliş</h4>
+            <h4 class="text-center mb-3">Naturaçıya düzəliş</h4>
             <hr style="border-color: #7289da;" />
 
             <form asp-action="Edit" method="post" class="p-4">
@@ -17,27 +17,33 @@
                 <input type="hidden" asp-for="Id" />
 
                 <div class="mb-3">
-                    <label asp-for="Name" class="form-label" style="font-weight: 500;">Ad</label>
-                    <input asp-for="Name" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" required />
+                    <label asp-for="Name" class="form-label">Ad</label>
+                    <input asp-for="Name" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Surname" class="form-label" style="font-weight: 500;">Soyad</label>
-                    <input asp-for="Surname" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" required />
+                    <label asp-for="Surname" class="form-label">Soyad</label>
+                    <input asp-for="Surname" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="Surname" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Fname" class="form-label" style="font-weight: 500;">Ata adı</label>
-                    <input asp-for="Fname" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <label asp-for="Fname" class="form-label">Ata adı</label>
+                    <input asp-for="Fname" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="Fname" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Region" class="form-label" style="font-weight: 500;">Region</label>
-                    <input asp-for="Region" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
-                    <span asp-validation-for="Region" class="text-danger"></span>
+                    <label asp-for="FinCode" class="form-label">FİN kod</label>
+                    <input asp-for="FinCode" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="FinCode" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Serial" class="form-label">Seriya nömrəsi</label>
+                    <input asp-for="Serial" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Serial" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
@@ -49,55 +55,103 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Gender" class="form-label" style="font-weight: 500;">Cins</label>
-                    <input asp-for="Gender" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <label asp-for="Gender" class="form-label">Cinsi</label>
+                    <select asp-for="Gender" class="form-select" asp-items="ViewBag.Gender" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Cins seçin</option>
+                    </select>
                     <span asp-validation-for="Gender" class="text-danger"></span>
                 </div>
 
+                <div class="mb-3">
+                    <label asp-for="District" class="form-label">Rayon</label>
+                    <select asp-for="District" class="form-select" asp-items="ViewBag.District" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Rayon seçin</option>
+                    </select>
+                    <span asp-validation-for="District" class="text-danger"></span>
+                </div>
 
+                <div class="mb-3">
+                    <label asp-for="VNum" class="form-label">Vəsiqə nömrəsi</label>
+                    <input asp-for="VNum" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="VNum" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Profession" class="form-label">Peşə</label>
+                    <input asp-for="Profession" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Profession" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Workplace" class="form-label">İş yeri</label>
+                    <input asp-for="Workplace" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Workplace" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="TelIs" class="form-label">Telefonu</label>
+                    <input asp-for="TelIs" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="TelIs" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Position" class="form-label">Vəzifə</label>
+                    <input asp-for="Position" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Position" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Uni" class="form-label">Təhsil aldığı müəssisə</label>
+                    <input asp-for="Uni" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Uni" class="text-danger"></span>
+                </div>
 
                 <div class="mb-3">
                     <label asp-for="BirthDate" class="form-label">Doğum tarixi</label>
-                    <input asp-for="BirthDate" type="date" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <input asp-for="BirthDate" type="date" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="BirthDate" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="SSN" class="form-label">SSN</label>
-                    <input asp-for="SSN" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <input asp-for="SSN" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="SSN" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="Rekvizit" class="form-label">Rekvizit</label>
-                    <input asp-for="Rekvizit" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <input asp-for="Rekvizit" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="Rekvizit" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="Voen" class="form-label">VÖEN</label>
-                    <input asp-for="Voen" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <input asp-for="Voen" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="Voen" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="BankFilial" class="form-label">Bank Filialı</label>
-                    <input asp-for="BankFilial" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <input asp-for="BankFilial" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="BankFilial" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="BankFilialCode" class="form-label">Bank Filial kodu</label>
-                    <input asp-for="BankFilialCode" class="form-control" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;" />
+                    <input asp-for="BankFilialCode" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="BankFilialCode" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="District" class="form-label" style="font-weight: 500;">Rayon</label>
-                    <select asp-for="District" class="form-select" asp-items="ViewBag.District" style="background-color: #ffffff; border: 1px solid #ced4da; border-radius: 6px;">
-                        <option value="" disabled selected>Seçin...</option>
-                    </select>
-                    <span asp-validation-for="District" class="text-danger"></span>
+                    <label asp-for="ContractDate" class="form-label">Müqavilə tarixi</label>
+                    <input asp-for="ContractDate" type="date" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="ContractDate" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ContractNo" class="form-label">Müqavilə nömrəsi</label>
+                    <input asp-for="ContractNo" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="ContractNo" class="text-danger"></span>
                 </div>
 
                 <div class="d-flex justify-content-between">

@@ -23,10 +23,18 @@
             </a>
             <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="Commission" asp-action="Index">
                 <i class="bi "></i> Komissiyalar
-            </a>
-            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="Federation" asp-action="Index">
-                <i class="bi "></i> Federasiyalar
-            </a>
+            </a>@if (ViewBag.Section == 1 || @ViewBag.Section == 2 || @ViewBag.Section == 5)
+            {
+                <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="Federation" asp-action="Index">
+                    <i class="bi "></i>Müəssisələr
+                </a>
+            }
+            else
+            {
+                <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="Federation" asp-action="Index">
+                    <i class="bi "></i>Təhsil səviyyələri
+                </a>
+            }
             @if (ViewBag.Section == 2 || @ViewBag.Section == 5)
             {
                 <a class="btn btn-sm btn-secondary shadow-sm" asp-action="Assesments">

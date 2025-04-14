@@ -31,7 +31,7 @@ namespace ForQab.DataAccess.ViewModel.Worker
         public byte? Gender { get; set; }
 
         public DateOnly? BirthDate { get; set; }
-
+        public string? TelIs { get; set; }
         public string? SSN { get; set; }
         public string? Rekvizit { get; set; }
         public string? Voen { get; set; }

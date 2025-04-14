@@ -24,8 +24,8 @@
                     <td>@(item.Profession != null ? item.Profession.Name : "Məlumat yoxdur")</td> 
                     <td>@(item.Section != null ? item.Section.Name : "Məlumat yoxdur")</td> 
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Edit</a>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Redaktə</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Sil</a>
                     </td>
             </tr>
             rowNumber++;

@@ -9,10 +9,8 @@
     <div class="alert alert-success">@TempData["Message"]</div>
 }
 <div class="container mt-5">
-    <!-- Page Title -->
     <h1 class="text-center mb-4 ">Könüllülər İdarəetməsi</h1>
 
-    <!-- Create New Volunteer Button -->
     <div class="mb-4 text-end">
         <a class="btn btn-sm btn-success shadow-sm" asp-action="Create">
             <i class="bi bi-plus-circle"></i> Yenisini yarat
@@ -22,7 +20,6 @@
         </a>
     </div>
 
-    <!-- Table with Bordered and Modern Design -->
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-hover shadow-sm">
             <thead class="table-light">
@@ -56,7 +53,7 @@
                         <td>
                             <div class="btn-group" role="group">
                                 <a class="btn btn-outline-warning btn-sm p-1" asp-action="Edit" asp-route-id="@item.Id">
-                                    <i class="bi bi-pencil-square" style="font-size: 0.75rem;"></i> Düzəliş
+                                    <i class="bi bi-pencil-square" style="font-size: 0.75rem;"></i> Redaktə
                                 </a>
                                 <a class="btn btn-outline-info btn-sm p-1" asp-action="Details" asp-route-id="@item.Id">
                                     <i class="bi bi-eye" style="font-size: 0.75rem;"></i> Detallar
