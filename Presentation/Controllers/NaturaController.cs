@@ -279,7 +279,7 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> ImportFromExcel(IFormFile excelFile)
         {
             var message = await _naturaService.ImportFromExcelAsync(excelFile);
-            TempData["SuccessMessage"] = message;
+            TempData["Message"] = message;
             return RedirectToAction(nameof(Index));
         }
         private async Task LoadViewData(Monitor monitor)

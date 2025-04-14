@@ -11,6 +11,8 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml;
 using ClosedXML.Excel;
 using Monitor = ForQab.DataAccess.Models.Monitor;
+using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace ForQab.Service
 {
@@ -969,6 +971,8 @@ namespace ForQab.Service
                 .Include(e => e.Monitors)
                     .ThenInclude(em => em.WorkerTypeNavigation)
                 .Include(e => e.Experts)
+                .Include(e => e.ExamDegrees)
+                .Include(e => e.Section)
                 .Where(e => e.ExamDate == selectedDate)
                 .ToList();
 
@@ -1000,7 +1004,6 @@ namespace ForQab.Service
             worksheet.Cell(1, 23).Value = "Bank_Filialı";
             worksheet.Cell(1, 24).Value = "Bank_Filial_Kodu";
             worksheet.Cell(1, 25).Value = "Novbe";
-            worksheet.Cell(1, 26).Value = "İstiqamət";
 
             int row = 2;
             foreach (var exam in exams)
@@ -1013,7 +1016,13 @@ namespace ForQab.Service
                     worksheet.Cell(row, 4).Value = monitor.Name;
                     worksheet.Cell(row, 5).Value = monitor.Fname;
                     worksheet.Cell(row, 6).Value = exam.ExamBuldingId;
-                    worksheet.Cell(row, 7).Value = 38;
+                    if(exam.ExamDegrees.Select(ed => ed.DegreeId).FirstOrDefault() == 2)
+                    {
+                        worksheet.Cell(row, 7).Value = 36;
+                    }else 
+                    {
+                        worksheet.Cell(row, 7).Value = exam.Section?.SectCode;
+                    }
                     worksheet.Cell(row, 8).Value = exam.ExamDate.Year;
                     worksheet.Cell(row, 9).Value = exam.ExamDate.Day;
                     worksheet.Cell(row, 10).Value = exam.ExamDate.Month;
@@ -1065,8 +1074,31 @@ namespace ForQab.Service
                     worksheet.Cell(row, 12).Value = monitor.ContractDate?.ToString() ?? "";
                     worksheet.Cell(row, 13).Value = monitor.ContractNo;
                     worksheet.Cell(row, 14).Value = monitor.Gender;
-                    worksheet.Cell(row, 15).Value = "";
-                    worksheet.Cell(row, 16).Value = monitor.Serial ?? "";
+                    if (!string.IsNullOrEmpty(monitor?.Serial))
+                    {
+                        if (monitor.Serial.StartsWith("AZ") || !monitor.Serial.StartsWith("A"))
+                            worksheet.Cell(row, 15).Value = "AZE";
+                        else if (monitor.Serial.StartsWith("AA"))
+                            worksheet.Cell(row, 15).Value = "AA";
+                    }
+                    else
+                    {
+                        worksheet.Cell(row, 15).Value = ""; // Eğer Serial null veya boşsa hücreye boş değer ata
+                    }
+                    if (!string.IsNullOrEmpty(monitor?.Serial))
+                    {
+                        // Harfleri silip sadece rakamları al
+                        string onlyNumbers = Regex.Replace(monitor.Serial, @"\D", "");
+
+                        if (!string.IsNullOrEmpty(onlyNumbers))
+                            worksheet.Cell(row, 16).Value = onlyNumbers;
+                        else
+                            worksheet.Cell(row, 16).Value = "";
+                    }
+                    else
+                    {
+                        worksheet.Cell(row, 16).Value = "";
+                    }
                     worksheet.Cell(row, 17).Value = monitor.TelIs;
                     worksheet.Cell(row, 18).Value = monitor.FinCode;
                     worksheet.Cell(row, 19).Value = monitor.Voen;
@@ -1076,7 +1108,6 @@ namespace ForQab.Service
                     worksheet.Cell(row, 23).Value = monitor.BankFilial;
                     worksheet.Cell(row, 24).Value = monitor.BankFilialCode;
                     worksheet.Cell(row, 25).Value = exam.Shift;
-                    worksheet.Cell(row, 26).Value = exam.SectionId;
                     row++;
                 }
                 if (exam.SectionId != 1)
@@ -1089,7 +1120,14 @@ namespace ForQab.Service
                         worksheet.Cell(row, 4).Value = expert.Name;
                         worksheet.Cell(row, 5).Value = expert.Fname;
                         worksheet.Cell(row, 6).Value = exam.ExamBuldingId;
-                        worksheet.Cell(row, 7).Value = 38;
+                        if (exam.ExamDegrees.Select(ed => ed.DegreeId).FirstOrDefault() == 2)
+                        {
+                            worksheet.Cell(row, 7).Value = 36;
+                        }
+                        else
+                        {
+                            worksheet.Cell(row, 7).Value = exam.Section?.SectCode;
+                        }
                         worksheet.Cell(row, 8).Value = exam.ExamDate.Year;
                         worksheet.Cell(row, 9).Value = exam.ExamDate.Day;
                         worksheet.Cell(row, 10).Value = exam.ExamDate.Month;
@@ -1104,8 +1142,31 @@ namespace ForQab.Service
                         worksheet.Cell(row, 12).Value = /*expert.ContractDate?.ToString() ??*/ "";
                         worksheet.Cell(row, 13).Value = /*expert.ContractNo*/ "";
                         worksheet.Cell(row, 14).Value = expert.Gender;
-                        worksheet.Cell(row, 15).Value = "";
-                        worksheet.Cell(row, 16).Value = expert.Serial ?? "";
+                        if (!string.IsNullOrEmpty(expert?.Serial))
+                        {
+                            if (expert.Serial.StartsWith("AZ") || !expert.Serial.StartsWith("A"))
+                                worksheet.Cell(row, 15).Value = "AZE";
+                            else if (expert.Serial.StartsWith("AA"))
+                                worksheet.Cell(row, 15).Value = "AA";
+                        }
+                        else
+                        {
+                            worksheet.Cell(row, 15).Value = ""; // Eğer Serial null veya boşsa hücreye boş değer ata
+                        }
+                        if (!string.IsNullOrEmpty(expert?.Serial))
+                        {
+                            // Harfleri silip sadece rakamları al
+                            string onlyNumbers = Regex.Replace(expert.Serial, @"\D", "");
+
+                            if (!string.IsNullOrEmpty(onlyNumbers))
+                                worksheet.Cell(row, 16).Value = onlyNumbers;
+                            else
+                                worksheet.Cell(row, 16).Value = "";
+                        }
+                        else
+                        {
+                            worksheet.Cell(row, 16).Value = "";
+                        }
                         worksheet.Cell(row, 17).Value = expert.TelIs;
                         worksheet.Cell(row, 18).Value = expert.FinCode;
                         worksheet.Cell(row, 19).Value = expert.Voen;
@@ -1115,7 +1176,6 @@ namespace ForQab.Service
                         worksheet.Cell(row, 23).Value = expert.BankFilial;
                         worksheet.Cell(row, 24).Value = expert.BankFilialCode;
                         worksheet.Cell(row, 25).Value = exam.Shift;
-                        worksheet.Cell(row, 26).Value = exam.SectionId;
                         row++;
                     }
                 }

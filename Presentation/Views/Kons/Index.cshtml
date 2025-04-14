@@ -4,7 +4,10 @@
     ViewData["Title"] = "Ekspertlər Index";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
-
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
 <div class="container mt-5">
     <!-- Page Title -->
     <h1 class="text-center mb-4">Ekspertlər İdarəetməsi</h1>

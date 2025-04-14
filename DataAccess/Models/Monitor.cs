@@ -61,11 +61,11 @@ public partial class Monitor
     public int? Foto { get; set; }
 
     [Column("tel_ev")]
-    [StringLength(12)]
+    [StringLength(100)]
     public string? TelEv { get; set; }
 
     [Column("tel_is")]
-    [StringLength(12)]
+    [StringLength(100)]
     public string? TelIs { get; set; }
 
     [Column("fin_code")]

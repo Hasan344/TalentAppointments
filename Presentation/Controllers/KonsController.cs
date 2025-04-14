@@ -326,8 +326,8 @@ namespace ForQab.Presentation.Controllers
 
                         var expert = new Expert
                         {
-                            Name = row.Cell(1).GetString(),
-                            Surname = row.Cell(2).GetString(),
+                            Name = row.Cell(2).GetString(),
+                            Surname = row.Cell(1).GetString(),
                             Fname = row.Cell(3).GetString(),
                             FinCode = finCode,
                             Profession = row.Cell(5).IsEmpty() ? null : row.Cell(5).GetString(),
@@ -337,14 +337,14 @@ namespace ForQab.Presentation.Controllers
                             District = _context.Districts.FirstOrDefault(d => d.Name == row.Cell(7).GetString())?.Id,
                             Federation = _context.Professions.FirstOrDefault(p => p.Name == row.Cell(8).GetString())?.Id,
                             HesablashmaH = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
-                            Rekvizit = row.Cell(11).GetString(),
-                            Serial = row.Cell(12).GetString(),
-                            SSN = row.Cell(13).GetString(),
+                            Rekvizit = row.Cell(11).IsEmpty() ? null : row.Cell(11).GetString(),
+                            Serial = row.Cell(12).IsEmpty() ? null : row.Cell(12).GetString(),
+                            SSN = row.Cell(13).IsEmpty() ? null : row.Cell(13).GetString(),
                             Voen = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
                             BirthDate = row.Cell(15).IsEmpty() ? null
                                 : DateOnly.ParseExact(row.Cell(15).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
                             Status = 0,
-                            BankFilial = row.Cell(16).GetString(),
+                            BankFilial = row.Cell(16).IsEmpty() ? null : row.Cell(16).GetString(),
                             BankFilialCode = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
                             TelIs = row.Cell(18).IsEmpty() ? null : row.Cell(18).GetString(),
                         };
