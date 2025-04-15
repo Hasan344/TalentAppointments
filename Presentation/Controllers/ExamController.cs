@@ -432,7 +432,7 @@ namespace ForQab.Presentation.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Ekspert təyinatı zamanı bir xəta baş verdi.";
+                TempData["ErrorMessage"] = $"Ekspert təyinatı zamanı bir xəta baş verdi.: {ex.Message}";
                 return RedirectToAction(nameof(AssignExpertsForMX), new { examId = viewModel.ExamId, sectionId = viewModel.SectionId });
             }
         }
@@ -573,13 +573,15 @@ namespace ForQab.Presentation.Controllers
             return RedirectToAction("Details", new { id = model.ExamId });
         }
 
-        public IActionResult WriteExpertLog(int examId, int expertId, byte kind)
+        public async Task<IActionResult> WriteExpertLog(int examId, int expertId, byte kind)
         {
+            var user = await _userManager.GetUserAsync(User);
             var viewModel = new WriteExpertLogsViewModel
             {
                 ExamId = examId,
                 ExpertId = expertId,
                 Kind = kind,
+                UserName = user?.UserName,
                 KindOptions = GetKindOptions()
             };
             return View(viewModel);
@@ -594,6 +596,8 @@ namespace ForQab.Presentation.Controllers
                 return View(model);
             }
 
+
+            model.UserName = (await _userManager.GetUserAsync(User))?.FirstName;
             await _examService.AddExpertLogAsync(model);
             return RedirectToAction("Details", new { id = model.ExamId });
         }

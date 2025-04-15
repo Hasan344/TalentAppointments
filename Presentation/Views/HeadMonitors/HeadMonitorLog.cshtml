@@ -18,6 +18,9 @@
                             <tr>
                                 <th scope="col" style="width: 5%;">#</th>
                                 <th scope="col">Qeyd</th>
+                                <th scope="col">İmtahan ID</th>
+                                <th scope="col">Daxil edən istifadəçi</th>
+                                <th scope="col">Daxil edilən tarix</th>
                                 <th scope="col" style="width: 30%;">Növ</th>
                             </tr>
                         </thead>
@@ -30,6 +33,9 @@
                                     <tr>
                                         <th scope="row">@count</th>
                                         <td>@log.Note</td>
+                                        <td>@log.ExamId</td>
+                                        <td>@log.UserName</td>
+                                        <td>@log.Time</td>
                                         <td>
                                             @switch (log.Kind)
                                             {

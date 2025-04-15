@@ -100,4 +100,7 @@ public partial class Exam
 
     [InverseProperty("Exam")]
     public virtual ICollection<MonitorLog> MonitorLogs { get; set; } = new List<MonitorLog>();
+
+    [InverseProperty("Exam")]
+    public virtual ICollection<ExpertLog> ExpertLogs { get; set; } = new List<ExpertLog>();
 }
