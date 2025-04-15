@@ -4,7 +4,17 @@
 @{
     ViewData["Title"] = "Ekspert Yarat";
 }
-
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
 <div class="container py-4" style="background-color: #174D38; border-radius: 10px; color: #ffffff;">
     <div class="row justify-content-center">
         <div class="col-lg-8">
