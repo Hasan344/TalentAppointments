@@ -136,9 +136,9 @@ namespace ForQab.Repository.Concrete
                         var subProfession = await _context.SubProfessions.FindAsync(subProfessionId);
                         if (subProfession != null)
                         {
-                            existingExpert.ExpertsProfessions.Add(new Models.ExpertsProfession 
+                            existingExpert.ExpertsProfessions.Add(new Models.ExpertsProfession
                             {
-                            SubProfession = subProfession,
+                                SubProfession = subProfession,
                                 Expert = existingExpert
                             });
                         }
@@ -186,7 +186,8 @@ namespace ForQab.Repository.Concrete
 
             if (expert != null)
             {
-                expert.ExpertsProfessions.Add(new Models.ExpertsProfession {
+                expert.ExpertsProfessions.Add(new Models.ExpertsProfession
+                {
                     ExpertId = expertId,
                     SubProfessionId = subProfession.Id
                 });

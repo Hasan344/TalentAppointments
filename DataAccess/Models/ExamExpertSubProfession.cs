@@ -34,7 +34,7 @@ namespace ForQab.DataAccess.Models
         public virtual Profession Federation { get; set; } = null!;
 
         [ForeignKey("RoomId")]
-        public virtual ExamRoom ExamRoom { get; set; } = null!;
+        public virtual ExamRoom ExamRoom { get; set; } = null!; 
     }
 
 }

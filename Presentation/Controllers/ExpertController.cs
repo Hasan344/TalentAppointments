@@ -466,15 +466,15 @@ namespace ForQab.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteLogs(int id)
         {
-            var monitor = await _expertService.GetExpertByIdAsync(id);
-            if (monitor == null)
-            {
-                return NotFound();
-            }
-            if (!await IsSectionValidAsync<Expert>(id))
-            {
-                return Forbid();
-            }
+            //var expert = await _expertService.GetExpertByIdAsync(id);
+            //if (expert == null)
+            //{
+            //    return NotFound();
+            //}
+            //if (!await IsSectionValidAsync<Expert>(id))
+            //{
+            //    return Forbid();
+            //}
             await _expertService.DeleteExpertLogs(id);
             return RedirectToAction(nameof(Index));
         }

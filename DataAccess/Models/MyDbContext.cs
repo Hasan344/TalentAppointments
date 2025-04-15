@@ -150,7 +150,7 @@ public partial class MyDbContext : DbContext
             .HasForeignKey(ec => ec.CommissionId);
 
         modelBuilder.Entity<ExamDegree>()
-        .ToTable("Exam_Degrees"); 
+        .ToTable("Exam_Degrees");
 
         modelBuilder.Entity<ExamDegree>()
             .HasKey(ec => new { ec.ExamId, ec.DegreeId });
@@ -166,11 +166,11 @@ public partial class MyDbContext : DbContext
             .HasForeignKey(ec => ec.DegreeId);
 
         modelBuilder.Entity<ExamExpertSubProfession>()
-        .ToTable("Exam_Expert_SubProfessions"); 
+        .ToTable("Exam_Expert_SubProfessions");
 
         modelBuilder.Entity<ExamExpertSubProfession>(entity =>
         {
-            entity.HasKey(e => new { e.ExamId, e.ExpertId});
+            entity.HasKey(e => new { e.ExamId, e.ExpertId });
         });
 
         modelBuilder.Entity<MonitorsProfession>()
@@ -200,6 +200,7 @@ public partial class MyDbContext : DbContext
             .HasOne(ec => ec.ExamRoom)
             .WithMany(c => c.ExamExpertSubProfessions)
             .HasForeignKey(ec => ec.RoomId);
+
 
         modelBuilder.Entity<Commission>(entity =>
         {
@@ -333,7 +334,7 @@ public partial class MyDbContext : DbContext
 
             entity.HasOne(d => d.Section).WithMany(p => p.Experts).HasConstraintName("FK_Experts_Sections");
 
-            
+
 
         });
         modelBuilder.Entity<ExpertsProfession>()
@@ -379,26 +380,26 @@ public partial class MyDbContext : DbContext
 
             entity.HasOne(d => d.ExamBuilding).WithMany(p => p.Monitors).HasConstraintName("FK__monitor_building");
 
-            entity.HasOne(d => d.Section).WithMany(p => p.Monitors).HasConstraintName("FK__superviso__secti__60A75C0F"); 
-            
-        //    entity.HasMany(d => d.SubProfessions).WithMany(p => p.Monitors)
-        //        .UsingEntity<Dictionary<string, object>>(
-        //            "MonitorsProfession",
-        //            r => r.HasOne<SubProfession>().WithMany()
-        //                .HasForeignKey("SubProfessionId")
-        //                .OnDelete(DeleteBehavior.ClientSetNull)
-        //                .HasConstraintName("FK__monitors_professions"),
-        //            l => l.HasOne<Monitor>().WithMany()
-        //                .HasForeignKey("MonitorId")
-        //                .OnDelete(DeleteBehavior.ClientSetNull)
-        //                .HasConstraintName("FK__monitors_professions__60A75C0F"),
-        //            j =>
-        //            {
-        //                j.HasKey("MonitorId", "SubProfessionId");
-        //                j.ToTable("monitors_professions");
-        //                j.IndexerProperty<int>("MonitorId").HasColumnName("monitor_id");
-        //                j.IndexerProperty<int>("SubProfessionId").HasColumnName("sub_profession_id");
-        //            });
+            entity.HasOne(d => d.Section).WithMany(p => p.Monitors).HasConstraintName("FK__superviso__secti__60A75C0F");
+
+            //    entity.HasMany(d => d.SubProfessions).WithMany(p => p.Monitors)
+            //        .UsingEntity<Dictionary<string, object>>(
+            //            "MonitorsProfession",
+            //            r => r.HasOne<SubProfession>().WithMany()
+            //                .HasForeignKey("SubProfessionId")
+            //                .OnDelete(DeleteBehavior.ClientSetNull)
+            //                .HasConstraintName("FK__monitors_professions"),
+            //            l => l.HasOne<Monitor>().WithMany()
+            //                .HasForeignKey("MonitorId")
+            //                .OnDelete(DeleteBehavior.ClientSetNull)
+            //                .HasConstraintName("FK__monitors_professions__60A75C0F"),
+            //            j =>
+            //            {
+            //                j.HasKey("MonitorId", "SubProfessionId");
+            //                j.ToTable("monitors_professions");
+            //                j.IndexerProperty<int>("MonitorId").HasColumnName("monitor_id");
+            //                j.IndexerProperty<int>("SubProfessionId").HasColumnName("sub_profession_id");
+            //            });
         });
 
         modelBuilder.Entity<MonitorLog>(entity =>

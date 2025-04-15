@@ -63,6 +63,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 builder.Services.AddScoped(typeof(SectionValidationFilter<>));
 
+Console.WriteLine("ENVIRONMENT: " + builder.Environment.EnvironmentName);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews()
@@ -82,10 +83,12 @@ var app = builder.Build();
 //    app.UsePathBase(pathBase);
 //}
 
-
+if (!app.Environment.IsDevelopment())
+{
     app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

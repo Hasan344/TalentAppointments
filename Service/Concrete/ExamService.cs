@@ -12,7 +12,6 @@ using DocumentFormat.OpenXml;
 using ClosedXML.Excel;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 using System.Text.RegularExpressions;
-using System.Threading;
 
 namespace ForQab.Service
 {
@@ -504,6 +503,9 @@ namespace ForQab.Service
             {
                 ExpertId = model.ExpertId,
                 Note = model.Note,
+                UserName = model.UserName,
+                Time = DateTime.Now,
+                ExamId = model.ExamId,
                 Kind = model.Kind
             };
 
