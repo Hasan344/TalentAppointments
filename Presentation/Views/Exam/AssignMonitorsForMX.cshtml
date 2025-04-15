@@ -1,6 +1,10 @@
 ﻿@using ForQab.DataAccess.ViewModel.Exam
 @model AssignMonitorForMXToExamViewModel
 
+<!-- Select2 üçün stylesheet və script -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <link rel="stylesheet" href="~/css/expert/Edit.css" asp-append-version="true" />
 
 <div class="container mt-5">
@@ -18,6 +22,7 @@
             <input type="hidden" asp-for="SectionId" />
 
             <div id="monitorContainer">
+                <!-- Nəzarətçi formu buraya gələcək -->
             </div>
 
             <div class="mt-4 d-flex justify-content-center gap-3">
@@ -31,6 +36,10 @@
 <template id="monitorTemplate">
     <div class="monitor-form border p-3 mt-3 rounded shadow-sm">
         <div class="mb-3">
+            <h5 class="fw-bold">#<span class="sira-no">{{sira}}</span> Nəzarətçi</h5>
+        </div>
+
+        <div class="mb-3">
             <label class="form-label fw-bold">Vəzifə</label>
             <select class="form-control roleSelect" name="MonitorForms[{{index}}].Role">
                 <option value="">Seçin...</option>
@@ -40,7 +49,6 @@
                 }
             </select>
         </div>
-
 
         <div class="mb-3">
             <label class="form-label fw-bold">Siyahı</label>
@@ -64,52 +72,83 @@
     </div>
 </template>
 
-
 <script>
-    document.getElementById('addMonitorBtn').addEventListener('click', function () {
-    var container = document.getElementById('monitorContainer');
-    var template = document.getElementById('monitorTemplate').innerHTML;
-
-    var index = container.children.length; // Yeni indeks belirle
-    template = template.replace(/{{index}}/g, index); // Indexleri güncelle
-
-    var div = document.createElement("div");
-    div.innerHTML = template;
-    container.appendChild(div);
-});
-
-document.addEventListener('click', function (event) {
-    if (event.target.classList.contains('remove-monitor-btn')) {
-        event.target.closest('.monitor-form').remove();
+    function initializeSelect2() {
+        document.querySelectorAll('.monitorSelect').forEach(function (select) {
+            if (!$(select).hasClass("select2-hidden-accessible")) {
+                $(select).select2({
+                    width: '100%',
+                    placeholder: "Nəzarətçi axtar...",
+                    allowClear: true
+                });
+            }
+        });
     }
-});
 
+    function updateSiraNumbers() {
+        const monitorForms = document.querySelectorAll('.monitor-form');
+        monitorForms.forEach((form, idx) => {
+            const siraSpan = form.querySelector('.sira-no');
+            if (siraSpan) {
+                siraSpan.textContent = idx + 1;
+            }
+        });
+    }
+
+    document.getElementById('addMonitorBtn').addEventListener('click', function () {
+        var container = document.getElementById('monitorContainer');
+        var template = document.getElementById('monitorTemplate').innerHTML;
+
+        var index = container.children.length;
+        var sira = index + 1;
+
+        template = template.replace(/{{index}}/g, index);
+        template = template.replace(/{{sira}}/g, sira);
+
+        var div = document.createElement("div");
+        div.innerHTML = template;
+        container.appendChild(div);
+
+        updateSiraNumbers();
+        initializeSelect2();
+    });
+
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('remove-monitor-btn')) {
+            event.target.closest('.monitor-form').remove();
+            updateSiraNumbers();
+        }
+    });
 
     document.addEventListener('change', function (event) {
-    if (event.target.classList.contains('roleSelect')) {
-        var roleValue = event.target.value;
-        var monitorSelect = event.target.closest('.monitor-form').querySelector('.monitorSelect');
+        if (event.target.classList.contains('roleSelect')) {
+            var roleValue = event.target.value;
+            var monitorSelect = event.target.closest('.monitor-form').querySelector('.monitorSelect');
 
-        if (!roleValue) {
-            monitorSelect.innerHTML = '<option value="">Önce role seçin...</option>';
-            return;
-        }
+            if (!roleValue) {
+                monitorSelect.innerHTML = '<option value="">Öncə vəzifəni seçin...</option>';
+                $(monitorSelect).val(null).trigger('change');
+                return;
+            }
 
-        fetch(`/Exam/GetMonitorsByRole?role=${roleValue}`)
-            .then(response => response.json())
-            .then(data => {
-                monitorSelect.innerHTML = '<option value="">Seçin...</option>';
-                data.forEach(monitor => {
-                    var option = document.createElement("option");
-                    option.value = monitor.value;
-                    option.textContent = monitor.text;
-                    monitorSelect.appendChild(option);
+            fetch(`/Exam/GetMonitorsByRole?role=${roleValue}`)
+                .then(response => response.json())
+                .then(data => {
+                    monitorSelect.innerHTML = '<option value="">Seçin...</option>';
+                    data.forEach(monitor => {
+                        var option = document.createElement("option");
+                        option.value = monitor.value;
+                        option.textContent = monitor.text;
+                        monitorSelect.appendChild(option);
+                    });
+
+                    $(monitorSelect).val(null).trigger('change');
+                    initializeSelect2();
                 });
-            });
-    }
-});
-
+        }
+    });
 </script>
+
 
 @* <script>
     document.getElementById("typeSelect").addEventListener("change", function () {

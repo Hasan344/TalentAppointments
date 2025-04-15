@@ -1,6 +1,10 @@
 ﻿@using ForQab.DataAccess.ViewModel.Exam
 @model AssignExpertForMXToExamViewModel
 
+<!-- Select2 Kitabxanası -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <link rel="stylesheet" href="~/css/expert/Edit.css" asp-append-version="true" />
 
 <div class="container mt-5">
@@ -18,7 +22,7 @@
             <input type="hidden" asp-for="SectionId" />
 
             <div id="expertContainer">
-                <!-- İlk form burada olacak -->
+                <!-- İlk form burada olacaq -->
             </div>
 
             <div class="mt-4 d-flex justify-content-center gap-3">
@@ -32,6 +36,10 @@
 <template id="expertTemplate">
     <div class="expert-form border p-3 mt-3 rounded shadow-sm">
         <div class="mb-3">
+            <h5 class="fw-bold">#<span class="sira-no">{{sira}}</span> Ekspert</h5>
+        </div>
+
+        <div class="mb-3">
             <label class="form-label fw-bold">Vəzifə Seçimi</label>
             <select class="form-control konsSelect" name="ExpertForms[{{index}}].Kons">
                 <option value="">Seçin...</option>
@@ -40,12 +48,10 @@
             </select>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label fw-bold">Ekspert Siyahısı</label>
-            <select class="form-control expertSelect" name="ExpertForms[{{index}}].ExpertId">
-                <option value="">Əvvəlcə vəzifə seçin...</option>
-            </select>
-        </div>
+        <select class="form-control expertSelect" name="ExpertForms[{{index}}].ExpertId">
+            <option value="">Əvvəlcə vəzifə seçin...</option>
+        </select>
+
 
         <div class="mb-3">
             <label class="form-label fw-bold">Otaq Seçimi</label>
@@ -62,36 +68,63 @@
     </div>
 </template>
 
-
 <script>
-    document.getElementById('addExpertBtn').addEventListener('click', function () {
-    var container = document.getElementById('expertContainer');
-    var template = document.getElementById('expertTemplate').innerHTML;
-
-    var index = container.children.length; // Yeni indeks belirle
-    template = template.replace(/{{index}}/g, index); // Indexleri güncelle
-
-    var div = document.createElement("div");
-    div.innerHTML = template;
-    container.appendChild(div);
-});
-
-// Dinamik olarak eklenen form satırlarını silme
-document.addEventListener('click', function (event) {
-    if (event.target.classList.contains('remove-expert-btn')) {
-        event.target.closest('.expert-form').remove();
+    // Select2 aktivləşdir
+    function initializeSelect2() {
+        document.querySelectorAll('.expertSelect').forEach(function (select) {
+            if (!$(select).hasClass("select2-hidden-accessible")) {
+                $(select).select2({
+                    width: '100%',
+                    placeholder: "Ekspert axtar...",
+                    allowClear: true
+                });
+            }
+        });
     }
-});
 
+    document.getElementById('addExpertBtn').addEventListener('click', function () {
+        var container = document.getElementById('expertContainer');
+        var template = document.getElementById('expertTemplate').innerHTML;
 
-    // Kons seçimine göre ekspert listesini dinamik olarak doldurma
+        var index = container.children.length;
+        var sira = index + 1;
+
+        template = template.replace(/{{index}}/g, index);
+        template = template.replace(/{{sira}}/g, sira);
+
+        var div = document.createElement("div");
+        div.innerHTML = template;
+        container.appendChild(div);
+
+        updateSiraNumbers();
+        initializeSelect2(); // yeni select üçün aktiv et
+    });
+
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('remove-expert-btn')) {
+            event.target.closest('.expert-form').remove();
+            updateSiraNumbers();
+        }
+    });
+
+    function updateSiraNumbers() {
+        const expertForms = document.querySelectorAll('.expert-form');
+        expertForms.forEach((form, idx) => {
+            const siraSpan = form.querySelector('.sira-no');
+            if (siraSpan) {
+                siraSpan.textContent = idx + 1;
+            }
+        });
+    }
+
     document.addEventListener('change', function (event) {
         if (event.target.classList.contains('konsSelect')) {
             var konsValue = event.target.value;
             var expertSelect = event.target.closest('.expert-form').querySelector('.expertSelect');
 
             if (!konsValue) {
-                expertSelect.innerHTML = '<option value="">Önce Kons seçin...</option>';
+                expertSelect.innerHTML = '<option value="">Əvvəlcə vəzifəsini seçin...</option>';
+                $(expertSelect).val(null).trigger('change');
                 return;
             }
 
@@ -105,31 +138,10 @@ document.addEventListener('click', function (event) {
                         option.textContent = expert.text;
                         expertSelect.appendChild(option);
                     });
+
+                    $(expertSelect).val(null).trigger('change'); // seçimi sıfırla
+                    initializeSelect2(); // yenidən initialize et
                 });
         }
-    });
-</script>
-
-<script>
-    document.getElementById("konsSelect").addEventListener("change", function () {
-        var konsValue = this.value;
-        var expertSelect = document.getElementById("expertSelect");
-        
-        if (!konsValue) {
-            expertSelect.innerHTML = '<option value="">Önce Kons seçin...</option>';
-            return;
-        }
-
-        fetch(`/Exam/GetExpertsByKons?kons=${konsValue}`)
-            .then(response => response.json())
-            .then(data => {
-                expertSelect.innerHTML = '<option value="">Seçin...</option>';
-                data.forEach(expert => {
-                    var option = document.createElement("option");
-                    option.value = expert.value;
-                    option.textContent = expert.text;
-                    expertSelect.appendChild(option);
-                });
-            });
     });
 </script>

@@ -4,6 +4,13 @@
     ViewData["Title"] = "Ekspertlər Index";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
+@if (TempData["ImportError"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ImportError"]
+    </div>
+}
+
 
 <div class="container mt-5">
     <!-- Page Title -->
