@@ -47,6 +47,14 @@
                 </div>
 
                 <div class="mb-3">
+                    <label asp-for="District" class="form-label">Rayon</label>
+                    <select asp-for="District" class="form-select" asp-items="ViewBag.District" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Rayon Seçin</option>
+                    </select>
+                    <span asp-validation-for="District" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
                     <label asp-for="Gender" class="form-label">Cins</label>
                     <select asp-for="Gender" class="form-select" asp-items="ViewBag.Gender" style="background-color: #23272a; color: #ffffff;">
                         <option value="" disabled selected>Cins Seçin</option>

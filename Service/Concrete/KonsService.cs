@@ -93,6 +93,10 @@ namespace ForQab.Service
         {
             await _konsRepository.UpdateAsync(entity);
         }
+        public async Task UpdateAsync(Expert entity)
+        {
+            await _konsRepository.UpdateAsync(entity);
+        }
         public async Task BulkAddAsync(IEnumerable<Expert> experts)
         {
             await _konsRepository.BulkAddAsync(experts);

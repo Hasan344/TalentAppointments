@@ -6,126 +6,161 @@
     string secondaryColor = "#6c757d"; // Official secondary color
 }
 
-<div class="container py-5" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-    <h1 class="text-center mb-4" style="color: @primaryColor; font-weight: bold;">Ekspert Detalları</h1>
-    <hr class="mb-4" />
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Left column: Photo -->
+        <div class="col-lg-4 d-flex justify-content-center align-items-start">
+            <div class="card shadow-sm border-0 rounded-4" style="width: 100%; max-width: 320px;">
+                <div class="card-body text-center">
+                    <div class="col-md-12 d-flex flex-column align-items-center mb-4">
+                        @if (!string.IsNullOrEmpty(Model.Photo))
+                        {
+                            <img src="@Model.Photo" class="img-fluid rounded-circle shadow mb-2" style="width: 200px; height: 200px; object-fit: cover;" alt="Ekspert Foto" />
+                        }
+                        else
+                        {
+                            <div class="d-flex justify-content-center align-items-center bg-light rounded-circle shadow mb-2" style="width: 200px; height: 200px;">
+                                <i class="bi bi-person-fill text-secondary" style="font-size: 4rem;"></i>
+                            </div>
+                        }
+                    </div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <dl class="row">
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Ad:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Name)</dd>
 
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Soyad:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Surname)</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Ata adı:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Fname)</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İstiqamət:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Section.Name)</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Doğum tarixi:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.BirthDate)</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Fin Kodu:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.FinCode)</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İxtisas:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Profession)</dd>
+                    <h4 class="mb-1">@Model.Name @Model.Surname</h4>
+                    <p class="text-muted mb-0">@Model.Fname</p>
+                    <small class="text-secondary">@Model.Section?.Name</small>
+                </div>
+            </div>
         </div>
 
-        <div class="col-md-6">
-            <dl class="row">
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İxtisas:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">
-                    @if (Model.ExpertsProfessions != null && Model.ExpertsProfessions.Any())
+        <!-- Right column: Details -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 p-4">
+                <h4 class="mb-4" style="color:@primaryColor;">Şəxsi Məlumatlar</h4>
+                <div class="row mb-3">
+                    <div class="col-sm-5 fw-semibold text-secondary">Doğum tarixi:</div>
+                    <div class="col-sm-7">@Model.BirthDate?.ToString("dd.MM.yyyy")</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-5 fw-semibold text-secondary">Fin Kodu:</div>
+                    <div class="col-sm-7">@Model.FinCode</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-5 fw-semibold text-secondary">Seriya nömrəsi:</div>
+                    <div class="col-sm-7">@Model.Serial</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-5 fw-semibold text-secondary">Telefon:</div>
+                    <div class="col-sm-7">@Model.TelIs</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-5 fw-semibold text-secondary">Müəssisə - Təhsil səviyyəsi:</div>
+                    <div class="col-sm-7">@Model.Profession</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-5 fw-semibold text-secondary">İxtisaslar:</div>
+                    <div class="col-sm-7">
+                        @if (Model.ExpertsProfessions != null && Model.ExpertsProfessions.Any())
+                        {
+                            @string.Join(", ", Model.ExpertsProfessions.Select(p => p.SubProfession?.Name))
+                        }
+                        else
+                        {
+                            <span class="text-muted">---</span>
+                        }
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <h4 class="mb-4" style="color:@primaryColor;">Bank Məlumatları</h4>
+                @{
+                    var bankInfos = new (string, string)[]
                     {
-                        @string.Join(", ", Model.ExpertsProfessions.Select(sp => sp.SubProfession?.Name))
-                    }
-                    else
+                ("Rekvizit", Model.Rekvizit),
+                ("Bank filialı", Model.BankFilial),
+                ("Bank filial kodu", Model.BankFilialCode),
+                ("Hesablaşma hesabı", Model.HesablashmaH),
+                ("VÖEN", Model.Voen),
+                ("SSN", Model.SSN)
+                    };
+
+                    foreach (var item in bankInfos)
                     {
-                        <span style="color: @secondaryColor;">---</span>
+                        <div class="row mb-3">
+                            <div class="col-sm-5 fw-semibold text-secondary">@item.Item1:</div>
+                            <div class="col-sm-7">@item.Item2</div>
+                        </div>
                     }
-                </dd>
+                }
 
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Rekvizit:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Rekvizit)</dd>
+                <hr class="my-4" />
 
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Bank filialı:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.BankFilial)</dd>
+                <div class="row mb-3">
+                    <div class="col-sm-5 fw-semibold text-danger">Arxivlənmə səbəbi:</div>
+                    <div class="col-sm-7 text-danger">@Model.ArchiveReason</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-5 fw-semibold text-danger">Çağırılmama səbəbi:</div>
+                    <div class="col-sm-7 text-danger">@Model.StatusReason</div>
+                </div>
 
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Bank filial kodu:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.BankFilialCode)</dd>
+                <div class="text-center mt-4">
+                    <a class="btn btn-outline-primary me-2" asp-action="Edit" asp-route-id="@Model.Id">
+                        <i class="bi bi-pencil-square me-1"></i> Düzəliş et
+                    </a>
+                    <a class="btn btn-outline-secondary me-2" asp-action="Index">
+                        <i class="bi bi-list-ul me-1"></i> Siyahıya qayıt
+                    </a>
+                    <a class="btn btn-outline-info" asp-action="ExpertLog" asp-route-expertId="@Model.Id">
+                        <i class="bi bi-journal-text me-1"></i> Qeydlər
+                    </a>
+                </div>
 
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Hesablaşma hesabı:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.HesablashmaH)</dd>
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-danger me-2" data-bs-toggle="modal" data-bs-target="#statusReasonModal">
+                        <i class="bi bi-x-circle me-1"></i> Çağırıla bilməz
+                    </button>
 
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">VÖEN:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.Voen)</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">SSN:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.SSN)</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Arxivlənmə səbəbi:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.ArchiveReason)</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Çağırılmama səbəbi:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Html.DisplayFor(model => model.StatusReason)</dd>
-            </dl>
+                    <form asp-action="RestoreStatus" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="bi bi-check-circle me-1"></i> Çağırıla bilər
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="text-center mt-4">
-        <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="Edit" asp-route-id="@Model?.Id">
-            <i class="bi bi-pencil"></i> Düzəliş et
-        </a>
-        <a class="btn btn-secondary px-4 py-2 mx-2" style="background-color: @secondaryColor; border: none;" asp-action="Index">
-            <i class="bi bi-arrow-left"></i> Siyahıya qayıt
-        </a>
-        <a class="btn btn-info px-4 py-2 mx-2" style="background-color: #17a2b8; border: none;" asp-action="ExpertLog" asp-route-expertId="@Model?.Id">
-            <i class="bi bi-journal-text"></i> Xüsusi qeydlərə keçid
-        </a>
-    </div>
-    <div class="text-center mt-4">
-        <button class="btn btn-danger px-4 py-2 mx-2" data-bs-toggle="modal" data-bs-target="#statusReasonModal">
-            <i class="bi bi-x-circle"></i> Çağırıla bilməz
-        </button>
-
-        <form asp-action="RestoreStatus" method="post" class="d-inline">
-            <input type="hidden" name="id" value="@Model.Id" />
-            <button type="submit" class="btn btn-success px-4 py-2 mx-2">
-                <i class="bi bi-check-circle"></i> Çağırıla bilər
-            </button>
-        </form>
-    </div>
-    <div class="mt-4">
-        <h3 style="color: #0056b3; font-weight: bold;">Ekspertin iştirak etdiyi imtahanlar</h3>
-        <table class="table table-bordered mt-3">
-            <thead>
+    <!-- İştirak etdiyi imtahanlar -->
+    <div class="card shadow-sm border-0 rounded-4 mt-5 p-4">
+        <h4 class="mb-3" style="color:@primaryColor;">Ekspertin İmtahanları</h4>
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-light">
                 <tr>
-                    <th>İmtahan Id</th>
-                    <th>İmtahan Tarixi</th>
+                    <th>İmtahan ID</th>
+                    <th>Tarix</th>
                     <th>Zal</th>
-                    <th>Başlama Saatı</th>
-                    <th>Bitmə Saatı</th>
+                    <th>Başlama</th>
+                    <th>Bitmə</th>
                     <th>İxtisas</th>
-                    <th>İmtahan Detallarına Keçid</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var examExpertSubProfession in Model.ExamExpertSubProfessions)
+                @foreach (var item in Model.ExamExpertSubProfessions)
                 {
                     <tr>
-                        <td>@examExpertSubProfession.Exam.Id</td>
-                        <td>@examExpertSubProfession.Exam.ExamDate</td>
-                        <td>@examExpertSubProfession.ExamRoom?.Name</td>
-                        <td>@examExpertSubProfession.Exam.StartTime</td>
-                        <td>@examExpertSubProfession.Exam.EndTime</td>
-                        <td>@examExpertSubProfession.SubProfession?.Name</td>
+                        <td>@item.Exam.Id</td>
+                        <td>@item.Exam.ExamDate.ToString("dd.MM.yyyy")</td>
+                        <td>@item.ExamRoom?.Name</td>
+                        <td>@item.Exam.StartTime</td>
+                        <td>@item.Exam.EndTime</td>
+                        <td>@item.SubProfession?.Name</td>
                         <td>
-                            <a class="btn btn-info btn-sm" asp-controller="Exam" asp-action="Details" asp-route-id="@examExpertSubProfession.Exam.Id">
-                                İmtahan Detalları
+                            <a class="btn btn-sm btn-outline-info" asp-controller="Exam" asp-action="Details" asp-route-id="@item.Exam.Id">
+                                Detallar
                             </a>
                         </td>
                     </tr>
@@ -133,6 +168,8 @@
             </tbody>
         </table>
     </div>
+</div>
+
 
     <!-- Modal (Pop-up) -->
     <div class="modal fade" id="statusReasonModal" tabindex="-1" aria-labelledby="statusReasonModalLabel" aria-hidden="true">

@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<ForQab.DataAccess.Models.Expert>
 
 @{
-    ViewData["Title"] = "Ekspertlər Index";
+    ViewData["Title"] = "Konsertmeysterlər";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 @if (TempData["Message"] != null)
@@ -10,7 +10,7 @@
 }
 <div class="container mt-5">
     <!-- Page Title -->
-    <h1 class="text-center mb-4">Ekspertlər İdarəetməsi</h1>
+    <h1 class="text-center mb-4">Konsertmeysterlər İdarəetməsi</h1>
 
     <!-- Create New Expert Button -->
     <div class="mb-4 text-end">
@@ -117,7 +117,7 @@
                 }
                 @foreach (var item in Model)
                 {
-                    <tr class="align-middle">
+                    <tr class="align-middle @(item.Status == 1 ? "table-danger" : "")">
                         <td>@rowNumber</td>
                         <td>@Html.DisplayFor(modelItem => item.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.Surname)</td>

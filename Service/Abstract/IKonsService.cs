@@ -12,6 +12,7 @@ namespace ForQab.Service.Abstract
         Task<IEnumerable<Expert>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId);
         Task AddAsync(KonsViewModel entity);
         Task UpdateAsync(KonsEditViewModel entity);
+        Task UpdateAsync(Expert entity);
         Task DeleteAsync(int id);
         Task<List<Section>> GetSectionsAsync(int? sectionId);
         Task<IEnumerable<SubProfession>> GetSubProfessionsAsync(int? sectionId);

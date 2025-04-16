@@ -318,7 +318,7 @@ namespace ForQab.Presentation.Controllers
 
                     foreach (var row in worksheet.RowsUsed().Skip(1)) 
                     {
-                        var finCode = row.Cell(4).GetString();
+                        var finCode = row.Cell(7).GetString();
                         if (string.IsNullOrEmpty(finCode) || existingFinCodes.Contains(finCode))
                         {
                             continue; 
@@ -326,27 +326,27 @@ namespace ForQab.Presentation.Controllers
 
                         var expert = new Expert
                         {
-                            Name = row.Cell(2).GetString(),
-                            Surname = row.Cell(1).GetString(),
-                            Fname = row.Cell(3).GetString(),
+                            District = _context.Districts.FirstOrDefault(d => d.Name == row.Cell(1).GetString())?.Id,
+                            Surname = row.Cell(2).GetString(),
+                            Name = row.Cell(3).GetString(),
+                            Fname = row.Cell(4).GetString(),
+                            Gender = row.Cell(5).GetValue<byte>(),
+                            Serial = row.Cell(6).IsEmpty() ? null : row.Cell(6).GetString(),
                             FinCode = finCode,
-                            Profession = row.Cell(5).IsEmpty() ? null : row.Cell(5).GetString(),
+                            Federation = _context.Professions.FirstOrDefault(p => p.Name == row.Cell(8).GetString())?.Id,
+                            Profession = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
+                            BirthDate = row.Cell(11).IsEmpty() ? null
+                                    : DateOnly.ParseExact(row.Cell(11).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                            TelIs = row.Cell(12).IsEmpty() ? null : row.Cell(12).GetString(),
+                            Voen = row.Cell(13).IsEmpty() ? null : row.Cell(13).GetString(),
+                            HesablashmaH = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
+                            Rekvizit = row.Cell(15).IsEmpty() ? null : row.Cell(15).GetString(),
+                            SSN = row.Cell(16).IsEmpty() ? null : row.Cell(16).GetString(),
+                            BankFilial = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
+                            BankFilialCode = row.Cell(18).IsEmpty() ? null : row.Cell(18).GetString(),
                             Kons = true,
                             SectionId = sectionId,
-                            Gender = _context.Genders.FirstOrDefault(g => g.Name == row.Cell(6).GetString())?.Id,
-                            District = _context.Districts.FirstOrDefault(d => d.Name == row.Cell(7).GetString())?.Id,
-                            Federation = _context.Professions.FirstOrDefault(p => p.Name == row.Cell(8).GetString())?.Id,
-                            HesablashmaH = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
-                            Rekvizit = row.Cell(11).IsEmpty() ? null : row.Cell(11).GetString(),
-                            Serial = row.Cell(12).IsEmpty() ? null : row.Cell(12).GetString(),
-                            SSN = row.Cell(13).IsEmpty() ? null : row.Cell(13).GetString(),
-                            Voen = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
-                            BirthDate = row.Cell(15).IsEmpty() ? null
-                                : DateOnly.ParseExact(row.Cell(15).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
                             Status = 0,
-                            BankFilial = row.Cell(16).IsEmpty() ? null : row.Cell(16).GetString(),
-                            BankFilialCode = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
-                            TelIs = row.Cell(18).IsEmpty() ? null : row.Cell(18).GetString(),
                         };
                         var subProfessionNames = row.Cell(9).GetString().Split(',').Select(x => x.Trim()).ToList();
                         foreach (var subProfessionName in subProfessionNames)
@@ -371,6 +371,38 @@ namespace ForQab.Presentation.Controllers
                     }
                 }
             }
+
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeStatus(int id, string statusReason)
+        {
+            var expert = await _konsService.GetByIdAsync(id);
+            if (expert == null)
+            {
+                return NotFound();
+            }
+
+            expert.Status = 1;
+            expert.StatusReason = statusReason;
+            await _konsService.UpdateAsync(expert);
+
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RestoreStatus(int id)
+        {
+            var expert = await _konsService.GetByIdAsync(id);
+            if (expert == null)
+            {
+                return NotFound();
+            }
+
+            expert.Status = 0;
+            expert.StatusReason = null;
+            await _konsService.UpdateAsync(expert);
 
             return RedirectToAction(nameof(Index));
         }

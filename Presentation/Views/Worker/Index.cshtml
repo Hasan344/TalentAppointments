@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<ForQab.DataAccess.Models.Monitor>
 
 @{
-    ViewData["Title"] = "Nəzarətçilər";
+    ViewData["Title"] = "Digər işçilər";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 @if (TempData["Message"] != null)
@@ -12,11 +12,11 @@
 <link rel="stylesheet" href="~/css/Monitors/Index.css" asp-append-version="true" />
 
 <div class="container mt-5">
-    <h1 class="text-center mb-4 fw-bold text-primary">Nəzarətçilər İdarəetməsi</h1>
+    <h1 class="text-center mb-4 fw-bold text-primary">Digər işçilər</h1>
 
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
-            <a class="btn btn-success" asp-action="Create"><i class="bi bi-plus-circle"></i> Yeni Monitor</a>
+            <a class="btn btn-success" asp-action="Create"><i class="bi bi-plus-circle"></i> Yeni İşçi</a>
             <a class="btn btn-outline-primary" href="@Url.Action("ExportToExcel", "Worker", new { searchName = ViewContext.HttpContext.Request.Query["searchName"], finCode = ViewContext.HttpContext.Request.Query["finCode"], serial = ViewContext.HttpContext.Request.Query["serial"], genderId = ViewContext.HttpContext.Request.Query["genderId"], district = ViewContext.HttpContext.Request.Query["district"] })">
                 <i class="bi bi-file-earmark-excel"></i> Excel'e çıxarış
             </a>@*

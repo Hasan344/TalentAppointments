@@ -57,8 +57,9 @@ public partial class Monitor
     [Column("age")]
     public int? Age { get; set; }
 
-    [Column("foto")]
-    public int? Foto { get; set; }
+    [Column("photo")]
+    [StringLength(1250)]
+    public string? Photo { get; set; }
 
     [Column("tel_ev")]
     [StringLength(100)]

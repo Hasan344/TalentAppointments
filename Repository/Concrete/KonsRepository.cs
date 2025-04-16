@@ -191,5 +191,11 @@ namespace ForQab.Repository.Concrete
             await _dbContext.Set<Expert>().AddRangeAsync(experts);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task UpdateAsync(Expert entity)
+        {
+            _dbContext.Experts.Update(entity);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }
