@@ -61,7 +61,21 @@
                     </select>
                     <span asp-validation-for="Gender" class="text-danger"></span>
                 </div>
+                <div class="mb-3">
+                    <input type="hidden" asp-for="Role" value="3" />
+                </div>
 
+                <div class="mb-3">
+                    <input type="hidden" asp-for="Status" value="@Model.Status" />
+                </div>
+
+                <div class="mb-3">
+                    <input type="hidden" asp-for="AssignmentCount" value="@Model.AssignmentCount" />
+                </div>
+
+                <div class="mb-3">
+                    <input type="hidden" asp-for="Archive" value="0" />
+                </div>
                 <div class="mb-3">
                     <label asp-for="District" class="form-label">Rayon</label>
                     <select asp-for="District" class="form-select" asp-items="ViewBag.District" style="background-color: #23272a; color: #ffffff;">

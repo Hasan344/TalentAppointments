@@ -125,4 +125,8 @@ public partial class Expert
     public string? StatusReason { get; set; }
     public virtual ICollection<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; } = new List<ExamExpertSubProfession>(); 
     public ICollection<SubProfession> SubProfessions { get; set; }
+
+    [Column("photo")]
+    [StringLength(1250)]
+    public string? Photo { get; set; }
 }
