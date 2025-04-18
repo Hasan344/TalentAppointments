@@ -909,10 +909,10 @@ namespace ForQab.Repository.Concrete
         public async Task<Exam> GetExamWithExpertsAndSubProfessionsAsync(int examId)
         {
             var exam = await _context.Exams
-        .Include(e => e.Experts)
-        .Include(e => e.ExamExpertSubProfessions)
-            .ThenInclude(e => e.SubProfession)
-        .FirstOrDefaultAsync(e => e.Id == examId);
+                .Include(e => e.Experts)
+                .Include(e => e.ExamExpertSubProfessions)
+                    .ThenInclude(e => e.SubProfession)
+                .FirstOrDefaultAsync(e => e.Id == examId);
 
             if (exam == null)
             {

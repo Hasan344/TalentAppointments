@@ -26,6 +26,8 @@ namespace ForQab.Data_Access.ViewModel.Expert
         public string? TelEl { get; set; }
         public int? Federation { get; set; }
         public byte? Gender { get; set; }
+        public string? ContractNo { get; set; }
+        public DateOnly? ContractDate { get; set; }
         public List<SelectListItem>? SubProfessions { get; set; } // For dropdown list
         public int[]? SelectedSubProfessions { get; set; } // IDs of selected SubProfessions
     }

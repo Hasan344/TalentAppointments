@@ -10,6 +10,8 @@
             <th>Soyad</th>
             <th>Ata adı</th>
             <th>Fin Kod</th>
+            <th>Telefon</th>
+            <th>Seriya nömrəsi</th>
             <th>Əməliyyatlar</th>
         </tr>
     </thead>
@@ -25,11 +27,13 @@
                 <td>@item.Surname</td>
                 <td>@item.Fname</td>
                 <td>@item.FinCode</td>
+                <td>@item.Tel</td>
+                <td>@item.Serial</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Redaktə</a>
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary">Detallar</a>
                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Sil</a>
-                   
+
                 </td>
             </tr>
             rowNumber++;

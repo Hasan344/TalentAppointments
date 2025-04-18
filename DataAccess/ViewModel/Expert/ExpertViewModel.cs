@@ -22,6 +22,8 @@ namespace ForQab.Data_Access.ViewModel
         public byte? Gender { get; set; }
         public string? TelIs { get; set; }
         public string? TelEl { get; set; }
+        public string? ContractNo { get; set; }
+        public DateOnly? ContractDate { get; set; }
         public List<SelectListItem>? SubProfessions { get; set; } // For dropdown list
         public int[]? SelectedSubProfessions { get; set; } // IDs of selected SubProfessions
     }

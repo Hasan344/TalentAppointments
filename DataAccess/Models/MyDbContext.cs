@@ -170,9 +170,11 @@ public partial class MyDbContext : DbContext
 
         modelBuilder.Entity<ExamExpertSubProfession>(entity =>
         {
-            entity.HasKey(e => new { e.ExamId, e.ExpertId });
-        });
-
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.ExamId, e.ExpertId })
+                  .IsUnique();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+        }); 
         modelBuilder.Entity<MonitorsProfession>()
             .HasKey(ec => new { ec.MonitorId, ec.SubProfessionId });
 

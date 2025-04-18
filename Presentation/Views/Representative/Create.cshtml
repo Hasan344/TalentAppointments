@@ -38,6 +38,18 @@
                 </div>
 
                 <div class="mb-3">
+                    <label asp-for="Tel" class="form-label">Telefon</label>
+                    <input asp-for="Tel" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Tel" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Serial" class="form-label">Seriya nömrəsi</label>
+                    <input asp-for="Serial" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Serial" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
                     <input type="hidden" asp-for="Type" value="1" />
                 </div>
 

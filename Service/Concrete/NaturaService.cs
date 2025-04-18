@@ -181,7 +181,7 @@ namespace ForQab.Service
                     }
                 }
 
-                return "HeadMonitor-lər uğurla idxal edildi.";
+                return "Naturalar uğurla idxal edildi.";
             }
             public async Task<byte[]> ExportToExcelAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
             {
