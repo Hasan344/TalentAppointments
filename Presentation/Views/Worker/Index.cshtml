@@ -58,14 +58,13 @@
                     <th>Ata adı</th>
                     <th>Cins</th>
                     <th>Doğum tarixi</th>
-                    <th>Peşə</th>
                     <th>İş yeri</th>
-                    <th>Ev tel.</th>
-                    <th>İş tel.</th>
+                    <th>Tel.</th>
                     <th>FİN Kodu</th>
                     <th>Seriya</th>
                     <th>İstiqamət</th>
                     <th>Rayon</th>
+                    <th>İş vəzifəsi</th>
                     <th class="text-center">Əməliyyatlar</th>
                 </tr>
             </thead>
@@ -82,14 +81,13 @@
                         <td>@Html.DisplayFor(modelItem => item.Fname)</td>
                         <td>@Html.DisplayFor(modelItem => item.GenderNavigation.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.BirthDate)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Profession)</td>
                         <td>@Html.DisplayFor(modelItem => item.Workplace)</td>
-                        <td>@Html.DisplayFor(modelItem => item.TelEv)</td>
                         <td>@Html.DisplayFor(modelItem => item.TelIs)</td>
                         <td>@Html.DisplayFor(modelItem => item.FinCode)</td>
                         <td>@Html.DisplayFor(modelItem => item.Serial)</td>
                         <td>@Html.DisplayFor(modelItem => item.Section.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.DistrictNavigation.Name)</td>
+                        <td>@Html.DisplayFor(modelItem => item.WorkerTypeNavigation.Name)</td>
                         <td class="text-center">
                             <div class="btn-group">
                                 <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a>

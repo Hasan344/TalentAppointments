@@ -141,34 +141,35 @@ namespace ForQab.Service
                         string typeName = row.Cell(13).GetString();
                         int? districtId = districts.FirstOrDefault(d => d.Name == districtName)?.Id;
                         int? sectionId = sections.FirstOrDefault(s => s.Name == sectionName)?.Id;
-                        string? typeId = workerTypes.FirstOrDefault(w => w.Name == typeName)?.Id.ToString();
+                        byte? typeId = workerTypes.FirstOrDefault(w => w.Name == typeName)?.Id;
 
                         var monitor = new Monitor
                         {
+                            District = districtId,
                             Surname = row.Cell(2).GetString(),
                             Name = row.Cell(3).GetString(),
                             Fname = row.Cell(4).GetString(),
-                            Archive = 0,
-                            Status = 0,
-                            AssignmentCount = 0,
-                            Gender = row.Cell(8).GetValue<byte>(),
-                            Role = 5,
-                            BirthDate = row.Cell(12).IsEmpty() ? null
-                                : DateOnly.ParseExact(row.Cell(12).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
-                            TelIs = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
-                            FinCode = finCode,
-                            Serial = row.Cell(9).IsEmpty() ? null : row.Cell(9).GetString(),
                             SectionId = sectionId,
-                            District = districtId,
                             ContractDate = row.Cell(6).IsEmpty() ? null
                                 : DateOnly.ParseExact(row.Cell(6).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
                             ContractNo = row.Cell(7).IsEmpty() ? null : row.Cell(7).GetString(),
-                            SSN = row.Cell(17).GetString(),
-                            Rekvizit = row.Cell(16).GetString(),
-                            HesablashmaH = row.Cell(15).IsEmpty() ? null : row.Cell(15).GetString(),
+                            Gender = row.Cell(8).GetValue<byte>(),
+                            Serial = row.Cell(9).IsEmpty() ? null : row.Cell(9).GetString(),
+                            TelIs = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
+                            FinCode = finCode,
+                            BirthDate = row.Cell(12).IsEmpty() ? null
+                                : DateOnly.ParseExact(row.Cell(12).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                            WorkerType = typeId,
                             Voen = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
+                            HesablashmaH = row.Cell(15).IsEmpty() ? null : row.Cell(15).GetString(),
+                            Rekvizit = row.Cell(16).GetString(),
+                            SSN = row.Cell(17).GetString(),
                             BankFilial = row.Cell(18).GetString(),
                             BankFilialCode = row.Cell(19).GetString(),
+                            Archive = 0,
+                            Status = 0,
+                            AssignmentCount = 0,
+                            Role = 5,
                         };
 
                         monitors.Add(monitor);

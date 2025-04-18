@@ -667,23 +667,30 @@
     </script>
 
     <script>
-    function changeExpert(examId, expertId) {
+        function changeExpert(examId, expertId) {
+        console.log('changeExpert çağırıldı:', examId, expertId);
         const formData = new FormData();
         formData.append('examId', examId);
         formData.append('expertId', expertId);
 
-        fetch('/Exam/ChangeExpert', { // Controller adını kendi yapınıza göre ayarlayın
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (response.ok) {
-                window.location.href = '/Exam/Details?id=' + examId; // Yönlendirme
-            } else {
-                console.error('Hata oluştu');
-            }
-        })
-        .catch(error => console.error('Hata:', error));
+            fetch('/Exam/ChangeExpert', {
+                method: 'POST',
+                body: formData
+            })
+                .then(async response => {
+                    if (response.ok) {
+                        window.location.href = '/Exam/Details?id=' + examId;
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Sunucudan hata:', errorText);
+                        alert("Hata baş verdi: " + errorText);
+                    }
+                })
+                .catch(error => {
+                    console.error('İstek hatası:', error);
+                    alert("Şəbəkə xətası: " + error.message);
+                });
+
     }
 </script>
 }

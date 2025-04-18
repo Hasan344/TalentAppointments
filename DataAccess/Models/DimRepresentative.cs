@@ -29,6 +29,14 @@ public partial class DimRepresentative
     [StringLength(50)]
     public string FinCode { get; set; } = null!;
 
+    [Column("tel")]
+    [StringLength(50)]
+    public string Tel { get; set; } = null!;
+
+    [Column("serial")]
+    [StringLength(50)]
+    public string Serial { get; set; } = null!;
+
     [Column("type")]
     public int Type { get; set; }
 

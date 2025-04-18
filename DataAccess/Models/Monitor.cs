@@ -161,7 +161,7 @@ public partial class Monitor
     public virtual ExamBuilding? ExamBuilding { get; set; }
 
     [Column("contract_no")]
-    [StringLength(50)]
+    [StringLength(150)]
     public string? ContractNo { get; set; }
 
     [Column("contract_date")]

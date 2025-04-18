@@ -60,16 +60,22 @@ namespace ForQab.Repository.Concrete
         }
         public async Task AddSubProfessionsAsync(IEnumerable<ExamExpertSubProfession> subProfessions)
         {
-            await _context.ExamExpertSubProfessions.AddRangeAsync(subProfessions);
+            _context.ChangeTracker.Clear();
+            
+                await _context.ExamExpertSubProfessions.AddAsync((ExamExpertSubProfession)subProfessions);
+            
         }
 
         public async Task RemoveByExpertAsync(int examId, int expertId)
         {
-            var subProfessions = _context.ExamExpertSubProfessions
-                .Where(eesp => eesp.ExamId == examId && eesp.ExpertId == expertId);
+            var subProfessions = await _context.ExamExpertSubProfessions
+                .Where(eesp => eesp.ExamId == examId && eesp.ExpertId == expertId)
+                .ToListAsync();
 
             _context.ExamExpertSubProfessions.RemoveRange(subProfessions);
+            await _context.SaveChangesAsync();
         }
+
         public async Task<List<ExamExpertSubProfession>> GetAllAsync(Expression<Func<ExamExpertSubProfession, bool>> predicate)
         {
             return await _context.ExamExpertSubProfessions.Where(predicate).ToListAsync();

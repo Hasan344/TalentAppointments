@@ -7,9 +7,11 @@ namespace ForQab.DataAccess.Models
     public class ExamExpertSubProfession
     {
         [Column("Exam_Id")]
+        [Key]
         public int ExamId { get; set; }
 
         [Column("Expert_Id")]
+        [Key]
         public int ExpertId { get; set; }
 
         [Column("SubProfession_Id")]
@@ -34,7 +36,11 @@ namespace ForQab.DataAccess.Models
         public virtual Profession Federation { get; set; } = null!;
 
         [ForeignKey("RoomId")]
-        public virtual ExamRoom ExamRoom { get; set; } = null!; 
+        public virtual ExamRoom ExamRoom { get; set; } = null!;
+
+        [Column("Id")]
+        [Key]
+        public int Id { get; set; }
     }
 
 }

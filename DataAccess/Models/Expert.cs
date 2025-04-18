@@ -129,4 +129,11 @@ public partial class Expert
     [Column("photo")]
     [StringLength(1250)]
     public string? Photo { get; set; }
+
+    [Column("contract_no")]
+    [StringLength(150)]
+    public string? ContractNo { get; set; }
+
+    [Column("contract_date")]
+    public DateOnly? ContractDate { get; set; }
 }
