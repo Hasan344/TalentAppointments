@@ -118,14 +118,17 @@
                     <div class="col-sm-7 text-danger">@Model.StatusReason</div>
                 </div>
 
-                <div class="text-center mt-4">
-                    <a class="btn btn-outline-primary me-2" asp-action="Edit" asp-route-id="@Model.Id">
-                        <i class="bi bi-pencil-square me-1"></i> Düzəliş et
-                    </a>
-                    <a class="btn btn-outline-secondary me-2" asp-action="Index">
-                        <i class="bi bi-list-ul me-1"></i> Siyahıya qayıt
-                    </a>
-                </div>
+                    <div class="text-center mt-4">
+                        <a class="btn btn-outline-primary me-3" asp-action="Edit" asp-route-id="@Model.Id">
+                            <i class="bi bi-pencil-square me-1"></i> Düzəliş et
+                        </a>
+                        <a class="btn btn-outline-danger me-3" asp-action="Delete" asp-route-id="@Model.Id">
+                            <i class="bi bi me-1"></i> Sil və ya Arxivlə
+                        </a>
+                        <a class="btn btn-outline-secondary me-3" asp-action="Index">
+                            <i class="bi bi-list-ul me-1"></i> Siyahıya qayıt
+                        </a>
+                    </div>
 
                 <div class="text-center mt-3">
                     <button class="btn btn-outline-danger me-2" data-bs-toggle="modal" data-bs-target="#statusReasonModal">
@@ -142,7 +145,61 @@
             </div>
         </div>
     </div>
+        <!-- Exam Table -->
+        <div class="mt-5">
+            <h3 style="color: @primaryColor; font-weight: bold;">Naturaçının iştirak etdiyi imtahanlar</h3>
+            <table class="table table-bordered mt-3">
+                <thead>
+                    <tr>
+                        <th>İmtahan Id</th>
+                        <th>İmtahan Tarixi</th>
+                        <th>Zal</th>
+                        <th>Başlama Saatı</th>
+                        <th>Bitmə Saatı</th>
+                        <th>İştirak statusu</th>
+                        <th>İmtahan Detalları</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var examMonitor in Model.ExamMonitors)
+                    {
+                        <tr>
+                            <td>@examMonitor.Exams.Id</td>
+                            <td>@examMonitor.Exams.ExamDate.ToShortDateString()</td>
+                            <td>@examMonitor.ExamRooms?.Name</td>
+                            <td>@examMonitor.Exams.StartTime</td>
+                            <td>@examMonitor.Exams.EndTime</td>
+                            <td>
+                                @{
+                                    var monitorLog = examMonitor.Monitors.MonitorLogs
+                                    .FirstOrDefault(log => log.ExamId == examMonitor.Exams.Id); // ExamId ilə uyğun log tapılır
 
+                                    string statusText;
+                                    if (monitorLog == null)
+                                    {
+                                        statusText = "İştirak etdi";
+                                    }
+                                    else if (monitorLog.Kind == 0)
+                                    {
+                                        statusText = "Gəlmədi";
+                                    }
+                                    else
+                                    {
+                                        statusText = "Qeydi var";
+                                    }
+                                }
+                                @statusText
+                            </td>
+                            <td>
+                                <a class="btn btn-info btn-sm" asp-controller="Exam" asp-action="Details" asp-route-id="@examMonitor.Exams.Id">
+                                    İmtahan Detalları
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
         <!-- Modal (Pop-up) -->
         <div class="modal fade" id="statusReasonModal" tabindex="-1" aria-labelledby="statusReasonModalLabel" aria-hidden="true">
             <div class="modal-dialog">

@@ -93,9 +93,20 @@ namespace ForQab.Repository.Concrete
         public async Task<Expert> GetByIdAsync(int id)
         {
             return await _dbContext.Experts
-                 .Include(e => e.Section)
-                 .Include(e => e.ExpertsProfessions)
-                 .FirstOrDefaultAsync(e => e.Id == id);
+                .Include(e => e.Section)
+                .Include(e => e.ExpertsProfessions)
+                    .ThenInclude(e => e.SubProfession)
+                .Include(e => e.DistrictNavigation)
+                .Include(e => e.GenderNavigation)
+                .Include(e => e.FederationNavigation)
+                .Include(e => e.ExamExpertSubProfessions)
+                    .ThenInclude(e => e.Exam)
+                .Include(e => e.ExamExpertSubProfessions)
+                    .ThenInclude(e => e.SubProfession)
+                .Include(e => e.ExamExpertSubProfessions)
+                    .ThenInclude(e => e.ExamRoom)
+                .Include(e => e.ExpertLogs)
+                .FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public async Task<IEnumerable<Expert>> GetAllAsync(int? sectionId)
