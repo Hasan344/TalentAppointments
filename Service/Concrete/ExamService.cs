@@ -922,6 +922,7 @@ namespace ForQab.Service
                     Surname = er.Surname,
                     Fname = er.Fname,
                     FinCode = er.FinCode,
+                    Role = (byte?)er.Type,
                 }).ToList(),
                 ExpertsWithLogs = expertLogs ?? new List<int>(),
                 MonitorsWithLogs = monitorLogs ?? new List<int>(),

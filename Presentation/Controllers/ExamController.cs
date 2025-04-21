@@ -784,6 +784,13 @@ namespace ForQab.Presentation.Controllers
                 return NotFound();
             return RedirectToAction("Details", "Worker", new { id });
         }
+        public IActionResult DimRepresentativeDetails(int id)
+        {
+            var monitor = _context.Monitors.Find(id);
+            if (monitor == null)
+                return NotFound();
+            return RedirectToAction("Details", "Worker", new { id });
+        }
         [HttpPost]
         public async Task<IActionResult> ExportContingentRegister(int examId)
         {
