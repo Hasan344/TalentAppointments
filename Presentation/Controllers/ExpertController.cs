@@ -294,7 +294,7 @@ namespace ForQab.Presentation.Controllers
             var experts = await _expertService.GetExpertsBySectionIdAsync(sectionId);
 
             // DataTable oluştur
-            var dt = new DataTable("Experts");
+            var dt = new DataTable("Ekspertlər");
             dt.Columns.AddRange(new DataColumn[]
             {
                 new DataColumn("Ad"),
@@ -302,7 +302,8 @@ namespace ForQab.Presentation.Controllers
                 new DataColumn("Ata adı"),
                 new DataColumn("İstiqamət"),
                 new DataColumn("Fin kodu"),
-                new DataColumn("Peşə"),
+                new DataColumn("Cinsi"),
+                new DataColumn("Vəzifəsi"),
                 new DataColumn("Doğum tarixi"),
                 new DataColumn("Rekvizit"),
                 new DataColumn("SSN"),
@@ -310,14 +311,18 @@ namespace ForQab.Presentation.Controllers
                 new DataColumn("Bank filial kodu"),
                 new DataColumn("Hesablaşma hesabı"),
                 new DataColumn("VÖEN"),
+                new DataColumn("Müəssisə - Təhsil səviyyəsi"),
                 new DataColumn("İxtisaslar"),
+                new DataColumn("Müqavilə tarixi"),
+                new DataColumn("Müqavilə nömrəsi"),
+                new DataColumn("İştirak sayı"),
             });
 
             // Verileri doldur
             foreach (var expert in experts)
             {
                 var subProfessions = expert.ExpertsProfessions != null && expert.ExpertsProfessions.Any()
-                    ? string.Join(", ", expert.ExpertsProfessions.Select(sp => sp.SubProfession.Name))
+                    ? string.Join(", ", expert.ExpertsProfessions.Select(sp => sp.SubProfession?.Name))
                     : "---";
 
                 dt.Rows.Add(
@@ -326,6 +331,7 @@ namespace ForQab.Presentation.Controllers
                     expert.Fname,
                     expert.Section?.Name ?? "---",
                     expert.FinCode,
+                    expert.GenderNavigation?.Name,
                     expert.Profession,
                     expert.BirthDate,
                     expert.Rekvizit,
@@ -334,7 +340,11 @@ namespace ForQab.Presentation.Controllers
                     expert.BankFilialCode,
                     expert.HesablashmaH,
                     expert.Voen,
-                    subProfessions
+                    expert.FederationNavigation?.Name,
+                    subProfessions,
+                    expert.ContractDate,
+                    expert.ContractNo ?? "",
+                    expert.AssignmentCount
                 );
             }
 
@@ -346,7 +356,7 @@ namespace ForQab.Presentation.Controllers
                 {
                     workbook.SaveAs(stream);
                     var content = stream.ToArray();
-                    return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Experts.xlsx");
+                    return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Ekspertlər.xlsx");
                 }
             }
         }

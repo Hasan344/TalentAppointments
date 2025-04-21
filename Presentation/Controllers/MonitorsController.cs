@@ -283,7 +283,7 @@ namespace ForQab.Presentation.Controllers
             var sectionId = await GetCurrentSectionIdAsync();
             var fileContent = await _monitorService.ExportToExcelAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
 
-            return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Monitors.xlsx");
+            return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Nəzarətçilər.xlsx");
         }
 
         [HttpPost]

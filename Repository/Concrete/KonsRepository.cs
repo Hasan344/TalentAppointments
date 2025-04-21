@@ -116,6 +116,7 @@ namespace ForQab.Repository.Concrete
                 return await _dbContext.Experts
                 .Include(e => e.Section)
                 .Include(e => e.ExpertsProfessions)
+                    .ThenInclude(e => e.SubProfession)
                 .Include(e => e.DistrictNavigation)
                 .Include(e => e.GenderNavigation)
                 .Where(e => e.Kons == true)
@@ -124,6 +125,7 @@ namespace ForQab.Repository.Concrete
             return await _dbContext.Experts
                 .Include(e => e.Section)
                 .Include(e => e.ExpertsProfessions)
+                    .ThenInclude(e => e.SubProfession)
                 .Include(e => e.DistrictNavigation)
                 .Include(e => e.GenderNavigation)
                 .Where(e => e.SectionId == sectionId)
