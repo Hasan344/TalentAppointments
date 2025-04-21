@@ -240,22 +240,20 @@ namespace ForQab.Service
             if (endYear.HasValue)
                 monitors = monitors.Where(m => m.BirthDate.HasValue && m.BirthDate.Value.Year <= endYear.Value).ToList();
 
-            var dt = new DataTable("Monitors");
+            var dt = new DataTable("İşçilər");
             dt.Columns.AddRange(new DataColumn[]
             {
                 new DataColumn("Ad"),
                 new DataColumn("Soyad"),
                 new DataColumn("Ata adı"),
-                new DataColumn("Arxiv"),
                 new DataColumn("Cins"),
                 new DataColumn("Rolu"),
-                new DataColumn("Vəzifə nömrəsi"),
-                new DataColumn("Peşə"),
+                new DataColumn("Vəsiqə nömrəsi"),
                 new DataColumn("İş yeri"),
-                new DataColumn("Mövqe"),
+                new DataColumn("Vəzifəsi"),
+                new DataColumn("Aid olduğu bina"),
                 new DataColumn("Təvəllüdü"),
-                new DataColumn("Ev telefonu"),
-                new DataColumn("İş telefonu"),
+                new DataColumn("Telefonu"),
                 new DataColumn("FİN kod"),
                 new DataColumn("Seriya"),
                 new DataColumn("SSN"),
@@ -266,6 +264,7 @@ namespace ForQab.Service
                 new DataColumn("Bank filial kodu"),
                 new DataColumn("İstiqamət"),
                 new DataColumn("Rayon"),
+                new DataColumn("İştirak sayı"),
             });
 
             foreach (var monitor in monitors)
@@ -274,15 +273,13 @@ namespace ForQab.Service
                     monitor.Name,
                     monitor.Surname,
                     monitor.Fname,
-                    monitor.Archive,
                     monitor.GenderNavigation?.Name,
-                    monitor.RoleNavigation?.Name,
+                    monitor.WorkerTypeNavigation?.Name,
                     monitor.VNum,
-                    monitor.Profession,
                     monitor.Workplace,
-                    monitor.Position,
+                    monitor.Profession,
+                    monitor.ExamBuilding?.Name,
                     monitor.BirthDate,
-                    monitor.TelEv,
                     monitor.TelIs,
                     monitor.FinCode,
                     monitor.Serial,
@@ -293,13 +290,14 @@ namespace ForQab.Service
                     monitor.BankFilial,
                     monitor.BankFilialCode,
                     monitor.Section?.Name,
-                    monitor.DistrictNavigation?.Name
+                    monitor.DistrictNavigation?.Name,
+                    monitor.AssignmentCount
                 );
             }
 
             using (var workbook = new XLWorkbook())
             {
-                workbook.Worksheets.Add(dt, "Nəzarətçilər");
+                workbook.Worksheets.Add(dt, "İşçilər");
                 using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);

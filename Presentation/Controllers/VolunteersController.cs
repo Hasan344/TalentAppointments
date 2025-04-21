@@ -180,7 +180,7 @@ namespace ForQab.Presentation.Controllers
         {
             var sectionId = await GetCurrentSectionIdAsync();
             var fileContent = await _volunteerService.ExportToExcelAsync(sectionId);
-            return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "İmtahan rəhbərləri.xlsx");
+            return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Könüllülər.xlsx");
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
