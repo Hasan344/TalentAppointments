@@ -111,14 +111,17 @@
                     <div class="col-sm-7">@Model.Profession</div>
                 </div>
 
-            <div class="text-center mt-4">
-                <a class="btn btn-outline-primary me-2" asp-action="Edit" asp-route-id="@Model.Id">
-                    <i class="bi bi-pencil-square me-1"></i> Düzəliş et
-                </a>
-                <a class="btn btn-outline-secondary me-2" asp-action="Index">
-                    <i class="bi bi-list-ul me-1"></i> Siyahıya qayıt
-                </a>
-            </div>
+                <div class="text-center mt-4">
+                    <a class="btn btn-outline-primary me-3" asp-action="Edit" asp-route-id="@Model.Id">
+                        <i class="bi bi-pencil-square me-1"></i> Düzəliş et
+                    </a>
+                    <a class="btn btn-outline-danger me-3" asp-action="Delete" asp-route-id="@Model.Id">
+                        <i class="bi bi me-1"></i> Sil və ya Arxivlə
+                    </a>
+                    <a class="btn btn-outline-secondary me-3" asp-action="Index">
+                        <i class="bi bi-list-ul me-1"></i> Siyahıya qayıt
+                    </a>
+                </div>
         </div>
     </div>
 </div>

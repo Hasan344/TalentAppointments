@@ -108,129 +108,155 @@
 
                     <hr class="my-4" />
 
-                <div class="row mb-3">
-                    <div class="col-sm-5 fw-semibold text-danger">Arxivlənmə səbəbi:</div>
-                    <div class="col-sm-7 text-danger">@Model.ArchiveReason</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-sm-5 fw-semibold text-danger">Çağırılmama səbəbi:</div>
-                    <div class="col-sm-7 text-danger">@Model.StatusReason</div>
-                </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-5 fw-semibold text-danger">Arxivlənmə səbəbi:</div>
+                        <div class="col-sm-7 text-danger">@Model.ArchiveReason</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-5 fw-semibold text-danger">Çağırılmama səbəbi:</div>
+                        <div class="col-sm-7 text-danger">@Model.StatusReason</div>
+                    </div>
 
-                <div class="text-center mt-4">
-                    <a class="btn btn-outline-primary me-2" asp-action="Edit" asp-route-id="@Model.Id">
-                        <i class="bi bi-pencil-square me-1"></i> Düzəliş et
-                    </a>
-                    <a class="btn btn-outline-secondary me-2" asp-action="Index">
-                        <i class="bi bi-list-ul me-1"></i> Siyahıya qayıt
-                    </a>
-                    <a class="btn btn-outline-info" asp-action="MonitorLog" asp-route-monitorId="@Model.Id">
-                        <i class="bi bi-journal-text me-1"></i> Qeydlər
-                    </a>
-                </div>
+                    <div class="text-center mt-4">
+                        <a class="btn btn-outline-primary me-3" asp-action="Edit" asp-route-id="@Model.Id">
+                            <i class="bi bi-pencil-square me-1"></i> Düzəliş et
+                        </a>
+                        <a class="btn btn-outline-danger me-3" asp-action="Delete" asp-route-id="@Model.Id">
+                            <i class="bi bi me-1"></i> Sil və ya Arxivlə
+                        </a>
+                        <a class="btn btn-outline-secondary me-3" asp-action="Index">
+                            <i class="bi bi-list-ul me-1"></i> Siyahıya qayıt
+                        </a>
+                        <hr />
+                        <a class="btn btn-outline-info" asp-action="ExpertLog" asp-route-expertId="@Model.Id">
+                            <i class="bi bi-journal-text me-1"></i> Qeydlər
+                        </a>
+                    </div>
 
-                <div class="text-center mt-3">
-                    <button class="btn btn-outline-danger me-2" data-bs-toggle="modal" data-bs-target="#statusReasonModal">
-                        <i class="bi bi-x-circle me-1"></i> Çağırıla bilməz
-                    </button>
-
-                    <form asp-action="RestoreStatus" method="post" class="d-inline">
-                        <input type="hidden" name="id" value="@Model.Id" />
-                        <button type="submit" class="btn btn-outline-success">
-                            <i class="bi bi-check-circle me-1"></i> Çağırıla bilər
+                    <div class="text-center mt-3">
+                        <button class="btn btn-outline-danger me-2" data-bs-toggle="modal" data-bs-target="#statusReasonModal">
+                            <i class="bi bi-x-circle me-1"></i> Çağırıla bilməz
                         </button>
+
+                        <form asp-action="RestoreStatus" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn btn-outline-success">
+                                <i class="bi bi-check-circle me-1"></i> Çağırıla bilər
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exam Table -->
+        <div class="mt-5">
+            <h3 style="color: @primaryColor; font-weight: bold;">Nəzarətçinin iştirak etdiyi imtahanlar</h3>
+            <table class="table table-bordered mt-3">
+                <thead>
+                    <tr>
+                        <th>İmtahan Id</th>
+                        <th>İmtahan Tarixi</th>
+                        <th>Zal</th>
+                        <th>Başlama Saatı</th>
+                        <th>Bitmə Saatı</th>
+                        <th>İştirak statusu</th>
+                        <th>İmtahan Detalları</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var examMonitor in Model.ExamMonitors)
+                    {
+                        <tr>
+                            <td>@examMonitor.Exams.Id</td>
+                            <td>@examMonitor.Exams.ExamDate.ToShortDateString()</td>
+                            <td>@examMonitor.ExamRooms?.Name</td>
+                            <td>@examMonitor.Exams.StartTime</td>
+                            <td>@examMonitor.Exams.EndTime</td>
+                            <td>
+                                @{
+                                    var monitorLog = examMonitor.Monitors.MonitorLogs
+                                    .FirstOrDefault(log => log.ExamId == examMonitor.Exams.Id); // ExamId ilə uyğun log tapılır
+
+                                    string statusText;
+                                    if (monitorLog == null)
+                                    {
+                                        statusText = "İştirak etdi";
+                                    }
+                                    else if (monitorLog.Kind == 0)
+                                    {
+                                        statusText = "Gəlmədi";
+                                    }
+                                    else
+                                    {
+                                        statusText = "Qeydi var";
+                                    }
+                                }
+                                @statusText
+                            </td>
+                            <td>
+                                <a class="btn btn-info btn-sm" asp-controller="Exam" asp-action="Details" asp-route-id="@examMonitor.Exams.Id">
+                                    İmtahan Detalları
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="statusReasonModal" tabindex="-1" aria-labelledby="statusReasonModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="statusReasonModalLabel">Status Dəyişmə Səbəbi</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bağla"></button>
+                    </div>
+                    <form id="changeStatusForm" asp-action="ChangeStatus" method="post">
+                        <div class="modal-body">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <div class="mb-3">
+                                <label for="statusReason" class="form-label">Səbəb</label>
+                                <textarea class="form-control" id="statusReason" name="statusReason" rows="3" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
+                            <button type="submit" class="btn btn-danger">Təsdiqlə</button>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Exam Table -->
-    <div class="mt-5">
-        <h3 style="color: @primaryColor; font-weight: bold;">Nəzarətçinin iştirak etdiyi imtahanlar</h3>
-        <table class="table table-bordered mt-3">
-            <thead>
-                <tr>
-                    <th>İmtahan Id</th>
-                    <th>İmtahan Tarixi</th>
-                    <th>Zal</th>
-                    <th>Başlama Saatı</th>
-                    <th>Bitmə Saatı</th>
-                    <th>İmtahan Detalları</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var examMonitor in Model.ExamMonitors)
-                {
-                    <tr>
-                        <td>@examMonitor.Exams.Id</td>
-                        <td>@examMonitor.Exams.ExamDate.ToShortDateString()</td>
-                        <td>@examMonitor.ExamRooms?.Name</td>
-                        <td>@examMonitor.Exams.StartTime</td>
-                        <td>@examMonitor.Exams.EndTime</td>
-                        <td>
-                            <a class="btn btn-info btn-sm" asp-controller="Exam" asp-action="Details" asp-route-id="@examMonitor.Exams.Id">
-                                İmtahan Detalları
-                            </a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+    @section Scripts {
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $("#changeStatusForm").submit(function (event) {
+                    event.preventDefault();
+                    var formData = $(this).serialize();
 
-    <!-- Modal -->
-    <div class="modal fade" id="statusReasonModal" tabindex="-1" aria-labelledby="statusReasonModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="statusReasonModalLabel">Status Dəyişmə Səbəbi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bağla"></button>
-                </div>
-                <form id="changeStatusForm" asp-action="ChangeStatus" method="post">
-                    <div class="modal-body">
-                        <input type="hidden" name="id" value="@Model.Id" />
-                        <div class="mb-3">
-                            <label for="statusReason" class="form-label">Səbəb</label>
-                            <textarea class="form-control" id="statusReason" name="statusReason" rows="3" required></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
-                        <button type="submit" class="btn btn-danger">Təsdiqlə</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $("#changeStatusForm").submit(function (event) {
-                event.preventDefault();
-                var formData = $(this).serialize();
-
-                $.ajax({
-                    type: "POST",
-                    url: "@Url.Action("ChangeStatus")",
-                    data: formData,
-                    success: function () {
-                        alert("Status uğurla dəyişdirildi!");
-                        var modal = $("#statusReasonModal");
-                        modal.modal("hide");
-                        modal.on("hidden.bs.modal", function () {
-                            $("body").removeClass("modal-open");
-                            $(".modal-backdrop").remove();
-                        });
-                    },
-                    error: function () {
-                        alert("Xəta baş verdi, yenidən cəhd edin.");
-                    }
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("ChangeStatus")",
+                        data: formData,
+                        success: function () {
+                            alert("Status uğurla dəyişdirildi!");
+                            var modal = $("#statusReasonModal");
+                            modal.modal("hide");
+                            modal.on("hidden.bs.modal", function () {
+                                $("body").removeClass("modal-open");
+                                $(".modal-backdrop").remove();
+                            });
+                        },
+                        error: function () {
+                            alert("Xəta baş verdi, yenidən cəhd edin.");
+                        }
+                    });
                 });
             });
-        });
-    </script>
-}
+        </script>
+    }

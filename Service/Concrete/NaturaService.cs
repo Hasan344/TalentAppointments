@@ -84,7 +84,8 @@ namespace ForQab.Service
 
         public async Task<Monitor> GetByIdAsync(int id)
         {
-            var natura = await _naturaRepository.GetByIdAsync(id); 
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding", "ExamMonitors.Exams", "ExamMonitors.ExamRooms", "MonitorLogs" };
+            var natura = await _naturaRepository.GetByIdAsync(id, null, includes); 
 
             string photoPath = $@"\\teshkilat-db\Images\Talent\{natura.FinCode}.jpg";
             natura.Photo = ConvertToBase64(photoPath);

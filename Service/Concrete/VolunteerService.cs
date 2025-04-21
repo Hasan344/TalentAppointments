@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using ForQab.DataAccess.Models;
+using ForQab.Migrations;
 using ForQab.Repository.Abstract;
 using ForQab.Service.Abstract;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +41,8 @@ namespace ForQab.Service
 
         public async Task<DataAccess.Models.Monitor> GetByIdAsync(int id)
         {
-            var volunteer = await _volunteerRepository.GetByIdAsync(id);
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorLogs" };
+            var volunteer = await _volunteerRepository.GetByIdAsync(id, null, includes);
 
             string photoPath = $@"\\teshkilat-db\Images\Talent\{volunteer.FinCode}.jpg";
             volunteer.Photo = ConvertToBase64(photoPath);

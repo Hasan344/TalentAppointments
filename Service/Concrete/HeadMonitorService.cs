@@ -87,7 +87,7 @@ namespace ForQab.Service
 
         public async Task<Monitor> GetByIdAsync(int id)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding", "ExamMonitors.Exams", "ExamMonitors.ExamRooms" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding", "ExamMonitors.Exams", "ExamMonitors.ExamRooms", "MonitorLogs" };
 
             var monitor = await _headMonitorRepository.GetByIdAsync(id, null, includes); 
             string photoPath = $@"\\teshkilat-db\Images\Talent\{monitor.FinCode}.jpg";
