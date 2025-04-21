@@ -13,14 +13,16 @@
             <div class="card shadow-sm border-0 rounded-4" style="width: 100%; max-width: 320px;">
                 <div class="card-body text-center">
                     <div class="col-md-12 d-flex flex-column align-items-center mb-4">
-                        @if (!string.IsNullOrEmpty(Model.Photo))
+                        @if (Model.Photo != null)
                         {
-                            <img src="@Model.Photo" class="img-fluid rounded-circle shadow mb-2" style="width: 200px; height: 200px; object-fit: cover;" alt="Ekspert Foto" />
+                            <img src="@Model.Photo" class="w-48 h-48 object-cover rounded-full shadow-lg border border-gray-300" />
+
                         }
                         else
                         {
-                            <div class="d-flex justify-content-center align-items-center bg-light rounded-circle shadow mb-2" style="width: 200px; height: 200px;">
-                                <i class="bi bi-person-fill text-secondary" style="font-size: 4rem;"></i>
+                            <div class="w-40 h-40 bg-gray-100 flex flex-col items-center justify-center rounded-full shadow-inner border border-gray-300">
+                                <i class="fas fa-user text-gray-400 text-5xl mb-2"></i>
+                                <span class="text-sm text-gray-500">Şəkil tapılmadı</span>
                             </div>
                         }
                     </div>
@@ -79,6 +81,34 @@
 
                 <hr class="my-4" />
 
+                <div class="card shadow-sm border-0 rounded-4 p-4">
+                    <h4 class="mb-4" style="color:@primaryColor;">Digər Məlumatlar</h4>
+                    <div class="row mb-3">
+                        <div class="col-sm-5 fw-semibold text-secondary">İmtahanlarda iştirak sayı:</div>
+                        <div class="col-sm-7">@Model.AssignmentCount</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-5 fw-semibold text-secondary">Müqavilə tarixi:</div>
+                        <div class="col-sm-7">@Model.ContractDate?.ToString("dd.MM.yyyy")</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-5 fw-semibold text-secondary">Müqavilə nömrəsi:</div>
+                        <div class="col-sm-7">@Model.ContractNo</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-5 fw-semibold text-secondary">Rayon:</div>
+                        <div class="col-sm-7">@Model.DistrictNavigation?.Name</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-5 fw-semibold text-secondary">İş yeri:</div>
+                        <div class="col-sm-7">@Model.Workplace</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-5 fw-semibold text-secondary">İş yerində vəzifəsi:</div>
+                        <div class="col-sm-7">@Model.Profession</div>
+                    </div>
+
+                    <hr class="my-4" />
                 <div class="row mb-3">
                     <div class="col-sm-5 fw-semibold text-danger">Arxivlənmə səbəbi:</div>
                     <div class="col-sm-7 text-danger">@Model.ArchiveReason</div>

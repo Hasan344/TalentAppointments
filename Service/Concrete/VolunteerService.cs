@@ -4,6 +4,7 @@ using ForQab.Repository.Abstract;
 using ForQab.Service.Abstract;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Drawing;
 using System.Globalization;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 
@@ -39,7 +40,37 @@ namespace ForQab.Service
 
         public async Task<DataAccess.Models.Monitor> GetByIdAsync(int id)
         {
-            return await _volunteerRepository.GetByIdAsync(id);
+            var volunteer = await _volunteerRepository.GetByIdAsync(id);
+
+            string photoPath = $@"\\teshkilat-db\Images\Talent\{volunteer.FinCode}.jpg";
+            volunteer.Photo = ConvertToBase64(photoPath);
+
+            return volunteer;
+
+        }
+        private string ConvertToBase64(string imagePath, int width = 150, int height = 150)
+        {
+            if (!System.IO.File.Exists(imagePath))
+                return null;
+
+            try
+            {
+                byte[] imageBytes = System.IO.File.ReadAllBytes(imagePath);
+
+                using var inputStream = new MemoryStream(imageBytes);
+                using var image = Image.FromStream(inputStream);
+
+                using var resized = new Bitmap(image, new Size(width, height));
+                using var outputStream = new MemoryStream();
+                resized.Save(outputStream, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                string base64String = Convert.ToBase64String(outputStream.ToArray());
+                return $"data:image/jpeg;base64,{base64String}";
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<IEnumerable<Section>> GetSectionsAsync(int? sectionId)

@@ -469,11 +469,11 @@
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir işçi təyin edilməyib.</p>
         }
     </div>
-    <!-- Assigned Representatives Section -->
+    <!-- Assigned DİM Representatives Section -->
     <div class="mt-4">
         <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş DİM Nümayəndələri</h4>
         @{
-            var reps = Model.ExamRepresentatives;
+            var reps = Model.ExamRepresentatives.Where(er => er.Role == 1);
         }
         @if (reps.Any())
         {
@@ -493,6 +493,51 @@
                             <div class="col-md-4 text-md-right mt-2 mt-md-0">
                                 <a class="btn btn-sm btn-outline-secondary mr-2"
                                    asp-action="ChangeRepresentative"
+                                   asp-route-examId="@Model.Id"
+                                   asp-route-representativeId="@rep.Id">
+                                    <i class="bi bi-pencil"></i> Dəyişdir
+                                </a>
+                                <a class="btn btn-sm btn-outline-info"
+                                   asp-action="RepresentativeDetails"
+                                   asp-route-id="@rep.Id">
+                                    <i class="bi bi-eye"></i> Detallara Bax
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nümayəndə təyin edilməyib.</p>
+        }
+    </div>
+
+    <!-- Assigned Ministry Representatives Section -->
+    <div class="mt-4">
+        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş DİM Nümayəndələri</h4>
+        @{
+            var mreps = Model.ExamRepresentatives.Where(er => er.Role == 2);
+        }
+        @if (mreps.Any())
+        {
+            <ul class="list-group list-group-flush">
+                @foreach (var rep in mreps)
+                {
+                    <li class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h6 class="mb-0">
+                                    @rep.Name @rep.Surname @rep.FinCode
+                                </h6>
+                                <small class="text-muted">
+                                    FinCode: @rep.FinCode
+                                </small>
+                            </div>
+                            <div class="col-md-4 text-md-right mt-2 mt-md-0">
+                                <a class="btn btn-sm btn-outline-secondary mr-2"
+                                   asp-action="ChangeMinistryRepresentative"
                                    asp-route-examId="@Model.Id"
                                    asp-route-representativeId="@rep.Id">
                                     <i class="bi bi-pencil"></i> Dəyişdir

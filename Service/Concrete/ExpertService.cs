@@ -3,6 +3,8 @@ using ForQab.Data_Access.ViewModel.Expert;
 using ForQab.DataAccess.Models;
 using ForQab.Repository.Abstract;
 using ForQab.Service.Abstract;
+using System.Drawing;
+using System.Threading;
 
 namespace ForQab.Service;
 
@@ -29,7 +31,35 @@ public class ExpertService : IExpertService
         var expert = await _expertRepository.GetByIdAsync(id);
         if (expert == null)
             throw new Exception($"Expert with ID {id} not found.");
+
+        string photoPath = $@"\\teshkilat-db\Images\Talent\{expert.FinCode}.jpg";
+        expert.Photo = ConvertToBase64(photoPath);
+
         return expert;
+    }
+    private string ConvertToBase64(string imagePath, int width = 150, int height = 150)
+    {
+        if (!System.IO.File.Exists(imagePath))
+            return null;
+
+        try
+        {
+            byte[] imageBytes = System.IO.File.ReadAllBytes(imagePath);
+
+            using var inputStream = new MemoryStream(imageBytes);
+            using var image = Image.FromStream(inputStream);
+
+            using var resized = new Bitmap(image, new Size(width, height));
+            using var outputStream = new MemoryStream();
+            resized.Save(outputStream, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+            string base64String = Convert.ToBase64String(outputStream.ToArray());
+            return $"data:image/jpeg;base64,{base64String}";
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public async Task AddExpertAsync(ExpertViewModel expertViewModel)

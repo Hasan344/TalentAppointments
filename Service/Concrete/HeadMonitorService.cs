@@ -6,7 +6,9 @@ using ForQab.Repository.Abstract;
 using ForQab.Service.Abstract;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Drawing;
 using System.Globalization;
+using System.Threading;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 
 namespace ForQab.Service
@@ -87,7 +89,34 @@ namespace ForQab.Service
         {
             var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding", "ExamMonitors.Exams", "ExamMonitors.ExamRooms" };
 
-            return await _headMonitorRepository.GetByIdAsync(id, null, includes);
+            var monitor = await _headMonitorRepository.GetByIdAsync(id, null, includes); 
+            string photoPath = $@"\\teshkilat-db\Images\Talent\{monitor.FinCode}.jpg";
+            monitor.Photo = ConvertToBase64(photoPath);
+            return monitor;
+        }
+        private string ConvertToBase64(string imagePath, int width = 150, int height = 150)
+        {
+            if (!System.IO.File.Exists(imagePath))
+                return null;
+
+            try
+            {
+                byte[] imageBytes = System.IO.File.ReadAllBytes(imagePath);
+
+                using var inputStream = new MemoryStream(imageBytes);
+                using var image = Image.FromStream(inputStream);
+
+                using var resized = new Bitmap(image, new Size(width, height));
+                using var outputStream = new MemoryStream();
+                resized.Save(outputStream, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                string base64String = Convert.ToBase64String(outputStream.ToArray());
+                return $"data:image/jpeg;base64,{base64String}";
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<List<Section>> GetSectionsAsync(int? sectionId)
