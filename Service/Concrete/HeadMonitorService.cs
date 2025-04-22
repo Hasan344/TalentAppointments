@@ -3,6 +3,7 @@ using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.HeadMonitor;
 using ForQab.DataAccess.ViewModel.Monitor;
 using ForQab.Repository.Abstract;
+using ForQab.Repository.Concrete;
 using ForQab.Service.Abstract;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
@@ -343,9 +344,9 @@ namespace ForQab.Service
             return query.Where(m => m.Archive == 1).ToList();
         }
 
-        public async Task<IEnumerable<Monitor>> GetMonitorLogsAsync()
+        public async Task<IEnumerable<Monitor>> GetMonitorLogsAsync(int? sectionId)
         {
-            return await _headMonitorRepository.GetMonitorLogsAsync();
+            return await _headMonitorRepository.GetMonitorLogsAsync(sectionId);
         }
         public async Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId)
         {

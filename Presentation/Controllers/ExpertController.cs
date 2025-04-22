@@ -248,7 +248,8 @@ namespace ForQab.Presentation.Controllers
         }
         public async Task<IActionResult> ExpertLogs()
         {
-            var logs = await _expertService.GetExpertLogsAsync();
+            var sectionId = await GetCurrentSectionIdAsync();
+            var logs = await _expertService.GetExpertLogsAsync(sectionId);
 
             return View(logs);
         }

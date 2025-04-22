@@ -471,9 +471,9 @@ namespace ForQab.Service
 
             return query.Where(m => m.Archive==1).ToList();
         }
-        public async Task<IEnumerable<Monitor>> GetMonitorLogsAsync()
+        public async Task<IEnumerable<Monitor>> GetMonitorLogsAsync(int? sectionId)
         {
-            return await _monitorRepository.GetMonitorLogsAsync();
+            return await _monitorRepository.GetMonitorLogsAsync(sectionId);
         }
         public async Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId)
         {

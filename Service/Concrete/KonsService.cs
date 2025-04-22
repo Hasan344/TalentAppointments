@@ -133,5 +133,10 @@ namespace ForQab.Service
         {
             await _konsRepository.BulkAddAsync(experts);
         }
+
+        public async Task<IEnumerable<Expert>> GetKonsLogsAsync(int? sectionId)
+        {
+            return await _konsRepository.GetKonsLogsAsync(sectionId);
+        }
     }
 }

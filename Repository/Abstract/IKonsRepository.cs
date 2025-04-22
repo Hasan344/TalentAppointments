@@ -15,6 +15,7 @@ namespace ForQab.Repository.Abstract
         Task<IEnumerable<Expert>> GetAllAsync(int? sectionId);
         Task AddAsync(KonsViewModel entity);
         Task DeleteAsync(int id);
+        Task<IEnumerable<Expert>> GetKonsLogsAsync(int? sectionId);
         Task<List<Section>> GetSectionsAsync(int? sectionId);
         public Task BulkAddAsync(IEnumerable<Expert> experts);
     }

@@ -210,5 +210,19 @@ namespace ForQab.Repository.Concrete
             _dbContext.Experts.Update(entity);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<Expert>> GetKonsLogsAsync(int? sectionId)
+        {
+            var query = await _dbContext.Experts
+                        .Include(xl => xl.ExpertLogs)
+                        .Where(xl => xl.ExpertLogs.Any() && xl.Kons == true)
+                        .ToListAsync();
+            if (sectionId != null)
+            {
+                query = query.Where(xl => xl.SectionId == sectionId).ToList();
+            }
+
+            return query;
+        }
     }
 }

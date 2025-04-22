@@ -1,6 +1,11 @@
 ﻿@model IEnumerable<ForQab.DataAccess.Models.Expert>
 
+@{
+    ViewData["Title"] = "Bütün ekspert Qeydləri";
+}
+
 <div class="container mt-4">
+    <h2 class="mb-4">Bütün ekspert Qeydləri</h2>
     @if (Model.Any())
     {
         foreach (var expert in Model)
@@ -16,6 +21,7 @@
                     <table class="table table-striped mb-0">
                         <thead>
                             <tr>
+
                                 <th scope="col" style="width: 5%;">#</th>
                                 <th scope="col">Qeyd</th>
                                 <th scope="col">İmtahan ID</th>
@@ -25,7 +31,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if (expert.ExpertLogs != null && expert.ExpertLogs.Any() && expert.Kons == false)
+                            @if (expert.ExpertLogs != null && expert.ExpertLogs.Any() && expert.Kons == true)
                             {
                                 int count = 1;
                                 foreach (var log in expert.ExpertLogs)
@@ -81,7 +87,7 @@
     else
     {
         <div class="alert alert-info">
-            Sistemdə heç bir Expert tapılmadı.
+            Sistemdə heç bir ekspert tapılmadı.
         </div>
     }
     <div class="mt-3">

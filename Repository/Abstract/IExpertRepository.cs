@@ -1,6 +1,7 @@
 ﻿using ForQab.Data_Access.ViewModel;
 using ForQab.Data_Access.ViewModel.Expert;
 using ForQab.DataAccess.Models;
+using ForQab.Migrations;
 using System.Linq.Expressions;
 
 namespace ForQab.Repository.Abstract
@@ -25,7 +26,7 @@ namespace ForQab.Repository.Abstract
         Task<List<Expert>> GetAllAsync(int? sectionId, Expression<Func<Expert, bool>> exp = null, params string[] includes);
         Task<List<Expert>> GetAllArchivedAsync(int? sectionId, Expression<Func<Expert, bool>> exp = null, params string[] includes);
         Task BulkAddAsync(IEnumerable<Expert> experts);
-        Task<IEnumerable<Expert>> GetExpertLogsAsync();
+        Task<IEnumerable<Expert>> GetExpertLogsAsync(int? sectionId);
         Task<IEnumerable<Expert>> GetExpertLogsByExpertIdAsync(int expertId);
         Task DeleteExpertLogs(int? id); 
         Task<List<Expert>> GetExpertsByIdsAsync(List<int> expertIds);

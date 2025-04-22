@@ -219,6 +219,13 @@ namespace ForQab.Presentation.Controllers
 
             return Json(subProfessions);
         }
+        public async Task<IActionResult> KonsLogs()
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var logs = await _konsService.GetKonsLogsAsync(sectionId);
+
+            return View(logs);
+        }
         private async Task<int?> GetCurrentSectionIdAsync()
         {
             var user = await _userManager.GetUserAsync(User);

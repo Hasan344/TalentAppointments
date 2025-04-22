@@ -289,12 +289,18 @@ namespace ForQab.Repository.Concrete
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Expert>> GetExpertLogsAsync()
+        public async Task<IEnumerable<Expert>> GetExpertLogsAsync(int? sectionId)
         {
-            return await _context.Experts
+             var query = await _context.Experts
                         .Include(xl => xl.ExpertLogs)
-                        .Where(xl => xl.ExpertLogs.Any())
+                        .Where(xl => xl.ExpertLogs.Any() && xl.Kons == false)
                         .ToListAsync();
+            if(sectionId != null)
+            {
+                query = query.Where(xl => xl.SectionId == sectionId).ToList();
+            }
+
+            return query;
         }
 
         public async Task<IEnumerable<Expert>> GetExpertLogsByExpertIdAsync(int expertId)
