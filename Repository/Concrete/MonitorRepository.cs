@@ -3,6 +3,7 @@ using DocumentFormat.OpenXml.InkML;
 using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Monitor;
 using ForQab.DataAccess.ViewModel.Worker;
+using ForQab.Migrations;
 using ForQab.Repository.Abstract;
 using Microsoft.EntityFrameworkCore;
 using SkiaSharp;
@@ -42,12 +43,18 @@ namespace ForQab.Repository.Concrete
             return query;
         }
 
-        public async Task<IEnumerable<Monitor>> GetMonitorLogsAsync()
+        public async Task<IEnumerable<Monitor>> GetMonitorLogsAsync(int? sectionId)
         {
-            return await _dbContext.Monitors
-                        .Include(ml => ml.MonitorLogs)
-                        .Where(ml => ml.Role == 2 && ml.MonitorLogs.Any())
-                        .ToListAsync();
+            var query = _dbContext.Monitors
+                                  .Include(m => m.MonitorLogs)
+                                  .Where(m => m.Role == 2 && m.MonitorLogs.Any());
+
+            if (sectionId != null)
+            {
+                query = query.Where(m => m.SectionId == sectionId);
+            }
+
+            return await query.ToListAsync();
         }
         public async Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId)
         {

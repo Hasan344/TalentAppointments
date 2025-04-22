@@ -243,7 +243,8 @@ namespace ForQab.Presentation.Controllers
         }
         public async Task<IActionResult> MonitorLogs()
         {
-            var logs = await _naturaService.GetMonitorLogsAsync();
+            var sectionId = await GetCurrentSectionIdAsync();
+            var logs = await _naturaService.GetMonitorLogsAsync(sectionId);
 
             return View(logs);
         }

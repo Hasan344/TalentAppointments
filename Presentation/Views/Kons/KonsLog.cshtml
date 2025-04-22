@@ -25,7 +25,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if (expert.ExpertLogs != null && expert.ExpertLogs.Any() && expert.Kons == false)
+                            @if (expert.ExpertLogs != null && expert.ExpertLogs.Any() && expert.Kons == true)
                             {
                                 int count = 1;
                                 foreach (var log in expert.ExpertLogs)

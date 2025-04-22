@@ -8,7 +8,7 @@ namespace ForQab.Repository.Abstract
     {
         Task<List<Monitor>> GetAllAsync(int? sectionId, int? role, Expression<Func<Monitor, bool>> exp = null, params string[] includes);
         Task BulkAddAsync(IEnumerable<Monitor> monitors);
-        Task<IEnumerable<Monitor>> GetMonitorLogsAsync();
+        Task<IEnumerable<Monitor>> GetMonitorLogsAsync(int? sectionId);
         Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId);
         Task DeleteMonitorLogs(int? id);
         Task UpdateAsync(HeadMonitorEditViewModel model);

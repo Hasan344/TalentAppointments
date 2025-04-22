@@ -239,9 +239,9 @@ public class ExpertService : IExpertService
         await _expertRepository.BulkAddAsync(experts);
     }
 
-    public async Task<IEnumerable<Expert>> GetExpertLogsAsync()
+    public async Task<IEnumerable<Expert>> GetExpertLogsAsync(int? sectionId)
     {
-        return await _expertRepository.GetExpertLogsAsync();
+        return await _expertRepository.GetExpertLogsAsync(sectionId);
     }
 
     public async Task<IEnumerable<Expert>> GetExpertLogsByExpertIdAsync(int expertId)

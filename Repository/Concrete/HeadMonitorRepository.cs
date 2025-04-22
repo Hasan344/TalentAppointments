@@ -41,12 +41,20 @@ namespace ForQab.Repository.Concrete
             }
             return query;
         }
-        public async Task<IEnumerable<Monitor>> GetMonitorLogsAsync()
+        public async Task<IEnumerable<Monitor>> GetMonitorLogsAsync(int? sectionId)
         {
-            return await _dbContext.Monitors
-                        .Include(m => m.MonitorLogs)
-                        .Where(m => m.Role == 1 && m.MonitorLogs.Any())
-                        .ToListAsync();
+
+            var query = _dbContext.Monitors
+                                  .Include(m => m.MonitorLogs)
+                                  .Where(m => m.Role == 1 && m.MonitorLogs.Any());
+
+            if (sectionId != null)
+            {
+                query = query.Where(m => m.SectionId == sectionId);
+            }
+
+            return await query.ToListAsync();
+
         }
         public async Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId)
         {
