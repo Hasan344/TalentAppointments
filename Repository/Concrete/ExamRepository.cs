@@ -227,6 +227,7 @@ namespace ForQab.Repository.Concrete
                 .Where(e => e.Role == 2)
                 .Where(e => e.Status == 0)
                 .Where(e => e.Archive == 0)
+                .Where(e => e.District == exam.DistrictId)
                 .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id))
                 .OrderBy(e => e.AssignmentCount)
                 .ToListAsync();
@@ -353,6 +354,7 @@ namespace ForQab.Repository.Concrete
             var allMonitors = await _context.Monitors.Where(e => e.SectionId == exam.SectionId)
                                                      .Where(e => e.Role == 1)
                                                      .Where(e => e.Status == 0)
+                                                     .Where(e => e.District == exam.DistrictId)
                                                      .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id))
                                                      .Where(e => e.Archive == 0)
                                                      .ToListAsync();
@@ -360,7 +362,6 @@ namespace ForQab.Repository.Concrete
             if (allMonitors.Count < numberOfMonitors)
                 throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
 
-            // Baş Monitorları sıraya koy
             var selectedMonitors = allMonitors
                                     .OrderBy(e => e.AssignmentCount)
                                     .Take(numberOfMonitors)
@@ -705,6 +706,7 @@ namespace ForQab.Repository.Concrete
 
             var selectedVolunteers = await _context.Monitors
                 .Where(r => r.Role == 4)
+                .Where(m => m.ExamBuildingId == exam.ExamBuldingId)
                 .ToListAsync();
 
 

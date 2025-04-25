@@ -9,6 +9,7 @@ using System.Data;
 using ForQab.Presentation.ViewModels;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Authorization;
+using ForQab.Service.Concrete;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -18,13 +19,15 @@ namespace ForQab.Presentation.Controllers
         private readonly IExamService _examService;
         private readonly MyDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IBadgeExportService _badgeExportService;
 
-        public ExamController(IExamService examService, MyDbContext context, UserManager<ApplicationUser> userManager)
+        public ExamController(IExamService examService, MyDbContext context, UserManager<ApplicationUser> userManager, IBadgeExportService badgeExportService)
          : base(context, userManager)
         {
             _examService = examService;
             _context = context;
             _userManager = userManager;
+            _badgeExportService = badgeExportService;
         }
 
         public async Task<IActionResult> Index()
@@ -1017,6 +1020,25 @@ namespace ForQab.Presentation.Controllers
         {
             var fileContent = await _examService.GetExamDataForExport(selectedDate);
             return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"ExamData_{selectedDate}.xlsx");
+        }
+
+        [HttpPost]
+        public IActionResult ExportBadges(int examId)
+        {
+            try
+            {
+                var fileBytes = _badgeExportService.GenerateBadges(examId);
+                var fileName = $"Imtahan_Badgeleri_{examId}.docx";
+
+                return File(fileBytes,
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    fileName);
+            }
+            catch (Exception ex)
+            {
+                // Gerekirse logla
+                return BadRequest("Xəta baş verdi: " + ex.Message);
+            }
         }
     }
 }

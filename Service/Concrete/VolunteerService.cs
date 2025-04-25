@@ -34,14 +34,14 @@ namespace ForQab.Service
 
         public async Task<IEnumerable<DataAccess.Models.Monitor>> GetAllAsync(int? sectionId)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section","ExamBuilding" };
 
             return await _volunteerRepository.GetAllAsync(sectionId, 4, null, includes);
         }
 
         public async Task<DataAccess.Models.Monitor> GetByIdAsync(int id)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorLogs" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorLogs", "ExamBuilding" };
             var volunteer = await _volunteerRepository.GetByIdAsync(id, null, includes);
 
             string photoPath = $@"\\teshkilat-db\Images\Talent\{volunteer.FinCode}.jpg";
@@ -155,11 +155,11 @@ namespace ForQab.Service
                 }
             }
 
-            return "HeadMonitor-lər uğurla idxal edildi.";
+            return "Könüllülər uğurla idxal edildi.";
         }
         public async Task<byte[]> ExportToExcelAsync(int? sectionId)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "ExamBuilding" };
 
             var monitors = await _volunteerRepository.GetAllAsync(sectionId, 4, null, includes);
 
@@ -180,6 +180,7 @@ namespace ForQab.Service
                 new DataColumn("Seriya"),
                 new DataColumn("İstiqamət"),
                 new DataColumn("Rayon"),
+                new DataColumn("İmtahan binası"),
                 new DataColumn("İştirak sayı"),
             });
 
@@ -200,6 +201,7 @@ namespace ForQab.Service
                     monitor.Serial,
                     monitor.Section?.Name,
                     monitor.DistrictNavigation?.Name,
+                    monitor.ExamBuilding?.Name,
                     monitor.AssignmentCount
                 );
             }

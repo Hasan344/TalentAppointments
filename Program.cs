@@ -6,6 +6,7 @@ using ForQab.Presentation.Filters;
 using ForQab.Repository.Abstract;
 using ForQab.Repository.Concrete;
 using ForQab.Service.Abstract;
+using ForQab.Service.Concrete;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +49,7 @@ builder.Services.AddScoped<IExamMonitorRepository, ExamMonitorRepository>();
 builder.Services.AddScoped<IExamExpertSubProfessionRepository, ExamExpertSubProfessionRepository>();
 builder.Services.AddScoped<IMinistryRepresentativeService, MinistryRepresentativeService>();
 builder.Services.AddScoped<IMinistryRepresentativeRepository, MinistryRepresentativeRepository>();
+builder.Services.AddScoped<IBadgeExportService, BadgeExportService>();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireNonAlphanumeric = false;

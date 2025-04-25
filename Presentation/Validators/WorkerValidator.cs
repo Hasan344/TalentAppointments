@@ -18,7 +18,7 @@ namespace ForQab.Presentation.Validators
             RuleFor(m => m.Rekvizit).NotEmpty();
             RuleFor(m => m.District).NotEmpty();
             RuleFor(m => m.WorkerType).NotEmpty();
-            RuleFor(m => m.ExamBuildingId);
+            RuleFor(m => m.ExamBuildingId).NotEmpty();
         }
     }
 }

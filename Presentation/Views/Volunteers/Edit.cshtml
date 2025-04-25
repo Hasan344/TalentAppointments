@@ -41,12 +41,17 @@
                     <span asp-validation-for="Gender" class="text-danger"></span>
                 </div>
 
+
                 <div class="mb-3">
-                    <label asp-for="Role" class="form-label">Vəzifə</label>
-                    <select asp-for="Role" class="form-select" asp-items="ViewBag.Role" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>Vəzifə seçin</option>
+                    <input type="hidden" asp-for="Role" value="4" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ExamBuildingId" class="form-label">İmtahan binası</label>
+                    <select asp-for="ExamBuildingId" class="form-select" asp-items="ViewBag.Building" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Bina Seçin</option>
                     </select>
-                    <span asp-validation-for="Role" class="text-danger"></span>
+                    <span asp-validation-for="ExamBuildingId" class="text-danger"></span>
                 </div>
 
                 <!-- Submit -->
