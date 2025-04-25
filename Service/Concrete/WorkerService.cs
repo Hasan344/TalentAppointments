@@ -154,6 +154,7 @@ namespace ForQab.Service
                     var districts = await _context.Districts.ToListAsync();
                     var sections = await _context.Sections.ToListAsync();
                     var workerTypes = await _context.WorkerTypes.ToListAsync();
+                    var examBuildings = await _context.ExamBuildings.ToListAsync();
 
                     foreach (var row in worksheet.RowsUsed().Skip(1)) // Başlığı atla
                     {
@@ -169,10 +170,12 @@ namespace ForQab.Service
                         }
                         string districtName = row.Cell(1).GetString();
                         string sectionName = row.Cell(5).GetString();
-                        string typeName = row.Cell(13).GetString();
+                        string typeName = row.Cell(14).GetString();
+                        string examBuildingName = row.Cell(12).GetString();
                         int? districtId = districts.FirstOrDefault(d => d.Name == districtName)?.Id;
                         int? sectionId = sections.FirstOrDefault(s => s.Name == sectionName)?.Id;
                         byte? typeId = workerTypes.FirstOrDefault(w => w.Name == typeName)?.Id;
+                        int? examBuildingId = examBuildings.FirstOrDefault(e => e.Name == examBuildingName)?.Id;
 
                         var monitor = new Monitor
                         {
@@ -188,15 +191,16 @@ namespace ForQab.Service
                             Serial = row.Cell(9).IsEmpty() ? null : row.Cell(9).GetString(),
                             TelIs = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
                             FinCode = finCode,
-                            BirthDate = row.Cell(12).IsEmpty() ? null
-                                : DateOnly.ParseExact(row.Cell(12).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                            ExamBuildingId = examBuildingId,
+                            BirthDate = row.Cell(13).IsEmpty() ? null
+                                : DateOnly.ParseExact(row.Cell(13).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
                             WorkerType = typeId,
-                            Voen = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
-                            HesablashmaH = row.Cell(15).IsEmpty() ? null : row.Cell(15).GetString(),
-                            Rekvizit = row.Cell(16).GetString(),
-                            SSN = row.Cell(17).GetString(),
-                            BankFilial = row.Cell(18).GetString(),
-                            BankFilialCode = row.Cell(19).GetString(),
+                            Voen = row.Cell(15).IsEmpty() ? null : row.Cell(15).GetString(),
+                            HesablashmaH = row.Cell(16).IsEmpty() ? null : row.Cell(16).GetString(),
+                            Rekvizit = row.Cell(17).GetString(),
+                            SSN = row.Cell(18).GetString(),
+                            BankFilial = row.Cell(19).GetString(),
+                            BankFilialCode = row.Cell(20).GetString(),
                             Archive = 0,
                             Status = 0,
                             AssignmentCount = 0,

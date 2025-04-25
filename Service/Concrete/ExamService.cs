@@ -627,7 +627,7 @@ namespace ForQab.Service
                         row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
                         row.Append(CreateTableCell(expert.ExamRoom?.Name, false, 1500));
                         row.Append(CreateTableCell($"Ekspert-{expert.SubProfession?.Name} ", false, 3000));
-                        row.Append(CreateTableCell(expert.Expert.Name + " " + expert.Expert.Surname + " " + expert.Expert.Fname, false, 6000));
+                        row.Append(CreateTableCell( expert.Expert.Surname + " " + expert.Expert.Name + " " + expert.Expert.Fname, false, 6000));
                         row.Append(CreateTableCell("", false, 2000));
                         table.Append(row);
                         rowIndex++;
@@ -641,7 +641,7 @@ namespace ForQab.Service
                     row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
                     row.Append(CreateTableCell(monitor.ExamRooms?.Name, false, 1500));
                     row.Append(CreateTableCell("Nəzarətçi ", false, 3000));
-                    row.Append(CreateTableCell(monitor.Monitors.Name + " " + monitor.Monitors.Surname + " " + monitor.Monitors.Fname, false, 6000));
+                    row.Append(CreateTableCell( monitor.Monitors.Surname + " " + monitor.Monitors.Name + " " + monitor.Monitors.Fname, false, 6000));
                     row.Append(CreateTableCell("", false, 2000));
                     table.Append(row);
                     rowIndex++;
@@ -652,7 +652,7 @@ namespace ForQab.Service
                     row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
                     row.Append(CreateTableCell("", false, 1500));
                     row.Append(CreateTableCell(monitor.Monitors.WorkerTypeNavigation?.Name, false, 3000));
-                    row.Append(CreateTableCell(monitor.Monitors.Name + " " + monitor.Monitors.Surname + " " + monitor.Monitors.Fname, false, 6000));
+                    row.Append(CreateTableCell(monitor.Monitors.Surname + " " + monitor.Monitors.Name + " " + monitor.Monitors.Fname, false, 6000));
                     row.Append(CreateTableCell("", false, 2000));
                     table.Append(row);
                     rowIndex++;
@@ -663,7 +663,7 @@ namespace ForQab.Service
                     row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
                     row.Append(CreateTableCell(" ", false, 1500));
                     row.Append(CreateTableCell("DİM Nümayəndəsi", false, 3000));
-                    row.Append(CreateTableCell(representative.Name + " " + representative.Surname + " " + representative.Fname, false, 6000));
+                    row.Append(CreateTableCell( representative.Surname + " " + representative.Name + " " + representative.Fname, false, 6000));
                     row.Append(CreateTableCell("", false, 2000));
                     table.Append(row);
                     rowIndex++;
@@ -674,7 +674,7 @@ namespace ForQab.Service
                     row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
                     row.Append(CreateTableCell("", false, 1500));
                     row.Append(CreateTableCell("İmtahan rəhbəri ", false, 3000));
-                    row.Append(CreateTableCell(monitor.Monitors.Name + " " + monitor.Monitors.Surname + " " + monitor.Monitors.Fname, false, 6000));
+                    row.Append(CreateTableCell(monitor.Monitors.Surname + " " + monitor.Monitors.Name + " " + monitor.Monitors.Fname, false, 6000));
                     row.Append(CreateTableCell("", false, 2000));
                     table.Append(row);
                     rowIndex++;

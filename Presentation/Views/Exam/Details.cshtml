@@ -614,7 +614,7 @@
             </form>
 
             <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignRepresentatives" asp-route-examId="@Model.Id">
-                <i class="bi bi-plus-circle"></i> Nümayəndə təyin et
+                <i class="bi bi-plus-circle"></i> DİM nümayəndəsi təyin et
             </a>
         </div>
     }
@@ -625,13 +625,9 @@
                     <i class="bi bi-person-plus"></i> Könüllü Təyin Et
                 </button>
             </form>
-        </div>
-     <div class="text-center mt-4">
-        <form asp-action="AssignMinistryRepresentatives" asp-route-id="@Model.Id" method="post" style="display: inline;">
-                <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
-                    <i class="bi bi-person-plus"></i> Nazirlik nümayəndəsi Təyin Et
-                </button>
-            </form>
+            <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMinistryRepresentatives" asp-route-examId="@Model.Id">
+                <i class="bi bi-plus-circle"></i> Nazirlik nümayəndəsi təyin et
+            </a>
         </div>
     }
     <div class="text-center mt-4">
