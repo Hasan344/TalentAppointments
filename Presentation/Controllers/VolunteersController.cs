@@ -58,7 +58,13 @@ namespace ForQab.Presentation.Controllers
             ViewBag.SectionList = new SelectList(sections, "Id", "Name");
             ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
             ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name");
-            ViewData["District"] = new SelectList(_context.Districts, "Id", "Name");
+            ViewData["District"] = new SelectList(_context.Districts, "Id", "Name"); 
+            if (sectionId == null)
+            {
+                ViewBag.Building = new SelectList(_context.ExamBuildings, "Id", "Name");
+            }
+            else
+                ViewBag.Building = new SelectList(_context.ExamBuildings.Where(eb => eb.SectionId == sectionId), "Id", "Name");
             return View();
         }
 
@@ -198,7 +204,13 @@ namespace ForQab.Presentation.Controllers
             ViewBag.SectionList = new SelectList(sections, "Id", "Name");
             ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name", monitor.Gender);
             ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name", monitor.Role);
-            ViewData["District"] = new SelectList(_context.Districts, "Id", "Name", monitor.District);
+            ViewData["District"] = new SelectList(_context.Districts, "Id", "Name", monitor.District); 
+            if (sectionId == null)
+            {
+                ViewBag.Building = new SelectList(_context.ExamBuildings, "Id", "Name");
+            }
+            else
+                ViewBag.Building = new SelectList(_context.ExamBuildings.Where(eb => eb.SectionId == sectionId), "Id", "Name");
         }
     }
 }

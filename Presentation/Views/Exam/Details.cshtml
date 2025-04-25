@@ -652,7 +652,13 @@
                 </button>
             </form>
         }
-
+        <form asp-action="ExportBadges" method="post">
+            <input type="hidden" name="examId" value="@Model.Id" />
+            <button type="submit" class="btn btn-primary px-4 py-2 mx-2"
+                    style="background-color: @primaryColor; border: none;">
+                <i class="bi bi-download"></i> Badge yüklə
+            </button>
+        </form>
     </div>
 </div>
 
