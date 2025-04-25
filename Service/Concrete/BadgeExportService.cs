@@ -28,10 +28,9 @@
                 .Include(e => e.ExamMonitors).ThenInclude(em => em.ExamRooms)
                 .Include(e => e.ExamExpertSubProfessions).ThenInclude(eep => eep.Expert)
                 .Include(e => e.ExamExpertSubProfessions).ThenInclude(eep => eep.ExamRoom)
+                .Include(e => e.ExamRepresentatives).ThenInclude(eep => eep.Representative)
                 .FirstOrDefault(e => e.Id == examId);
 
-            //.Include(e => e.ExamMonitors).ThenInclude(em => em.Monitors)
-            //                                 .Where(e => e.ExamMonitors.Any(em => em.Monitors.Role == 1 || em.Monitors.Role == 2))
             if (exam == null) throw new Exception("Exam not found");
 
             var badges = new List<BadgeModel>();
@@ -44,7 +43,7 @@
 
             foreach (var em in monitors)
             {
-                var fullName = $"{em.Name} {em.Surname} {em.Fname}".Trim();
+                var fullName = $"{em.Surname}   {em.Name} {em.Fname}".Trim();
                 var roleName = GetMonitorRoleName((int)em.Role);
                 string photoPath = $@"\\teshkilat-db\Images\Talent\{em.FinCode}.jpg";
                 byte[]? photoBytes = File.Exists(photoPath) ? File.ReadAllBytes(photoPath) : null;
@@ -67,7 +66,7 @@
             foreach (var eep in exam.ExamExpertSubProfessions)
             {
                 var expert = eep.Expert;
-                var fullName = $"{expert.Name} {expert.Surname} {expert.Fname}".Trim();
+                var fullName = $"{expert.Surname} {expert.Name} {expert.Fname}".Trim();
                 var roleName = (bool)expert.Kons ? "Konsertmeyster" : "Ekspert";
                 string photoPath = $@"\\teshkilat-db\Images\Talent\{expert.FinCode}.jpg";
                 byte[]? photoBytes = File.Exists(photoPath) ? File.ReadAllBytes(photoPath) : null;
@@ -78,6 +77,26 @@
                     Role = roleName,
                     Building = exam.ExamBuilding?.Name,
                     Room = eep.ExamRoom?.Name,
+                    Date = exam.ExamDate.ToString("d MMMM yyyy", new CultureInfo("az-Latn-AZ")),
+                    PhotoBytes = photoBytes,
+                    SectionId = exam.SectionId
+                });
+            }
+
+            foreach (var eep in exam.ExamRepresentatives)
+            {
+                var representative = eep.Representative;
+                var fullName = $"{representative.Surname} {representative.Name} {representative.Fname}".Trim();
+                var roleName = representative.Type == 1 ? "DİM nümayəndəsi" : "Nazirlik nümayəndəsi";
+                string photoPath = $@"\\teshkilat-db\Images\Talent\{representative.FinCode}.jpg";
+                byte[]? photoBytes = File.Exists(photoPath) ? File.ReadAllBytes(photoPath) : null;
+
+                badges.Add(new BadgeModel
+                {
+                    FullName = fullName,
+                    Role = roleName,
+                    Building = exam.ExamBuilding?.Name,
+                    Room = "",
                     Date = exam.ExamDate.ToString("d MMMM yyyy", new CultureInfo("az-Latn-AZ")),
                     PhotoBytes = photoBytes,
                     SectionId = exam.SectionId
@@ -108,7 +127,7 @@
                 var body = new Body();
                 mainPart.Document.AppendChild(body);
 
-                int badgesPerRow = 2;
+                int badgesPerRow = 2; // Keep 2 badges per row (2 columns)
                 var table = new Table();
                 var logoBytes = LoadLogoBytes();
 
@@ -138,20 +157,19 @@
                             cell.Append(badgeTable);
 
                             var cellProps = new TableCellProperties(
-                                    new TableCellBorders(
-                                        new TopBorder { Val = BorderValues.Single, Size = 4, Color = "D9D9D9" },
-                                        new BottomBorder { Val = BorderValues.Single, Size = 4, Color = "D9D9D9" },
-                                        new LeftBorder { Val = BorderValues.Single, Size = 4, Color = "D9D9D9" },
-                                        new RightBorder { Val = BorderValues.Single, Size = 4, Color = "D9D9D9" }
-                                    ),
-                                    new TableCellMarginDefault(
-                                        new TopMargin { Width = "100", Type = TableWidthUnitValues.Dxa },
-                                        new BottomMargin { Width = "100", Type = TableWidthUnitValues.Dxa },
-                                        new LeftMargin { Width = "100", Type = TableWidthUnitValues.Dxa },
-                                        new RightMargin { Width = "100", Type = TableWidthUnitValues.Dxa }
-                                    )
-                                );
-                                
+                                new TableCellBorders(
+                                    new TopBorder { Val = BorderValues.Single, Size = 4, Color = "D9D9D9" },
+                                    new BottomBorder { Val = BorderValues.Single, Size = 4, Color = "D9D9D9" },
+                                    new LeftBorder { Val = BorderValues.Single, Size = 4, Color = "D9D9D9" },
+                                    new RightBorder { Val = BorderValues.Single, Size = 4, Color = "D9D9D9" }
+                                ),
+                                new TableCellMarginDefault(
+                                    new TopMargin { Width = "100", Type = TableWidthUnitValues.Dxa },
+                                    new BottomMargin { Width = "100", Type = TableWidthUnitValues.Dxa },
+                                    new LeftMargin { Width = "100", Type = TableWidthUnitValues.Dxa },
+                                    new RightMargin { Width = "100", Type = TableWidthUnitValues.Dxa }
+                                )
+                            );
 
                             cell.PrependChild(cellProps);
                         }
@@ -161,8 +179,8 @@
 
                     table.Append(row);
 
-                    // Hər 2 sıra (yəni 4 badge) sonra səhifə qırılması əlavə et
-                    if ((i / badgesPerRow + 1) % 2 == 0 && (i + badgesPerRow) < badges.Count)
+                    // Add page break after every 3 rows (i.e., 6 badges: 3 rows * 2 badges per row)
+                    if ((i / badgesPerRow + 1) % 3 == 0 && (i + badgesPerRow) < badges.Count)
                     {
                         body.Append(table);
                         body.Append(new Paragraph(new Run(new Break() { Type = BreakValues.Page })));
@@ -404,15 +422,34 @@
                 new TableCellVerticalAlignment { Val = TableVerticalAlignmentValues.Bottom }
             ));
 
-            var roleText = badge.Role == "İmtahan rəhbəri"
-                ? $"   {badge.Role}"
-                : $"   {badge.Role}";
+            if (badge.Role == "İmtahan rəhbəri" || badge.Role == "DİM nümayəndəsi")
+            {
+                textCell.Append(new Paragraph(
+                    new ParagraphProperties(new Justification { Val = JustificationValues.Right }),
+                    new Break(), new Break(), new Break(),
+                    CreateRun($"   {badge.Role}", true, false, 24)
+                ));
 
-            textCell.Append(new Paragraph(
-                new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
-                new Break(), new Break(), new Break(), new Break(), new Break(),
-                CreateRun(roleText, true, false, 24)
-            ));
+            }
+            else if (badge.Role == "Nazirlik nümayəndəsi")
+            {
+                textCell.Append(new Paragraph(
+                    new ParagraphProperties(new Justification { Val = JustificationValues.Right }),
+                    new Break(), new Break(), new Break(), new Break(), new Break(),
+                    CreateRun($"{badge.Role}", true, false, 24)
+                ));
+            }
+            else
+            {
+                textCell.Append(new Paragraph(
+                    new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
+                    new Break(), new Break(), new Break(),
+                    CreateRun($"              {badge.Role}", true, false, 24)
+                ));
+            }
+
+
+
 
             var roomText = badge.SectionId == 1
                 ? $"Məntəqə kodu: {badge.Room}"

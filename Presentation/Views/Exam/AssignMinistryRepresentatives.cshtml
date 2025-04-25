@@ -1,0 +1,39 @@
+﻿@using ForQab.DataAccess.ViewModel.Exam
+@model AssignRepresentativesToExamViewModel
+
+@{
+    ViewData["Title"] = "Nümayəndə təyin etmə";
+}
+
+<h2>Nümayəndə təyin etmə</h2>
+
+<form asp-action="AssignMinistryRepresentatives" method="post">
+    <input type="hidden" asp-for="ExamId" />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Seç</th>
+                <th>Ad</th>
+                <th>Soyad</th>
+                <th>FinCode</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (var i = 0; i < Model.Representatives.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <input type="checkbox" name="SelectedRepresentativeIds" value="@Model.Representatives[i].Id" />
+                    </td>
+                    <td>@Model.Representatives[i].Name</td>
+                    <td>@Model.Representatives[i].Surname</td>
+                    <td>@Model.Representatives[i].FinCode</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Təyin et</button>
+</form>
+
