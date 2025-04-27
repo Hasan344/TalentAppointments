@@ -535,6 +535,7 @@ namespace ForQab.Presentation.Controllers
 
             monitor.Status = 1;
             monitor.StatusReason = statusReason;
+            monitor.Photo = null;
             await _expertService.UpdateExpertAsync(monitor);
 
             return RedirectToAction(nameof(Index));
@@ -551,6 +552,7 @@ namespace ForQab.Presentation.Controllers
 
             monitor.Status = 0;
             monitor.StatusReason = null;
+            monitor.Photo = null;
             await _expertService.UpdateExpertAsync(monitor);
 
             return RedirectToAction(nameof(Index));

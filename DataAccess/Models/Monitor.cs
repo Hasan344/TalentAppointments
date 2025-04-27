@@ -58,7 +58,7 @@ public partial class Monitor
     public int? Age { get; set; }
 
     [Column("photo")]
-    [StringLength(1250)]
+    [StringLength(4000)]
     public string? Photo { get; set; }
 
     [Column("tel_ev")]
@@ -174,6 +174,7 @@ public partial class Monitor
 
     [InverseProperty("Monitor")]
     public virtual ICollection<MonitorsProfession> MonitorsProfessions { get; set; } = new List<MonitorsProfession>();
+    public ICollection<Contract> Contracts { get; set; }
 
 
 }
