@@ -127,7 +127,7 @@ public partial class Expert
     public ICollection<SubProfession> SubProfessions { get; set; }
 
     [Column("photo")]
-    [StringLength(1250)]
+    [StringLength(4000)]
     public string? Photo { get; set; }
 
     [Column("contract_no")]
@@ -136,4 +136,5 @@ public partial class Expert
 
     [Column("contract_date")]
     public DateOnly? ContractDate { get; set; }
+    public ICollection<Contract> Contracts { get; set; }
 }

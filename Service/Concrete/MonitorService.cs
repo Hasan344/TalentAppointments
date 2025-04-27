@@ -1,4 +1,6 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
 using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Monitor;
 using ForQab.Models;
@@ -536,12 +538,12 @@ namespace ForQab.Service
                 HesablashmaH = monitor.HesablashmaH,
                 TelIs = monitor.TelIs,
 
-                // Monitor'e atanmış SubProfession ID'lerini çekiyoruz
+
                 SelectedSubProfessions = monitor.MonitorsProfessions
                     .Select(mp => mp.SubProfessionId)
                     .ToArray(),
 
-                // Kullanıcıya gösterilecek tüm SubProfessions
+
                 SubProfessions = subProfessions.Select(sp => new SelectListItem
                 {
                     Text = sp.Name,
@@ -549,6 +551,69 @@ namespace ForQab.Service
                 }).ToList()
             };
         }
+        public async Task<byte[]> ExportContractsToWordAsync(List<int> selectedMonitorIds)
+        {
+            var monitors = await _context.Monitors
+                .Include(m => m.Contracts)
+                .Where(m => selectedMonitorIds.Contains(m.Id))
+                .ToListAsync();
+
+            var newContracts = new List<Contract>();
+
+            foreach (var monitor in monitors)
+            {
+                // Mövcud kontrakt sayı tapılır
+                int existingContractCount = monitor.Contracts.Count;
+
+                int newContractNumber = existingContractCount + 1;
+
+                string formattedNumber = newContractNumber.ToString("D2"); // 01, 02, 03 formatı
+                string contractNumber = $"XQN-{monitor.FinCode}-{formattedNumber}";
+
+                var newContract = new Contract
+                {
+                    Number = contractNumber,
+                    Date = DateTime.Now,
+                    MonitorId = monitor.Id
+                };
+
+                newContracts.Add(newContract);
+            }
+
+            // Yeni kontraktları database-ə əlavə et
+            if (newContracts.Any())
+            {
+                await _context.Contracts.AddRangeAsync(newContracts);
+                await _context.SaveChangesAsync();
+            }
+
+            // Word faylı yaratmaq
+            using (var stream = new MemoryStream())
+            {
+                using (var wordDocument = WordprocessingDocument.Create(stream, DocumentFormat.OpenXml.WordprocessingDocumentType.Document))
+                {
+                    var mainPart = wordDocument.AddMainDocumentPart();
+                    mainPart.Document = new Document();
+                    var body = mainPart.Document.AppendChild(new Body());
+
+                    foreach (var contract in newContracts)
+                    {
+                        var monitor = monitors.First(m => m.Id == contract.MonitorId);
+
+                        body.AppendChild(new Paragraph(new Run(new Text($"Monitor: {monitor.Name} {monitor.Surname}"))));
+                        body.AppendChild(new Paragraph(new Run(new Text($"Müqavilə Nömrəsi: {contract.Number}"))));
+                        body.AppendChild(new Paragraph(new Run(new Text($"Tarix: {contract.Date.ToShortDateString()}"))));
+                        body.AppendChild(new Paragraph(new Run(new Text("--------------------------------------------"))));
+                    }
+
+                    mainPart.Document.Save();
+                }
+
+                return stream.ToArray();
+            }
+        }
+
+
 
     }
 }

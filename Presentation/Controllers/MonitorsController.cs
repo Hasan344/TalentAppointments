@@ -231,6 +231,7 @@ namespace ForQab.Presentation.Controllers
 
             monitor.Status = 1;
             monitor.StatusReason = statusReason;
+            monitor.Photo = null;
             await _monitorService.UpdateAsync(monitor);
 
             return RedirectToAction(nameof(Index));
@@ -247,6 +248,7 @@ namespace ForQab.Presentation.Controllers
 
             monitor.Status = 0;
             monitor.StatusReason = null;
+            monitor.Photo = null;
             await _monitorService.UpdateAsync(monitor);
 
             return RedirectToAction(nameof(Index));
@@ -327,6 +329,19 @@ namespace ForQab.Presentation.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        public async Task<IActionResult> ExportContracts(List<int> selectedMonitorIds)
+        {
+            if (selectedMonitorIds == null || !selectedMonitorIds.Any())
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var wordBytes = await _monitorService.ExportContractsToWordAsync(selectedMonitorIds);
+
+            return File(wordBytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Mugavileler.docx");
+        }
+
     }
 
 }

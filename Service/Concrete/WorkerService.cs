@@ -214,7 +214,7 @@ namespace ForQab.Service
                 }
             }
 
-            return "HeadMonitor-lər uğurla idxal edildi.";
+            return "İşçilər uğurla idxal edildi.";
         }
         public async Task<byte[]> ExportToExcelAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
@@ -305,7 +305,7 @@ namespace ForQab.Service
                 using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);
-                    return stream.ToArray(); // Byte dizisi olarak döndürüyoruz
+                    return stream.ToArray();
                 }
             }
         }
