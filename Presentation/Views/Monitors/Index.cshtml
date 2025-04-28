@@ -1,19 +1,18 @@
 ﻿@model IEnumerable<ForQab.DataAccess.Models.Monitor>
-
 @{
     ViewData["Title"] = "Nəzarətçilər";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
-}
-
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-success">@TempData["Message"]</div>
 }
 
 <link rel="stylesheet" href="~/css/Monitors/Index.css" asp-append-version="true" />
 
 <div class="container mt-5">
     <h1 class="text-center mb-4 fw-bold text-primary">Nəzarətçilər İdarəetməsi</h1>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
 
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
@@ -24,8 +23,67 @@
             <a class="btn btn-outline-secondary" asp-action="Archived"><i class="bi bi-archive"></i> Arxiv</a>
             <a class="btn btn-outline-info" asp-action="MonitorLogs"><i class="bi bi-journal"></i> Xüsusi qeydlər</a>
         </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
+            <i class="bi bi-file-earmark-word"></i> Müqavilə Export
+        </button>
     </div>
-    <form method="get" class="d-flex flex-wrap gap-2 align-items-center">
+
+    <!-- Export Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportModalLabel">Müqavilə Export</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" asp-action="ExportContracts">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="contractDate" class="form-label">Müqavilə Tarixi</label>
+                            <input type="date" id="contractDate" name="contractDate" class="form-control" required />
+                        </div>
+                        <!-- Hamısını seç düyməsi -->
+                        <div class="mb-3">
+                            <button type="button" id="selectAllBtn" class="btn btn-sm btn-outline-primary">Hamısını seç</button>
+                        </div>
+                        <p>Seçdiyiniz nəzarətçilərin müqavilələri export ediləcək:</p>
+                        <div class="table-responsive" style="max-height:200px; overflow:auto;">
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="selectAll" /></th>
+                                        <th>Ad</th>
+                                        <th>Soyad</th>
+                                        <th>FİN Kodu</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" name="selectedMonitorIds" value="@item.Id" class="select-item" />
+                                            </td>
+                                            <td>@item.Name</td>
+                                            <td>@item.Surname</td>
+                                            <td>@item.FinCode</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
+                        <button type="submit" class="btn btn-primary">Export et</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+    <form method="get" class="d-flex flex-wrap gap-2 align-items-center mb-4">
         <input type="text" name="searchName" value="@ViewContext.HttpContext.Request.Query["searchName"]" class="form-control" placeholder="Ad və soyad axtar..." style="max-width: 200px;" />
         <input type="text" name="finCode" value="@ViewContext.HttpContext.Request.Query["finCode"]" class="form-control" placeholder="FİN Kod..." style="max-width: 150px;" />
         <input type="text" name="serial" value="@ViewContext.HttpContext.Request.Query["serial"]" class="form-control" placeholder="Seriya..." style="max-width: 150px;" />
@@ -47,8 +105,7 @@
         <a href="@Url.Action("Index", "Monitors")" class="btn btn-outline-danger"><i class="bi bi-x-circle"></i> Sıfırla</a>
     </form>
 
-
-
+    <!-- Main Table (hidden under modal) -->
     <div class="table-responsive">
         <table class="table table-hover table-bordered align-middle shadow-sm">
             <thead class="table-dark">
@@ -77,18 +134,18 @@
                 {
                     <tr class="align-middle @(item.Status == 1 ? "table-danger" : "")">
                         <td>@rowNumber</td>
-                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Surname)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Fname)</td>
-                        <td>@Html.DisplayFor(modelItem => item.GenderNavigation.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.BirthDate)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Profession)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Workplace)</td>
-                        <td>@Html.DisplayFor(modelItem => item.TelIs)</td>
-                        <td>@Html.DisplayFor(modelItem => item.FinCode)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Serial)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Section.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.DistrictNavigation.Name)</td>
+                        <td>@Html.DisplayFor(m => item.Name)</td>
+                        <td>@Html.DisplayFor(m => item.Surname)</td>
+                        <td>@Html.DisplayFor(m => item.Fname)</td>
+                        <td>@Html.DisplayFor(m => item.GenderNavigation.Name)</td>
+                        <td>@Html.DisplayFor(m => item.BirthDate)</td>
+                        <td>@Html.DisplayFor(m => item.Profession)</td>
+                        <td>@Html.DisplayFor(m => item.Workplace)</td>
+                        <td>@Html.DisplayFor(m => item.TelIs)</td>
+                        <td>@Html.DisplayFor(m => item.FinCode)</td>
+                        <td>@Html.DisplayFor(m => item.Serial)</td>
+                        <td>@Html.DisplayFor(m => item.Section.Name)</td>
+                        <td>@Html.DisplayFor(m => item.DistrictNavigation.Name)</td>
                         <td class="text-center">
                             <div class="btn-group">
                                 <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a>
@@ -103,3 +160,18 @@
         </table>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Checkbox Select All
+        document.getElementById('selectAll').addEventListener('change', function () {
+            var checked = this.checked;
+            document.querySelectorAll('.select-item').forEach(cb => cb.checked = checked);
+        });
+        // Button Select All
+        document.getElementById('selectAllBtn').addEventListener('click', function () {
+            document.querySelectorAll('.select-item').forEach(cb => cb.checked = true);
+            document.getElementById('selectAll').checked = true;
+        });
+    </script>
+}
