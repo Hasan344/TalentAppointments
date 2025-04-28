@@ -330,16 +330,16 @@ namespace ForQab.Presentation.Controllers
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]
-        public async Task<IActionResult> ExportContracts(List<int> selectedMonitorIds)
-        {
+        public async Task<IActionResult> ExportContracts(List<int> selectedMonitorIds,DateTime contractDate){
             if (selectedMonitorIds == null || !selectedMonitorIds.Any())
-            {
                 return RedirectToAction(nameof(Index));
-            }
 
-            var wordBytes = await _monitorService.ExportContractsToWordAsync(selectedMonitorIds);
-
-            return File(wordBytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Mugavileler.docx");
+            var bytes = await _monitorService
+                .ExportContractsToWordAsync(selectedMonitorIds, contractDate);
+            return File(
+                bytes,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "Mugavileler.docx");
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using ForQab.DataAccess.Models;
@@ -543,7 +544,6 @@ namespace ForQab.Service
                     .Select(mp => mp.SubProfessionId)
                     .ToArray(),
 
-
                 SubProfessions = subProfessions.Select(sp => new SelectListItem
                 {
                     Text = sp.Name,
@@ -551,68 +551,146 @@ namespace ForQab.Service
                 }).ToList()
             };
         }
-        public async Task<byte[]> ExportContractsToWordAsync(List<int> selectedMonitorIds)
+        public async Task<byte[]> ExportContractsToWordAsync(List<int> selectedMonitorIds, DateTime contractDate)
         {
+            // 1) Monitorları və onlara məxsus mövcud Contract-ları götürək
             var monitors = await _context.Monitors
                 .Include(m => m.Contracts)
                 .Where(m => selectedMonitorIds.Contains(m.Id))
+                .Where(m => m.Archive == 0)
+                .Where(m => m.Role == 2)
+                .Where(m => m.Status == 0)
                 .ToListAsync();
 
+            // 2) Yeni Contract obyektlərini hazırlayaq
             var newContracts = new List<Contract>();
-
             foreach (var monitor in monitors)
             {
-                // Mövcud kontrakt sayı tapılır
-                int existingContractCount = monitor.Contracts.Count;
+                int existingCount = monitor.Contracts.Count;
+                int nextNumber = existingCount + 1;
+                string formattedNumber = nextNumber.ToString("D2");
+                string contractNo = $"XQN{monitor.FinCode}-{formattedNumber}";
 
-                int newContractNumber = existingContractCount + 1;
-
-                string formattedNumber = newContractNumber.ToString("D2"); // 01, 02, 03 formatı
-                string contractNumber = $"XQN-{monitor.FinCode}-{formattedNumber}";
-
-                var newContract = new Contract
+                newContracts.Add(new Contract
                 {
-                    Number = contractNumber,
-                    Date = DateTime.Now,
+                    Number = contractNo,
+                    Date = contractDate,
                     MonitorId = monitor.Id
-                };
-
-                newContracts.Add(newContract);
+                });
             }
 
-            // Yeni kontraktları database-ə əlavə et
+            // 3) Yeni Contract-ları DB-yə yaz
             if (newContracts.Any())
             {
                 await _context.Contracts.AddRangeAsync(newContracts);
                 await _context.SaveChangesAsync();
             }
 
-            // Word faylı yaratmaq
-            using (var stream = new MemoryStream())
+            // 4) Şablon sənədini oxu
+            var templatePath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot", "Templates",
+                "Zal nəzarətçisi-müqavile2024.docx");
+            byte[] templateBytes = await File.ReadAllBytesAsync(templatePath);
+            using var templateStream = new MemoryStream(templateBytes);
+            using var templateDoc = WordprocessingDocument.Open(templateStream, false);
+            var templateBody = templateDoc.MainDocumentPart.Document.Body;
+            var templateElements = templateBody.Elements<OpenXmlElement>().ToList();
+
+            using var output = new MemoryStream();
+            using (var newDoc = WordprocessingDocument.Create(output, WordprocessingDocumentType.Document))
             {
-                using (var wordDocument = WordprocessingDocument.Create(stream, DocumentFormat.OpenXml.WordprocessingDocumentType.Document))
+                var mainPart = newDoc.AddMainDocumentPart();
+                mainPart.Document = new Document(new Body());
+                var body = mainPart.Document.Body;
+
+                foreach (var contract in newContracts)
                 {
-                    var mainPart = wordDocument.AddMainDocumentPart();
-                    mainPart.Document = new Document();
-                    var body = mainPart.Document.AppendChild(new Body());
-
-                    foreach (var contract in newContracts)
+                    // Səhifə arası keçid (əgər birinci sənəd deyilsə)
+                    if (body.HasChildren)
                     {
-                        var monitor = monitors.First(m => m.Id == contract.MonitorId);
-
-                        body.AppendChild(new Paragraph(new Run(new Text($"Monitor: {monitor.Name} {monitor.Surname}"))));
-                        body.AppendChild(new Paragraph(new Run(new Text($"Müqavilə Nömrəsi: {contract.Number}"))));
-                        body.AppendChild(new Paragraph(new Run(new Text($"Tarix: {contract.Date.ToShortDateString()}"))));
-                        body.AppendChild(new Paragraph(new Run(new Text("--------------------------------------------"))));
+                        body.AppendChild(new Paragraph(new Run(new Break { Type = BreakValues.Page })));
                     }
 
-                    mainPart.Document.Save();
+                    // Hər bir template elementini klonla və düzəlt
+                    foreach (var elem in templateElements)
+                    {
+                        var clone = elem.CloneNode(true);
+
+                        // Əgər clone bir Paragraph-dırsa
+                        if (clone is Paragraph p)
+                        {
+                            string text = p.InnerText.Trim();
+
+                            if (text.Contains("MÜQAVİLƏ №"))
+                            {
+                                // Paraqrafı mərkəzə düzləşdir
+                                if (p.ParagraphProperties == null)
+                                {
+                                    p.ParagraphProperties = new ParagraphProperties();
+                                }
+                                var justification = new Justification { Val = JustificationValues.Center };
+                                p.ParagraphProperties.Append(justification);
+
+                                // Mövcud run-ları Arial fontunda və qalın edin
+                                foreach (var run in p.Elements<Run>().ToList())
+                                {
+                                    if (run.RunProperties == null)
+                                    {
+                                        run.RunProperties = new RunProperties();
+                                    }
+                                    // Qalın edin
+                                    if (!run.RunProperties.Elements<Bold>().Any())
+                                    {
+                                        run.RunProperties.Append(new Bold());
+                                    }
+                                    // Arial fontunu təyin edin
+                                    var runFonts = run.RunProperties.Elements<RunFonts>().FirstOrDefault();
+                                    if (runFonts != null)
+                                    {
+                                        runFonts.Ascii = "Arial";
+                                        runFonts.HighAnsi = "Arial";
+                                        runFonts.EastAsia = "Arial";
+                                    }
+                                    else
+                                    {
+                                        run.RunProperties.Append(new RunFonts { Ascii = "Arial", HighAnsi = "Arial", EastAsia = "Arial" });
+                                    }
+                                }
+
+                                // Müqavilə nömrəsini yeni bir run-da əlavə edin və Arial fontunda, qalın olaraq formatlaşdırın
+                                var newRun = new Run(new Text($" {contract.Number}"));
+                                var newRunProperties = new RunProperties(new Bold(), new RunFonts { Ascii = "Arial", HighAnsi = "Arial", EastAsia = "Arial" });
+                                newRun.RunProperties = newRunProperties;
+                                p.AppendChild(newRun);
+                            }
+                            else if (text.Contains("Bakı şəhəri"))
+                            {
+                                var ilRun = p.Elements<Run>().FirstOrDefault(r => r.InnerText.Trim() == "Tarix:");
+                                if (ilRun != null)
+                                {
+                                    ilRun.AppendChild(new Text($" {contractDate:dd.MM.yyyy}"));
+                                }
+                                else
+                                {
+                                    var lastRun = p.Elements<Run>().LastOrDefault();
+                                    if (lastRun != null)
+                                    {
+                                        lastRun.AppendChild(new Text($" {contractDate:dd.MM.yyyy}"));
+                                    }
+                                }
+                            }
+                        }
+
+                        body.AppendChild(clone);
+                    }
                 }
 
-                return stream.ToArray();
+                mainPart.Document.Save();
             }
-        }
 
+            return output.ToArray();
+        }
 
 
     }
