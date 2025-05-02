@@ -148,6 +148,10 @@ namespace ForQab.Presentation.Controllers
         // GET: Monitors/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var monitor = await _naturaService.GetByIdAsync(id);
             if (monitor == null)
             {
@@ -166,6 +170,10 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var monitor = await _naturaService.GetByIdAsync(id);
             if (monitor != null)
             {

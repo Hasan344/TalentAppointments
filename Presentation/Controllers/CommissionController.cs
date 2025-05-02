@@ -110,6 +110,10 @@ namespace ForQab.Presentation.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var commission = await _commissionService.GetCommissionByIdAsync(id);
             if (commission == null)
             {
@@ -126,6 +130,10 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var commission = await _commissionService.GetCommissionByIdAsync(id);
             if (commission != null)
             {

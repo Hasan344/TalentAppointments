@@ -147,6 +147,10 @@ namespace ForQab.Presentation.Controllers
         // GET: Volunteer/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var volunteer = await _volunteerService.GetByIdAsync(id);
             if (volunteer == null)
             {
@@ -165,6 +169,10 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var monitor = await _volunteerService.GetByIdAsync(id);
             if (monitor != null)
             {

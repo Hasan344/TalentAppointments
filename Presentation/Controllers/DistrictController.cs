@@ -71,6 +71,10 @@ public class DistrictController : BaseController
 
     public async Task<IActionResult> Delete(int id)
     {
+        if (!await IsAdminValidAsync())
+        {
+            return Forbid();
+        }
         var district = await _districtService.GetDistrictByIdAsync(id);
         if (district == null)
         {
@@ -82,6 +86,10 @@ public class DistrictController : BaseController
     [HttpPost, ActionName("Delete")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
+        if (!await IsAdminValidAsync())
+        {
+            return Forbid();
+        }
         await _districtService.DeleteDistrictAsync(id);
         return RedirectToAction(nameof(Index));
     }

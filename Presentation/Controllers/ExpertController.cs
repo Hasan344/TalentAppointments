@@ -220,6 +220,10 @@ namespace ForQab.Presentation.Controllers
         }
         public async Task<IActionResult> Delete(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var expert = await _expertService.GetExpertByIdAsync(id);
             if (expert == null)
             {
@@ -232,11 +236,14 @@ namespace ForQab.Presentation.Controllers
             return View(expert);
         }
 
-        // POST: HeadMonitors/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var expert = await _expertService.GetExpertByIdAsync(id);
             if (expert != null)
             {

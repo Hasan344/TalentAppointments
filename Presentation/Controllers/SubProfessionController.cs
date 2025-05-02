@@ -109,6 +109,10 @@ namespace ForQab.Presentation.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var subProfession = await _subProfessionService.GetSubProfessionByIdAsync(id);
 
             if (subProfession == null)
@@ -124,6 +128,10 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var subProfession = await _subProfessionService.GetSubProfessionByIdAsync(id);
 
             if (subProfession != null)

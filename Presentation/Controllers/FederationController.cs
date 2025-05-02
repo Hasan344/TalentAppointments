@@ -108,6 +108,10 @@ namespace ForQab.Presentation.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var federation = await _federationService.GetFederationByIdAsync(id);
 
             if (federation == null)
@@ -123,6 +127,10 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var federation = await _federationService.GetFederationByIdAsync(id);
 
             if (federation != null)
