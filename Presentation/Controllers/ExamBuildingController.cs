@@ -91,6 +91,10 @@ public class ExamBuildingController : BaseController
 
     public async Task<IActionResult> Delete(int id)
     {
+        if (!await IsAdminValidAsync())
+        {
+            return Forbid();
+        }
         var examBuilding = await _examBuildingService.GetExamBuildingByIdAsync(id);
         return examBuilding == null ? NotFound() : View(examBuilding);
     }
@@ -99,6 +103,10 @@ public class ExamBuildingController : BaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
+        if (!await IsAdminValidAsync())
+        {
+            return Forbid();
+        }
         await _examBuildingService.DeleteExamBuildingAsync(id);
         return RedirectToAction(nameof(Index));
     }

@@ -178,6 +178,10 @@ namespace ForQab.Presentation.Controllers
         // GET: HeadMonitors/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             if (id == null)
             {
                 return NotFound();
@@ -200,6 +204,10 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var monitor = await _headMonitorService.GetByIdAsync(id);
             if (monitor != null)
             {

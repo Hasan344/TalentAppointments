@@ -8,13 +8,13 @@ using Microsoft.EntityFrameworkCore;
 namespace ForQab.Presentation.Controllers
 {
     [Authorize]
-    public class MinistryRepresentativeController : Controller
+    public class MinistryRepresentativeController : BaseController
     {
         private readonly IMinistryRepresentativeService _representativeService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly MyDbContext _context;
 
-        public MinistryRepresentativeController(UserManager<ApplicationUser> userManager, IMinistryRepresentativeService representativeService, MyDbContext context)
+        public MinistryRepresentativeController(UserManager<ApplicationUser> userManager, IMinistryRepresentativeService representativeService, MyDbContext context) : base(context, userManager)
         {
             _userManager = userManager;
             _representativeService = representativeService;
@@ -95,6 +95,10 @@ namespace ForQab.Presentation.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var commission = await _representativeService.GetRepresentativeByIdAsync(id);
             if (commission == null)
             {
@@ -108,6 +112,10 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var commission = await _representativeService.GetRepresentativeByIdAsync(id);
             if (commission != null)
             {

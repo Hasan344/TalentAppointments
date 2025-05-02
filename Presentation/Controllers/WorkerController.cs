@@ -213,6 +213,10 @@ namespace ForQab.Presentation.Controllers
         }
         public async Task<IActionResult> Delete(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var monitor = await _workerService.GetByIdAsync(id);
             if (monitor == null)
             {
@@ -230,6 +234,10 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var monitor = await _workerService.GetByIdAsync(id);
             if (monitor != null)
             {
