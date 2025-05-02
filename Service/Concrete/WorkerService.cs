@@ -1,4 +1,7 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using DocumentFormat.OpenXml;
 using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Worker;
 using ForQab.Repository.Abstract;
@@ -356,5 +359,197 @@ namespace ForQab.Service
         {
             return await _workerRepository.GetMonitorLogsBySupervisorIdAsync(monitorId);
         }
+        public async Task<byte[]> ExportContractsToWordAsync(List<int> selectedMonitorIds, DateTime contractDate, int workerType)
+        {
+            // 1) Monitorları al
+            var monitors = await _context.Monitors
+                .Include(m => m.Contracts)
+                .Where(m => selectedMonitorIds.Contains(m.Id) )
+                .Where(m => m.Archive == 0 && m.Status == 0)
+                .ToListAsync();
+
+            // 2) WorkerType'a göre template ve contract prefix tanımı
+            var templateConfigs = new Dictionary<int, ContractTemplateConfig>
+            {
+                [1] = new ContractTemplateConfig
+                {
+                    TemplateFileName = "Xadime Qabiliyyet muqavile.docx",
+                    ContractPrefix = "QXD"
+                },
+                [2] = new ContractTemplateConfig
+                {
+                    TemplateFileName = "bina nümayəndəsi-müqavile2024.docx",
+                    ContractPrefix = "QBN"
+                }
+            };
+
+            var newContracts = new List<Contract>();
+            var output = new MemoryStream();
+
+            var groupedMonitors = monitors.GroupBy(m => m.WorkerType);
+
+            foreach (var group in groupedMonitors)
+            {
+                if (!templateConfigs.TryGetValue((int)group.Key, out var config))
+                    continue;
+
+                var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Templates", config.TemplateFileName);
+                byte[] templateBytes = await File.ReadAllBytesAsync(templatePath);
+
+                using var templateStream = new MemoryStream(templateBytes);
+                using var templateDoc = WordprocessingDocument.Open(templateStream, false);
+
+                var templateBody = templateDoc.MainDocumentPart.Document.Body;
+                var templateElements = templateBody.Elements<OpenXmlElement>().ToList();
+
+                using var doc = WordprocessingDocument.Create(output, WordprocessingDocumentType.Document, true);
+                var mainPart = doc.AddMainDocumentPart();
+                mainPart.Document = new Document(new Body());
+                var body = mainPart.Document.Body;
+
+                // Kopyalanacak part'lar
+                if (templateDoc.MainDocumentPart.StyleDefinitionsPart != null)
+                    mainPart.AddPart(templateDoc.MainDocumentPart.StyleDefinitionsPart);
+                if (templateDoc.MainDocumentPart.NumberingDefinitionsPart != null)
+                    mainPart.AddPart(templateDoc.MainDocumentPart.NumberingDefinitionsPart);
+                if (templateDoc.MainDocumentPart.ThemePart != null)
+                    mainPart.AddPart(templateDoc.MainDocumentPart.ThemePart);
+                if (templateDoc.MainDocumentPart.FontTablePart != null)
+                    mainPart.AddPart(templateDoc.MainDocumentPart.FontTablePart);
+
+                foreach (var monitor in group)
+                {
+                    int nextNumber = monitor.Contracts.Count + 1;
+                    string formattedNumber = nextNumber.ToString("D2");
+                    string contractNo = $"{config.ContractPrefix}{monitor.FinCode}-{formattedNumber}";
+
+                    var contract = new Contract
+                    {
+                        Number = contractNo,
+                        Date = contractDate,
+                        MonitorId = monitor.Id
+                    };
+                    newContracts.Add(contract);
+
+                    var fullName = $"{monitor.Surname} {monitor.Name} {monitor.Fname}";
+
+                    if (body.HasChildren)
+                        body.AppendChild(new Paragraph(new Run(new Break { Type = BreakValues.Page })));
+
+                    foreach (var elem in templateElements)
+                    {
+                        var clone = elem.CloneNode(true);
+
+                        if (clone is Table table)
+                        {
+                            var rows = table.Elements<TableRow>().ToList();
+                            if (rows.Any(r => r.InnerText.Contains("İcraçı")))
+                            {
+                                var placeholders = new Dictionary<string, string>
+                        {
+                            { "Soyadı, adı, atasının adı", fullName },
+                            { "Şəxsiyyət vəsiqəsinin FİN kodu", monitor.FinCode ?? "" },
+                            { "Sosial sığorta nömrəsi", monitor.SSN ?? "" },
+                            { "VÖEN (olduğu təqdirdə)", monitor.Voen ?? "" },
+                            { "Bankın Adı", monitor.BankFilial ?? "" },
+                            { "Bankın Kodu", monitor.BankFilialCode ?? "" },
+                            { "Hesablaşma hesabı", monitor.HesablashmaH ?? "" },
+                            { "Hesab nömrəsi", monitor.Rekvizit ?? "" }
+                        };
+
+                                foreach (var row in rows)
+                                {
+                                    var texts = row.Descendants<Text>().ToList();
+                                    var combinedText = string.Join("", texts.Select(t => t.Text));
+
+                                    foreach (var placeholder in placeholders)
+                                    {
+                                        if (combinedText.Contains(placeholder.Key))
+                                        {
+                                            foreach (var t in texts)
+                                                t.Text = "";
+
+                                            var firstRun = row.Descendants<Run>().FirstOrDefault();
+                                            if (firstRun != null)
+                                            {
+                                                var newRun = new Run(new Text($"{placeholder.Key}: {placeholder.Value}"));
+                                                var runProps = new RunProperties(
+                                                    new RunFonts { Ascii = "Arial", HighAnsi = "Arial", EastAsia = "Arial" },
+                                                    new FontSize { Val = "24" }
+                                                );
+                                                newRun.PrependChild(runProps);
+                                                firstRun.Parent.InsertAfter(newRun, firstRun);
+                                            }
+
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            body.AppendChild(table);
+                            continue;
+                        }
+
+                        if (clone is Paragraph p)
+                        {
+                            var text = p.InnerText.Trim();
+
+                            if (text.Contains("MÜQAVİLƏ №"))
+                            {
+                                if (p.ParagraphProperties == null)
+                                    p.ParagraphProperties = new ParagraphProperties();
+                                p.ParagraphProperties.Append(new Justification { Val = JustificationValues.Center });
+
+                                foreach (var run in p.Elements<Run>().ToList())
+                                {
+                                    if (run.RunProperties == null)
+                                        run.RunProperties = new RunProperties();
+                                    if (!run.RunProperties.Elements<Bold>().Any())
+                                        run.RunProperties.Append(new Bold());
+                                    var rf = run.RunProperties.Elements<RunFonts>().FirstOrDefault()
+                                             ?? run.RunProperties.AppendChild(new RunFonts());
+                                    rf.Ascii = rf.HighAnsi = rf.EastAsia = "Arial";
+                                }
+
+                                var nr = new Run(new Text($" {contract.Number}"));
+                                nr.RunProperties = new RunProperties(new Bold(),
+                                    new RunFonts { Ascii = "Arial", HighAnsi = "Arial", EastAsia = "Arial" });
+                                p.AppendChild(nr);
+                            }
+                            else if (text.Contains("Bakı şəhəri"))
+                            {
+                                var ilRun = p.Elements<Run>().FirstOrDefault(r => r.InnerText.Trim() == "Tarix:");
+                                if (ilRun != null)
+                                    ilRun.AppendChild(new Text($" {contractDate:dd.MM.yyyy}"));
+                                else
+                                    p.Elements<Run>().Last().AppendChild(new Text($" {contractDate:dd.MM.yyyy}"));
+                            }
+                            else if (p.InnerText.Contains("_"))
+                            {
+                                foreach (var txt in p.Descendants<Text>())
+                                {
+                                    if (txt.Text.Contains("_"))
+                                        txt.Text = fullName;
+                                }
+                            }
+                        }
+
+                        body.AppendChild(clone);
+                    }
+                }
+
+                mainPart.Document.Save();
+            }
+
+            // 5) Yeni contract’ları kaydet
+            if (newContracts.Any())
+            {
+                await _context.Contracts.AddRangeAsync(newContracts);
+                await _context.SaveChangesAsync();
+            }
+
+            return output.ToArray();
+        }
+
     }
 }

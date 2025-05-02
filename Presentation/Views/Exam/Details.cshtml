@@ -166,12 +166,20 @@
                     <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteExpertsForm">
                         <i class="bi bi-trash"></i> Seçilmişləri Sil
                     </button>
+                    <a class="btn btn-success px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignExperts" asp-route-id="@Model.Id">
+                        <i class="bi bi-person-plus"></i> Ekspert Təyin Et
+                    </a>
                 </div>
             </form>
         }
         else
         {
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir ekspert təyin edilməyib.</p>
+            <div class="text-center mt-3">
+            <a class="btn btn-success px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignExperts" asp-route-id="@Model.Id">
+                <i class="bi bi-person-plus"></i> Ekspert Təyin Et
+                </a>
+            </div>
         }
     </div> 
 
@@ -325,12 +333,20 @@
                     <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteMonitorsForm">
                         <i class="bi bi-trash"></i> Seçilmişləri Sil
                     </button>
+                    <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMonitors" asp-route-id="@Model.Id">
+                        <i class="bi bi-person-plus"></i> Nəzarətçi Təyin Et
+                    </a>
                 </div>
             </form>
         }
         else
         {
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nəzarətçi təyin edilməyib.</p>
+            <div class="row align-items-center">
+            <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMonitors" asp-route-id="@Model.Id">
+                <i class="bi bi-person-plus"></i> Nəzarətçi Təyin Et
+            </a>
+            </div>
         }
     </div>
 
@@ -388,19 +404,27 @@
                     <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteHeadMonitorsForm">
                         <i class="bi bi-trash"></i> Seçilmişləri Sil
                     </button>
+                    <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
+                        <i class="bi bi-person-plus"></i> İmtahan rəhbəri Təyin Et
+                    </a>
                 </div>
             </form>
         }
         else
         {
+            <div class="text-center mt-3">
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir İmtahan rəhbəri təyin edilməyib.</p>
+            <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
+                <i class="bi bi-person-plus"></i> İmtahan rəhbəri Təyin Et
+                </a>
+            </div>
         }
     </div>
     @if(ViewBag.SectionId == 1)
     {
          <!-- Assigned Volunteers Section -->
     <div class="mt-4">
-        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Könüllülər</h4>
+        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Könüllülər</h4>
         @{
             var volunteers = Model.Monitors.Where(m => m.Role == 4);
         }
@@ -414,6 +438,13 @@
         else
         {
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir könüllü təyin edilməyib.</p>
+                <div class="text-center mt-4">
+                    <form asp-action="AssignVolunteers" asp-route-id="@Model.Id" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-success px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
+                        <i class="bi bi-person-plus"></i> Könüllü Təyin Et
+                    </button>
+                </form>
+                </div>
         }
     </div>
     }
@@ -462,11 +493,26 @@
                         </div>
                     </li>
                 }
+                <div class="text-center mt-4">
+                <form asp-action="AssignWorkers" asp-route-id="@Model.Id" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
+                        <i class="bi bi-person-plus"></i> İşçi Təyin Et
+                    </button>
+                </form>
+                </div>
             </ul>
         }
         else
         {
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir işçi təyin edilməyib.</p>
+
+            <div class="text-center mt-4">
+                <form asp-action="AssignWorkers" asp-route-id="@Model.Id" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
+                        <i class="bi bi-person-plus"></i> İşçi Təyin Et
+                    </button>
+                </form>
+            </div>
         }
     </div>
     <!-- Assigned DİM Representatives Section -->
@@ -507,16 +553,30 @@
                     </li>
                 }
             </ul>
+
+            <div class="text-center mt-4">
+
+                <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignRepresentatives" asp-route-examId="@Model.Id">
+                    <i class="bi bi-plus-circle"></i> DİM nümayəndəsi təyin et
+                </a>
+            </div>
         }
         else
         {
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nümayəndə təyin edilməyib.</p>
+
+            <div class="text-center mt-4">
+
+                <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignRepresentatives" asp-route-examId="@Model.Id">
+                    <i class="bi bi-plus-circle"></i> DİM nümayəndəsi təyin et
+                </a>
+            </div>
         }
     </div>
 
     <!-- Assigned Ministry Representatives Section -->
     <div class="mt-4">
-        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş DİM Nümayəndələri</h4>
+        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Nazirlik Nümayəndələri</h4>
         @{
             var mreps = Model.ExamRepresentatives.Where(er => er.Role == 2);
         }
@@ -552,10 +612,17 @@
                     </li>
                 }
             </ul>
+
+            <div class="text-center mt-4">
+                <a class="btn btn-success px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMinistryRepresentatives" asp-route-examId="@Model.Id">
+                    <i class="bi bi-plus-circle"></i> Nazirlik nümayəndəsi təyin et
+                </a>
+            </div>
         }
         else
         {
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nümayəndə təyin edilməyib.</p>
+
         }
     </div>
 
@@ -567,7 +634,14 @@
             </a>
             <a class="btn btn-secondary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="Index">
                 <i class="bi bi-arrow-left"></i> Siyahıya Qayıt
-            </a>
+        </a>
+        <form asp-action="ExportBadges" method="post">
+            <input type="hidden" name="examId" value="@Model.Id" />
+            <button type="submit" class="btn btn-primary px-4 py-2 mx-2"
+                    style="background-color: @primaryColor; border: none;">
+                <i class="bi bi-download"></i> Badge yüklə
+            </button>
+        </form>
             </div>
     @if(ViewBag.SectionId == 3 || @ViewBag.SectionId == 4 || @ViewBag.SectionId == 6 )
     {
@@ -593,43 +667,6 @@
             </form>
         </div>
     }
-    else
-    {
-        <!-- Action Buttons -->
-         <div class="text-center mt-4">
-
-            <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignExperts" asp-route-id="@Model.Id">
-                <i class="bi bi-person-plus"></i> Ekspert Təyin Et
-            </a>
-            <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMonitors" asp-route-id="@Model.Id">
-                <i class="bi bi-person-plus"></i> Nəzarətçi Təyin Et
-            </a>
-            <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
-                <i class="bi bi-person-plus"></i> İmtahan rəhbəri Təyin Et
-            </a>
-            <form asp-action="AssignWorkers" asp-route-id="@Model.Id" method="post" style="display: inline;">
-                <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
-                    <i class="bi bi-person-plus"></i> İşçi Təyin Et
-                </button>
-            </form>
-
-            <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignRepresentatives" asp-route-examId="@Model.Id">
-                <i class="bi bi-plus-circle"></i> DİM nümayəndəsi təyin et
-            </a>
-        </div>
-    }
-     @if(ViewBag.SectionId == 1)
-    { <div class="text-center mt-4">
-        <form asp-action="AssignVolunteers" asp-route-id="@Model.Id" method="post" style="display: inline;">
-                <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
-                    <i class="bi bi-person-plus"></i> Könüllü Təyin Et
-                </button>
-            </form>
-            <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMinistryRepresentatives" asp-route-examId="@Model.Id">
-                <i class="bi bi-plus-circle"></i> Nazirlik nümayəndəsi təyin et
-            </a>
-        </div>
-    }
     <div class="text-center mt-4">
         <form asp-action="ExportContingentRegister" method="post">
             <input type="hidden" name="examId" value="@Model.Id" />
@@ -648,13 +685,6 @@
                 </button>
             </form>
         }
-        <form asp-action="ExportBadges" method="post">
-            <input type="hidden" name="examId" value="@Model.Id" />
-            <button type="submit" class="btn btn-primary px-4 py-2 mx-2"
-                    style="background-color: @primaryColor; border: none;">
-                <i class="bi bi-download"></i> Badge yüklə
-            </button>
-        </form>
     </div>
 </div>
 

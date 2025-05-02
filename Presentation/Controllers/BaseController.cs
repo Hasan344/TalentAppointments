@@ -46,6 +46,17 @@ namespace ForQab.Presentation.Controllers
             var entitySectionId = (int?)sectionProperty.GetValue(entity);
             return entitySectionId == sectionId;
         }
+        protected async Task<bool> IsAdminValidAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var isAdmin = user?.IsAdmin;
+
+
+            if(isAdmin == 0)
+                return false;
+            else
+                return true;
+        }
     }
 
 }

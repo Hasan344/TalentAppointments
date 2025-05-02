@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using DocumentFormat.OpenXml.Wordprocessing;
 using ForQab.DataAccess.Models;
 using Microsoft.AspNetCore.Identity;
 
@@ -21,6 +22,9 @@ public class ApplicationUser : IdentityUser
     [PersonalData]
     [Column(TypeName = "int")]
     public int? SectionId { get; set; }
+    [PersonalData]
+    [Column("IsAdmin")]
+    public int? IsAdmin { get; set; }
 
 }
 

@@ -657,13 +657,24 @@ namespace ForQab.Service
                     table.Append(row);
                     rowIndex++;
                 }
-                foreach (var representative in exam.Representatives)
+                foreach (var representative in exam.Representatives.Where(dr => dr.Type == 1))
                 {
                     var row = new TableRow();
                     row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
                     row.Append(CreateTableCell(" ", false, 1500));
                     row.Append(CreateTableCell("DİM Nümayəndəsi", false, 3000));
                     row.Append(CreateTableCell( representative.Surname + " " + representative.Name + " " + representative.Fname, false, 6000));
+                    row.Append(CreateTableCell("", false, 2000));
+                    table.Append(row);
+                    rowIndex++;
+                }
+                foreach (var representative in exam.Representatives.Where(dr => dr.Type == 2))
+                {
+                    var row = new TableRow();
+                    row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
+                    row.Append(CreateTableCell(" ", false, 1500));
+                    row.Append(CreateTableCell("Nazirlik Nümayəndəsi", false, 3000));
+                    row.Append(CreateTableCell(representative.Surname + " " + representative.Name + " " + representative.Fname, false, 6000));
                     row.Append(CreateTableCell("", false, 2000));
                     table.Append(row);
                     rowIndex++;
