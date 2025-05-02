@@ -19,11 +19,78 @@
             <a class="btn btn-success" asp-action="Create"><i class="bi bi-plus-circle"></i> Yeni İşçi</a>
             <a class="btn btn-outline-primary" href="@Url.Action("ExportToExcel", "Worker", new { searchName = ViewContext.HttpContext.Request.Query["searchName"], finCode = ViewContext.HttpContext.Request.Query["finCode"], serial = ViewContext.HttpContext.Request.Query["serial"], genderId = ViewContext.HttpContext.Request.Query["genderId"], district = ViewContext.HttpContext.Request.Query["district"] })">
                 <i class="bi bi-file-earmark-excel"></i> Excel'e çıxarış
-            </a>@*
+            </a>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
+                <i class="bi bi-file-earmark-word"></i> Müqavilə Export
+            </button>@*
             <a class="btn btn-outline-secondary" asp-action="Archived"><i class="bi bi-archive"></i> Arxiv</a>
             <a class="btn btn-outline-info" asp-action="MonitorLogs"><i class="bi bi-journal"></i> Xüsusi qeydlər</a> *@
         </div>
     </div>
+
+
+    <!-- Export Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportModalLabel">Müqavilə Export</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" asp-action="ExportContracts">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="contractDate" class="form-label">Müqavilə Tarixi</label>
+                            <input type="date" id="contractDate" name="contractDate" class="form-control" required />
+                        </div>
+                        @* <div class="mb-3">
+                            <label for="workerType" class="form-label">İşçi tipi</label>
+                            <select id="workerType" name="workerType" class="form-select" required onchange="filterByWorkerType()">
+                                <option value="">-- Seçin --</option>
+                                @foreach (var wt in ViewBag.WorkerTypes
+                                    )
+                                    {
+                                    <option value="@wt.Value">@wt.Text</option>
+                                    }
+                            </select>
+                        </div>
+ *@
+                        <p>Seçdiyiniz işçinin müqaviləsi export ediləcək:</p>
+                        <div class="table-responsive" style="max-height:200px; overflow:auto;">
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Seçin</th>
+                                        <th>Ad</th>
+                                        <th>Soyad</th>
+                                        <th>FİN Kodu</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr data-workertype ="@item.WorkerType">
+                                            <td>
+                                                <input type="radio" name="selectedMonitorIds" value="@item.Id" class="select-item" />
+                                            </td>
+                                            <td>@item.Name</td>
+                                            <td>@item.Surname</td>
+                                            <td>@item.FinCode</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
+                        <button type="submit" class="btn btn-primary">Export et</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <form method="get" class="d-flex flex-wrap gap-2 align-items-center">
         <input type="text" name="searchName" value="@ViewContext.HttpContext.Request.Query["searchName"]" class="form-control" placeholder="Ad və soyad axtar..." style="max-width: 200px;" />
         <input type="text" name="finCode" value="@ViewContext.HttpContext.Request.Query["finCode"]" class="form-control" placeholder="FİN Kod..." style="max-width: 150px;" />
@@ -102,3 +169,36 @@
         </table>
     </div>
 </div>
+
+@* <script>
+    // Checkbox Select All
+    document.getElementById('selectAll').addEventListener('change', function () {
+        var checked = this.checked;
+        document.querySelectorAll('.select-item').forEach(cb => cb.checked = checked);
+    });
+    // Button Select All
+    document.getElementById('selectAllBtn').addEventListener('click', function () {
+        document.querySelectorAll('.select-item').forEach(cb => cb.checked = true);
+        document.getElementById('selectAll').checked = true;
+    });
+</script> *@
+@* <script>
+    function filterByWorkerType() {
+        const selectedType = document.getElementById("workerType").value;
+        const rows = document.querySelectorAll("#exportModal tbody tr");
+
+        rows.forEach(row => {
+            const rowType = row.getAttribute("data-workertype");
+            row.style.display = (!selectedType || rowType === selectedType) ? "" : "none";
+        });
+    }
+
+    document.querySelector("form[method='post']").addEventListener("submit", function () {
+        const selectedType = document.getElementById("workerType").value;
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.name = "workerType";
+        hiddenInput.value = selectedType;
+        this.appendChild(hiddenInput);
+    });
+</script> *@

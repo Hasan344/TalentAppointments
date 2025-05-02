@@ -1,4 +1,5 @@
-﻿@model IEnumerable<ForQab.DataAccess.Models.Expert>
+﻿@using ForQab.DataAccess.Models
+@model IEnumerable<ForQab.DataAccess.Models.Expert>
 
 @{
     ViewData["Title"] = "Ekspertlər Index";
@@ -25,6 +26,11 @@
             <i class="bi bi-file-earmark-excel"></i> Excel-ə çıxarış
         </a>
         <a class="btn btn-outline-secondary" asp-action="Archived"><i class="bi bi-archive"></i> Arxiv</a>
+        @{
+            var selectedFederationId = ViewContext.HttpContext.Request.Query["federationId"].ToString();
+            var selectedSubProfessionId = ViewContext.HttpContext.Request.Query["subProfessionId"].ToString();
+        }
+
         <form method="get" class="d-flex align-items-center gap-2 flex-wrap">
             <!-- Search by Name -->
             <input type="text" name="searchName"
@@ -82,11 +88,11 @@
             <!-- End Year -->
             <input type="number" name="endYear" value="@ViewContext.HttpContext.Request.Query["endYear"]" class="form-control" style="max-width: 120px;" placeholder="Son il" />
 
-            <select name="federationId" class="form-control" style="max-width: 200px;">
-                <option value="">Federasiya seçin</option>
+            <select id="federationSelect" name="federationId" class="form-control" style="max-width: 200px;">
+                <option value="">Müəssisə və ya təhsil səviyyəsi seçin</option>
                 @foreach (var federation in ViewBag.Federation)
                 {
-                    if (federation.Id.ToString() == ViewContext.HttpContext.Request.Query["federationId"])
+                    if (federation.Id.ToString() == selectedFederationId)
                     {
                         <option value="@federation.Id" selected>@federation.Name</option>
                     }
@@ -97,11 +103,11 @@
                 }
             </select>
 
-            <select name="subProfessionId" class="form-control" style="max-width: 200px;">
+            <select id="subProfessionSelect" name="subProfessionId" class="form-control" style="max-width: 200px;" @(ViewBag.SubProfessions == null || ((List<SubProfession>)ViewBag.SubProfessions).Count == 0 ? "disabled" : "")>
                 <option value="">İxtisas seçin</option>
                 @foreach (var subProfession in ViewBag.SubProfessions)
                 {
-                    if (subProfession.Id.ToString() == ViewContext.HttpContext.Request.Query["subProfessionId"])
+                    if (subProfession.Id.ToString() == selectedSubProfessionId)
                     {
                         <option value="@subProfession.Id" selected>@subProfession.Name</option>
                     }
@@ -111,6 +117,9 @@
                     }
                 }
             </select>
+
+
+
 
             <!-- Submit Button -->
             <button type="submit" class="btn btn-outline-primary">Axtar</button>
@@ -193,6 +202,7 @@
             max-height: 600px; /* Yüksekliği ayarlayın */
             overflow-y: auto;
         }
+
         .container {
             max-width: 1200px;
         }
@@ -202,9 +212,9 @@
             border: 1px solid #dee2e6;
         }
 
-        .table-bordered th, .table-bordered td {
-            border: 1px solid #dee2e6;
-        }
+            .table-bordered th, .table-bordered td {
+                border: 1px solid #dee2e6;
+            }
 
         .table-striped tbody tr:nth-of-type(odd) {
             background-color: #f7f7f7;
@@ -239,30 +249,30 @@
             color: #ffc107;
         }
 
-        .btn-outline-warning:hover {
-            background-color: #ffc107;
-            color: #fff;
-        }
+            .btn-outline-warning:hover {
+                background-color: #ffc107;
+                color: #fff;
+            }
 
         .btn-outline-info {
             border-color: #17a2b8;
             color: #17a2b8;
         }
 
-        .btn-outline-info:hover {
-            background-color: #17a2b8;
-            color: #fff;
-        }
+            .btn-outline-info:hover {
+                background-color: #17a2b8;
+                color: #fff;
+            }
 
         .btn-outline-danger {
             border-color: #dc3545;
             color: #dc3545;
         }
 
-        .btn-outline-danger:hover {
-            background-color: #dc3545;
-            color: #fff;
-        }
+            .btn-outline-danger:hover {
+                background-color: #dc3545;
+                color: #fff;
+            }
 
         /* Header and Text Styles */
         .text-primary {
@@ -297,6 +307,54 @@
             font-size: 1rem;
         }
 
-       
     </style>
 }
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var federationSelect = $('#federationSelect');
+        var subProfessionDropdown = $('#subProfessionSelect');
+        var selectedSubProfessionId = '@selectedSubProfessionId';
+
+        function loadSubProfessions(federationId, selectedId) {
+            subProfessionDropdown.empty();
+            subProfessionDropdown.append(new Option("Yüklənir...", ""));
+            subProfessionDropdown.prop('disabled', true);
+
+            if (federationId) {
+                $.ajax({
+                    url: '/Expert/GetSubProfessionsByFederation',
+                    type: 'GET',
+                    data: { federationId: federationId },
+                    success: function (data) {
+                        subProfessionDropdown.empty();
+                        subProfessionDropdown.append(new Option("İxtisas seçin", ""));
+                        $.each(data, function (index, item) {
+                            var option = new Option(item.name, item.id);
+                            if (item.id.toString() === selectedId) {
+                                option.selected = true;
+                            }
+                            subProfessionDropdown.append(option);
+                        });
+                        subProfessionDropdown.prop('disabled', false);
+                    }
+                });
+            } else {
+                subProfessionDropdown.empty();
+                subProfessionDropdown.append(new Option("İxtisas seçin", ""));
+                subProfessionDropdown.prop('disabled', true);
+            }
+        }
+
+        // Səhifə yüklənəndə artıq seçilmiş dəyər varsa, yenidən doldur
+        if (federationSelect.val() && selectedSubProfessionId) {
+            loadSubProfessions(federationSelect.val(), selectedSubProfessionId);
+        }
+
+        federationSelect.on('change', function () {
+            loadSubProfessions($(this).val(), "");
+        });
+    });
+
+</script>
+

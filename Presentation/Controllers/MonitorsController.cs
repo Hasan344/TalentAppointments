@@ -330,7 +330,8 @@ namespace ForQab.Presentation.Controllers
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]
-        public async Task<IActionResult> ExportContracts(List<int> selectedMonitorIds,DateTime contractDate){
+        public async Task<IActionResult> ExportContracts(List<int> selectedMonitorIds,DateTime contractDate)
+        {
             if (selectedMonitorIds == null || !selectedMonitorIds.Any())
                 return RedirectToAction(nameof(Index));
 

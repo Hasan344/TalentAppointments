@@ -263,6 +263,10 @@ namespace ForQab.Presentation.Controllers
             if (viewModel == null) return NotFound();
             if (!await IsSectionValidAsync<Exam>(id)) return Forbid();
 
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
             return View(viewModel);
         }
@@ -277,6 +281,10 @@ namespace ForQab.Presentation.Controllers
                 return View(exam);
             }
 
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             await _examService.UpdateExamAsync(exam, selectedCommissions, selectedDegrees);
             return RedirectToAction(nameof(Index));
         }
@@ -288,6 +296,10 @@ namespace ForQab.Presentation.Controllers
             if (viewModel == null) return NotFound();
             if (!await IsSectionValidAsync<Exam>(id)) return Forbid();
 
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
             return View(viewModel);
         }
@@ -302,6 +314,10 @@ namespace ForQab.Presentation.Controllers
                 return View(exam);
             }
 
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             await _examService.UpdateExamAsync(exam);
             return RedirectToAction(nameof(Assesments));
         }
@@ -313,6 +329,10 @@ namespace ForQab.Presentation.Controllers
             if (viewModel == null) return NotFound();
             if (!await IsSectionValidAsync<Exam>(id)) return Forbid();
 
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
             return View(viewModel);
         }
@@ -321,6 +341,10 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> EditForAppeal(EditExamViewModelForAssesment exam)
         {
             var sectionId = await GetCurrentSectionIdAsync();
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             if (!ModelState.IsValid)
             {
                 await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
@@ -333,6 +357,10 @@ namespace ForQab.Presentation.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             var exam = await _examService.GetExamByIdAsync(id);
             if (exam == null)
             {
@@ -348,6 +376,10 @@ namespace ForQab.Presentation.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!await IsAdminValidAsync())
+            {
+                return Forbid();
+            }
             await _examService.DeleteExamAsync(id);
             return RedirectToAction(nameof(Index));
         }

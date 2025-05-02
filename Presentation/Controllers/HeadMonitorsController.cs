@@ -11,6 +11,7 @@ using System.Globalization;
 using ForQab.Presentation.Validators;
 using ForQab.DataAccess.ViewModel.HeadMonitor;
 using ForQab.Service.Abstract;
+using ForQab.Service;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -341,6 +342,19 @@ namespace ForQab.Presentation.Controllers
             await _headMonitorService.DeleteMonitorLogs(id);
 
             return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        public async Task<IActionResult> ExportContracts(List<int> selectedMonitorIds, DateTime contractDate)
+        {
+            if (selectedMonitorIds == null || !selectedMonitorIds.Any())
+                return RedirectToAction(nameof(Index));
+
+            var bytes = await _headMonitorService
+                .ExportContractsToWordAsync(selectedMonitorIds, contractDate);
+            return File(
+                bytes,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "Mugavileler.docx");
         }
     }
 }

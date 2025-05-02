@@ -22,5 +22,6 @@ namespace ForQab.Service.Abstract
         Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId);
         Task DeleteMonitorLogs(int? id);
         Task UpdateModelAsync(HeadMonitorEditViewModel model);
+        Task<byte[]> ExportContractsToWordAsync(List<int> selectedMonitorIds, DateTime contractDate);
     }
 }

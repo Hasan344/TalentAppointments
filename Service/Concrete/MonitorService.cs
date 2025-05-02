@@ -51,10 +51,10 @@ namespace ForQab.Service
                 Voen = entity.Voen,
                 BankFilial = entity.BankFilial,
                 BankFilialCode = entity.BankFilialCode,
-                Role = (byte?)entity.Role, 
-                Status = (byte?)entity.Status, 
+                Role = (byte?)entity.Role,
+                Status = (byte?)entity.Status,
                 AssignmentCount = entity.AssignmentCount,
-                Archive = (byte)(entity.Archive ?? 0), 
+                Archive = (byte)(entity.Archive ?? 0),
                 VNum = entity.VNum,
                 Workplace = entity.Workplace,
                 HesablashmaH = entity.HesablashmaH,
@@ -100,7 +100,7 @@ namespace ForQab.Service
 
             var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorsProfessions" };
             var query = await _monitorRepository.GetAllAsync(sectionId, 2, null, includes);
-            if (genderId.HasValue )
+            if (genderId.HasValue)
             {
                 query = query.Where(m => m.Gender == genderId.Value).ToList();
             }
@@ -186,8 +186,8 @@ namespace ForQab.Service
         public async Task UpdateAsync(MonitorEditViewModel entity)
         {
             var existingMonitor = await _context.Monitors.Where(m => m.Id == entity.Id)
-                .Include(m => m.MonitorsProfessions) 
-                .ThenInclude(mp => mp.SubProfession) 
+                .Include(m => m.MonitorsProfessions)
+                .ThenInclude(mp => mp.SubProfession)
                 .FirstOrDefaultAsync();
 
             if (existingMonitor == null)
@@ -294,13 +294,13 @@ namespace ForQab.Service
                         //  string genderName = row.Cell(9).GetValue<string>();
                         string districtName = row.Cell(2).GetString();
                         string sectionName = row.Cell(6).GetString();
-                      //  byte? genderId = genders.FirstOrDefault(g => g.Name == genderName)?.Id;
+                        //  byte? genderId = genders.FirstOrDefault(g => g.Name == genderName)?.Id;
                         int? districtId = districts.FirstOrDefault(d => d.Name == districtName)?.Id;
                         int? sectionId = sections.FirstOrDefault(s => s.Name == sectionName)?.Id;
 
                         var monitor = new Monitor
                         {
-                            
+
                             Surname = row.Cell(3).GetString(),
                             Name = row.Cell(4).GetString(),
                             Fname = row.Cell(5).GetString(),
@@ -472,7 +472,7 @@ namespace ForQab.Service
             if (endYear.HasValue)
                 query = query.Where(m => m.BirthDate.Value.Year <= endYear.Value).ToList();
 
-            return query.Where(m => m.Archive==1).ToList();
+            return query.Where(m => m.Archive == 1).ToList();
         }
         public async Task<IEnumerable<Monitor>> GetMonitorLogsAsync(int? sectionId)
         {
@@ -499,8 +499,8 @@ namespace ForQab.Service
         public async Task<MonitorEditViewModel> GetMonitorForEditAsync(int id)
         {
             var monitor = await _context.Monitors
-                .Include(m => m.MonitorsProfessions) 
-                    .ThenInclude(mp => mp.SubProfession) 
+                .Include(m => m.MonitorsProfessions)
+                    .ThenInclude(mp => mp.SubProfession)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (monitor == null)
@@ -551,23 +551,21 @@ namespace ForQab.Service
                 }).ToList()
             };
         }
+
         public async Task<byte[]> ExportContractsToWordAsync(List<int> selectedMonitorIds, DateTime contractDate)
         {
-            // 1) Monitorları və onlara məxsus mövcud Contract-ları götürək
+            // 1) Monitorları ve mevcut Contract’ları al
             var monitors = await _context.Monitors
                 .Include(m => m.Contracts)
                 .Where(m => selectedMonitorIds.Contains(m.Id))
-                .Where(m => m.Archive == 0)
-                .Where(m => m.Role == 2)
-                .Where(m => m.Status == 0)
+                .Where(m => m.Archive == 0 && m.Role == 2 && m.Status == 0)
                 .ToListAsync();
 
-            // 2) Yeni Contract obyektlərini hazırlayaq
+            // 2) Yeni Contract nesnelerini oluştur
             var newContracts = new List<Contract>();
             foreach (var monitor in monitors)
             {
-                int existingCount = monitor.Contracts.Count;
-                int nextNumber = existingCount + 1;
+                int nextNumber = monitor.Contracts.Count + 1;
                 string formattedNumber = nextNumber.ToString("D2");
                 string contractNo = $"XQN{monitor.FinCode}-{formattedNumber}";
 
@@ -579,24 +577,25 @@ namespace ForQab.Service
                 });
             }
 
-            // 3) Yeni Contract-ları DB-yə yaz
+            // 3) DB’ye kaydet
             if (newContracts.Any())
             {
                 await _context.Contracts.AddRangeAsync(newContracts);
                 await _context.SaveChangesAsync();
             }
 
-            // 4) Şablon sənədini oxu
-            var templatePath = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "wwwroot", "Templates",
-                "Zal nəzarətçisi-müqavile2024.docx");
+            // 4) Şablonu oku
+            var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Templates",
+                                            "Zal nəzarətçisi-müqavile2024.docx");
             byte[] templateBytes = await File.ReadAllBytesAsync(templatePath);
             using var templateStream = new MemoryStream(templateBytes);
             using var templateDoc = WordprocessingDocument.Open(templateStream, false);
+
+            // Şablon body’sini çek
             var templateBody = templateDoc.MainDocumentPart.Document.Body;
             var templateElements = templateBody.Elements<OpenXmlElement>().ToList();
 
+            // 5) Yeni belgeyi oluştur ve gerekli part’ları ekle
             using var output = new MemoryStream();
             using (var newDoc = WordprocessingDocument.Create(output, WordprocessingDocumentType.Document))
             {
@@ -604,80 +603,125 @@ namespace ForQab.Service
                 mainPart.Document = new Document(new Body());
                 var body = mainPart.Document.Body;
 
+                // Şablondaki stilleri/numbering’i/theme’i/font tablosunu kopyala
+                if (templateDoc.MainDocumentPart.StyleDefinitionsPart != null)
+                    mainPart.AddPart(templateDoc.MainDocumentPart.StyleDefinitionsPart);
+                if (templateDoc.MainDocumentPart.NumberingDefinitionsPart != null)
+                    mainPart.AddPart(templateDoc.MainDocumentPart.NumberingDefinitionsPart);
+                if (templateDoc.MainDocumentPart.ThemePart != null)
+                    mainPart.AddPart(templateDoc.MainDocumentPart.ThemePart);
+                if (templateDoc.MainDocumentPart.FontTablePart != null)
+                    mainPart.AddPart(templateDoc.MainDocumentPart.FontTablePart);
+
+                // 6) Her bir contract için şablon elementlerini kopyala ve placeholder’ları değiştir
                 foreach (var contract in newContracts)
                 {
-                    // Səhifə arası keçid (əgər birinci sənəd deyilsə)
-                    if (body.HasChildren)
-                    {
-                        body.AppendChild(new Paragraph(new Run(new Break { Type = BreakValues.Page })));
-                    }
+                    var monitor = monitors.First(m => m.Id == contract.MonitorId);
+                    var fullName = $"{monitor.Surname} {monitor.Name} {monitor.Fname}";
 
-                    // Hər bir template elementini klonla və düzəlt
+                    // Sayfa kırılımı
+                    if (body.HasChildren)
+                        body.AppendChild(new Paragraph(new Run(new Break { Type = BreakValues.Page })));
+
                     foreach (var elem in templateElements)
                     {
                         var clone = elem.CloneNode(true);
 
-                        // Əgər clone bir Paragraph-dırsa
+                        if (clone is Table table)
+                        {
+                            var rows = table.Elements<TableRow>().ToList();
+                            if (rows.Any(r => r.InnerText.Contains("İcraçı")))
+                            {
+                                // Placeholder : Data mapping for İcraçı table
+                                var placeholders = new Dictionary<string, string>
+                                        {
+                                            { "Soyadı, adı, atasının adı", fullName },
+                                            { "Şəxsiyyət vəsiqəsinin FİN kodu", monitor.FinCode ?? "" },
+                                            { "Sosial sığorta nömrəsi", monitor.SSN ?? "" },
+                                            { "VÖEN (olduğu təqdirdə)", monitor.Voen ?? "" },
+                                            { "Bankın Adı", monitor.BankFilial ?? "" },
+                                            { "Bankın Kodu", monitor.BankFilialCode ?? "" },
+                                            { "Hesablaşma hesabı", monitor.HesablashmaH ?? "" },
+                                            { "Hesab nömrəsi", monitor.Rekvizit ?? "" }
+                                        };
+
+                                foreach (var row in rows)
+                                {
+                                    var texts = row.Descendants<Text>().ToList();
+                                    var combinedText = string.Join("", texts.Select(t => t.Text));
+
+                                    foreach (var placeholder in placeholders)
+                                    {
+                                        if (combinedText.Contains(placeholder.Key))
+                                        {
+                                            // Tüm Text elemanlarını sil
+                                            foreach (var t in texts)
+                                                t.Text = "";
+
+                                            // Yeni değeri ilk run’a ekle (veya yeni run yarat)
+                                            var firstRun = row.Descendants<Run>().FirstOrDefault();
+                                            if (firstRun != null)
+                                            {
+                                                var newRun = new Run(new Text($"{placeholder.Key}: {placeholder.Value}"));
+                                                var runProps = new RunProperties(
+                                                    new RunFonts { Ascii = "Arial", HighAnsi = "Arial", EastAsia = "Arial" },
+                                                    new FontSize { Val = "24" }
+                                                );
+                                                newRun.PrependChild(runProps);
+                                                firstRun.Parent.InsertAfter(newRun, firstRun);
+                                            }
+
+                                            break; // Aynı satıra birden fazla yerleştirme yapma
+                                        }
+                                    }
+                                }
+                            }
+                            body.AppendChild(table);
+                            continue;
+                        }
+
                         if (clone is Paragraph p)
                         {
-                            string text = p.InnerText.Trim();
+                            var text = p.InnerText.Trim();
 
                             if (text.Contains("MÜQAVİLƏ №"))
                             {
-                                // Paraqrafı mərkəzə düzləşdir
                                 if (p.ParagraphProperties == null)
-                                {
                                     p.ParagraphProperties = new ParagraphProperties();
-                                }
-                                var justification = new Justification { Val = JustificationValues.Center };
-                                p.ParagraphProperties.Append(justification);
+                                p.ParagraphProperties.Append(new Justification { Val = JustificationValues.Center });
 
-                                // Mövcud run-ları Arial fontunda və qalın edin
                                 foreach (var run in p.Elements<Run>().ToList())
                                 {
                                     if (run.RunProperties == null)
-                                    {
                                         run.RunProperties = new RunProperties();
-                                    }
-                                    // Qalın edin
                                     if (!run.RunProperties.Elements<Bold>().Any())
-                                    {
                                         run.RunProperties.Append(new Bold());
-                                    }
-                                    // Arial fontunu təyin edin
-                                    var runFonts = run.RunProperties.Elements<RunFonts>().FirstOrDefault();
-                                    if (runFonts != null)
-                                    {
-                                        runFonts.Ascii = "Arial";
-                                        runFonts.HighAnsi = "Arial";
-                                        runFonts.EastAsia = "Arial";
-                                    }
-                                    else
-                                    {
-                                        run.RunProperties.Append(new RunFonts { Ascii = "Arial", HighAnsi = "Arial", EastAsia = "Arial" });
-                                    }
+                                    var rf = run.RunProperties.Elements<RunFonts>().FirstOrDefault()
+                                             ?? run.RunProperties.AppendChild(new RunFonts());
+                                    rf.Ascii = rf.HighAnsi = rf.EastAsia = "Arial";
                                 }
 
-                                // Müqavilə nömrəsini yeni bir run-da əlavə edin və Arial fontunda, qalın olaraq formatlaşdırın
-                                var newRun = new Run(new Text($" {contract.Number}"));
-                                var newRunProperties = new RunProperties(new Bold(), new RunFonts { Ascii = "Arial", HighAnsi = "Arial", EastAsia = "Arial" });
-                                newRun.RunProperties = newRunProperties;
-                                p.AppendChild(newRun);
+                                var nr = new Run(new Text($" {contract.Number}"));
+                                nr.RunProperties = new RunProperties(new Bold(),
+                                    new RunFonts { Ascii = "Arial", HighAnsi = "Arial", EastAsia = "Arial" });
+                                p.AppendChild(nr);
                             }
+                            // 2) "Tarix:" satırına tarih ekle
                             else if (text.Contains("Bakı şəhəri"))
                             {
                                 var ilRun = p.Elements<Run>().FirstOrDefault(r => r.InnerText.Trim() == "Tarix:");
                                 if (ilRun != null)
-                                {
                                     ilRun.AppendChild(new Text($" {contractDate:dd.MM.yyyy}"));
-                                }
                                 else
+                                    p.Elements<Run>().Last().AppendChild(new Text($" {contractDate:dd.MM.yyyy}"));
+                            }
+                            // 3) Alt çizgi placeholder yerine fullname
+                            else if (p.InnerText.Contains("_"))
+                            {
+                                foreach (var txt in p.Descendants<Text>())
                                 {
-                                    var lastRun = p.Elements<Run>().LastOrDefault();
-                                    if (lastRun != null)
-                                    {
-                                        lastRun.AppendChild(new Text($" {contractDate:dd.MM.yyyy}"));
-                                    }
+                                    if (txt.Text.Contains("_"))
+                                        txt.Text = fullName;
                                 }
                             }
                         }

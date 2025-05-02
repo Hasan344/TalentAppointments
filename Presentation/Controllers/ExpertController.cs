@@ -35,7 +35,7 @@ namespace ForQab.Presentation.Controllers
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
             var subProfessions = await _subProfessionService.GetAllSubProfessionsAsync(sectionId);
-            var federations = _context.Professions.ToList();
+            var federations = _context.Professions.Where(f => f.SectionId == sectionId).ToList();
             var experts = await _expertService.GetExpertsBySectionIdAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, federationId, subProfessionId);
             ViewBag.SubProfessions = subProfessions;
             ViewBag.Genders = genders;
@@ -49,15 +49,13 @@ namespace ForQab.Presentation.Controllers
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
             var subProfessions = await _subProfessionService.GetAllSubProfessionsAsync(sectionId);
-            var federations = _context.Professions.ToList();
+            var federations = _context.Professions.Where(f => f.SectionId == sectionId).ToList();
             var model = await _expertService.GetArchivedExpertsBySectionIdAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, subProfessionId);
             ViewBag.SubProfessions = subProfessions;
             ViewBag.Genders = genders;
             ViewBag.Federation = federations;
             ViewBag.Districts = districts;
 
-            ViewBag.Genders = genders;
-            ViewBag.Districts = districts;
             return View(model);
         }
         [HttpGet]
@@ -461,8 +459,6 @@ namespace ForQab.Presentation.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
-
 
         [HttpGet]
         public async Task<IActionResult> GetSubProfessionsByFederation(int federationId)

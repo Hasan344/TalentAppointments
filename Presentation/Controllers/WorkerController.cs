@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 
@@ -31,6 +32,16 @@ namespace ForQab.Presentation.Controllers
             var model = await _workerService.GetAllAsync(currentUserSection, searchName, genderId, finCode, serial, district, startYear, endYear);
             ViewBag.Genders = genders;
             ViewBag.Districts = districts;
+            ViewBag.WorkerTypes = await _context.WorkerTypes
+                                    .Where(w => _context.Monitors.Any(m => m.WorkerType == w.Id && m.Status == 0 && m.Archive == 0))
+                                    .Select(w => new SelectListItem
+                                    {
+                                        Value = w.Id.ToString(),
+                                        Text = w.Name
+                                    })
+                                    .ToListAsync();
+
+
             return View(model);
         }
         public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
@@ -174,7 +185,7 @@ namespace ForQab.Presentation.Controllers
             return View(worker);
         }
 
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, WorkerEditViewModel worker)
@@ -351,5 +362,19 @@ namespace ForQab.Presentation.Controllers
             else
                 ViewBag.Building = new SelectList(_context.ExamBuildings.Where(eb => eb.SectionId == sectionId), "Id", "Name");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ExportContracts(List<int> selectedMonitorIds, DateTime contractDate, int workerType)
+        {
+            if (selectedMonitorIds == null || !selectedMonitorIds.Any())
+            {
+                TempData["ErrorMessage"] = "Seçim edilməmişdir.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var fileContent = await _workerService.ExportContractsToWordAsync(selectedMonitorIds, contractDate, workerType);
+            return File(fileContent, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "İşçi müqavilələri.docx");
+        }
+
     }
 }
