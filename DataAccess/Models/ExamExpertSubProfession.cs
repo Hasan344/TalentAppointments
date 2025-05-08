@@ -41,6 +41,10 @@ namespace ForQab.DataAccess.Models
         [Column("Id")]
         [Key]
         public int Id { get; set; }
+
+        [Column("IsAttended")]
+        public int? IsAttended { get; set; }
+
     }
 
 }

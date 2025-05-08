@@ -85,7 +85,8 @@ namespace ForQab.Models.ViewModels
         public byte? Role { get; set; }
         public int? RoomId { get; set; }
         public string? WorkerType { get; set; }
-        public string? Tel {  get; set; } 
+        public string? Tel {  get; set; }
+        public int? IsAttended { get; set; }
         public List<RoomViewModelForExam> Rooms { get; set; } = new();
     }
     public class ExpertViewModelForExam
@@ -97,17 +98,20 @@ namespace ForQab.Models.ViewModels
         public string FinCode { get; set; } = string.Empty;
         public bool? Kons { get; set; }
         public string? Tel { get; set; }
-        public List<SubProfessionViewModelForExam> ExamExpertSubProfessions { get; set; } = new();
+        public int? IsAttended { get; set; }
+        public List<ExamExpertSubProfessionViewModelForExam> ExamExpertSubProfessions { get; set; } = new();
     }
-    public class SubProfessionViewModelForExam
+    public class ExamExpertSubProfessionViewModelForExam
     {
         public string? Name { get; set; } = string.Empty;
         public string? FederationName { get; set; } = string.Empty;
         public string? RoomName { get; set; }
+        public int? IsAttended { get; set; }
     }
     public class RoomViewModelForExam
     {
         public string? Name { get; set; } = string.Empty;
         public string? RoomName { get; set; }
+        public int? IsAttended { get; set; }
     }
 }

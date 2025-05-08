@@ -99,33 +99,31 @@
     <div class="mt-4">
         <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Ekspertlər</h4>
         @{
-            var experts = Model.Experts.Where(m => m.Kons == false);
+            var experts = Model.Experts.Where(m => m.Kons == false).ToList();
         }
         @if (experts.Any())
         {
-            <form asp-action="DeleteExperts" method="post" id="deleteExpertsForm">
+            <!-- Tek Form -->
+            <form asp-action="ManageExperts" method="post" id="manageExpertsForm">
                 <input type="hidden" name="examId" value="@Model.Id" />
                 <div class="mb-3">
                     <input type="checkbox" id="selectAllExperts" onchange="toggleCheckboxes('expertIds', this.checked)" />
                     <label for="selectAllExperts" class="ml-2">Bütün Ekspertləri Seç</label>
                 </div>
+
                 <ul class="list-group list-group-flush">
-                    @foreach (var expert in experts)
+                    @for (int i = 0; i < experts.Count(); i++)
                     {
-                        var hasLog = Model.ExpertsWithLogs != null && Model.ExpertsWithLogs.Contains(expert.Id);
+                        var expert = experts[i];
+                        var hasLog = Model.ExpertsWithLogs?.Contains(expert.Id) == true;
                         <li class="list-group-item">
                             <div class="row align-items-center">
                                 <div class="col-md-1">
                                     <input type="checkbox" name="expertIds" value="@expert.Id" />
                                 </div>
-                                <div class="col-md-7">
-                                    <h6 class="mb-0">
-                                        @expert.Name @expert.Surname @expert.Fname @expert.Tel
-                                    </h6>
-                                    <small class="text-muted">
-                                        FinCode: @expert.FinCode
-                                    </small>
-                                    <br />
+                                <div class="col-md-6">
+                                    <h6 class="mb-0">@expert.Name @expert.Surname @expert.Fname @expert.Tel</h6>
+                                    <small class="text-muted">FinCode: @expert.FinCode</small><br />
                                     <small class="text-muted">
                                         <strong>İxtisaslaşma:</strong>
                                         @if (expert.ExamExpertSubProfessions.Any())
@@ -140,33 +138,62 @@
                                     </small>
                                     @if (hasLog)
                                     {
-                                        <span class="badge ml-2" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;">Qeydi var</span>
+                                        <span class="badge ml-2" style="background-color: #ffc107; color: black;">Qeydi var</span>
                                     }
                                 </div>
-                                <div class="col-md-4 text-md-right mt-2 mt-md-0">
-                                    <div class="d-inline">
-                                        <input type="hidden" name="examId" value="@Model.Id" id="examId_@expert.Id" />
-                                        <input type="hidden" name="expertId" value="@expert.Id" id="expertId_@expert.Id" />
-                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="changeExpert('@Model.Id', '@expert.Id')">
-                                            <i class="bi bi-arrow-repeat"></i> Dəyiş
-                                        </button>
+                                <div class="col-md-2 text-center">
+                                    <input type="hidden" name="updates[@i].ExpertId" value="@expert.Id" />
+                                    <div class="col-md-2 text-center">
+                                    <input type="hidden" name="updates[@i].ExpertId" value="@expert.Id" />
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="updates[@i].IsAttended"
+                                               value="1"
+                                               id="attend_@expert.Id"
+                                               @(expert.IsAttended.GetValueOrDefault() == 1 ? "checked" : "") />
                                     </div>
-                                    <a class="btn btn-sm btn-outline-primary" asp-action="WriteExpertLog" asp-route-examId="@Model.Id" asp-route-expertId="@expert.Id">
-                                        <i class="bi bi-chat"></i> Xüsusi qeyd yaz
+                                </div>
+                                </div>
+                                <div class="col-md-3 text-md-right mt-2 mt-md-0">
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                            onclick="changeExpert('@Model.Id', '@expert.Id')">
+                                        <i class="bi bi-arrow-repeat"></i> Dəyiş
+                                    </button>
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       asp-action="WriteExpertLog"
+                                       asp-route-examId="@Model.Id"
+                                       asp-route-expertId="@expert.Id">
+                                        <i class="bi bi-chat"></i> Qeyd yaz
                                     </a>
-                                    <a class="btn btn-sm btn-outline-info" asp-action="ExpertDetails" asp-route-id="@expert.Id">
-                                        <i class="bi bi-eye"></i> Detallara Bax
+                                    <a class="btn btn-sm btn-outline-info"
+                                       asp-action="ExpertDetails"
+                                       asp-route-id="@expert.Id">
+                                        <i class="bi bi-eye"></i> Detallara bax
                                     </a>
                                 </div>
                             </div>
                         </li>
                     }
                 </ul>
+
                 <div class="text-center mt-3">
-                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteExpertsForm">
-                        <i class="bi bi-trash"></i> Seçilmişləri Sil
+                    <!-- Silme Butonu -->
+                    <button type="button" name="action" value="delete"
+        class="btn btn-sm btn-outline-danger"
+        data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"
+        data-form-id="manageExpertsForm">
+    <i class="bi bi-trash"></i> Seçilmişləri Sil
+</button>
+                    <!-- Katılım Təsdiq Butonu -->
+                    <button type="submit" name="action" value="update"
+                            class="btn btn-outline-success px-4 py-2 mx-2">
+                        <i class="bi bi-check-circle"></i> Gələnləri Təsdiq Et
                     </button>
-                    <a class="btn btn-success px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignExperts" asp-route-id="@Model.Id">
+                    <!-- Ekspert Təyin Et Butonu -->
+                    <a class="btn btn-success px-4 py-2 mx-2"
+                       style="background-color: @primaryColor; border: none;"
+                       asp-action="AssignExperts" asp-route-id="@Model.Id">
                         <i class="bi bi-person-plus"></i> Ekspert Təyin Et
                     </a>
                 </div>
@@ -176,13 +203,14 @@
         {
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir ekspert təyin edilməyib.</p>
             <div class="text-center mt-3">
-            <a class="btn btn-success px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignExperts" asp-route-id="@Model.Id">
-                <i class="bi bi-person-plus"></i> Ekspert Təyin Et
+                <a class="btn btn-success px-4 py-2 mx-2"
+                   style="background-color: @primaryColor; border: none;"
+                   asp-action="AssignExperts" asp-route-id="@Model.Id">
+                    <i class="bi bi-person-plus"></i> Ekspert Təyin Et
                 </a>
             </div>
         }
-    </div> 
-
+    </div>
 
     @if(ViewBag.SectionId == 3 || @ViewBag.SectionId == 4 || @ViewBag.SectionId == 6 )
     {
@@ -493,14 +521,14 @@
                         </div>
                     </li>
                 }
-                <div class="text-center mt-4">
+            </ul>
+            <div class="text-center mt-4">
                 <form asp-action="AssignWorkers" asp-route-id="@Model.Id" method="post" style="display: inline;">
                     <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
                         <i class="bi bi-person-plus"></i> İşçi Təyin Et
                     </button>
                 </form>
-                </div>
-            </ul>
+            </div>
         }
         else
         {
@@ -723,25 +751,49 @@
         document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
             var modal = document.getElementById('deleteConfirmationModal');
             var button = modal.__triggerButton; // Modalı açan butonu al
+            if (!button) {
+                console.error('Tetikleyici buton bulunamadı!');
+                return;
+            }
+
             var formId = button.getAttribute('data-form-id'); // Hangi formun submit edileceğini al
             var form = document.getElementById(formId);
 
             if (form) {
+                // action=delete parametresini manuel olarak ekle
+                var actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'delete';
+                form.appendChild(actionInput);
+
+                console.log('Form submit ediliyor:', formId);
+                console.log('Form verileri:', new FormData(form));
                 form.submit(); // Formu submit et
             } else {
                 console.error('Form bulunamadı: ' + formId);
             }
 
             // Modal'ı kapat
-            var bootstrapModal = bootstrap.Modal.getInstance(modal);
-            bootstrapModal.hide();
+            try {
+                var bootstrapModal = bootstrap.Modal.getInstance(modal);
+                if (bootstrapModal) {
+                    bootstrapModal.hide();
+                } else {
+                    console.error('Bootstrap Modal nesnesi bulunamadı!');
+                }
+            } catch (e) {
+                console.error('Modal kapatma hatası:', e);
+            }
         });
 
         // Modal açıldığında tetikleyici butonu kaydet
         document.getElementById('deleteConfirmationModal').addEventListener('show.bs.modal', function (event) {
+            console.log('Modal açılıyor, tetikleyici:', event.relatedTarget);
             this.__triggerButton = event.relatedTarget; // Modal'ı açan butonu kaydet
         });
     </script>
+}
 
     <script>
         function changeExpert(examId, expertId) {
@@ -770,4 +822,16 @@
 
     }
 </script>
-}
+<script>
+    function toggleAttendanceLabel(expertId) {
+        var checkbox = document.getElementById("attend_ " + expertId);
+        var label = document.getElementById("attendLabel_" + expertId);
+        if (checkbox.checked) {
+            label.innerText = "Gələcək";
+        } else {
+            label.innerText = "Gəlməyəcək";
+        }
+    }
+</script>
+
+

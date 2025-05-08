@@ -13,6 +13,7 @@ namespace ForQab.Repository.Abstract
         Task AddSubProfessionsAsync(IEnumerable<ExamExpertSubProfession> subProfessions);
         Task RemoveByExpertAsync(int examId, int expertId);
         Task<List<ExamExpertSubProfession>> GetAllAsync(Expression<Func<ExamExpertSubProfession, bool>> predicate);
-        void RemoveRange(IEnumerable<ExamExpertSubProfession> entities);
+        void RemoveRange(IEnumerable<ExamExpertSubProfession> entities); 
+        Task<bool> IsExpertAssignedToExamAsync(int examId, int expertId);
     }
 }
