@@ -1047,5 +1047,53 @@ namespace ForQab.Presentation.Controllers
                 return BadRequest("Xəta baş verdi: " + ex.Message);
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> ManageExperts(int examId, string action, List<AttendanceUpdateModel> updates, int[] expertIds)
+        {
+            if (action == "delete" && expertIds != null && expertIds.Any())
+            {
+                try
+                {
+                    Console.WriteLine($"Silme işlemi için expertIds: {string.Join(", ", expertIds)}");
+                    await _examService.RemoveExpertsFromExamAsync(examId, expertIds.ToList());
+                    return RedirectToAction("Details", new { id = examId });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Silme hatası: {ex.Message}");
+                    return BadRequest(ex.Message);
+                }
+            }
+            else if (action == "update" && updates != null && updates.Any())
+            {
+                foreach (var item in updates)
+                {
+                    var entity = _context.ExamExpertSubProfessions
+                        .FirstOrDefault(e => e.ExamId == examId && e.ExpertId == item.ExpertId);
+                    if (entity != null)
+                    {
+                        // Checkbox seçili değilse IsAttended 0 olur
+                        entity.IsAttended = item.IsAttended; // item.IsAttended zaten 0 veya 1 olacak
+                        Console.WriteLine($"Updating ExpertId: {item.ExpertId}, IsAttended: {item.IsAttended}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Entity not found for ExpertId: {item.ExpertId}");
+                    }
+                }
+                try
+                {
+                    _context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"SaveChanges error: {ex.Message}");
+                    return BadRequest("Veritabanı güncelleme hatası: " + ex.Message);
+                }
+            }
+
+            return RedirectToAction("Details", new { id = examId });
+        }
+
     }
 }

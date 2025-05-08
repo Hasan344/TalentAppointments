@@ -28,5 +28,8 @@ namespace ForQab.DataAccess.Models
         [ForeignKey("RoomId")]
         [InverseProperty("ExamMonitors")]
         public virtual ExamRoom ExamRooms { get; set; } = null!;
+
+        [Column("IsAttended")]
+        public int? IsAttended { get; set; }
     }
 }

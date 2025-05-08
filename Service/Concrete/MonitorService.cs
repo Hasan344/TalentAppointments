@@ -301,35 +301,35 @@ namespace ForQab.Service
                         var monitor = new Monitor
                         {
 
+                            VNum = row.Cell(1).IsEmpty() ? null : row.Cell(1).GetValue<string?>(),
+                            District = districtId,
                             Surname = row.Cell(3).GetString(),
                             Name = row.Cell(4).GetString(),
                             Fname = row.Cell(5).GetString(),
-                            Archive = 0,
-                            Status = 0,
-                            AssignmentCount = 0,
-                            Gender = row.Cell(9).GetValue<byte>(),
-                            Role = 2,
-                            VNum = row.Cell(1).IsEmpty() ? null : row.Cell(1).GetValue<string?>(),
-                            //Profession = row.Cell(25).IsEmpty() ? null : row.Cell(7).GetString(),
-                            Workplace = row.Cell(15).IsEmpty() ? null : row.Cell(8).GetString(),
-                            Position = row.Cell(16).IsEmpty() ? null : row.Cell(18).GetString(),
-                            BirthDate = row.Cell(13).IsEmpty() ? null
-                                : DateOnly.ParseExact(row.Cell(13).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
-                            TelIs = row.Cell(11).IsEmpty() ? null : row.Cell(11).GetString(),
-                            FinCode = finCode,
-                            Serial = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
                             SectionId = sectionId,
-                            District = districtId,
                             ContractDate = row.Cell(7).IsEmpty() ? null
                                 : DateOnly.ParseExact(row.Cell(7).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
                             ContractNo = row.Cell(8).IsEmpty() ? null : row.Cell(8).GetString(),
+                            Gender = row.Cell(9).GetValue<byte>(),
+                            Serial = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
+                            TelIs = row.Cell(11).IsEmpty() ? null : row.Cell(11).GetString(),
+                            FinCode = finCode,
+                            BirthDate = row.Cell(13).IsEmpty() ? null
+                                : DateOnly.ParseExact(row.Cell(13).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
                             Uni = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
-                            SSN = row.Cell(20).GetString(),
-                            Rekvizit = row.Cell(19).GetString(),
-                            HesablashmaH = row.Cell(18).IsEmpty() ? null : row.Cell(18).GetString(),
+                            Workplace = row.Cell(15).IsEmpty() ? null : row.Cell(15).GetString(),
+                            Position = row.Cell(16).IsEmpty() ? null : row.Cell(16).GetString(),
                             Voen = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
+                            HesablashmaH = row.Cell(18).IsEmpty() ? null : row.Cell(18).GetString(),
+                            Rekvizit = row.Cell(19).GetString(),
+                            SSN = row.Cell(20).GetString(),
                             BankFilial = row.Cell(21).GetString(),
                             BankFilialCode = row.Cell(22).GetString(),
+                            Archive = 0,
+                            Status = 0,
+                            AssignmentCount = 0,
+                            Role = 2,
+                            //Profession = row.Cell(25).IsEmpty() ? null : row.Cell(7).GetString(),
                         };
 
                         monitors.Add(monitor);

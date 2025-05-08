@@ -85,6 +85,11 @@ namespace ForQab.Repository.Concrete
         {
             _context.ExamExpertSubProfessions.RemoveRange(entities);
         }
+        public async Task<bool> IsExpertAssignedToExamAsync(int examId, int expertId)
+        {
+            return await _context.ExamExpertSubProfessions
+                .AnyAsync(e => e.ExamId == examId && e.ExpertId == expertId);
+        }
     }
 
 }

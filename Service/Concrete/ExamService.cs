@@ -311,7 +311,6 @@ namespace ForQab.Service
             await _examRepository.SaveAsync();
             return true;
         }
-
         public async Task<bool> ChangeExpertAsync(int examId, int currentExpertId)
         {
             var exam = await _examRepository.GetExamWithExpertsAndSubProfessionsAsync(examId);
@@ -321,6 +320,7 @@ namespace ForQab.Service
             {
                 try
                 {
+                    // Mevcut uzmanın alt uzmanlıklarını al
                     var currentExamExpertSubProfessions = await _examExpertSubProfessionRepository
                         .GetSubProfessionsByExpertAsync(examId, currentExpertId);
 
@@ -331,10 +331,22 @@ namespace ForQab.Service
                     if (currentExpert == null) return false;
 
                     var subprofessionId = subProfessions.FirstOrDefault()?.SubProfessionId ?? 0;
+
+                    // Uygun yeni uzmanı bul (sınavda zaten atanmamış olan)
                     var newExpert = await _expertRepository
-                        .FindSuitableExpertAsync(subprofessionId, currentExpert.Federation, currentExpertId);
+                        .FindSuitableExpertAsync(subprofessionId, currentExpert.Federation, currentExpertId, examId);
                     if (newExpert == null) return false;
 
+                    // Yeni uzmanın zaten sınavda olup olmadığını kontrol et
+                    var isNewExpertAssigned = await _examExpertSubProfessionRepository
+                        .IsExpertAssignedToExamAsync(examId, newExpert.Id);
+                    if (isNewExpertAssigned)
+                    {
+                        // Log: Yeni uzman zaten atanmış
+                        return false; // veya uygun bir hata mesajı döndür
+                    }
+
+                    // Yeni uzmanın alt uzmanlıklarını hazırla
                     var newExamExpertSubProfessions = subProfessions.Select(sp => new ExamExpertSubProfession
                     {
                         ExamId = examId,
@@ -344,15 +356,14 @@ namespace ForQab.Service
                         RoomId = sp.RoomId
                     }).ToList();
 
-                    exam.Experts.Remove(currentExpert);
-
-                    exam.Experts.Add(newExpert);
-
                     // Mevcut uzmanı kaldır
+                    exam.Experts.Remove(currentExpert);
                     await _examExpertSubProfessionRepository.RemoveByExpertAsync(examId, currentExpertId);
+
+                    // Yeni uzmanı ekle
+                    exam.Experts.Add(newExpert);
                     await _examExpertSubProfessionRepository.AddSubProfessionsAsync(newExamExpertSubProfessions);
 
-                    _context.SaveChanges();
                     // Atama sayısını güncelle
                     currentExpert.AssignmentCount--;
                     newExpert.AssignmentCount++;
@@ -361,13 +372,71 @@ namespace ForQab.Service
                     await transaction.CommitAsync();
                     return true;
                 }
-                catch
+                catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
+                    // Hata loglama (örneğin, ILogger ile)
+                    Console.WriteLine($"Hata: {ex.Message}");
                     throw;
                 }
             }
         }
+        //public async Task<bool> ChangeExpertAsync(int examId, int currentExpertId)
+        //{
+        //    var exam = await _examRepository.GetExamWithExpertsAndSubProfessionsAsync(examId);
+        //    if (exam == null) return false;
+
+        //    using (var transaction = await _examRepository.BeginTransactionAsync())
+        //    {
+        //        try
+        //        {
+        //            var currentExamExpertSubProfessions = await _examExpertSubProfessionRepository
+        //                .GetSubProfessionsByExpertAsync(examId, currentExpertId);
+
+        //            var subProfessions = currentExamExpertSubProfessions.ToList();
+        //            if (!subProfessions.Any()) return false;
+
+        //            var currentExpert = await _expertRepository.GetByIdAsync(currentExpertId);
+        //            if (currentExpert == null) return false;
+
+        //            var subprofessionId = subProfessions.FirstOrDefault()?.SubProfessionId ?? 0;
+        //            var newExpert = await _expertRepository
+        //                .FindSuitableExpertAsync(subprofessionId, currentExpert.Federation, currentExpertId);
+        //            if (newExpert == null) return false;
+
+        //            var newExamExpertSubProfessions = subProfessions.Select(sp => new ExamExpertSubProfession
+        //            {
+        //                ExamId = examId,
+        //                ExpertId = newExpert.Id,
+        //                SubProfessionId = sp.SubProfessionId,
+        //                FederationId = sp.FederationId,
+        //                RoomId = sp.RoomId
+        //            }).ToList();
+
+        //            exam.Experts.Remove(currentExpert);
+
+        //            exam.Experts.Add(newExpert);
+
+        //            // Mevcut uzmanı kaldır
+        //            await _examExpertSubProfessionRepository.RemoveByExpertAsync(examId, currentExpertId);
+        //            await _examExpertSubProfessionRepository.AddSubProfessionsAsync(newExamExpertSubProfessions);
+
+        //            _context.SaveChanges();
+        //            // Atama sayısını güncelle
+        //            currentExpert.AssignmentCount--;
+        //            newExpert.AssignmentCount++;
+
+        //            await _examRepository.SaveAsync();
+        //            await transaction.CommitAsync();
+        //            return true;
+        //        }
+        //        catch
+        //        {
+        //            await transaction.RollbackAsync();
+        //            throw;
+        //        }
+        //    }
+        //}
 
 
         public async Task AddExamAsync(CreateExamViewModel exam)
@@ -899,13 +968,14 @@ namespace ForQab.Service
                     Kons = e.Kons,
                     Tel = e.TelIs,
                     ExamExpertSubProfessions = e.ExamExpertSubProfessions
-                        //.Where(eesp => eesp.SubProfession != null && eesp.Federation != null)
-                        .Select(eesp => new SubProfessionViewModelForExam
-                        {
-                            Name = eesp.SubProfession?.Name,
-                            FederationName = eesp.Federation?.Name,
-                            RoomName = eesp.ExamRoom?.Name
-                        }).ToList()
+                            .Select(eesp => new ExamExpertSubProfessionViewModelForExam
+                            {
+                                Name = eesp.SubProfession?.Name,
+                                FederationName = eesp.Federation?.Name,
+                                RoomName = eesp.ExamRoom?.Name,
+                                IsAttended = eesp.IsAttended
+                            }).ToList(),
+                    IsAttended = e.ExamExpertSubProfessions.Any(eesp => eesp.IsAttended == 1) ? 1 : 0 // Örnek mantık
                 }).ToList(),
                 Monitors = exam.Monitors.Select(m => new MonitorViewModel
                 {
@@ -923,7 +993,8 @@ namespace ForQab.Service
 
                     Rooms = m.ExamMonitors.Where(em => em.ExamRooms != null).Select(em => new RoomViewModelForExam
                     {
-                        RoomName = em.ExamRooms?.Name
+                        RoomName = em.ExamRooms?.Name,
+                        IsAttended = em.IsAttended
                     }).ToList()
                 }).ToList(),
                 ExamRepresentatives = exam.Representatives.Select(er => new RepresentativeViewModel
