@@ -370,7 +370,7 @@
         else
         {
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nəzarətçi təyin edilməyib.</p>
-            <div class="row align-items-center">
+            <div class="text-center mt-4">
             <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMonitors" asp-route-id="@Model.Id">
                 <i class="bi bi-person-plus"></i> Nəzarətçi Təyin Et
             </a>
@@ -650,10 +650,15 @@
         else
         {
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nümayəndə təyin edilməyib.</p>
+            <div class="text-center mt-4">
+                <a class="btn btn-success px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMinistryRepresentatives" asp-route-examId="@Model.Id">
+                    <i class="bi bi-plus-circle"></i> Nazirlik nümayəndəsi təyin et
+                </a>
+            </div>
 
         }
     </div>
-
+    <hr />
 
     <div class="text-center mt-4">
     
@@ -663,6 +668,7 @@
             <a class="btn btn-secondary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="Index">
                 <i class="bi bi-arrow-left"></i> Siyahıya Qayıt
         </a>
+    <hr />
         <form asp-action="ExportBadges" method="post">
             <input type="hidden" name="examId" value="@Model.Id" />
             <button type="submit" class="btn btn-primary px-4 py-2 mx-2"

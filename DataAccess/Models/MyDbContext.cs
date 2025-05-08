@@ -160,12 +160,14 @@ public partial class MyDbContext : DbContext
         modelBuilder.Entity<ExamDegree>()
             .HasOne(ec => ec.Exams)
             .WithMany(e => e.ExamDegrees)
-            .HasForeignKey(ec => ec.ExamId);
+            .HasForeignKey(ec => ec.ExamId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ExamDegree>()
             .HasOne(ec => ec.Degrees)
             .WithMany(c => c.ExamDegrees)
-            .HasForeignKey(ec => ec.DegreeId);
+            .HasForeignKey(ec => ec.DegreeId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ExamExpertSubProfession>()
         .ToTable("Exam_Expert_SubProfessions");
