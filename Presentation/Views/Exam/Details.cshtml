@@ -296,87 +296,106 @@
     </div>
     }
 
-    <!-- Assigned Monitors Section -->
-    <div class="mt-4">
-        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Nəzarətçilər</h4>
-        @{
-            var monitors = Model.Monitors.Where(m => m.Role == 2);
-        }
-        @if (monitors.Any())
-        {
-            <form asp-action="DeleteMonitors" method="post" id="deleteMonitorsForm">
-                <input type="hidden" name="examId" value="@Model.Id" />
-                <div class="mb-3">
-                    <input type="checkbox" id="selectAllMonitors" onchange="toggleCheckboxes('monitorIds', this.checked)" />
-                    <label for="selectAllMonitors" class="ml-2">Bütün Nəzarətçiləri Seç</label>
-                </div>
-                <ul class="list-group list-group-flush">
-                    @foreach (var monitor in monitors)
-                    {
-                        var hasLog = ViewBag.MonitorsWithLogs != null && ViewBag.MonitorsWithLogs.Contains(monitor.Id);
-                        <li class="list-group-item">
-                            <div class="row align-items-center">
-                                <div class="col-md-1">
-                                    <input type="checkbox" name="monitorIds" value="@monitor.Id" />
-                                </div>
-                                <div class="col-md-7">
-                                    <h6 class="mb-0">
-                                        @monitor.Name @monitor.Surname @monitor.Fname @monitor.Tel
-                                    </h6>
-                                    <small class="text-muted">
-                                        FinCode: @monitor.FinCode
-                                    </small>
-                                    <small class="text-muted">
-                                        <strong>Məntəqə:</strong>
-                                        @if (monitor.Rooms.Any())
-                                        {
-                                            @string.Join(", ", monitor.Rooms.Select(em => $"({em.RoomName})"))
-                                        }
-                                        else
-                                        {
-                                            <span>Ehtiyat Nəzarətçi</span>
-                                        }
-                                    </small>
-                                    @if (hasLog)
+   <!-- Assigned Monitors Section -->
+<div class="mt-4">
+    <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Nəzarətçilər</h4>
+    @{
+        var monitors = Model.Monitors.Where(m => m.Role == 2).ToList();
+    }
+    @if (monitors.Any())
+    {
+        <form asp-action="ManageMonitors" method="post" id="manageMonitorsForm">
+            <input type="hidden" name="examId" value="@Model.Id" />
+            <div class="mb-3">
+                <input type="checkbox" id="selectAllMonitors" onchange="toggleCheckboxes('monitorIds', this.checked)" />
+                <label for="selectAllMonitors" class="ml-2">Bütün Nəzarətçiləri Seç</label>
+            </div>
+            <ul class="list-group list-group-flush">
+                @for (int i = 0; i < monitors.Count(); i++)
+                {
+                    var monitor = monitors[i];
+                    var hasLog = ViewBag.MonitorsWithLogs != null && ViewBag.MonitorsWithLogs.Contains(monitor.Id);
+                    <li class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-1">
+                                <input type="checkbox" name="monitorIds" value="@monitor.Id" />
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="mb-0">
+                                    @monitor.Name @monitor.Surname @monitor.Fname @monitor.Tel
+                                </h6>
+                                <small class="text-muted">
+                                    FinCode: @monitor.FinCode
+                                </small>
+                                <small class="text-muted">
+                                    <strong>Məntəqə:</strong>
+                                    @if (monitor.Rooms.Any())
                                     {
-                                        <span class="badge ml-2" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;">Qeydi var</span>
+                                        @string.Join(", ", monitor.Rooms.Select(em => $"({em.RoomName})"))
                                     }
-                                </div>
-                                <div class="col-md-4 text-md-right mt-2 mt-md-0">
-                                    <a class="btn btn-sm btn-outline-secondary mr-2" asp-action="ChangeMonitor" asp-route-examId="@Model.Id" asp-route-monitorId="@monitor.Id">
-                                        <i class="bi bi-pencil"></i> Dəyişdir
-                                    </a>
-                                    <a class="btn btn-sm btn-outline-primary" asp-action="WriteMonitorLog" asp-route-examId="@Model.Id" asp-route-monitorId="@monitor.Id">
-                                        <i class="bi bi-chat"></i> Xüsusi qeyd yaz
-                                    </a>
-                                    <a class="btn btn-sm btn-outline-info" asp-action="MonitorDetails" asp-route-id="@monitor.Id">
-                                        <i class="bi bi-eye"></i> Detallara Bax
-                                    </a>
+                                    else
+                                    {
+                                        <span>Ehtiyat Nəzarətçi</span>
+                                    }
+                                </small>
+                                @if (hasLog)
+                                {
+                                    <span class="badge ml-2" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;">Qeydi var</span>
+                                }
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <input type="hidden" name="updates[@i].MonitorId" value="@monitor.Id" />
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="updates[@i].IsAttended"
+                                           value="1"
+                                           id="attend_@monitor.Id"
+                                           @(monitor.IsAttended.GetValueOrDefault() == 1 ? "checked" : "") />
                                 </div>
                             </div>
-                        </li>
-                    }
-                </ul>
-                <div class="text-center mt-3">
-                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteMonitorsForm">
-                        <i class="bi bi-trash"></i> Seçilmişləri Sil
-                    </button>
-                    <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMonitors" asp-route-id="@Model.Id">
-                        <i class="bi bi-person-plus"></i> Nəzarətçi Təyin Et
-                    </a>
-                </div>
-            </form>
-        }
-        else
-        {
-            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nəzarətçi təyin edilməyib.</p>
-            <div class="text-center mt-4">
+                            <div class="col-md-3 text-md-right mt-2 mt-md-0">
+                                <a class="btn btn-sm btn-outline-secondary mr-2" asp-action="ChangeMonitor" asp-route-examId="@Model.Id" asp-route-monitorId="@monitor.Id">
+                                    <i class="bi bi-pencil"></i> Dəyişdir
+                                </a>
+                                <a class="btn btn-sm btn-outline-primary" asp-action="WriteMonitorLog" asp-route-examId="@Model.Id" asp-route-monitorId="@monitor.Id">
+                                    <i class="bi bi-chat"></i> Xüsusi qeyd yaz
+                                </a>
+                                <a class="btn btn-sm btn-outline-info" asp-action="MonitorDetails" asp-route-id="@monitor.Id">
+                                    <i class="bi bi-eye"></i> Detallara Bax
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+            <div class="text-center mt-3">
+                <button type="button" name="action" value="delete"
+                        class="btn btn-sm btn-outline-danger"
+                        data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"
+                        data-form-id="manageMonitorsForm">
+                    <i class="bi bi-trash"></i> Seçilmişləri Sil
+                </button>
+                <button type="submit" name="action" value="update"
+                        class="btn btn-outline-success px-4 py-2 mx-2">
+                    <i class="bi bi-check-circle"></i> Gələnləri Təsdiq Et
+                </button>
+                <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMonitors" asp-route-id="@Model.Id">
+                    <i class="bi bi-person-plus"></i> Nəzarətçi Təyin Et
+                </a>
+            </div>
+        </form>
+    }
+    else
+    {
+        <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nəzarətçi təyin edilməyib.</p>
+        <div class="text-center mt-3">
             <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMonitors" asp-route-id="@Model.Id">
                 <i class="bi bi-person-plus"></i> Nəzarətçi Təyin Et
             </a>
-            </div>
-        }
-    </div>
+        </div>
+    }
+</div>
 
     <!-- Assigned Head Monitors Section -->
     <div class="mt-4">
@@ -841,3 +860,67 @@
 </script>
 
 
+    <script>
+        // Tümünü Seç fonksiyonu
+        function toggleCheckboxes(name, checked) {
+            var checkboxes = document.getElementsByName(name);
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = checked;
+            }
+        }
+
+        // Modal onay butonu işlevi
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+            var modal = document.getElementById('deleteConfirmationModal');
+            var button = modal.__triggerButton; // Modalı açan butonu al
+            if (!button) {
+                console.error('Tetikleyici buton bulunamadı!');
+                return;
+            }
+
+            var formId = button.getAttribute('data-form-id'); // Hangi formun submit edileceğini al
+            var form = document.getElementById(formId);
+
+            if (form) {
+                // action=delete parametresini manuel olarak ekle
+                var actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'delete';
+                form.appendChild(actionInput);
+
+                console.log('Form submit ediliyor:', formId);
+                console.log('Form verileri:', new FormData(form));
+                form.submit(); // Formu submit et
+            } else {
+                console.error('Form bulunamadı: ' + formId);
+            }
+
+            // Modal'ı kapat
+            try {
+                var bootstrapModal = bootstrap.Modal.getInstance(modal);
+                if (bootstrapModal) {
+                    bootstrapModal.hide();
+                } else {
+                    console.error('Bootstrap Modal nesnesi bulunamadı!');
+                }
+            } catch (e) {
+                console.error('Modal kapatma hatası:', e);
+            }
+        });
+
+        // Modal açıldığında tetikleyici butonu kaydet
+        document.getElementById('deleteConfirmationModal').addEventListener('show.bs.modal', function (event) {
+            console.log('Modal açılıyor, tetikleyici:', event.relatedTarget);
+            this.__triggerButton = event.relatedTarget; // Modal'ı açan butonu kaydet
+        });
+
+        // Katılım label'ını değiştirme (opsiyonel)
+        function toggleAttendanceLabel(monitorId) {
+            var checkbox = document.getElementById("attend_" + monitorId);
+            var label = document.getElementById("attendLabel_" + monitorId);
+            if (checkbox && label) {
+                label.innerText = checkbox.checked ? "Gələcək" : "Gəlməyəcək";
+            }
+        }
+    </script>
