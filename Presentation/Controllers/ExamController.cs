@@ -946,18 +946,68 @@ namespace ForQab.Presentation.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> DeleteMonitors(int examId, List<int> monitorIds)
+        public async Task<IActionResult> ManageMonitors(int examId, string action, List<AttendanceUpdateModel> updates, int[] monitorIds)
         {
-            try
+            if (action == "delete" && monitorIds != null && monitorIds.Any())
             {
-                await _examService.RemoveMonitorsFromExamAsync(examId, monitorIds);
-                return RedirectToAction("Details", new { id = examId });
+                try
+                {
+                    Console.WriteLine($"Silme işlemi için monitorIds: {string.Join(", ", monitorIds)}");
+                    await _examService.RemoveMonitorsFromExamAsync(examId, monitorIds.ToList());
+                    return RedirectToAction("Details", new { id = examId });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Silme hatası: {ex.Message}");
+                    return BadRequest(ex.Message);
+                }
             }
-            catch (Exception ex)
+            else if (action == "update" && updates != null && updates.Any())
             {
-                return BadRequest(ex.Message);
+                foreach (var item in updates)
+                {
+                    var entity = _context.ExamMonitors
+                        .FirstOrDefault(e => e.ExamId == examId && e.MonitorId == item.MonitorId);
+                    if (entity != null)
+                    {
+                        entity.IsAttended = item.IsAttended;
+                        Console.WriteLine($"Güncelleniyor: MonitorId={item.MonitorId}, IsAttended={item.IsAttended}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Entity bulunamadı: MonitorId={item.MonitorId}");
+                    }
+                }
+                try
+                {
+                    _context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"SaveChanges hatası: {ex.Message}");
+                    return BadRequest("Veritabanı güncelleme hatası: " + ex.Message);
+                }
             }
+            else
+            {
+                Console.WriteLine("Geçersiz action veya veri eksik!");
+            }
+
+            return RedirectToAction("Details", new { id = examId });
         }
+        //[HttpPost]
+        //public async Task<IActionResult> DeleteMonitors(int examId, List<int> monitorIds)
+        //{
+        //    try
+        //    {
+        //        await _examService.RemoveMonitorsFromExamAsync(examId, monitorIds);
+        //        return RedirectToAction("Details", new { id = examId });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
         [HttpPost]
         public async Task<IActionResult> DeleteHeadMonitors(int examId, List<int> monitorIds)
         {

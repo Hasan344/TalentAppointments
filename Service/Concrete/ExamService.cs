@@ -993,9 +993,12 @@ namespace ForQab.Service
 
                     Rooms = m.ExamMonitors.Where(em => em.ExamRooms != null).Select(em => new RoomViewModelForExam
                     {
-                        RoomName = em.ExamRooms?.Name,
-                        IsAttended = em.IsAttended
-                    }).ToList()
+                        RoomName = em.ExamRooms?.Name
+                    }).ToList(),
+                    IsAttended = _context.ExamMonitors
+                                    .Where(em => em.ExamId == exam.Id && em.MonitorId == m.Id)
+                                    .Select(em => em.IsAttended)
+                                    .FirstOrDefault() ?? 0
                 }).ToList(),
                 ExamRepresentatives = exam.Representatives.Select(er => new RepresentativeViewModel
                 {
