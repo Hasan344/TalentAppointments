@@ -431,5 +431,18 @@ namespace ForQab.Presentation.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        public async Task<IActionResult> ExportContracts(List<int> selectedKonsIds, DateTime contractDate)
+        {
+            if (selectedKonsIds == null || !selectedKonsIds.Any())
+                return RedirectToAction(nameof(Index));
+
+            var bytes = await _konsService
+                .ExportContractsToWordAsync(selectedKonsIds, contractDate);
+            return File(
+                bytes,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "Konsertmeyster Müqavilələri.docx");
+        }
     }
 }

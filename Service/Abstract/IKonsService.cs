@@ -18,5 +18,6 @@ namespace ForQab.Service.Abstract
         Task<List<Section>> GetSectionsAsync(int? sectionId);
         Task<IEnumerable<SubProfession>> GetSubProfessionsAsync(int? sectionId);
         Task BulkAddAsync(IEnumerable<Expert> experts);
+        Task<byte[]> ExportContractsToWordAsync(List<int> selectedKonsIds, DateTime contractDate);
     }
 }
