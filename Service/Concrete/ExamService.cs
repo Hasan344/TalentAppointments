@@ -12,6 +12,7 @@ using DocumentFormat.OpenXml;
 using ClosedXML.Excel;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace ForQab.Service
 {
@@ -1058,7 +1059,10 @@ namespace ForQab.Service
             var exams = _context.Exams
                 .Include(e => e.Monitors)
                     .ThenInclude(em => em.WorkerTypeNavigation)
+                .Include(e => e.Monitors)
+                    .ThenInclude(em => em.Contracts)
                 .Include(e => e.Experts)
+                    .ThenInclude(em => em.Contracts)
                 .Include(e => e.ExamDegrees)
                 .Include(e => e.Section)
                 .Where(e => e.ExamDate == selectedDate)
@@ -1159,8 +1163,13 @@ namespace ForQab.Service
                     {
                         worksheet.Cell(row, 11).Value = "1,2";
                     }
-                    worksheet.Cell(row, 12).Value = monitor.ContractDate?.ToString() ?? "";
-                    worksheet.Cell(row, 13).Value = monitor.ContractNo;
+
+                    var latestContract = monitor.Contracts
+                        .OrderByDescending(c => c.Date)
+                        .FirstOrDefault();
+
+                    worksheet.Cell(row, 12).Value = latestContract?.Date.ToString() ?? "";
+                    worksheet.Cell(row, 13).Value = latestContract?.Number ?? "";
                     worksheet.Cell(row, 14).Value = monitor.Gender;
                     if (!string.IsNullOrEmpty(monitor?.Serial))
                     {
@@ -1227,8 +1236,12 @@ namespace ForQab.Service
                         {
                             worksheet.Cell(row, 11).Value = "6,1";
                         }
-                        worksheet.Cell(row, 12).Value = /*expert.ContractDate?.ToString() ??*/ "";
-                        worksheet.Cell(row, 13).Value = /*expert.ContractNo*/ "";
+                        var latestContract = expert.Contracts
+                            .OrderByDescending(c => c.Date)
+                            .FirstOrDefault();
+
+                        worksheet.Cell(row, 12).Value = latestContract?.Date.ToString() ?? "";
+                        worksheet.Cell(row, 13).Value = latestContract?.Number ?? "";
                         worksheet.Cell(row, 14).Value = expert.Gender;
                         if (!string.IsNullOrEmpty(expert?.Serial))
                         {

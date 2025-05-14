@@ -330,6 +330,9 @@ namespace ForQab.Presentation.Controllers
                 var subProfessions = expert.ExpertsProfessions != null && expert.ExpertsProfessions.Any()
                     ? string.Join(", ", expert.ExpertsProfessions.Select(sp => sp.SubProfession?.Name))
                     : "---";
+                var latestContract = expert.Contracts?
+                                           .OrderByDescending(c => c.Date)
+                                           .FirstOrDefault();
 
                 dt.Rows.Add(
                     expert.Name,
@@ -348,8 +351,8 @@ namespace ForQab.Presentation.Controllers
                     expert.Voen,
                     expert.FederationNavigation?.Name,
                     subProfessions,
-                    expert.ContractDate,
-                    expert.ContractNo ?? "",
+                    latestContract?.Date.ToString("dd.MM.yyyy") ?? "", 
+                    latestContract?.Number ?? "",
                     expert.AssignmentCount
                 );
             }

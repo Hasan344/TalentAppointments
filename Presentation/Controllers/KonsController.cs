@@ -207,7 +207,7 @@ namespace ForQab.Presentation.Controllers
             var expert = await _konsService.GetByIdAsync(id);
             if (expert != null)
             {
-                await _konsService.GetByIdAsync(id);
+                await _konsService.DeleteAsync(id);
             }
             return RedirectToAction(nameof(Index));
         }
@@ -275,6 +275,9 @@ namespace ForQab.Presentation.Controllers
                 var subProfessions = expert.ExpertsProfessions != null && expert.ExpertsProfessions.Any()
                     ? string.Join(", ", expert.ExpertsProfessions.Select(sp => sp.SubProfession?.Name))
                     : "---";
+                var latestContract = expert.Contracts?
+                                           .OrderByDescending(c => c.Date)
+                                           .FirstOrDefault();
 
                 dt.Rows.Add(
                     expert.Name,
@@ -293,8 +296,8 @@ namespace ForQab.Presentation.Controllers
                     expert.Voen,
                     expert.FederationNavigation?.Name,
                     subProfessions,
-                    expert.ContractDate,
-                    expert.ContractNo ?? "",
+                    latestContract?.Date.ToString("dd.MM.yyyy") ?? "", // Müqavilə tarixi
+                    latestContract?.Number ?? "",
                     expert.AssignmentCount
                 );
             }  // Excel dosyasını oluştur
@@ -341,12 +344,12 @@ namespace ForQab.Presentation.Controllers
                     var experts = new List<Expert>();
                     var existingFinCodes = _context.Experts.Select(e => e.FinCode).ToHashSet();
 
-                    foreach (var row in worksheet.RowsUsed().Skip(1)) 
+                    foreach (var row in worksheet.RowsUsed().Skip(1))
                     {
                         var finCode = row.Cell(7).GetString();
                         if (string.IsNullOrEmpty(finCode) || existingFinCodes.Contains(finCode))
                         {
-                            continue; 
+                            continue;
                         }
 
                         var expert = new Expert
@@ -379,9 +382,9 @@ namespace ForQab.Presentation.Controllers
                             var subProfession = _context.SubProfessions.FirstOrDefault(sp => sp.Name == subProfessionName);
                             if (subProfession != null)
                             {
-                                expert.ExpertsProfessions.Add(new Models.ExpertsProfession 
-                                { 
-                                 Expert = expert,
+                                expert.ExpertsProfessions.Add(new Models.ExpertsProfession
+                                {
+                                    Expert = expert,
                                     SubProfession = subProfession
                                 });
                             }
