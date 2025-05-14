@@ -106,6 +106,7 @@ namespace ForQab.Repository.Concrete
                 .Include(e => e.ExamExpertSubProfessions)
                     .ThenInclude(e => e.ExamRoom)
                 .Include(e => e.ExpertLogs)
+                .Include(e => e.Contracts)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
@@ -119,6 +120,7 @@ namespace ForQab.Repository.Concrete
                     .ThenInclude(e => e.SubProfession)
                 .Include(e => e.DistrictNavigation)
                 .Include(e => e.GenderNavigation)
+                .Include(e => e.Contracts)
                 .Where(e => e.Kons == true)
                 .ToListAsync();
             }
@@ -128,6 +130,7 @@ namespace ForQab.Repository.Concrete
                     .ThenInclude(e => e.SubProfession)
                 .Include(e => e.DistrictNavigation)
                 .Include(e => e.GenderNavigation)
+                .Include(e => e.Contracts)
                 .Where(e => e.SectionId == sectionId)
                 .Where(e => e.Kons == true)
                 .ToListAsync();

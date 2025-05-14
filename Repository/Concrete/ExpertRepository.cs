@@ -25,6 +25,7 @@ namespace ForQab.Repository.Concrete
                 .Include(e => e.DistrictNavigation)
                 .Include(e => e.GenderNavigation)
                 .Include(e => e.FederationNavigation)
+                .Include(e => e.Contracts)
                 .ToListAsync();
         }
 
@@ -44,6 +45,7 @@ namespace ForQab.Repository.Concrete
                 .Include(e => e.ExamExpertSubProfessions)
                     .ThenInclude(e => e.ExamRoom)
                 .Include(e => e.ExpertLogs)
+                .Include(e => e.Contracts)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 

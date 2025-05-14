@@ -78,6 +78,11 @@
                 }
 
                 <hr class="my-4" />
+                @{
+                    var latestContract = Model.Contracts
+                    .OrderByDescending(c => c.Date)
+                    .FirstOrDefault();
+                }
 
                 <div class="card shadow-sm border-0 rounded-4 p-4">
                     <h4 class="mb-4" style="color:@primaryColor;">Digər Məlumatlar</h4>
@@ -87,11 +92,11 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-5 fw-semibold text-secondary">Müqavilə tarixi:</div>
-                        <div class="col-sm-7">@Model.ContractDate?.ToString("dd.MM.yyyy")</div>
+                        <div class="col-sm-7">@latestContract?.Date.ToString("dd/MM/yyyy")</div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-5 fw-semibold text-secondary">Müqavilə nömrəsi:</div>
-                        <div class="col-sm-7">@Model.ContractNo</div>
+                        <div class="col-sm-7">@latestContract?.Number</div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-5 fw-semibold text-secondary">Rayon:</div>
