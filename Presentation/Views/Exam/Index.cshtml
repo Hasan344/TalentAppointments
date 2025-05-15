@@ -79,7 +79,7 @@
                         <td>@rowNumber</td>
                         <td>@Html.DisplayFor(modelItem => item.Id)</td>
                         <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.ExamDate)</td>
+                        <td>@item.ExamDate.ToString("dd/MM/yyyy")</td>
                         <td>@Html.DisplayFor(modelItem => item.StudentCount)</td>
                         <td>@Html.DisplayFor(modelItem => item.StartTime)</td>
                         <td>@Html.DisplayFor(modelItem => item.EndTime)</td>

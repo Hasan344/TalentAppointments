@@ -65,6 +65,7 @@ namespace ForQab.Service.Abstract
         Task RemoveMonitorsFromExamAsync(int examId, List<int> monitorIds);
         Task<byte[]> ExportExamToWordAsync(int examId);
         Task<byte[]> ExportExamToWordAsyncForMX(int examId);
+        Task<byte[]> ExportExamToWordAsyncForV(int examId);
         Task<byte[]> GetExamDataForExport(DateOnly selectedDate);
 
     }
