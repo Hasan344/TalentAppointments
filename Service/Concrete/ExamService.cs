@@ -680,9 +680,11 @@ namespace ForQab.Service
                 );
                 table.AppendChild(tblProp);
 
+                var roomHeader = exam.SectionId == 1  ? "Məntəqə kodu": "Zalın kodu";
+
                 var headerRow = new TableRow();
                 headerRow.Append(CreateTableCell("S/s", true, 1000));
-                headerRow.Append(CreateTableCell("Məntəqə kodu", true, 1500));
+                headerRow.Append(CreateTableCell(roomHeader, true, 1500));
                 headerRow.Append(CreateTableCell("Vəzifə", true, 3000));
                 headerRow.Append(CreateTableCell("Soyadı, adı, ata adı", true, 6000));
                 headerRow.Append(CreateTableCell("İmza", true, 2000));
@@ -841,6 +843,77 @@ namespace ForQab.Service
 
                 body.AppendChild(table);
                 body.AppendChild(CreateItalicParagraph("Qeyd. İmtahana gəlməyən ekspertlərin qarşısında (imza bölməsində) iştirakçıların imtahan binasına buraxılışı başlandıqdan sonra “gəlmədi” yazılır.", 10));
+
+
+                mainPart.Document.Save();
+            }
+
+            return ms.ToArray();
+        }
+        public async Task<byte[]> ExportExamToWordAsyncForV(int examId)
+        {
+            var exam = await _context.Exams
+                .Include(e => e.ExamMonitors).ThenInclude(em => em.Monitors)
+                .FirstOrDefaultAsync(e => e.Id == examId);
+
+            if (exam == null) throw new Exception("Exam not found");
+
+            using var ms = new MemoryStream();
+            using (var wordDocument = WordprocessingDocument.Create(ms, WordprocessingDocumentType.Document, true))
+            {
+                var mainPart = wordDocument.AddMainDocumentPart();
+                mainPart.Document = new Document();
+                var body = mainPart.Document.AppendChild(new Body());
+
+                body.AppendChild(CreateCenteredBoldParagraph("İMTAHANDAKI KÖNÜLLÜLƏRİN QEYDİYYAT VƏRƏQİ", 16));
+                body.AppendChild(CreateMixedBoldParagraph("İmtahanın adı: ", "\u00A0" + exam.Name, 14));
+                body.AppendChild(CreateMixedBoldParagraph("İmtahan binası: ", "\u00A0" + exam.ExamBuilding?.Code + " " + exam.ExamBuilding?.Name, 14));
+                body.AppendChild(CreateMixedBoldParagraph("İmtahan tarixi: ", "\u00A0" + exam.ExamDate + " Saat " + exam.StartTime, 14));
+
+
+                Table table = new Table();
+
+                TableProperties tblProp = new TableProperties(
+                    new TableWidth { Width = "100%", Type = TableWidthUnitValues.Pct },
+                    new TableBorders(
+                        new TopBorder { Val = BorderValues.Single, Size = 12 },
+                        new BottomBorder { Val = BorderValues.Single, Size = 12 },
+                        new LeftBorder { Val = BorderValues.Single, Size = 12 },
+                        new RightBorder { Val = BorderValues.Single, Size = 12 },
+                        new InsideHorizontalBorder { Val = BorderValues.Single, Size = 12 },
+                        new InsideVerticalBorder { Val = BorderValues.Single, Size = 12 }
+                    )
+                );
+                table.AppendChild(tblProp);
+
+                var headerRow = new TableRow();
+                headerRow.Append(CreateTableCell("S/s", true, 1000));
+                headerRow.Append(CreateTableCell("Vəzifə", true, 3000));
+                headerRow.Append(CreateTableCell("Soyadı, adı, ata adı", true, 6000));
+                headerRow.Append(CreateTableCell("İmza", true, 2000));
+                table.Append(headerRow);
+
+                int rowIndex = 1;
+
+
+                foreach (var monitor in exam.ExamMonitors.Where(em => em.Monitors.Role == 4))
+                {
+                    var row = new TableRow();
+                    row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
+                    row.Append(CreateTableCell("Könüllü ", false, 3000));
+                    row.Append(CreateTableCell(monitor.Monitors.Surname + " " + monitor.Monitors.Name + " " + monitor.Monitors.Fname, false, 6000));
+                    row.Append(CreateTableCell("", false, 2000));
+                    table.Append(row);
+                    rowIndex++;
+                }
+
+                body.AppendChild(table);
+                body.AppendChild(CreateItalicParagraph("Qeyd. İmtahana gəlməyənlərin qarşısında (imza bölməsində) iştirakçıların imtahan binasına buraxılışı başlandıqdan sonra “gəlmədi” yazılır.", 10));
+
+                if (exam.SectionId == 1)
+                {
+                    body.AppendChild(CreateCenteredBoldParagraph("\nÜmumi imtahan rəhbəri: _________ / _______________________ / ", 12));
+                }
 
 
                 mainPart.Document.Save();

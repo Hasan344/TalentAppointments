@@ -219,7 +219,7 @@ namespace ForQab.Repository.Concrete
                 .FirstOrDefaultAsync(e => e.Id == examId);
 
             if (exam == null)
-                throw new ArgumentException("Exam not found");
+                throw new ArgumentException("İmtahan tapılmadı");
 
             var alreadyAssignedMonitorIds = exam.Monitors.Select(m => m.Id).ToHashSet();
             var availableMonitors = await _context.Monitors
@@ -236,7 +236,6 @@ namespace ForQab.Repository.Concrete
             {
                 availableMonitors = availableMonitors
                     .Where(e => e.Gender == genderId)
-                    .Where(e => e.BirthDate >= maxDate)
                     .OrderBy(e => e.AssignmentCount)
                     .ToList();
             }
@@ -259,7 +258,7 @@ namespace ForQab.Repository.Concrete
 
             if (selectedMonitors.Count < numberOfMonitors)
             {
-                throw new InvalidOperationException("Not enough monitors available.");
+                throw new InvalidOperationException("Yetərli sayda nəzarətçi yoxdur.");
             }
 
             List<int> availableRooms = new List<int>();
@@ -346,7 +345,7 @@ namespace ForQab.Repository.Concrete
                 .FirstOrDefaultAsync(e => e.Id == examId);
 
             if (exam == null)
-                throw new Exception("Exam not found");
+                throw new Exception("İmtahan tapılmadı");
 
             var alreadyAssignedMonitorIds = exam.Monitors.Select(m => m.Id).ToHashSet();
 
@@ -360,7 +359,7 @@ namespace ForQab.Repository.Concrete
                                                      .ToListAsync();
 
             if (allMonitors.Count < numberOfMonitors)
-                throw new Exception("Yeterli sayda nəzarətçi yoxdur.");
+                throw new Exception("Yeterli sayda rəhbər yoxdur.");
 
             var selectedMonitors = allMonitors
                                     .OrderBy(e => e.AssignmentCount)
@@ -502,7 +501,7 @@ namespace ForQab.Repository.Concrete
                 .FirstOrDefaultAsync(e => e.Id == exam.Id);
 
             if (existingExam == null)
-                throw new ArgumentException("Exam not found");
+                throw new ArgumentException("İmtahan tapılmadı");
 
             // Exam'in özelliklerini güncelle
             existingExam.Id = exam.Id;
@@ -585,7 +584,7 @@ namespace ForQab.Repository.Concrete
                 .FirstOrDefaultAsync(e => e.Id == exam.Id);
 
             if (existingExam == null)
-                throw new ArgumentException("Exam not found");
+                throw new ArgumentException("İmtahan tapılmadı");
 
             existingExam.Id = exam.Id;
             existingExam.Name = exam.Name;
@@ -677,7 +676,7 @@ namespace ForQab.Repository.Concrete
 
             if (exam == null)
             {
-                throw new ArgumentException("Exam not found.");
+                throw new ArgumentException("İmtahan tapılmadı.");
             }
 
             var selectedWorkers = await _context.Monitors
@@ -701,7 +700,7 @@ namespace ForQab.Repository.Concrete
 
             if (exam == null)
             {
-                throw new ArgumentException("Exam not found.");
+                throw new ArgumentException("İmtahan tapılmadı.");
             }
 
             var selectedVolunteers = await _context.Monitors
@@ -794,16 +793,16 @@ namespace ForQab.Repository.Concrete
                     );
 
                     row.Append(CreateColoredCell(exam.ExamDate.ToString("dd.MM.yyyy"), bgColor));
-                    row.Append(CreateColoredCell(exam.Section?.Name ?? "N/A", bgColor));
+                    row.Append(CreateColoredCell(exam.Section?.Name ?? "", bgColor));
                     row.Append(CreateColoredCell(string.Join(", ", exam.ExamDegrees?.Select(d => d.Degrees.Name) ?? new List<string>()), bgColor));
                     row.Append(CreateColoredCell(string.Join(", ", exam.ExamCommissions?.Select(c => c.Commission.CommissionNo) ?? new List<string>()), bgColor));
                     row.Append(CreateColoredCell(string.Join(", ", exam.ExamExpertSubProfessions?.Select(s => s.SubProfession.Name).Distinct() ?? new List<string>()), bgColor));
-                    row.Append(CreateColoredCell(exam.District?.Name ?? "N/A", bgColor));
-                    row.Append(CreateColoredCell($"{exam.ExamBuilding?.Name ?? "N/A"}, {exam.ExamBuilding?.Address ?? "N/A"}", bgColor));
-                    row.Append(CreateColoredCell(exam.StudentCount?.ToString() ?? "N/A", bgColor));
-                    row.Append(CreateColoredCell(exam.AdmissionTime?.ToString(@"hh\:mm") ?? "N/A", bgColor));
-                    row.Append(CreateColoredCell(exam.StartTime?.ToString(@"hh\:mm") ?? "N/A", bgColor));
-                    row.Append(CreateColoredCell(exam.EndTime?.ToString(@"hh\:mm") ?? "N/A", bgColor));
+                    row.Append(CreateColoredCell(exam.District?.Name ?? "", bgColor));
+                    row.Append(CreateColoredCell($"{exam.ExamBuilding?.Name ?? ""}, {exam.ExamBuilding?.Address ?? ""}", bgColor));
+                    row.Append(CreateColoredCell(exam.StudentCount?.ToString() ?? "", bgColor));
+                    row.Append(CreateColoredCell(exam.AdmissionTime?.ToString(@"hh\:mm") ?? "", bgColor));
+                    row.Append(CreateColoredCell(exam.StartTime?.ToString(@"hh\:mm") ?? "", bgColor));
+                    row.Append(CreateColoredCell(exam.EndTime?.ToString(@"hh\:mm") ?? "", bgColor));
 
                     table.Append(row);
                 }
@@ -918,7 +917,7 @@ namespace ForQab.Repository.Concrete
 
             if (exam == null)
             {
-                throw new Exception($"Exam not found for ID: {examId}");  // 🔥 Log ekleyerek kontrol et
+                throw new Exception($"İmtahan tapılmadı : {examId}");  // 🔥 Log ekleyerek kontrol et
             }
 
             return exam;
@@ -1128,9 +1127,6 @@ namespace ForQab.Repository.Concrete
 
                     table.AppendChild(headerRow2);
 
-                    // Predefined locations as in the document
-                    // Locations list'ini boş olarak tanımlamışsınız, bu şekilde döngü hiç çalışmayacak
-                    // Predefined locations yerine doğrudan monitors sayısına göre döngü oluşturalım
                     var monitorCount = monitors.Count;
 
                     // Data rows
@@ -1292,12 +1288,11 @@ namespace ForQab.Repository.Concrete
         public async Task AssignExpertsForMXToExamAsync(AssignExpertForMXToExamViewModel viewModel)
         {
             var exam = await _context.Exams
-                .Include(e => e.Experts) // Exam ile Experts ilişkisini yüklüyoruz
+                .Include(e => e.Experts) 
                 .FirstOrDefaultAsync(e => e.Id == viewModel.ExamId);
 
-            if (exam == null) return; // Eğer sınav bulunamazsa işlemi durdur
+            if (exam == null) return; 
 
-            // Yeni ExamExpertSubProfession kayıtlarını oluştur
             var examExpertList = viewModel.ExpertForms
                 .Select(expertForm => new ExamExpertSubProfession
                 {
@@ -1307,10 +1302,9 @@ namespace ForQab.Repository.Concrete
                 })
                 .ToList();
 
-            // Yeni uzmanları ekleyelim (duplicate kontrolü yaparak)
             foreach (var expertForm in viewModel.ExpertForms)
             {
-                if (!exam.Experts.Any(e => e.Id == expertForm.ExpertId)) // Daha önce eklenmemişse ekle
+                if (!exam.Experts.Any(e => e.Id == expertForm.ExpertId)) 
                 {
                     var expert = await _context.Experts.FindAsync(expertForm.ExpertId);
                     if (expert != null)

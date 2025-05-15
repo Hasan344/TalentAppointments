@@ -805,13 +805,19 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> ExportContingentRegister(int examId)
         {
             var fileContents = await _examService.ExportExamToWordAsync(examId);
-            return File(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"Exam Id:{examId}.docx");
+            return File(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"İşçi heyət qeydiyyat vərəqi (İmtahan Id:{examId}).docx");
         }
         [HttpPost]
         public async Task<IActionResult> ExportExpertRegister(int examId)
         {
             var fileContents = await _examService.ExportExamToWordAsyncForMX(examId);
-            return File(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"Exam Id:{examId}.docx");
+            return File(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"İşçi heyət qeydiyyat vərəqi (İmtahan Id:{examId}).docx");
+        }
+        [HttpPost]
+        public async Task<IActionResult> ExportVolunteerRegister(int examId)
+        {
+            var fileContents = await _examService.ExportExamToWordAsyncForV(examId);
+            return File(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"Könüllü qeydiyyat vərəqi (İmtahan Id::{examId}).docx");
         }
 
         public async Task<IActionResult> ExportToExcel()
