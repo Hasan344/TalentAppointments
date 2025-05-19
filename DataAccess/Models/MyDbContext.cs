@@ -88,6 +88,8 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<WorkerType> WorkerTypes { get; set; }
 
+    public virtual DbSet<NaturaType> NaturaTypes { get; set; }
+
     public virtual DbSet<FinancialRate> FinancialRates { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -394,6 +396,8 @@ public partial class MyDbContext : DbContext
             entity.HasOne(d => d.RoleNavigation).WithMany(p => p.Monitors).HasConstraintName("FK__monitor_role");
 
             entity.HasOne(d => d.WorkerTypeNavigation).WithMany(p => p.Monitors).HasConstraintName("FK__monitor_workertype");
+
+            entity.HasOne(d => d.NaturaTypeNavigation).WithMany(p => p.Monitors).HasConstraintName("FK__monitor_naturatype");
 
             entity.HasOne(d => d.ExamBuilding).WithMany(p => p.Monitors).HasConstraintName("FK__monitor_building");
 

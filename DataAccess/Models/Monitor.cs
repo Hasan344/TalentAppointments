@@ -54,8 +54,12 @@ public partial class Monitor
     [StringLength(50)]
     public string? Position { get; set; }
 
-    [Column("age")]
-    public int? Age { get; set; }
+    [Column("natura_type")]
+    public byte? NaturaType { get; set; }
+
+    [ForeignKey("NaturaType")]
+    [InverseProperty("Monitors")]
+    public virtual NaturaType? NaturaTypeNavigation { get; set; }
 
     [Column("photo")]
     [StringLength(4000)]

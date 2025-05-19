@@ -154,7 +154,7 @@ namespace ForQab.Service
 
             try
             {
-                byte[] imageBytes = System.IO.File.ReadAllBytes(imagePath);
+                byte[] imageBytes = File.ReadAllBytes(imagePath);
 
                 using var inputStream = new MemoryStream(imageBytes);
                 using var image = Image.FromStream(inputStream);

@@ -54,7 +54,6 @@
             </dl>
         </div>
 
-        <!-- Right Column -->
         <div class="col-md-6">
             <dl class="row">
 
@@ -185,30 +184,35 @@
         data-form-id="manageExpertsForm">
     <i class="bi bi-trash"></i> Seçilmişləri Sil
 </button>
-                    <!-- Katılım Təsdiq Butonu -->
                     <button type="submit" name="action" value="update"
                             class="btn btn-outline-success px-4 py-2 mx-2">
                         <i class="bi bi-check-circle"></i> Gələnləri Təsdiq Et
                     </button>
-                    <!-- Ekspert Təyin Et Butonu -->
-                    <a class="btn btn-success px-4 py-2 mx-2"
-                       style="background-color: @primaryColor; border: none;"
-                       asp-action="AssignExperts" asp-route-id="@Model.Id">
-                        <i class="bi bi-person-plus"></i> Ekspert Təyin Et
-                    </a>
+
+                    @if (ViewBag.SectionId != 3 && ViewBag.SectionId != 4 && ViewBag.SectionId != 6)
+                    {
+                        <a class="btn btn-success px-4 py-2 mx-2"
+                        style="background-color: @primaryColor; border: none;"
+                        asp-action="AssignExperts" asp-route-id="@Model.Id">
+                            <i class="bi bi-person-plus"></i> Ekspert Təyin Et
+                        </a>
+                    }
                 </div>
             </form>
         }
         else
         {
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir ekspert təyin edilməyib.</p>
-            <div class="text-center mt-3">
-                <a class="btn btn-success px-4 py-2 mx-2"
+            @if (ViewBag.SectionId != 3 && ViewBag.SectionId != 4 && ViewBag.SectionId != 6)
+            {
+                <div class="text-center mt-3">
+                    <a class="btn btn-success px-4 py-2 mx-2"
                    style="background-color: @primaryColor; border: none;"
                    asp-action="AssignExperts" asp-route-id="@Model.Id">
                     <i class="bi bi-person-plus"></i> Ekspert Təyin Et
                 </a>
             </div>
+            }
         }
     </div>
 
@@ -285,7 +289,7 @@
                 <div class="text-center mt-3">
                     <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteExpertsForm">
                         <i class="bi bi-trash"></i> Seçilmişləri Sil
-                    </button>
+                        </button>
                 </div>
             </form>
         }
@@ -379,20 +383,26 @@
                 <button type="submit" name="action" value="update"
                         class="btn btn-outline-success px-4 py-2 mx-2">
                     <i class="bi bi-check-circle"></i> Gələnləri Təsdiq Et
-                </button>
+                    </button>
+                    @if (ViewBag.SectionId != 3 && ViewBag.SectionId != 4 && ViewBag.SectionId != 6)
+                    {
                 <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMonitors" asp-route-id="@Model.Id">
                     <i class="bi bi-person-plus"></i> Nəzarətçi Təyin Et
                 </a>
+                    }
             </div>
         </form>
     }
     else
     {
         <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nəzarətçi təyin edilməyib.</p>
-        <div class="text-center mt-3">
+            <div class="text-center mt-3">
+                @if (ViewBag.SectionId != 3 && ViewBag.SectionId != 4 && ViewBag.SectionId != 6)
+                {
             <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMonitors" asp-route-id="@Model.Id">
                 <i class="bi bi-person-plus"></i> Nəzarətçi Təyin Et
             </a>
+                }
         </div>
     }
 </div>
@@ -451,19 +461,25 @@
                     <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteHeadMonitorsForm">
                         <i class="bi bi-trash"></i> Seçilmişləri Sil
                     </button>
-                    <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
-                        <i class="bi bi-person-plus"></i> İmtahan rəhbəri Təyin Et
-                    </a>
+                    @if (ViewBag.SectionId != 3 && ViewBag.SectionId != 4 && ViewBag.SectionId != 6)
+                    {
+                        <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
+                            <i class="bi bi-person-plus"></i> İmtahan rəhbəri Təyin Et
+                        </a>
+                    }
                 </div>
             </form>
         }
         else
         {
             <div class="text-center mt-3">
-            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir İmtahan rəhbəri təyin edilməyib.</p>
-            <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
-                <i class="bi bi-person-plus"></i> İmtahan rəhbəri Təyin Et
+                <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir İmtahan rəhbəri təyin edilməyib.</p>
+                @if (ViewBag.SectionId != 3 && ViewBag.SectionId != 4 && ViewBag.SectionId != 6)
+                {
+                    <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
+                        <i class="bi bi-person-plus"></i> İmtahan rəhbəri Təyin Et
                 </a>
+                }
             </div>
         }
     </div>
@@ -620,7 +636,8 @@
             </div>
         }
     </div>
-
+    @if(ViewBag.SectionId == 1)
+    {
     <!-- Assigned Ministry Representatives Section -->
     <div class="mt-4">
         <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Nazirlik Nümayəndələri</h4>
@@ -677,6 +694,7 @@
 
         }
     </div>
+    }
     <hr />
 
     <div class="text-center mt-4">
