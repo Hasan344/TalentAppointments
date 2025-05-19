@@ -66,6 +66,7 @@ namespace ForQab.Presentation.Controllers
             ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
             ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name");
             ViewData["District"] = new SelectList(_context.Districts, "Id", "Name");
+            ViewData["NaturaType"] = new SelectList(_context.NaturaTypes, "Id", "Name");
             return View();
         }
 
@@ -302,6 +303,7 @@ namespace ForQab.Presentation.Controllers
             ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name", monitor.Gender);
             ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name", monitor.Role);
             ViewData["District"] = new SelectList(_context.Districts, "Id", "Name", monitor.District);
+            ViewData["NaturaType"] = new SelectList(_context.NaturaTypes, "Id", "Name");
         }
     }
 }

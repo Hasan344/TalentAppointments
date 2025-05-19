@@ -85,6 +85,14 @@
                 </div>
 
                 <div class="mb-3">
+                    <label asp-for="NaturaType" class="form-label">Natura növü</label>
+                    <select asp-for="NaturaType" class="form-select" asp-items="ViewBag.NaturaType" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Seçin</option>
+                    </select>
+                    <span asp-validation-for="NaturaType" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
                     <label asp-for="VNum" class="form-label">Vəsiqə nömrəsi</label>
                     <input asp-for="VNum" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="VNum" class="text-danger"></span>

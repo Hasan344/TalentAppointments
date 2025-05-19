@@ -227,7 +227,6 @@ namespace ForQab.Repository.Concrete
                 .Where(e => e.Role == 2)
                 .Where(e => e.Status == 0)
                 .Where(e => e.Archive == 0)
-                .Where(e => e.District == exam.DistrictId)
                 .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id))
                 .OrderBy(e => e.AssignmentCount)
                 .ToListAsync();
@@ -236,6 +235,14 @@ namespace ForQab.Repository.Concrete
             {
                 availableMonitors = availableMonitors
                     .Where(e => e.Gender == genderId)
+                    .OrderBy(e => e.AssignmentCount)
+                    .ToList();
+            }
+
+            if (exam.SectionId == 2 || exam.SectionId == 5)
+            {
+                availableMonitors = availableMonitors
+                    .Where(e => e.District == exam.DistrictId)
                     .OrderBy(e => e.AssignmentCount)
                     .ToList();
             }
@@ -758,7 +765,7 @@ namespace ForQab.Repository.Concrete
                 table.AppendChild(tblProp);
 
                 TableRow headerRow = new TableRow();
-                string[] headers = { "İmtahan Tarixi", "İstiqamət", "Təhsil Səviyyəsi", "Komissiya", "İxtisas", "İmtahan keçirilən rayon", "İmtahan mərkəzinin adı", "İştirakçı Sayı", "Buraxılışın başlanması", "İmtahan başlanması", "İmtahanın bitməsi" };
+                string[] headers = { "İmtahan Tarixi", "İstiqamət",  "Komissiya",  "İmtahan keçirilən rayon", "İmtahan mərkəzinin adı", "İştirakçı Sayı", "Buraxılışın başlanması", "İmtahan başlanması", "İmtahanın bitməsi", "Qeyd" };
                 foreach (var header in headers)
                 {
                     TableCell cell = new TableCell(new Paragraph(new Run(new Text(header))));
@@ -775,34 +782,45 @@ namespace ForQab.Repository.Concrete
                     string bgColor = "aae4e8";
                     if (sectionId == 1)
                     {
-                        bgColor = "f4bc72";
+                        bgColor = "94e3a9";
                     }
                     else if (sectionId == 2)
                     {
-                        bgColor = "50bdda";
+                        bgColor = "edf2b3";
                     }
                     else if (sectionId == 3)
                     {
-                        bgColor = "8b1c00";
+                        bgColor = "cdd4f7";
+                    }
+                    else if (sectionId == 4)
+                    {
+                        bgColor = "cde8f7";
+                    }
+                    else if (sectionId == 5)
+                    {
+                        bgColor = "edcacd";
+                    }
+                    else if (sectionId == 6)
+                    {
+                        bgColor = "ddf5d7";
                     }
 
 
 
                     TableCellProperties cellProperties = new TableCellProperties(
-                        new Shading() { Val = ShadingPatternValues.Clear, Fill = bgColor } // Arka plan rengi
+                        new Shading() { Val = ShadingPatternValues.Clear, Fill = bgColor } 
                     );
 
                     row.Append(CreateColoredCell(exam.ExamDate.ToString("dd.MM.yyyy"), bgColor));
                     row.Append(CreateColoredCell(exam.Section?.Name ?? "", bgColor));
-                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamDegrees?.Select(d => d.Degrees.Name) ?? new List<string>()), bgColor));
                     row.Append(CreateColoredCell(string.Join(", ", exam.ExamCommissions?.Select(c => c.Commission.CommissionNo) ?? new List<string>()), bgColor));
-                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamExpertSubProfessions?.Select(s => s.SubProfession.Name).Distinct() ?? new List<string>()), bgColor));
                     row.Append(CreateColoredCell(exam.District?.Name ?? "", bgColor));
                     row.Append(CreateColoredCell($"{exam.ExamBuilding?.Name ?? ""}, {exam.ExamBuilding?.Address ?? ""}", bgColor));
                     row.Append(CreateColoredCell(exam.StudentCount?.ToString() ?? "", bgColor));
                     row.Append(CreateColoredCell(exam.AdmissionTime?.ToString(@"hh\:mm") ?? "", bgColor));
                     row.Append(CreateColoredCell(exam.StartTime?.ToString(@"hh\:mm") ?? "", bgColor));
                     row.Append(CreateColoredCell(exam.EndTime?.ToString(@"hh\:mm") ?? "", bgColor));
+                    row.Append(CreateColoredCell("", bgColor));
 
                     table.Append(row);
                 }
