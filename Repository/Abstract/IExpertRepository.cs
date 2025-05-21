@@ -32,5 +32,6 @@ namespace ForQab.Repository.Abstract
         Task<List<Expert>> GetExpertsByIdsAsync(List<int> expertIds);
         Task<Expert?> FindSuitableExpertAsync(int? subProfessionId, int? federationId, int currentExpertId);
         Task<Expert> FindSuitableExpertAsync(int? subProfessionId, int? federation, int excludeExpertId, int examId);
+        Task<List<SubProfession>> GetSubProfessionsByFederationAsync(int federationId);
     }
 }

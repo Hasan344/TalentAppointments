@@ -258,4 +258,8 @@ public class ExpertService : IExpertService
     {
         await _expertRepository.UpdateExpertAsync(expert);
     }
+    public async Task<List<SubProfession>> GetSubProfessionsByFederationAsync(int federationId)
+    {
+        return await _expertRepository.GetSubProfessionsByFederationAsync(federationId);
+    }
 }

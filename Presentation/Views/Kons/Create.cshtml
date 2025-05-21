@@ -38,7 +38,13 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Profession" class="form-label">İxtisas</label>
+                    <label asp-for="Serial" class="form-label">Seriya nömrəsi</label>
+                    <input asp-for="Serial" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Serial" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Profession" class="form-label">İş yeri vəzifəsi</label>
                     <input asp-for="Profession" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="Profession" class="text-danger"></span>
                 </div>
@@ -102,7 +108,7 @@
                     <span asp-validation-for="BankFilialCode" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Alt Peşələr</label>
+                    <label class="form-label"İxtisaslar</label>
                     <select asp-for="SelectedSubProfessions" class="form-select" asp-items="Model.SubProfessions" multiple style="background-color: #23272a; color: #ffffff;">
                     </select>
                     <span asp-validation-for="SelectedSubProfessions" class="text-danger"></span>
