@@ -357,5 +357,11 @@ namespace ForQab.Repository.Concrete
                 .OrderBy(e => e.AssignmentCount)
                 .FirstOrDefaultAsync();
         }
+        public async Task<List<SubProfession>> GetSubProfessionsByFederationAsync(int federationId)
+        {
+            return await _context.SubProfessions
+                .Where(sp => sp.ProfessionId == federationId)
+                .ToListAsync();
+        }
     }
 }

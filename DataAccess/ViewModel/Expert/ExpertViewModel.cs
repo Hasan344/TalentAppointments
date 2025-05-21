@@ -17,6 +17,7 @@ namespace ForQab.Data_Access.ViewModel
         public string? BankFilialCode { get; set; }
         public Boolean? Kons { get; set; }
         public string? FinCode { get; set; }
+        public string? Serial { get; set; }
         public string? Profession { get; set; }
         public int? Federation { get; set; }
         public byte? Gender { get; set; }

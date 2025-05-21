@@ -17,6 +17,7 @@ namespace ForQab.DataAccess.ViewModel.Expert
         public string? BankFilialCode { get; set; }
         public Boolean? Kons { get; set; }
         public string? FinCode { get; set; }
+        public string? Serial { get; set; }
         public string? Profession { get; set; }
         public string? TelIs { get; set; }
         public string? TelEl { get; set; }

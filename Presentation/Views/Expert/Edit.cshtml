@@ -41,7 +41,13 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Profession" class="form-label">İxtisas</label>
+                    <label asp-for="Serial" class="form-label">Seriya nömrəsi</label>
+                    <input asp-for="Serial" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Serial" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Profession" class="form-label">İş yeri vəzifəsi</label>
                     <input asp-for="Profession" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="Profession" class="text-danger"></span>
                 </div>
@@ -143,7 +149,7 @@
                 }
 
                 <div class="mb-3">
-                    <label class="form-label">Alt Peşələr</label>
+                    <label class="form-label">İxtisas</label>
                     <select asp-for="SelectedSubProfessions" id="SelectedSubProfessions" class="form-select" multiple style="background-color: #23272a; color: #ffffff;">
                         @if (ViewBag.Section != 1)
                         {
@@ -165,34 +171,49 @@
 </div>
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('.multiple-modern-select').select2({
-                placeholder: "Sub-Professions seçin",
-                allowClear: true
-            });
+        $(document).ready(function () {
+            // Mevcut seçili SubProfession'ları JavaScript'e aktar
+            var selectedSubProfessions = @Html.Raw(Json.Serialize(Model.SelectedSubProfessions));
+
+            // Federation değiştiğinde SubProfession'ları güncelle
+            var section = @ViewBag.Section;
+            if (section === 1) {
+                $('#Federation').change(function () {
+                    var federationId = $(this).val();
+                    var subProfessionDropdown = $('#SelectedSubProfessions');
+
+                    if (federationId) {
+                        $.getJSON("/Expert/GetSubProfessionsByFederation", { federationId: federationId }, function (data) {
+                            subProfessionDropdown.empty();
+                            $.each(data, function (index, item) {
+                                var isSelected = selectedSubProfessions.includes(item.id);
+                                subProfessionDropdown.append(new Option(item.name, item.id, isSelected, isSelected));
+                            });
+                        }).fail(function (jqXHR, textStatus, errorThrown) {
+                            console.error('SubProfession yükleme hatası:', textStatus, errorThrown);
+                        });
+                    } else {
+                        subProfessionDropdown.empty();
+                    }
+                });
+
+                // Sayfa yüklendiğinde mevcut Federation için SubProfession'ları yükle
+                var currentFederationId = $('#Federation').val();
+                if (currentFederationId) {
+                    $.getJSON("/Expert/GetSubProfessionsByFederation", { federationId: currentFederationId }, function (data) {
+                        var subProfessionDropdown = $('#SelectedSubProfessions');
+                        subProfessionDropdown.empty();
+                        $.each(data, function (index, item) {
+                            var isSelected = selectedSubProfessions.includes(item.id);
+                            subProfessionDropdown.append(new Option(item.name, item.id, isSelected, isSelected));
+                        });
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        console.error('SubProfession yükleme hatası:', textStatus, errorThrown);
+                    });
+                }
+            }
         });
     </script>
 }
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    var section = @ViewBag.Section;
-    if (section === 1) {
-    $(document).ready(function () {
-        $("#Federation").change(function () {
-            var federationId = $(this).val();
-            if (federationId) {
-                $.getJSON("/Expert/GetSubProfessionsByFederation", { federationId: federationId }, function (data) {
-                    var subProfessionDropdown = $("#SelectedSubProfessions");
-                    subProfessionDropdown.empty(); 
-                    $.each(data, function (index, item) {
-                        subProfessionDropdown.append(new Option(item.name, item.id));
-                    });
-                });
-            } else {
-                $("#SelectedSubProfessions").empty();
-            }
-        });
-    });
-    }
-</script>

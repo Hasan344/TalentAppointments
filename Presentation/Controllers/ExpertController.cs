@@ -115,7 +115,7 @@ namespace ForQab.Presentation.Controllers
             var expert = await _expertService.GetExpertByIdAsync(id);
             var sectionId = await GetCurrentSectionIdAsync();
             ViewBag.Section = sectionId;
-            var federations = await _expertService.GetFederationsAsync(sectionId);
+
             if (expert == null)
             {
                 return NotFound();
@@ -124,8 +124,25 @@ namespace ForQab.Presentation.Controllers
             {
                 return Forbid();
             }
+
+            var federations = await _expertService.GetFederationsAsync(sectionId);
             var sections = await _expertService.GetSectionsAsync(sectionId);
-            var allSubProfessions = await _expertService.GetSubProfessionsAsync(sectionId);
+
+            // Federation'a bağlı SubProfession'ları yükle
+            var allSubProfessions = sectionId == 1
+                ? await _expertService.GetSubProfessionsByFederationAsync((int)expert.Federation)
+                : await _expertService.GetSubProfessionsAsync(sectionId);
+
+            var selectedIds = expert.ExpertsProfessions.Select(sp => sp.SubProfessionId).ToList();
+
+            var subProfessions = allSubProfessions
+                .Select(sp => new SelectListItem
+                {
+                    Value = sp.Id.ToString(),
+                    Text = sp.Name,
+                    Selected = selectedIds.Contains(sp.Id)
+                })
+                .ToList();
 
             // Map to ViewModel
             var viewModel = new ExpertEditViewModel
@@ -150,18 +167,13 @@ namespace ForQab.Presentation.Controllers
                 TelEl = expert.TelEl,
                 TelIs = expert.TelIs,
                 SelectedSubProfessions = expert.ExpertsProfessions.Select(sp => sp.SubProfessionId).ToArray(),
-                SubProfessions = allSubProfessions
-                    .Select(sp => new SelectListItem
-                    {
-                        Value = sp.Id.ToString(),
-                        Text = sp.Name
-                    })
-                    .ToList()
+                SubProfessions = subProfessions
             };
 
             ViewData["SectionId"] = new SelectList(sections, "Id", "Name", expert.SectionId);
             ViewBag.GenderList = new SelectList(_context.Genders.ToList(), "Id", "Name");
-            ViewBag.FederationList = new SelectList(federations, "Id", "Name");
+            ViewBag.FederationList = new SelectList(federations, "Id", "Name", expert.Federation);
+
             return View(viewModel);
         }
 
