@@ -91,7 +91,7 @@ namespace ForQab.Service
         {
             var expert = await _konsRepository.GetByIdAsync(id);
             if (expert == null)
-                throw new Exception($"Expert with ID {id} not found.");
+                throw new Exception($"{id} Id-yə sahib expert yoxdur.");
 
             string photoPath = $@"\\teshkilat-db\Images\Talent\{expert.FinCode}.jpg";
             expert.Photo = ConvertToBase64(photoPath);

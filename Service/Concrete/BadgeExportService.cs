@@ -31,7 +31,7 @@
                 .Include(e => e.ExamRepresentatives).ThenInclude(eep => eep.Representative)
                 .FirstOrDefault(e => e.Id == examId);
 
-            if (exam == null) throw new Exception("Exam not found");
+            if (exam == null) throw new Exception("İmtahan tapılmadı");
 
             var badges = new List<BadgeModel>();
 
