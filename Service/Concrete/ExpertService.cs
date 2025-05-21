@@ -1,4 +1,5 @@
-﻿using ForQab.Data_Access.ViewModel;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using ForQab.Data_Access.ViewModel;
 using ForQab.Data_Access.ViewModel.Expert;
 using ForQab.DataAccess.Models;
 using ForQab.Repository.Abstract;
@@ -20,9 +21,8 @@ public class ExpertService : IExpertService
     public async Task<IEnumerable<Expert>> GetAllExpertsAsync()
     {
         var experts = await _expertRepository.GetAllAsync();
-        // Biznes qaydaları: Məsələn, boş siyahını yoxlamaq və ya log yazmaq
         if (experts == null)
-            throw new Exception("No experts found.");
+            throw new Exception("Expert tapılmadı.");
         return experts;
     }
 
@@ -30,7 +30,7 @@ public class ExpertService : IExpertService
     {
         var expert = await _expertRepository.GetByIdAsync(id);
         if (expert == null)
-            throw new Exception($"Expert with ID {id} not found.");
+            throw new Exception($"{id} Id-yə sahib expert yoxdur.");
 
         string photoPath = $@"\\teshkilat-db\Images\Talent\{expert.FinCode}.jpg";
         expert.Photo = ConvertToBase64(photoPath);
@@ -66,7 +66,7 @@ public class ExpertService : IExpertService
     {
         // Biznes qaydaları: Ekspert adının boş olmaması
         if (string.IsNullOrWhiteSpace(expertViewModel.Name))
-            throw new ArgumentException("Expert name cannot be empty.");
+            throw new ArgumentException("Ad boş ola bilməz.");
 
         await _expertRepository.AddAsync(expertViewModel);
     }
@@ -75,11 +75,11 @@ public class ExpertService : IExpertService
     {
         // Biznes qaydaları: Ekspert ID-si yoxlanılır
         if (expert.Id <= 0)
-            throw new ArgumentException("Invalid expert ID.");
+            throw new ArgumentException("Id Xətası.");
 
         var existingExpert = await _expertRepository.GetByIdAsync(expert.Id);
         if (existingExpert == null)
-            throw new Exception($"Expert with ID {expert.Id} not found.");
+            throw new Exception($"{expert.Id} Id-yə sahib expert yoxdur.");
 
         await _expertRepository.UpdateAsync(expert);
     }
@@ -88,7 +88,7 @@ public class ExpertService : IExpertService
     {
         var expert = await _expertRepository.GetByIdAsync(id);
         if (expert == null)
-            throw new Exception($"Expert with ID {id} not found.");
+            throw new Exception($"{expert.Id} Id-yə sahib expert yoxdur.");
 
         await _expertRepository.DeleteAsync(id);
     }
@@ -101,7 +101,7 @@ public class ExpertService : IExpertService
 
         var expert = await _expertRepository.GetByIdAsync(expertId);
         if (expert == null)
-            throw new Exception($"Expert with ID {expertId} not found.");
+            throw new Exception($"{expert.Id} Id-yə sahib expert yoxdur.");
 
         await _expertRepository.AddSubProfessionToExpertAsync(expertId, subProfession);
     }
@@ -110,7 +110,7 @@ public class ExpertService : IExpertService
     {
         var expert = await _expertRepository.GetByIdAsync(expertId);
         if (expert == null)
-            throw new Exception($"Expert with ID {expertId} not found.");
+            throw new Exception($"{expert.Id} Id-yə sahib expert yoxdur.");
 
         await _expertRepository.RemoveSubProfessionFromExpertAsync(expertId, subProfessionId);
     }

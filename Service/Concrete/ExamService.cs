@@ -650,7 +650,7 @@ namespace ForQab.Service
                 .Include(e => e.Representatives)
                 .FirstOrDefaultAsync(e => e.Id == examId);
 
-            if (exam == null) throw new Exception("Exam not found");
+            if (exam == null) throw new Exception("İmtahan tapılmadı");
 
             using var ms = new MemoryStream();
             using (var wordDocument = WordprocessingDocument.Create(ms, WordprocessingDocumentType.Document, true))
@@ -789,7 +789,7 @@ namespace ForQab.Service
                 .Include(e => e.Representatives)
                 .FirstOrDefaultAsync(e => e.Id == examId);
 
-            if (exam == null) throw new Exception("Exam not found");
+            if (exam == null) throw new Exception("İmtahan tapılmadı");
 
             using var ms = new MemoryStream();
             using (var wordDocument = WordprocessingDocument.Create(ms, WordprocessingDocumentType.Document, true))
@@ -856,7 +856,7 @@ namespace ForQab.Service
                 .Include(e => e.ExamMonitors).ThenInclude(em => em.Monitors)
                 .FirstOrDefaultAsync(e => e.Id == examId);
 
-            if (exam == null) throw new Exception("Exam not found");
+            if (exam == null) throw new Exception("İmtahan tapılmadı");
 
             using var ms = new MemoryStream();
             using (var wordDocument = WordprocessingDocument.Create(ms, WordprocessingDocumentType.Document, true))
@@ -1097,7 +1097,7 @@ namespace ForQab.Service
         public async Task RemoveExpertsFromExamAsync(int examId, List<int> expertIds)
         {
             var exam = await _examRepository.GetByIdAsync(examId);
-            if (exam == null) throw new ArgumentException("Exam not found");
+            if (exam == null) throw new ArgumentException("İmtahan tapılmadı");
 
             var examExpertSubProfessions = await _examExpertSubProfessionRepository
                         .GetAllAsync(x => x.ExamId == examId && expertIds.Contains(x.ExpertId));
@@ -1116,7 +1116,7 @@ namespace ForQab.Service
         public async Task RemoveMonitorsFromExamAsync(int examId, List<int> monitorIds)
         {
             var exam = await _examRepository.GetByIdAsync(examId);
-            if (exam == null) throw new ArgumentException("Exam not found");
+            if (exam == null) throw new ArgumentException("İmtahan tapılmadı");
 
             var monitorsToRemove = exam.Monitors.Where(m => monitorIds.Contains(m.Id)).ToList();
             foreach (var monitor in monitorsToRemove)

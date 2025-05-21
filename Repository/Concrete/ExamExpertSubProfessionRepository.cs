@@ -28,15 +28,6 @@ namespace ForQab.Repository.Concrete
         .Select(eesp => eesp.SubProfessionId)
         .FirstOrDefaultAsync();
 
-            if (result == null)
-            {
-                Console.WriteLine($"No SubProfessionId found for ExamId: {examId}, ExpertId: {expertId}");
-            }
-            else
-            {
-                Console.WriteLine($"SubProfessionId {result} found for ExamId: {examId}, ExpertId: {expertId}");
-            }
-
             return (int)result;
         }
 

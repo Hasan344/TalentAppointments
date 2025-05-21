@@ -80,7 +80,7 @@ namespace ForQab.Repository.Concrete
             var monitor = await _dbContext.Monitors.FindAsync(model.Id);
             if (monitor == null)
             {
-                throw new KeyNotFoundException("Monitor tapılmadı.");
+                throw new KeyNotFoundException("Nəzarətçi tapılmadı.");
             }
 
             // Güncellenmesi gereken alanlar
@@ -138,7 +138,7 @@ namespace ForQab.Repository.Concrete
             }
             catch (Exception ex)
             {
-               Console.WriteLine($"Error occurred while retrieving monitor with Id {monitorId}: {ex.Message}");
+               Console.WriteLine($"Bu Id-yə sahib nəzarətçi yoxdur");
                 throw;
             }
         }

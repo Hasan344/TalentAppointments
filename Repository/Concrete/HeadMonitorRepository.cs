@@ -80,7 +80,7 @@ namespace ForQab.Repository.Concrete
             var monitor = await _dbContext.Monitors.FindAsync(model.Id);
             if (monitor == null)
             {
-                throw new KeyNotFoundException("Monitor tapılmadı.");
+                throw new KeyNotFoundException("İmtahan rəhbəri tapılmadı.");
             }
 
             // Güncellenmesi gereken alanlar

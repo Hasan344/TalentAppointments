@@ -65,7 +65,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 builder.Services.AddScoped(typeof(SectionValidationFilter<>));
 
-Console.WriteLine("ENVIRONMENT: " + builder.Environment.EnvironmentName);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews()
@@ -77,7 +76,6 @@ builder.Services.AddControllersWithViews()
     });
 builder.Services.AddRazorPages();
 
-Console.WriteLine("ENVIRONMENT: " + builder.Environment.EnvironmentName);
 
 var app = builder.Build();
 

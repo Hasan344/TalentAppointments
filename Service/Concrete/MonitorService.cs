@@ -192,7 +192,7 @@ namespace ForQab.Service
 
             if (existingMonitor == null)
             {
-                throw new Exception("Monitor tapılmadı");
+                throw new Exception("Nəzarətçi tapılmadı");
             }
 
             // Temel bilgileri güncelle
@@ -505,7 +505,7 @@ namespace ForQab.Service
 
             if (monitor == null)
             {
-                throw new KeyNotFoundException("Monitor not found");
+                throw new KeyNotFoundException("Nəzarətçi tapılmadı");
             }
 
             var sectionId = monitor.SectionId;
