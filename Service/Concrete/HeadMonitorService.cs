@@ -355,7 +355,7 @@ namespace ForQab.Service
         {
             return await _headMonitorRepository.GetMonitorLogsBySupervisorIdAsync(monitorId);
         }
-
+         
         public async Task DeleteMonitorLogs(int? id)
         {
             await _headMonitorRepository.DeleteMonitorLogs(id);
@@ -536,6 +536,26 @@ namespace ForQab.Service
             }
 
             return output.ToArray();
+        }
+        public async Task<List<int>> FilterSelectedMonitorsAsync(
+     List<int> selectedIds, string searchName, int? districtId)
+        {
+            var query = _context.Monitors.AsQueryable();
+
+            query = query.Where(m => selectedIds.Contains(m.Id));
+
+            if (!string.IsNullOrWhiteSpace(searchName))
+            {
+                var keyword = searchName.Trim().ToLower();
+                query = query.Where(m =>
+                    (m.Name + " " + m.Surname).ToLower().Contains(keyword) ||
+                    (m.Surname + " " + m.Name).ToLower().Contains(keyword));
+            }
+
+            if (districtId.HasValue)
+                query = query.Where(m => m.District == districtId);
+
+            return await query.Select(m => m.Id).ToListAsync();
         }
     }
 }

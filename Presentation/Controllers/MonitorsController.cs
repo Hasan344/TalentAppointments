@@ -338,18 +338,57 @@ namespace ForQab.Presentation.Controllers
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]
-        public async Task<IActionResult> ExportContracts(List<int> selectedMonitorIds,DateTime contractDate)
+        public async Task<IActionResult> ExportContracts(
+    List<int> selectedMonitorIds,
+    DateTime contractDate,
+    string searchName,
+    int? districtId)
         {
             if (selectedMonitorIds == null || !selectedMonitorIds.Any())
                 return RedirectToAction(nameof(Index));
 
+            // Seçilmişləri filtrele
+            var filteredIds = await _monitorService
+                .FilterSelectedMonitorsAsync(selectedMonitorIds, searchName, districtId);
+
             var bytes = await _monitorService
-                .ExportContractsToWordAsync(selectedMonitorIds, contractDate);
+                .ExportContractsToWordAsync(filteredIds, contractDate);
+
             return File(
                 bytes,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 "Mugavileler.docx");
         }
+        [HttpPost]
+        public async Task<IActionResult> FilterMonitorsAjax(string searchName, int? districtId)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var monitors = _context.Monitors.Where(m => m.SectionId == sectionId && m.Role == 2).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchName))
+            {
+                var keyword = searchName.Trim().ToLower();
+                monitors = monitors.Where(m =>
+                    (m.Name + " " + m.Surname).ToLower().Contains(keyword) ||
+                    (m.Surname + " " + m.Name).ToLower().Contains(keyword));
+            }
+
+            if (districtId.HasValue)
+                monitors = monitors.Where(m => m.District == districtId);
+
+            var list = await monitors
+                .OrderBy(m => m.Name)
+                .Select(m => new
+                {
+                    m.Id,
+                    m.Name,
+                    m.Surname,
+                    m.FinCode
+                }).ToListAsync();
+
+            return PartialView("_MonitorCheckboxListPartial", list);
+        }
+
 
     }
 

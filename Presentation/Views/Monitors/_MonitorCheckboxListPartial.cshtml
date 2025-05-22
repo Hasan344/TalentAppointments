@@ -1,0 +1,13 @@
+﻿@model IEnumerable<dynamic>
+
+@foreach (var item in Model)
+{
+    <tr>
+        <td>
+            <input type="checkbox" name="selectedMonitorIds" value="@item.Id" class="select-item" />
+        </td>
+        <td>@item.Name</td>
+        <td>@item.Surname</td>
+        <td>@item.FinCode</td>
+    </tr>
+}

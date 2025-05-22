@@ -219,7 +219,7 @@ namespace ForQab.Service
         {
             var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts", "NaturaTypeNavigation" };
 
-            var monitors = await _naturaRepository.GetAllAsync(sectionId, 2, null, includes);
+            var monitors = await _naturaRepository.GetAllAsync(sectionId, 3, null, includes);
 
             if (genderId.HasValue)
                 monitors = monitors.Where(m => m.Gender == genderId.Value).ToList();
@@ -266,6 +266,7 @@ namespace ForQab.Service
                 new DataColumn("Bank filial kodu"),
                 new DataColumn("İstiqamət"),
                 new DataColumn("Rayon"),
+                new DataColumn("Növ"),
                 new DataColumn("İştirak sayı"),
             });
 
@@ -292,6 +293,7 @@ namespace ForQab.Service
                     monitor.BankFilialCode,
                     monitor.Section?.Name,
                     monitor.DistrictNavigation?.Name,
+                    monitor.NaturaTypeNavigation?.Name,
                     monitor.AssignmentCount
                 );
             }

@@ -817,7 +817,7 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> ExportVolunteerRegister(int examId)
         {
             var fileContents = await _examService.ExportExamToWordAsyncForV(examId);
-            return File(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"Könüllü qeydiyyat vərəqi (İmtahan Id::{examId}).docx");
+            return File(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"Könüllü qeydiyyat vərəqi (İmtahan Id:{examId}).docx");
         }
 
         public async Task<IActionResult> ExportToExcel()
@@ -958,13 +958,11 @@ namespace ForQab.Presentation.Controllers
             {
                 try
                 {
-                    Console.WriteLine($"Silme işlemi için monitorIds: {string.Join(", ", monitorIds)}");
                     await _examService.RemoveMonitorsFromExamAsync(examId, monitorIds.ToList());
                     return RedirectToAction("Details", new { id = examId });
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Silme hatası: {ex.Message}");
                     return BadRequest(ex.Message);
                 }
             }
@@ -977,11 +975,6 @@ namespace ForQab.Presentation.Controllers
                     if (entity != null)
                     {
                         entity.IsAttended = item.IsAttended;
-                        Console.WriteLine($"Güncelleniyor: MonitorId={item.MonitorId}, IsAttended={item.IsAttended}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Entity bulunamadı: MonitorId={item.MonitorId}");
                     }
                 }
                 try
@@ -1110,13 +1103,11 @@ namespace ForQab.Presentation.Controllers
             {
                 try
                 {
-                    Console.WriteLine($"Silme işlemi için expertIds: {string.Join(", ", expertIds)}");
                     await _examService.RemoveExpertsFromExamAsync(examId, expertIds.ToList());
                     return RedirectToAction("Details", new { id = examId });
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Silme hatası: {ex.Message}");
                     return BadRequest(ex.Message);
                 }
             }
@@ -1128,9 +1119,7 @@ namespace ForQab.Presentation.Controllers
                         .FirstOrDefault(e => e.ExamId == examId && e.ExpertId == item.ExpertId);
                     if (entity != null)
                     {
-                        // Checkbox seçili değilse IsAttended 0 olur
-                        entity.IsAttended = item.IsAttended; // item.IsAttended zaten 0 veya 1 olacak
-                        Console.WriteLine($"Updating ExpertId: {item.ExpertId}, IsAttended: {item.IsAttended}");
+                        entity.IsAttended = item.IsAttended; 
                     }
                     else
                     {
