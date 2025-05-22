@@ -205,6 +205,7 @@ namespace ForQab.Presentation.Controllers
 
             monitor.Archive = 1;
             monitor.ArchiveReason = archiveReason;
+            monitor.Photo = null;
             await _monitorService.UpdateAsync(monitor);
 
             TempData["SuccessMessage"] = "Nəzarətçi arxivə göndərildi.";
@@ -222,6 +223,7 @@ namespace ForQab.Presentation.Controllers
 
             monitor.Archive = 0;
             monitor.ArchiveReason = null;
+            monitor.Photo = null;
             await _monitorService.UpdateAsync(monitor);
 
             TempData["SuccessMessage"] = "Nəzarətçi arxivdən çıxarıldı.";

@@ -520,6 +520,7 @@ namespace ForQab.Presentation.Controllers
 
             expert.Archive = 1;
             expert.ArchiveReason = archiveReason;
+            expert.Photo = null;
             await _expertService.UpdateExpertAsync(expert);
 
             TempData["SuccessMessage"] = "Ekspert arxivə göndərildi.";
@@ -537,6 +538,7 @@ namespace ForQab.Presentation.Controllers
 
             expert.Archive = 0;
             expert.ArchiveReason = null;
+            expert.Photo = null;
             await _expertService.UpdateExpertAsync(expert);
 
             TempData["SuccessMessage"] = "Ekspert arxivdən çıxarıldı.";
