@@ -1,5 +1,6 @@
 ﻿using ForQab.DataAccess.Models;
 using ForQab.Presentation.Validators;
+using ForQab.Service;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -304,6 +305,19 @@ namespace ForQab.Presentation.Controllers
             ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name", monitor.Role);
             ViewData["District"] = new SelectList(_context.Districts, "Id", "Name", monitor.District);
             ViewData["NaturaType"] = new SelectList(_context.NaturaTypes, "Id", "Name");
+        }
+        [HttpPost]
+        public async Task<IActionResult> ExportContracts(List<int> selectedMonitorIds, DateTime contractDate)
+        {
+            if (selectedMonitorIds == null || !selectedMonitorIds.Any())
+                return RedirectToAction(nameof(Index));
+
+            var bytes = await _naturaService
+                .ExportContractsToWordAsync(selectedMonitorIds, contractDate);
+            return File(
+                bytes,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "Mugavileler.docx");
         }
     }
 }

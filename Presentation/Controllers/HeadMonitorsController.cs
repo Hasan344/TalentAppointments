@@ -237,6 +237,7 @@ namespace ForQab.Presentation.Controllers
             // Monitor'ü arşive al
             monitor.Archive = 1;
             monitor.ArchiveReason = archiveReason;
+            monitor.Photo = null;
             await _headMonitorService.UpdateAsync(monitor);
 
             TempData["SuccessMessage"] = "İmtahan rəhbəri arxivə göndərildi.";
@@ -255,6 +256,7 @@ namespace ForQab.Presentation.Controllers
             // Monitor'ü arşive al
             monitor.Archive = 0;
             monitor.ArchiveReason = null;
+            monitor.Photo = null;
             await _headMonitorService.UpdateAsync(monitor);
 
             TempData["SuccessMessage"] = "İmtahan rəhbəri arxivdən çıxarıldı.";
