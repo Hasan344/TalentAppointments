@@ -161,6 +161,7 @@ namespace ForQab.Presentation.Controllers
                 Voen = expert.Voen,
                 Kons = false,
                 FinCode = expert.FinCode,
+                Serial = expert.Serial,
                 Profession = expert.Profession,
                 Gender = expert.Gender,
                 Federation = expert.Federation,
@@ -521,7 +522,7 @@ namespace ForQab.Presentation.Controllers
             expert.ArchiveReason = archiveReason;
             await _expertService.UpdateExpertAsync(expert);
 
-            TempData["SuccessMessage"] = "Nəzarətçi arxivə göndərildi.";
+            TempData["SuccessMessage"] = "Ekspert arxivə göndərildi.";
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]
@@ -538,7 +539,7 @@ namespace ForQab.Presentation.Controllers
             expert.ArchiveReason = null;
             await _expertService.UpdateExpertAsync(expert);
 
-            TempData["SuccessMessage"] = "Nəzarətçi arxivdən çıxarıldı.";
+            TempData["SuccessMessage"] = "Ekspert arxivdən çıxarıldı.";
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]

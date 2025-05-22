@@ -70,6 +70,7 @@ namespace ForQab.Repository.Concrete
                 Federation = expertViewModel.Federation,
                 TelIs = expertViewModel.TelIs,
                 TelEl = expertViewModel.TelEl,
+                Serial = expertViewModel.Serial,
                 Kons = false,
                 Status = 0,
                 Archive = 0
@@ -126,6 +127,7 @@ namespace ForQab.Repository.Concrete
                 existingExpert.HesablashmaH = expert.HesablashmaH;
                 existingExpert.TelIs = expert.TelIs;
                 existingExpert.TelEl = expert.TelEl;
+                existingExpert.Serial = expert.Serial;
 
                 // SubProfessions yeniləməsi
                 if (existingExpert.ExpertsProfessions != null)

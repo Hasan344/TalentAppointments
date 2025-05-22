@@ -38,6 +38,26 @@
                 </div>
                 <form method="post" asp-action="ExportContracts">
                     <div class="modal-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="searchName" class="form-label">Ad və soyad</label>
+                                <input type="text" id="searchName" name="searchName" class="form-control" placeholder="Ad və soyad ilə axtar..." />
+                            </div>
+                            <div class="col-md-6">
+                                <label for="districtId" class="form-label">Rayon</label>
+                                <select id="districtId" name="districtId" class="form-select">
+                                    <option value="">Hamısı</option>
+                                    @foreach (var district in ViewBag.Districts)
+                                    {
+                                        <option value="@district.Id">@district.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div><div class="text-end mb-3">
+                            <button type="button" class="btn btn-outline-primary" id="filterMonitorsBtn">
+                                <i class="bi bi-funnel"></i> Filtrlə
+                            </button>
+                        </div>
                         <div class="mb-3">
                             <label for="contractDate" class="form-label">Müqavilə Tarixi</label>
                             <input type="date" id="contractDate" name="contractDate" class="form-control" required />
@@ -53,7 +73,7 @@
                                         <th>FİN Kodu</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="monitorCheckboxList">
                                     @foreach (var item in Model)
                                     {
                                         <tr>
@@ -168,6 +188,28 @@
         document.getElementById('selectAllBtn').addEventListener('click', function () {
             document.querySelectorAll('.select-item').forEach(cb => cb.checked = true);
             document.getElementById('selectAll').checked = true;
+        });
+    </script>
+    <script>
+        document.getElementById("filterMonitorsBtn").addEventListener("click", function () {
+            const name = document.getElementById("searchName").value;
+            const districtId = document.getElementById("districtId").value;
+
+            const formData = new FormData();
+            formData.append("searchName", name);
+            formData.append("districtId", districtId);
+
+            fetch("@Url.Action("FilterMonitorsAjax", "Monitors")", {
+                method: "POST",
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: formData
+            })
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById("monitorCheckboxList").innerHTML = html;
+                });
         });
     </script>
 }
