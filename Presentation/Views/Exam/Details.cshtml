@@ -384,12 +384,9 @@
                         class="btn btn-outline-success px-4 py-2 mx-2">
                     <i class="bi bi-check-circle"></i> Gələnləri Təsdiq Et
                     </button>
-                    @if (ViewBag.SectionId != 3 && ViewBag.SectionId != 4 && ViewBag.SectionId != 6)
-                    {
                 <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMonitors" asp-route-id="@Model.Id">
                     <i class="bi bi-person-plus"></i> Nəzarətçi Təyin Et
                 </a>
-                    }
             </div>
         </form>
     }
@@ -397,12 +394,9 @@
     {
         <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nəzarətçi təyin edilməyib.</p>
             <div class="text-center mt-3">
-                @if (ViewBag.SectionId != 3 && ViewBag.SectionId != 4 && ViewBag.SectionId != 6)
-                {
             <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMonitors" asp-route-id="@Model.Id">
                 <i class="bi bi-person-plus"></i> Nəzarətçi Təyin Et
             </a>
-                }
         </div>
     }
 </div>
@@ -461,12 +455,9 @@
                     <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteHeadMonitorsForm">
                         <i class="bi bi-trash"></i> Seçilmişləri Sil
                     </button>
-                    @if (ViewBag.SectionId != 3 && ViewBag.SectionId != 4 && ViewBag.SectionId != 6)
-                    {
                         <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
                             <i class="bi bi-person-plus"></i> İmtahan rəhbəri Təyin Et
                         </a>
-                    }
                 </div>
             </form>
         }
@@ -474,12 +465,9 @@
         {
             <div class="text-center mt-3">
                 <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir İmtahan rəhbəri təyin edilməyib.</p>
-                @if (ViewBag.SectionId != 3 && ViewBag.SectionId != 4 && ViewBag.SectionId != 6)
-                {
                     <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
                         <i class="bi bi-person-plus"></i> İmtahan rəhbəri Təyin Et
                 </a>
-                }
             </div>
         }
     </div>
@@ -723,13 +711,6 @@
                asp-route-examId="@Model.Id"
                class="btn btn-primary px-4 py-2 mx-2">
                 <i class="bi bi-person-plus"></i>Ekspert və Konsertmeyster Təyin Et
-            </a>
-            <a asp-action="AssignMonitorsForMX"
-               asp-controller="Exam"
-               asp-route-examId="@Model.Id"
-               class="btn btn-primary px-4 py-2 mx-2">
-               <i class="bi bi-person-plus"></i>
-                Nəzarətçi və İmtahan rəhbəri Təyin Et
             </a>
             <form asp-action="AssignWorkers" asp-route-id="@Model.Id" method="post" style="display: inline;">
                 <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">

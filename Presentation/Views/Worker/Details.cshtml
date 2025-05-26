@@ -85,7 +85,7 @@
             <hr class="my-4" />
             @{
                 var latestContract = Model.Contracts
-                    .OrderByDescending(c => c.Date)
+                    .OrderByDescending(c => c.Id)
                     .FirstOrDefault();
             }
             <div class="card shadow-sm border-0 rounded-4 p-4">

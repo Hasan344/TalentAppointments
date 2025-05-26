@@ -354,13 +354,13 @@ namespace ForQab.Presentation.Controllers
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]
-        public async Task<IActionResult> ExportContracts(List<int> selectedMonitorIds, DateTime contractDate)
+        public async Task<IActionResult> ExportContracts(List<int> selectedExpertIds, DateTime contractDate)
         {
-            if (selectedMonitorIds == null || !selectedMonitorIds.Any())
+            if (selectedExpertIds == null || !selectedExpertIds.Any())
                 return RedirectToAction(nameof(Index));
 
             var bytes = await _headMonitorService
-                .ExportContractsToWordAsync(selectedMonitorIds, contractDate);
+                .ExportContractsToWordAsync(selectedExpertIds, contractDate);
             return File(
                 bytes,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",

@@ -27,5 +27,6 @@ namespace ForQab.Service.Abstract
         Task<IEnumerable<Expert>> GetExpertLogsByExpertIdAsync(int expertId);
         Task DeleteExpertLogs(int? id);
         Task<List<SubProfession>> GetSubProfessionsByFederationAsync(int federationId);
+        Task<byte[]> ExportContractsToWordAsync(List<int> selectedExpertIds, DateTime contractDate);
     }
 }

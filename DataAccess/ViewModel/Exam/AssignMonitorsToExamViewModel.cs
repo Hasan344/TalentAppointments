@@ -8,6 +8,7 @@ namespace ForQab.DataAccess.ViewModel.Exam
         public int ExamId { get; set; }
         public int SectionId { get; set; }
         public List<SelectListItem>? Rooms { get; set; }
+        public List<SelectListItem>? SubProfessions { get; set; }
         public int? selectedRoom { get; set; }
         [Required]
         public List<MonitorAssignmentViewModel> Assignments { get; set; } = new();
@@ -20,6 +21,7 @@ namespace ForQab.DataAccess.ViewModel.Exam
         public int? GenderId { get; set; }
         public DateOnly? MaxDate { get; set; }
         public int? RoomId { get; set; }
+        public int? SubProfessionId { get; set; }
         public bool IsReserve { get; set; }
     }
 }

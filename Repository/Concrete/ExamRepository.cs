@@ -233,10 +233,20 @@ namespace ForQab.Repository.Concrete
 
             if (exam.SectionId == 1)
             {
-                availableMonitors = availableMonitors
+                if (genderId == null || genderId == 0)
+                {
+                    availableMonitors = availableMonitors
+                                        .OrderBy(e => e.AssignmentCount)
+                                        .ToList();
+                }
+                else
+                {
+                    availableMonitors = availableMonitors
                     .Where(e => e.Gender == genderId)
                     .OrderBy(e => e.AssignmentCount)
                     .ToList();
+                } 
+                
             }
 
             if (exam.SectionId == 2 || exam.SectionId == 5)
@@ -765,7 +775,7 @@ namespace ForQab.Repository.Concrete
                 table.AppendChild(tblProp);
 
                 TableRow headerRow = new TableRow();
-                string[] headers = { "İmtahan Tarixi", "İstiqamət",  "Komissiya",  "İmtahan keçirilən rayon", "İmtahan mərkəzinin adı", "İştirakçı Sayı", "Buraxılışın başlanması", "İmtahan başlanması", "İmtahanın bitməsi", "Qeyd" };
+                string[] headers = { "İmtahan Tarixi", "İstiqamət", "Komissiya", "İmtahan keçirilən rayon", "İmtahan mərkəzinin adı", "İştirakçı Sayı", "Buraxılışın başlanması", "İmtahan başlanması", "İmtahanın bitməsi", "Qeyd" };
                 foreach (var header in headers)
                 {
                     TableCell cell = new TableCell(new Paragraph(new Run(new Text(header))));
@@ -808,7 +818,7 @@ namespace ForQab.Repository.Concrete
 
 
                     TableCellProperties cellProperties = new TableCellProperties(
-                        new Shading() { Val = ShadingPatternValues.Clear, Fill = bgColor } 
+                        new Shading() { Val = ShadingPatternValues.Clear, Fill = bgColor }
                     );
 
                     row.Append(CreateColoredCell(exam.ExamDate.ToString("dd.MM.yyyy"), bgColor));
@@ -1306,10 +1316,10 @@ namespace ForQab.Repository.Concrete
         public async Task AssignExpertsForMXToExamAsync(AssignExpertForMXToExamViewModel viewModel)
         {
             var exam = await _context.Exams
-                .Include(e => e.Experts) 
+                .Include(e => e.Experts)
                 .FirstOrDefaultAsync(e => e.Id == viewModel.ExamId);
 
-            if (exam == null) return; 
+            if (exam == null) return;
 
             var examExpertList = viewModel.ExpertForms
                 .Select(expertForm => new ExamExpertSubProfession
@@ -1322,7 +1332,7 @@ namespace ForQab.Repository.Concrete
 
             foreach (var expertForm in viewModel.ExpertForms)
             {
-                if (!exam.Experts.Any(e => e.Id == expertForm.ExpertId)) 
+                if (!exam.Experts.Any(e => e.Id == expertForm.ExpertId))
                 {
                     var expert = await _context.Experts.FindAsync(expertForm.ExpertId);
                     if (expert != null)
@@ -1367,6 +1377,6 @@ namespace ForQab.Repository.Concrete
             await _context.SaveChangesAsync();
         }
 
-        
+
     }
 }

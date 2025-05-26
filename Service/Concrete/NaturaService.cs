@@ -356,12 +356,12 @@ namespace ForQab.Service
         {
             return await _naturaRepository.GetMonitorLogsBySupervisorIdAsync(monitorId);
         }
-        public async Task<byte[]> ExportContractsToWordAsync(List<int> selectedMonitorIds, DateTime contractDate)
+        public async Task<byte[]> ExportContractsToWordAsync(List<int> selectedExpertIds, DateTime contractDate)
         {
             // 1) Monitorları ve mevcut Contract’ları al
             var monitors = await _context.Monitors
                 .Include(m => m.Contracts)
-                .Where(m => selectedMonitorIds.Contains(m.Id))
+                .Where(m => selectedExpertIds.Contains(m.Id))
                 .Where(m => m.Archive == 0 && m.Role == 3 && m.Status == 0)
                 .ToListAsync();
 

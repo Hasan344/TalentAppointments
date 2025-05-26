@@ -4,6 +4,7 @@ using ForQab.Data_Access.ViewModel;
 using ForQab.Data_Access.ViewModel.Expert;
 using ForQab.DataAccess.Models;
 using ForQab.Models;
+using ForQab.Service;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -577,6 +578,19 @@ namespace ForQab.Presentation.Controllers
             await _expertService.UpdateExpertAsync(monitor);
 
             return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        public async Task<IActionResult> ExportContracts(List<int> selectedExpertIds, DateTime contractDate)
+        {
+            if (selectedExpertIds == null || !selectedExpertIds.Any())
+                return RedirectToAction(nameof(Index));
+
+            var bytes = await _expertService
+                .ExportContractsToWordAsync(selectedExpertIds, contractDate);
+            return File(
+                bytes,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "Mugavileler.docx");
         }
 
     }
