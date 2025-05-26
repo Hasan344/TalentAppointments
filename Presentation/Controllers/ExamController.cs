@@ -646,6 +646,11 @@ namespace ForQab.Presentation.Controllers
                     Text = sp.Name,
                     Value = sp.Id.ToString()
                 }).ToList(),
+                SubProfessions = _context.SubProfessions.Where(er => er.SectionId == sectionId).Select(sp => new SelectListItem
+                {
+                    Text = sp.Name,
+                    Value = sp.Id.ToString()
+                }).ToList(),
             };
             return View(model);
         }

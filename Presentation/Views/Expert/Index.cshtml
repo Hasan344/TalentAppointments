@@ -26,10 +26,62 @@
             <i class="bi bi-file-earmark-excel"></i> Excel-ə çıxarış
         </a>
         <a class="btn btn-outline-secondary" asp-action="Archived"><i class="bi bi-archive"></i> Arxiv</a>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
+            <i class="bi bi-file-earmark-word"></i> Müqavilə Export
+        </button>
         @{
             var selectedFederationId = ViewContext.HttpContext.Request.Query["federationId"].ToString();
             var selectedSubProfessionId = ViewContext.HttpContext.Request.Query["subProfessionId"].ToString();
         }
+        <!-- Export Modal -->
+        <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exportModalLabel">Müqavilə Export</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="post" asp-action="ExportContracts">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="contractDate" class="form-label">Müqavilə Tarixi</label>
+                                <input type="date" id="contractDate" name="contractDate" class="form-control" required />
+                            </div>
+                            <p>Seçdiyiniz ekspertlərin müqavilələri export ediləcək:</p>
+                            <div class="table-responsive" style="max-height:200px; overflow:auto;">
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th><input type="checkbox" id="selectAll" /></th>
+                                            <th>Ad</th>
+                                            <th>Soyad</th>
+                                            <th>FİN Kodu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <input type="checkbox" name="selectedExpertIds" value="@item.Id" class="select-item" />
+                                                </td>
+                                                <td>@item.Name</td>
+                                                <td>@item.Surname</td>
+                                                <td>@item.FinCode</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
+                            <button type="submit" class="btn btn-primary">Export et</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
         <form method="get" class="d-flex align-items-center gap-2 flex-wrap">
             <!-- Search by Name -->

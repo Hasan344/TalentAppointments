@@ -341,17 +341,17 @@ namespace ForQab.Presentation.Controllers
         }
         [HttpPost]
         public async Task<IActionResult> ExportContracts(
-    List<int> selectedMonitorIds,
+    List<int> selectedExpertIds,
     DateTime contractDate,
     string searchName,
     int? districtId)
         {
-            if (selectedMonitorIds == null || !selectedMonitorIds.Any())
+            if (selectedExpertIds == null || !selectedExpertIds.Any())
                 return RedirectToAction(nameof(Index));
 
             // Seçilmişləri filtrele
             var filteredIds = await _monitorService
-                .FilterSelectedMonitorsAsync(selectedMonitorIds, searchName, districtId);
+                .FilterSelectedMonitorsAsync(selectedExpertIds, searchName, districtId);
 
             var bytes = await _monitorService
                 .ExportContractsToWordAsync(filteredIds, contractDate);

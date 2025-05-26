@@ -372,15 +372,15 @@ namespace ForQab.Presentation.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ExportContracts(List<int> selectedMonitorIds, DateTime contractDate, int workerType)
+        public async Task<IActionResult> ExportContracts(List<int> selectedExpertIds, DateTime contractDate, int workerType)
         {
-            if (selectedMonitorIds == null || !selectedMonitorIds.Any())
+            if (selectedExpertIds == null || !selectedExpertIds.Any())
             {
                 TempData["ErrorMessage"] = "Seçim edilməmişdir.";
                 return RedirectToAction(nameof(Index));
             }
 
-            var fileContent = await _workerService.ExportContractsToWordAsync(selectedMonitorIds, contractDate, workerType);
+            var fileContent = await _workerService.ExportContractsToWordAsync(selectedExpertIds, contractDate, workerType);
             return File(fileContent, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "İşçi müqavilələri.docx");
         }
 

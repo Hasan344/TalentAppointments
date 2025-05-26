@@ -80,7 +80,7 @@
                 <hr class="my-4" />
                 @{
                     var latestContract = Model.Contracts
-                    .OrderByDescending(c => c.Date)
+                    .OrderByDescending(c => c.Id)
                     .FirstOrDefault();
                 }
 

@@ -27,16 +27,20 @@
                         <div class="col-md-3">
                             <label class="form-label fw-semibold">Cinsiyyət</label>
                             <select name="Assignments[0].GenderId" class="form-select">
+                                <option value="">Cinsiyyət seçin</option>
                                 <option value="2">Qadın</option>
                                 <option value="1">Kişi</option>
                             </select>
                         </div>
+                    }
+                    @if (@ViewBag.Section == 1 || @ViewBag.Section == 3 || @ViewBag.Section == 4 || @ViewBag.Section == 6)
+                    {
                         <div class="col-md-3">
                             <label class="form-label fw-semibold">Məntəqə</label>
                             @if (Model.Rooms != null && Model.Rooms.Any())
                             {
                                 <select name="Assignments[0].RoomId" class="form-select room-dropdown room-select">
-                                    <option value="">Məntəqə seçin</option>
+                                    <option value="">Seçin</option>
                                     @foreach (var room in Model.Rooms)
                                     {
                                         <option value="@room.Value">@room.Text</option>
@@ -45,9 +49,30 @@
                             }
                             else
                             {
-                                <p>No rooms available.</p>
+                                <p>Otaq yoxdur.</p>
                             }
                             <span asp-validation-for="Assignments[0].RoomId" class="text-danger"></span>
+                        </div>
+                    }
+                    @if ( @ViewBag.Section == 3 || @ViewBag.Section == 4 || @ViewBag.Section == 6)
+                    {
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">İxtisas</label>
+                            @if (Model.SubProfessions != null && Model.SubProfessions.Any())
+                            {
+                                <select name="Assignments[0].RoomId" class="form-select room-dropdown room-select">
+                                    <option value="">Seçin</option>
+                                    @foreach (var subProfession in Model.SubProfessions)
+                                    {
+                                        <option value="@subProfession.Value">@subProfession.Text</option>
+                                    }
+                                </select>
+                            }
+                            else
+                            {
+                                <p>İxtisas yoxdur.</p>
+                            }
+                            <span asp-validation-for="Assignments[0].SubProfessionId" class="text-danger"></span>
                         </div>
                     }
                     <div class="col-md-3">
@@ -73,7 +98,7 @@
                 let roomSelect = this.closest(".monitor-form").querySelector(".room-select");
                 if (this.checked) {
                     roomSelect.disabled = true;
-                    roomSelect.value = ""; // Seçimi sıfırla
+                    roomSelect.value = "";
                 } else {
                     roomSelect.disabled = false;
                 }
@@ -98,9 +123,9 @@
             }
 
             if (input.type === 'checkbox') {
-                input.checked = false; // Checkbox seçimini sıfırla
+                input.checked = false; 
             } else {
-                input.value = ''; // Digər input sahələrini sıfırla
+                input.value = ''; 
             }
         });
 
