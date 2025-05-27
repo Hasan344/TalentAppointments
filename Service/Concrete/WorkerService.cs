@@ -380,6 +380,21 @@ namespace ForQab.Service
                 {
                     TemplateFileName = "bina nümayəndəsi-müqavile2024.docx",
                     ContractPrefix = "QBN"
+                },
+                [3] = new ContractTemplateConfig
+                {
+                    TemplateFileName = "Fehle-müqavile2024.docx",
+                    ContractPrefix = "QFH"
+                },
+                [4] = new ContractTemplateConfig
+                {
+                    TemplateFileName = "Məsul katib-müqavilə.docx",
+                    ContractPrefix = "MKT"
+                },
+                [5] = new ContractTemplateConfig
+                {
+                    TemplateFileName = "İsçi qrupun üzvu-muqavile.docx",
+                    ContractPrefix = "QİŞ"
                 }
             };
 
