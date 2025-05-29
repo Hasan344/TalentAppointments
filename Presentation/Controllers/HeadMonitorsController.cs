@@ -178,10 +178,6 @@ namespace ForQab.Presentation.Controllers
         // GET: HeadMonitors/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-            if (!await IsAdminValidAsync())
-            {
-                return Forbid();
-            }
             if (id == null)
             {
                 return NotFound();

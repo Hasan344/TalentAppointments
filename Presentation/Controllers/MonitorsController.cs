@@ -161,10 +161,6 @@ namespace ForQab.Presentation.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
-            if (!await IsAdminValidAsync())
-            {
-                return Forbid();
-            }
             var monitor = await _monitorService.GetByIdAsync(id);
             if (monitor == null)
             {
@@ -340,18 +336,14 @@ namespace ForQab.Presentation.Controllers
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]
-        public async Task<IActionResult> ExportContracts(
-    List<int> selectedExpertIds,
-    DateTime contractDate,
-    string searchName,
-    int? districtId)
+        public async Task<IActionResult> ExportContracts(List<int> selectedMonitorIds,DateTime contractDate,string searchName,int? districtId)
         {
-            if (selectedExpertIds == null || !selectedExpertIds.Any())
+            if (selectedMonitorIds == null || !selectedMonitorIds.Any())
                 return RedirectToAction(nameof(Index));
 
             // Seçilmişləri filtrele
             var filteredIds = await _monitorService
-                .FilterSelectedMonitorsAsync(selectedExpertIds, searchName, districtId);
+                .FilterSelectedMonitorsAsync(selectedMonitorIds, searchName, districtId);
 
             var bytes = await _monitorService
                 .ExportContractsToWordAsync(filteredIds, contractDate);
@@ -389,6 +381,26 @@ namespace ForQab.Presentation.Controllers
                 }).ToListAsync();
 
             return PartialView("_MonitorCheckboxListPartial", list);
+        }
+        [HttpPost]
+        public async Task<IActionResult> ExportContract(int monitorId)
+        {
+            if (monitorId <= 0)
+                return RedirectToAction(nameof(Index));
+
+            try
+            {
+                var bytes = await _monitorService.ExportContractToWordAsync(monitorId);
+                return File(
+                    bytes,
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    $"Mugavile_{monitorId}.docx");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Details), new { id = monitorId });
+            }
         }
 
 

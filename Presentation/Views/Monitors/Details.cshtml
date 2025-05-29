@@ -5,7 +5,13 @@
     string primaryColor = "#0056b3";
     string secondaryColor = "#6c757d";
 }
-
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 <div class="container py-5">
     <div class="row g-4">
         <!-- Left column: Photo -->
@@ -136,6 +142,12 @@
                         <a class="btn btn-outline-info" asp-action="MonitorLog" asp-route-monitorId="@Model.Id">
                             <i class="bi bi-journal-text me-1"></i> Qeydlər
                         </a>
+                        <form asp-action="ExportContract" method="post" class="d-inline">
+                            <input type="hidden" name="monitorId" value="@Model.Id" />
+                            <button type="submit" class="btn btn-outline-primary">
+                                <i class="bi bi-download me-1"></i> Müqaviləni ixrac et
+                            </button>
+                        </form>
                     </div>
 
                     <div class="text-center mt-3">
