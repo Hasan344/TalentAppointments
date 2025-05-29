@@ -234,10 +234,6 @@ namespace ForQab.Presentation.Controllers
         }
         public async Task<IActionResult> Delete(int id)
         {
-            if (!await IsAdminValidAsync())
-            {
-                return Forbid();
-            }
             var expert = await _expertService.GetExpertByIdAsync(id);
             if (expert == null)
             {

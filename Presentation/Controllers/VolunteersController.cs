@@ -147,10 +147,6 @@ namespace ForQab.Presentation.Controllers
         // GET: Volunteer/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-            if (!await IsAdminValidAsync())
-            {
-                return Forbid();
-            }
             var volunteer = await _volunteerService.GetByIdAsync(id);
             if (volunteer == null)
             {

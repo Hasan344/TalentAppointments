@@ -213,10 +213,6 @@ namespace ForQab.Presentation.Controllers
         }
         public async Task<IActionResult> Delete(int id)
         {
-            if (!await IsAdminValidAsync())
-            {
-                return Forbid();
-            }
             var monitor = await _workerService.GetByIdAsync(id);
             if (monitor == null)
             {
