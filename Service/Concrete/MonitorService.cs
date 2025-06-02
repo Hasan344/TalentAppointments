@@ -766,9 +766,6 @@ namespace ForQab.Service
             if (monitor == null)
                 throw new Exception("Nəzarətçi tapılmadı və ya müqaviləsi yoxdur.");
 
-            // Generate contract number
-            int nextNumber = monitor.Contracts.Count + 1;
-            string formattedNumber = nextNumber.ToString("D2");
             var latestContract = monitor.Contracts
             .OrderByDescending(c => c.Id)
             .FirstOrDefault();

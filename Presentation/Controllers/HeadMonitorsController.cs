@@ -362,5 +362,25 @@ namespace ForQab.Presentation.Controllers
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 "Mugavileler.docx");
         }
+        [HttpPost]
+        public async Task<IActionResult> ExportContract(int monitorId)
+        {
+            if (monitorId <= 0)
+                return RedirectToAction(nameof(Index));
+
+            try
+            {
+                var bytes = await _headMonitorService.ExportContractToWordAsync(monitorId);
+                return File(
+                    bytes,
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    $"Mugavile_{monitorId}.docx");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Details), new { id = monitorId });
+            }
+        }
     }
 }
