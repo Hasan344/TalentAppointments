@@ -2,6 +2,7 @@
 using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Worker;
 using ForQab.Presentation.Validators;
+using ForQab.Service;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -379,6 +380,26 @@ namespace ForQab.Presentation.Controllers
             var fileContent = await _workerService.ExportContractsToWordAsync(selectedExpertIds, contractDate, workerType);
             return File(fileContent, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "İşçi müqavilələri.docx");
         }
+        //[HttpPost]
+        //public async Task<IActionResult> ExportContract(int monitorId)
+        //{
+        //    if (monitorId <= 0)
+        //        return RedirectToAction(nameof(Index));
+
+        //    try
+        //    {
+        //        var bytes = await _workerService.ExportContractToWordAsync(monitorId);
+        //        return File(
+        //            bytes,
+        //            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        //            $"Mugavile_{monitorId}.docx");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        TempData["Error"] = ex.Message;
+        //        return RedirectToAction(nameof(Details), new { id = monitorId });
+        //    }
+        //}
 
     }
 }

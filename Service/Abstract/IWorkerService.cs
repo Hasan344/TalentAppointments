@@ -20,5 +20,6 @@ namespace ForQab.Service.Abstract
         Task<IEnumerable<Monitor>> GetMonitorLogsAsync();
         Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId);
         Task<byte[]> ExportContractsToWordAsync(List<int> selectedExpertIds, DateTime contractDate, int workerType);
+        //Task<byte[]> ExportContractToWordAsync(int monitorId);
     }
 }

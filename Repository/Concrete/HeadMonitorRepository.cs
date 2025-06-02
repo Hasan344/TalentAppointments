@@ -102,6 +102,8 @@ namespace ForQab.Repository.Concrete
             monitor.ContractDate = model.ContractDate;
             monitor.Profession = model.Profession;
             monitor.Position = model.Position;
+            monitor.FinCode = model.FinCode;
+            monitor.Serial = model.Serial;
 
             _dbContext.Monitors.Update(monitor);
             await _dbContext.SaveChangesAsync();

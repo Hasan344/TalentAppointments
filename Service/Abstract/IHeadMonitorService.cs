@@ -25,5 +25,6 @@ namespace ForQab.Service.Abstract
         Task<byte[]> ExportContractsToWordAsync(List<int> selectedMonitorIds, DateTime contractDate);
         Task<List<int>> FilterSelectedMonitorsAsync(
     List<int> selectedIds, string searchName, int? districtId);
+        Task<byte[]> ExportContractToWordAsync(int monitorId);
     }
 }
