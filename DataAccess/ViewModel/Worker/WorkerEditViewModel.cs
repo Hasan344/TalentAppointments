@@ -35,6 +35,8 @@ namespace ForQab.DataAccess.ViewModel.Worker
         public string? SSN { get; set; }
         public string? Rekvizit { get; set; }
         public string? Voen { get; set; }
+        public string? FinCode { get; set; }
+        public string? Serial { get; set; }
         public string? BankFilial { get; set; }
         public string? BankFilialCode { get; set; }
 

@@ -222,6 +222,8 @@ namespace ForQab.Service
             existingMonitor.Workplace = entity.Workplace;
             existingMonitor.HesablashmaH = entity.HesablashmaH;
             existingMonitor.TelIs = entity.TelIs;
+            existingMonitor.FinCode = entity.FinCode;
+            existingMonitor.Serial = entity.Serial;
 
             if (entity.SelectedSubProfessions != null)
             {

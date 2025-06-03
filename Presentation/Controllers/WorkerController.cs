@@ -155,6 +155,9 @@ namespace ForQab.Presentation.Controllers
             BankFilial = w.BankFilial,
             BankFilialCode = w.BankFilialCode,
             District = w.District,
+            FinCode = w.FinCode,
+            Serial = w.Serial,
+            TelIs = w.TelIs,
             Districts = _context.Districts.Select(d => new SelectListItem
             {
                 Value = d.Id.ToString(),

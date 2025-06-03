@@ -39,6 +39,9 @@ namespace ForQab.Presentation.Controllers
         [HttpGet]
         public ActionResult Create()
         {
+            var genders = _context.Genders.ToList();
+
+            ViewBag.Gender = genders;
             return View();
         }
         [HttpPost]
@@ -49,11 +52,17 @@ namespace ForQab.Presentation.Controllers
                 await _representativeService.AddRepresentativeAsync(dimRepresentative);
                 return RedirectToAction(nameof(Index));
             }
+            var genders = _context.Genders.ToList();
+
+            ViewBag.Gender = genders;
             return View(dimRepresentative);
         }
 
         public async Task<IActionResult> Edit(int id)
         {
+            var genders = _context.Genders.ToList();
+
+            ViewBag.Gender = genders;
             var representative = await _representativeService.GetRepresentativeByIdAsync(id);
             if (representative == null)
             {
@@ -90,6 +99,9 @@ namespace ForQab.Presentation.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            var genders = _context.Genders.ToList();
+
+            ViewBag.Gender = genders;
             return View(representative);
         }
 
