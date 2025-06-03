@@ -3,6 +3,7 @@ using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace ForQab.Presentation.Controllers
@@ -39,9 +40,8 @@ namespace ForQab.Presentation.Controllers
         [HttpGet]
         public ActionResult Create()
         {
-            var genders = _context.Genders.ToList();
 
-            ViewBag.Gender = genders;
+            ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
             return View();
         }
         [HttpPost]
@@ -52,17 +52,13 @@ namespace ForQab.Presentation.Controllers
                 await _representativeService.AddRepresentativeAsync(dimRepresentative);
                 return RedirectToAction(nameof(Index));
             }
-            var genders = _context.Genders.ToList();
-
-            ViewBag.Gender = genders;
+            ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
             return View(dimRepresentative);
         }
 
         public async Task<IActionResult> Edit(int id)
         {
-            var genders = _context.Genders.ToList();
-
-            ViewBag.Gender = genders;
+            ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
             var representative = await _representativeService.GetRepresentativeByIdAsync(id);
             if (representative == null)
             {
@@ -99,9 +95,7 @@ namespace ForQab.Presentation.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            var genders = _context.Genders.ToList();
-
-            ViewBag.Gender = genders;
+            ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
             return View(representative);
         }
 

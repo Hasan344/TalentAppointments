@@ -113,6 +113,7 @@ namespace ForQab.Presentation.Controllers
                 Voen = expert.Voen,
                 Kons = true,
                 FinCode = expert.FinCode,
+                Serial = expert.Serial,
                 Profession = expert.Profession,
                 TelEl = expert.TelEl,
                 TelIs = expert.TelIs,

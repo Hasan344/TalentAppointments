@@ -62,6 +62,7 @@ namespace ForQab.Repository.Concrete
                 existingExpert.BankFilialCode = entity.BankFilialCode;
                 existingExpert.BirthDate = entity.BirthDate;
                 existingExpert.FinCode = entity.FinCode;
+                existingExpert.Serial = entity.Serial;
                 existingExpert.Kons = true;
                 existingExpert.Voen = entity.Voen;
                 existingExpert.HesablashmaH = entity.HesablashmaH;
