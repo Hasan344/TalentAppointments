@@ -34,6 +34,18 @@
                 </div>
 
                 <div class="mb-3">
+                    <label asp-for="FinCode" class="form-label">FİN Kodu</label>
+                    <input asp-for="FinCode" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="FinCode" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Serial" class="form-label">Serial</label>
+                    <input asp-for="Serial" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Serial" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
                     <label asp-for="SectionId" class="form-label">İstiqamət</label>
                     <select asp-for="SectionId" class="form-select" asp-items="ViewBag.SectionList" style="background-color: #23272a; color: #ffffff;">
                         <option value="" disabled selected>İstiqamət Seçin</option>

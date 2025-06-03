@@ -50,6 +50,14 @@
                 </div>
 
                 <div class="mb-3">
+                    <label asp-for="Gender" class="form-label">Cins</label>
+                    <select asp-for="Gender" class="form-select" asp-items="ViewBag.Gender" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Cins Seçin</option>
+                    </select>
+                    <span asp-validation-for="Gender" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
                     <input type="hidden" asp-for="Type" value="1" />
                 </div>
 

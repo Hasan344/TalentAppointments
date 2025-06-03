@@ -394,6 +394,16 @@ namespace ForQab.Service
                 {
                     TemplateFileName = "İsçi qrupun üzvu-muqavile.docx",
                     ContractPrefix = "QİŞ"
+                },
+                [6] = new ContractTemplateConfig
+                {
+                    TemplateFileName = "Musiqi aletinin imtahana hazirliqinin yoxlanması ekspert-müqavile2023.docx",
+                    ContractPrefix = "QKY"
+                },
+                [7] = new ContractTemplateConfig
+                {
+                    TemplateFileName = "Musiqi aletinin koklenmesi üzre mutexessis-müqavile (1) (1).docx",
+                    ContractPrefix = "QKK"
                 }
             };
 

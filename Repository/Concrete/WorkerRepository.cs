@@ -79,6 +79,8 @@ namespace ForQab.Repository.Concrete
             monitor.District = model.District;
             monitor.ExamBuildingId = model.ExamBuilding;
             monitor.TelIs = model.TelIs;
+            monitor.FinCode = model.FinCode;
+            monitor.Serial = model.Serial;
 
             _dbContext.Monitors.Update(monitor);
             await _dbContext.SaveChangesAsync();

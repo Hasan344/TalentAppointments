@@ -1138,6 +1138,8 @@ namespace ForQab.Service
                     .ThenInclude(em => em.Contracts)
                 .Include(e => e.ExamDegrees)
                 .Include(e => e.Section)
+                .Include(e => e.ExamBuilding)
+                .Include(e => e.Representatives)
                 .Where(e => e.ExamDate == selectedDate)
                 .ToList();
 
@@ -1353,7 +1355,66 @@ namespace ForQab.Service
                         row++;
                     }
                 }
+                foreach (var monitor in exam.Representatives) 
+                {
+                    worksheet.Cell(row, 1).Value = "";
+                    worksheet.Cell(row, 2).Value = exam.DistrictId;
+                    worksheet.Cell(row, 3).Value = monitor.Surname;
+                    worksheet.Cell(row, 4).Value = monitor.Name;
+                    worksheet.Cell(row, 5).Value = monitor.Fname;
+                    worksheet.Cell(row, 6).Value = exam.ExamBuilding.Code;
+                    if (exam.ExamDegrees.Select(ed => ed.DegreeId).FirstOrDefault() == 2)
+                    {
+                        worksheet.Cell(row, 7).Value = 36;
+                    }
+                    else
+                    {
+                        worksheet.Cell(row, 7).Value = exam.Section?.SectCode;
+                    }
+                    worksheet.Cell(row, 8).Value = exam.ExamDate.Year;
+                    worksheet.Cell(row, 9).Value = exam.ExamDate.Day;
+                    worksheet.Cell(row, 10).Value = exam.ExamDate.Month;
+                    worksheet.Cell(row, 11).Value = "";
 
+                    worksheet.Cell(row, 12).Value = "";
+                    worksheet.Cell(row, 13).Value =  "";
+                    worksheet.Cell(row, 14).Value = monitor.Gender;
+                    if (!string.IsNullOrEmpty(monitor?.Serial))
+                    {
+                        if (monitor.Serial.StartsWith("AZ") || !monitor.Serial.StartsWith("A"))
+                            worksheet.Cell(row, 15).Value = "AZE";
+                        else if (monitor.Serial.StartsWith("AA"))
+                            worksheet.Cell(row, 15).Value = "AA";
+                    }
+                    else
+                    {
+                        worksheet.Cell(row, 15).Value = ""; 
+                    }
+                    if (!string.IsNullOrEmpty(monitor?.Serial))
+                    {
+                        // Harfleri silip sadece rakamları al
+                        string onlyNumbers = Regex.Replace(monitor.Serial, @"\D", "");
+
+                        if (!string.IsNullOrEmpty(onlyNumbers))
+                            worksheet.Cell(row, 16).Value = onlyNumbers;
+                        else
+                            worksheet.Cell(row, 16).Value = "";
+                    }
+                    else
+                    {
+                        worksheet.Cell(row, 16).Value = "";
+                    }
+                    worksheet.Cell(row, 17).Value = monitor.Tel;
+                    worksheet.Cell(row, 18).Value = monitor.FinCode;
+                    worksheet.Cell(row, 19).Value = "";
+                    worksheet.Cell(row, 20).Value = "";
+                    worksheet.Cell(row, 21).Value = "";
+                    worksheet.Cell(row, 22).Value = "";
+                    worksheet.Cell(row, 23).Value = "";
+                    worksheet.Cell(row, 24).Value = "";
+                    worksheet.Cell(row, 25).Value = exam.Shift;
+                    row++;
+                }
             }
 
             using var stream = new MemoryStream();

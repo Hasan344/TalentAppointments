@@ -40,6 +40,9 @@ public partial class DimRepresentative
     [Column("type")]
     public int Type { get; set; }
 
+    [Column("gender")]
+    public int Gender { get; set; }
+
     [ForeignKey("RepresentativeId")]
     [InverseProperty("Representatives")]
     public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>(); 
