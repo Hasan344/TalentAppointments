@@ -766,10 +766,8 @@ namespace ForQab.Service
                 body.AppendChild(table);
                 body.AppendChild(CreateItalicParagraph("Qeyd. İmtahana gəlməyənlərin qarşısında (imza bölməsində) iştirakçıların imtahan binasına buraxılışı başlandıqdan sonra “gəlmədi” yazılır.", 10));
 
-                if (exam.SectionId == 1)
-                {
                     body.AppendChild(CreateCenteredBoldParagraph("\nÜmumi imtahan rəhbəri: _________ / _______________________ / ", 12));
-                }
+               
 
 
                 mainPart.Document.Save();
@@ -1127,7 +1125,7 @@ namespace ForQab.Service
 
             await _examRepository.SaveAsync();
         }
-        public async Task<byte[]> GetExamDataForExport(DateOnly selectedDate)
+        public async Task<byte[]> GetExamDataForExport(DateOnly selectedDate, int sectionId)
         {
             var exams = _context.Exams
                 .Include(e => e.Monitors)
@@ -1140,7 +1138,7 @@ namespace ForQab.Service
                 .Include(e => e.Section)
                 .Include(e => e.ExamBuilding)
                 .Include(e => e.Representatives)
-                .Where(e => e.ExamDate == selectedDate)
+                .Where(e => e.ExamDate == selectedDate && e.SectionId == sectionId)
                 .ToList();
 
             using var workbook = new XLWorkbook();
@@ -1182,7 +1180,7 @@ namespace ForQab.Service
                     worksheet.Cell(row, 3).Value = monitor.Surname;
                     worksheet.Cell(row, 4).Value = monitor.Name;
                     worksheet.Cell(row, 5).Value = monitor.Fname;
-                    worksheet.Cell(row, 6).Value = exam.ExamBuldingId;
+                    worksheet.Cell(row, 6).Value = exam.ExamBuilding.Code;
                     if(exam.ExamDegrees.Select(ed => ed.DegreeId).FirstOrDefault() == 2)
                     {
                         worksheet.Cell(row, 7).Value = 36;
@@ -1291,7 +1289,7 @@ namespace ForQab.Service
                         worksheet.Cell(row, 3).Value = expert.Surname;
                         worksheet.Cell(row, 4).Value = expert.Name;
                         worksheet.Cell(row, 5).Value = expert.Fname;
-                        worksheet.Cell(row, 6).Value = exam.ExamBuldingId;
+                        worksheet.Cell(row, 6).Value = exam.ExamBuilding.Code;
                         if (exam.ExamDegrees.Select(ed => ed.DegreeId).FirstOrDefault() == 2)
                         {
                             worksheet.Cell(row, 7).Value = 36;

@@ -93,7 +93,6 @@ namespace ForQab.Presentation.Controllers
 
             var sectionId = await GetCurrentSectionIdAsync();
             ViewBag.Section = sectionId;
-            // If ModelState is invalid, re-populate dropdown lists
             var sections = await _expertService.GetSectionsAsync(sectionId);
             var subProfessions = await _expertService.GetSubProfessionsAsync(sectionId);
             var federations = await _expertService.GetFederationsAsync(sectionId);
@@ -145,7 +144,6 @@ namespace ForQab.Presentation.Controllers
                 })
                 .ToList();
 
-            // Map to ViewModel
             var viewModel = new ExpertEditViewModel
             {
                 Id = expert.Id,
@@ -318,6 +316,7 @@ namespace ForQab.Presentation.Controllers
                 new DataColumn("Ata adı"),
                 new DataColumn("İstiqamət"),
                 new DataColumn("Fin kodu"),
+                new DataColumn("Seriyası"),
                 new DataColumn("Cinsi"),
                 new DataColumn("Vəzifəsi"),
                 new DataColumn("Doğum tarixi"),
@@ -350,6 +349,7 @@ namespace ForQab.Presentation.Controllers
                     expert.Fname,
                     expert.Section?.Name ?? "---",
                     expert.FinCode,
+                    expert.Serial,
                     expert.GenderNavigation?.Name,
                     expert.Profession,
                     expert.BirthDate,
