@@ -1079,7 +1079,8 @@ namespace ForQab.Presentation.Controllers
         
         public async Task<IActionResult> ExportExamData(DateOnly selectedDate)
         {
-            var fileContent = await _examService.GetExamDataForExport(selectedDate);
+            var sectionId = await GetCurrentSectionIdAsync();
+            var fileContent = await _examService.GetExamDataForExport(selectedDate, (int)sectionId);
             return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"ExamData_{selectedDate}.xlsx");
         }
 

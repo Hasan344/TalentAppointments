@@ -737,14 +737,15 @@ namespace ForQab.Repository.Concrete
         {
             var exams = await _context.Exams
                                       .Include(e => e.ExamDegrees)
-                                          .ThenInclude(d => d.Degrees)  // Eğer Degrees ilişkisi varsa
+                                          .ThenInclude(d => d.Degrees)  
                                       .Include(e => e.ExamCommissions)
-                                          .ThenInclude(c => c.Commission) // Eğer Commission ilişkisi varsa
+                                          .ThenInclude(c => c.Commission) 
                                       .Include(e => e.ExamExpertSubProfessions)
-                                          .ThenInclude(s => s.SubProfession) // Eğer SubProfession ilişkisi varsa
+                                          .ThenInclude(s => s.SubProfession) 
                                       .Include(e => e.ExamBuilding)
                                       .Include(e => e.District)
                                       .Include(e => e.Section)
+                                      .OrderBy(e => e.ExamDate)
                                       .ToListAsync();
 
             MemoryStream memoryStream = new MemoryStream();
@@ -1338,6 +1339,7 @@ namespace ForQab.Repository.Concrete
                     if (expert != null)
                     {
                         exam.Experts.Add(expert);
+                        expert.AssignmentCount++;
                     }
                 }
             }

@@ -136,15 +136,15 @@
                         <td>@item.Name</td>
                         <td>@item.Surname</td>
                         <td>@item.Fname</td>
-                        <td>@item.GenderNavigation.Name</td>
+                        <td>@item.GenderNavigation?.Name</td>
                         <td>@item.BirthDate</td>
                         <td>@item.Profession</td>
                         <td>@item.Workplace</td>
                         <td>@item.TelIs</td>
                         <td>@item.FinCode</td>
                         <td>@item.Serial</td>
-                        <td>@item.Section.Name</td>
-                        <td>@item.DistrictNavigation.Name</td>
+                        <td>@item.Section?.Name</td>
+                        <td>@item.DistrictNavigation?.Name</td>
                         <td class="text-center">
                             <div class="btn-group">
                                 <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a>

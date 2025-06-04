@@ -66,7 +66,7 @@ namespace ForQab.Service.Abstract
         Task<byte[]> ExportExamToWordAsync(int examId);
         Task<byte[]> ExportExamToWordAsyncForMX(int examId);
         Task<byte[]> ExportExamToWordAsyncForV(int examId);
-        Task<byte[]> GetExamDataForExport(DateOnly selectedDate);
+        Task<byte[]> GetExamDataForExport(DateOnly selectedDate, int sectionId);
 
     }
 }
