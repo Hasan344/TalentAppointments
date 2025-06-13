@@ -526,18 +526,19 @@ namespace ForQab.Service
             return await _examRepository.GetByIdAsync(id);
         }
 
-        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId)
+        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int? examBuildingId)
         {
-            return await _examRepository.GetExamsBySectionIdAsync(sectionId,1);
-        }
-        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAssesment(int? sectionId)
-        {
-            return await _examRepository.GetExamsBySectionIdAsync(sectionId, 2);
+            return await _examRepository.GetExamsBySectionIdAsync(sectionId, 1, examBuildingId);
         }
 
-        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAppeal(int? sectionId)
+        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAssesment(int? sectionId, int? examBuildingId)
         {
-            return await _examRepository.GetExamsBySectionIdAsync(sectionId, 3);
+            return await _examRepository.GetExamsBySectionIdAsync(sectionId, 2, examBuildingId);
+        }
+
+        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAppeal(int? sectionId, int? examBuildingId)
+        {
+            return await _examRepository.GetExamsBySectionIdAsync(sectionId, 3, examBuildingId);
         }
         public async Task<IEnumerable<SubProfession>> GetSubprofessionsBySectionIdAsync(int? sectionId)
         {
@@ -1121,6 +1122,20 @@ namespace ForQab.Service
             {
                 exam.Monitors.Remove(monitor);
                 monitor.AssignmentCount--;
+            }
+
+            await _examRepository.SaveAsync();
+        }
+
+        public async Task RemoveRepresentativesFromExamAsync(int examId, List<int> representativeIds)
+        {
+            var exam = await _examRepository.GetByIdAsync(examId);
+            if (exam == null) throw new ArgumentException("İmtahan tapılmadı");
+
+            var representativesToRemove = exam.Representatives.Where(m => representativeIds.Contains(m.Id)).ToList();
+            foreach (var representative in representativesToRemove)
+            {
+                exam.Representatives.Remove(representative);
             }
 
             await _examRepository.SaveAsync();

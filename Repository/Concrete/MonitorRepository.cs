@@ -108,9 +108,20 @@ namespace ForQab.Repository.Concrete
         }
         public async Task<List<Monitor>> GetAvailableMonitorsAsync(int sectionId, int role, int gender, List<int> selectedMonitorList)
         {
-            return await _dbContext.Monitors
-                .Where(m => m.Role == role && m.SectionId == sectionId && m.Gender == gender && !selectedMonitorList.Contains(m.Id))
-                .ToListAsync();
+            if(sectionId == 1)
+            {
+
+                return await _dbContext.Monitors
+                    .Where(m => m.Role == role && m.SectionId == sectionId && m.Gender == gender && !selectedMonitorList.Contains(m.Id))
+                    .ToListAsync();
+            }
+            else
+            {
+                return await _dbContext.Monitors
+                    .Where(m => m.Role == role && m.SectionId == sectionId  && !selectedMonitorList.Contains(m.Id))
+                    .ToListAsync();
+
+            }
         }
 
         public async Task<List<Monitor>> GetAvailableWorkersAsync(int sectionId, int role, int workerType, List<int> selectedMonitorList)

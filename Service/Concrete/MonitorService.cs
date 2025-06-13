@@ -352,6 +352,7 @@ namespace ForQab.Service
             // Filtreleri içeren veri çekme işlemi
             var monitors = await _monitorRepository.GetAllAsync(sectionId, 2, null, includes);
 
+            monitors = monitors.Where(m => m.Archive == 0 && m.Status == 0).ToList();
             if (genderId.HasValue)
                 monitors = monitors.Where(m => m.Gender == genderId.Value).ToList();
 

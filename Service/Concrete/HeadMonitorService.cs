@@ -223,6 +223,9 @@ namespace ForQab.Service
             var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts" };
 
             var monitors = await _headMonitorRepository.GetAllAsync(sectionId, 1, null, includes);
+
+            monitors = monitors.Where(m => m.Archive == 0 && m.Status == 0).ToList();
+
             if (genderId.HasValue)
                 monitors = monitors.Where(m => m.Gender == genderId.Value).ToList();
 

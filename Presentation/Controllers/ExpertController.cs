@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Globalization;
+using System.Threading;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -306,6 +307,7 @@ namespace ForQab.Presentation.Controllers
 
             // Verileri alın
             var experts = await _expertService.GetExpertsBySectionIdAsync(sectionId);
+            experts = experts.Where(m => m.Archive == 0 && m.Status == 0).ToList();
 
             // DataTable oluştur
             var dt = new DataTable("Ekspertlər");

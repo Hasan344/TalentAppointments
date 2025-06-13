@@ -18,7 +18,7 @@ namespace ForQab.Repository.Abstract
         Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate);
         Task AssignWorkersToExamAsync(int examId);
         Task AssignVolunteersToExamAsync(int examId);
-        Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int type);
+        Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int type, int? examBuildingId);
         Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds);
         Task<List<DimRepresentative>> GetAvailableRepresentativesAsync();
         Task<List<DimRepresentative>> GetAvailableMinistryRepresentativesAsync();
