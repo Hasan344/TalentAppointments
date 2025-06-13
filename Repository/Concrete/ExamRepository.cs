@@ -826,7 +826,6 @@ namespace ForQab.Repository.Concrete
                                                         .Select(c => $"{c.Commission.CommissionNo} - {c.Commission.Name}")
                                                         ?? new List<string>()),
                                                     bgColor));
-
                     row.Append(CreateColoredCell(exam.District?.Name ?? "", bgColor));
                     row.Append(CreateColoredCell($"{exam.ExamBuilding?.Name ?? ""}, {exam.ExamBuilding?.Address ?? ""}", bgColor));
                     row.Append(CreateColoredCell(exam.StudentCount?.ToString() ?? "", bgColor));

@@ -49,8 +49,8 @@
                     }
                 </dd>
 
-                @*               <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Sub-Komissiya:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.SubCommission?.Name</dd> *@
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İşçi sayı:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@ViewBag.EmployeeCount</dd> 
             </dl>
         </div>
 
@@ -757,6 +757,16 @@
                 <i class="bi bi-download"></i> Qeydiyyat Vərəqi
             </button>
         </form>
+        @if(ViewBag.SectionId == 1)
+        {
+            <form asp-action="ExportVolunteerRegister" method="post">
+                <input type="hidden" name="examId" value="@Model.Id" />
+                <button type="submit" class="btn btn-primary px-4 py-2 mx-2"
+                        style="background-color: @primaryColor; border: none;">
+                    <i class="bi bi-download"></i> Könüllü Qeydiyyat Vərəqi
+                </button>
+            </form>
+        }
         @if(ViewBag.SectionId == 3 || ViewBag.SectionId == 4 || @ViewBag.SectionId == 6)
         {
             <form asp-action="ExportExpertRegister" method="post">

@@ -75,6 +75,11 @@ namespace ForQab.Presentation.Controllers
             ViewBag.MonitorsWithLogs = viewModel.MonitorsWithLogs;
             ViewBag.ExpertsWithLogs = viewModel.ExpertsWithLogs;
             ViewBag.SectionId = await GetCurrentSectionIdAsync();
+            var employeeCount = _context.ExamMonitors.Where(em => em.ExamId == id).Count();
+            employeeCount+=_context.ExamExpertSubProfessions.Where(em => em.ExamId == id).Count();
+            employeeCount += _context.ExamRepresentatives.Where(em => em.ExamId == id).Count();
+
+            ViewBag.EmployeeCount = employeeCount; 
 
             return View(viewModel);
         }
