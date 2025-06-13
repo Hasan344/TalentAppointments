@@ -23,9 +23,9 @@ namespace ForQab.Service.Abstract
         Task AssignExpertsForMXToExamAsync(AssignExpertForMXToExamViewModel viewModel);
         Task AssignMonitorsForMXToExamAsync(AssignMonitorForMXToExamViewModel viewModel);
         Task AssignWorkersForMXToExamAsync(AssignWorkerForMXToExamViewModel viewModel);
-        Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId);
-        Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAssesment(int? sectionId);
-        Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAppeal(int? sectionId);
+        Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int? examBuildingId);
+        Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAssesment(int? sectionId, int? examBuildingId);
+        Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAppeal(int? sectionId, int? examBuildingId);
         Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds);
         Task<List<DimRepresentative>> GetAvailableRepresentativesAsync();
         public Task AssignMinistryRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds);
@@ -63,6 +63,7 @@ namespace ForQab.Service.Abstract
         Task<byte[]> ExportExamMonitorsToWordAsync(int examId);
         Task RemoveExpertsFromExamAsync(int examId, List<int> expertIds);
         Task RemoveMonitorsFromExamAsync(int examId, List<int> monitorIds);
+        Task RemoveRepresentativesFromExamAsync(int examId, List<int> representativeIds);
         Task<byte[]> ExportExamToWordAsync(int examId);
         Task<byte[]> ExportExamToWordAsyncForMX(int examId);
         Task<byte[]> ExportExamToWordAsyncForV(int examId);

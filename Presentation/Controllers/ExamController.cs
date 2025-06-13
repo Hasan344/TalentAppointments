@@ -30,24 +30,31 @@ namespace ForQab.Presentation.Controllers
             _badgeExportService = badgeExportService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? examBuildingId)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var exams = await _examService.GetExamsBySectionIdAsync(sectionId);
+            var exams = await _examService.GetExamsBySectionIdAsync(sectionId, examBuildingId);
+
             ViewBag.Section = sectionId;
+
+            var examBuildings = await _context.ExamBuildings.Where(eb => eb.SectionId == sectionId).ToListAsync();
+            ViewBag.ExamBuildings = new SelectList(examBuildings, "Id", "Name");
+            ViewBag.SelectedExamBuildingId = examBuildingId;
+
             return View(exams);
         }
 
-        public async Task<IActionResult> Assesments()
+
+        public async Task<IActionResult> Assesments(int? examBuildingId)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var exams = await _examService.GetExamsBySectionIdAsyncForAssesment(sectionId);
+            var exams = await _examService.GetExamsBySectionIdAsyncForAssesment(sectionId, examBuildingId);
             return View(exams);
         }
-        public async Task<IActionResult> Appeals()
+        public async Task<IActionResult> Appeals(int? examBuildingId)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var exams = await _examService.GetExamsBySectionIdAsyncForAppeal(sectionId);
+            var exams = await _examService.GetExamsBySectionIdAsyncForAppeal(sectionId, examBuildingId);
             return View(exams);
         }
 
@@ -828,7 +835,7 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> ExportToExcel()
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var exams = await _examService.GetExamsBySectionIdAsync(sectionId);
+            var exams = await _examService.GetExamsBySectionIdAsync(sectionId,null);
 
             var dt = new DataTable("Exams");
             dt.Columns.AddRange(new DataColumn[]
@@ -988,8 +995,8 @@ namespace ForQab.Presentation.Controllers
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"SaveChanges hatası: {ex.Message}");
-                    return BadRequest("Veritabanı güncelleme hatası: " + ex.Message);
+                    Console.WriteLine($"{ex.Message}");
+                    return BadRequest(ex.Message);
                 }
             }
             else
@@ -1013,11 +1020,37 @@ namespace ForQab.Presentation.Controllers
         //    }
         //}
         [HttpPost]
-        public async Task<IActionResult> DeleteHeadMonitors(int examId, List<int> monitorIds)
+        public async Task<IActionResult> DeleteHeadMonitors(int examId, List<int> headMonitorIds)
         {
             try
             {
-                await _examService.RemoveMonitorsFromExamAsync(examId, monitorIds);
+                await _examService.RemoveMonitorsFromExamAsync(examId, headMonitorIds);
+                return RedirectToAction("Details", new { id = examId });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteWorkers(int examId, List<int> workerIds)
+        {
+            try
+            {
+                await _examService.RemoveMonitorsFromExamAsync(examId, workerIds);
+                return RedirectToAction("Details", new { id = examId });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteRepresentatives(int examId, List<int> representativeIds)
+        {
+            try
+            {
+                await _examService.RemoveRepresentativesFromExamAsync(examId, representativeIds);
                 return RedirectToAction("Details", new { id = examId });
             }
             catch (Exception ex)

@@ -452,31 +452,27 @@ namespace ForQab.Repository.Concrete
         }
 
 
-        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int type)
+        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int type, int? examBuildingId = null)
         {
-            return sectionId is null
-                ? await _context.Exams
-                                .Include(e => e.Section)
-                                .Include(e => e.ExamBuilding)
-                                .Include(e => e.ExamCommissions)
-                                    .ThenInclude(ec => ec.Commission)
-                                .Include(e => e.Experts)
-                                .Include(e => e.Monitors)
-                                .Include(e => e.District)
-                                .Where(e => e.Type == type)
-                                .ToListAsync()
-                : await _context.Exams
-                                .Include(e => e.Section)
-                                .Include(e => e.ExamBuilding)
-                                .Include(e => e.ExamCommissions)
-                                    .ThenInclude(ec => ec.Commission)
-                                .Include(e => e.Experts)
-                                .Include(e => e.Monitors)
-                                .Include(e => e.District)
-                                .Where(e => e.SectionId == sectionId)
-                                .Where(e => e.Type == type)
-                                .ToListAsync();
+            var query = _context.Exams
+                .Include(e => e.Section)
+                .Include(e => e.ExamBuilding)
+                .Include(e => e.ExamCommissions).ThenInclude(ec => ec.Commission)
+                .Include(e => e.Experts)
+                .Include(e => e.Monitors)
+                .Include(e => e.District)
+                .Where(e => e.Type == type)
+                .AsQueryable();
+
+            if (sectionId.HasValue)
+                query = query.Where(e => e.SectionId == sectionId);
+
+            if (examBuildingId.HasValue)
+                query = query.Where(e => e.ExamBuldingId == examBuildingId);
+
+            return await query.OrderBy(e => e.ExamDate).ToListAsync();
         }
+
 
         public async Task<IEnumerable<SubProfession>> GetSubProfessionsBySectionIdAsync(int? sectionId)
         {
@@ -776,7 +772,7 @@ namespace ForQab.Repository.Concrete
                 table.AppendChild(tblProp);
 
                 TableRow headerRow = new TableRow();
-                string[] headers = { "İmtahan Tarixi", "İstiqamət", "Komissiya", "İmtahan keçirilən rayon", "İmtahan mərkəzinin adı", "İştirakçı Sayı", "Buraxılışın başlanması", "İmtahan başlanması", "İmtahanın bitməsi", "Qeyd" };
+                string[] headers = { "İmtahan Tarixi", "İstiqamət", "Təhsil səviyyəsi", "Komissiya",  "İmtahan keçirilən rayon", "İmtahan mərkəzinin adı", "İştirakçı Sayı", "Buraxılışın başlanması", "İmtahan başlanması", "İmtahanın bitməsi", "Qeyd" };
                 foreach (var header in headers)
                 {
                     TableCell cell = new TableCell(new Paragraph(new Run(new Text(header))));
@@ -824,7 +820,13 @@ namespace ForQab.Repository.Concrete
 
                     row.Append(CreateColoredCell(exam.ExamDate.ToString("dd.MM.yyyy"), bgColor));
                     row.Append(CreateColoredCell(exam.Section?.Name ?? "", bgColor));
-                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamCommissions?.Select(c => c.Commission.CommissionNo) ?? new List<string>()), bgColor));
+                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamDegrees?.Select(c => c.Degrees.Name) ?? new List<string>()), bgColor));
+                    row.Append(CreateColoredCell(
+                                                    string.Join(", ", exam.ExamCommissions?
+                                                        .Select(c => $"{c.Commission.CommissionNo} - {c.Commission.Name}")
+                                                        ?? new List<string>()),
+                                                    bgColor));
+
                     row.Append(CreateColoredCell(exam.District?.Name ?? "", bgColor));
                     row.Append(CreateColoredCell($"{exam.ExamBuilding?.Name ?? ""}, {exam.ExamBuilding?.Address ?? ""}", bgColor));
                     row.Append(CreateColoredCell(exam.StudentCount?.ToString() ?? "", bgColor));

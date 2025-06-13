@@ -417,7 +417,7 @@
             <form asp-action="DeleteHeadMonitors" method="post" id="deleteHeadMonitorsForm">
                 <input type="hidden" name="examId" value="@Model.Id" />
                 <div class="mb-3">
-                    <input type="checkbox" id="selectAllHeadMonitors" onchange="toggleCheckboxes('monitorIds', this.checked)" />
+                    <input type="checkbox" id="selectAllHeadMonitors" onchange="toggleCheckboxes('headMonitorIds', this.checked)" />
                     <label for="selectAllHeadMonitors" class="ml-2">Bütün İmtahan Rəhbərlərini Seç</label>
                 </div>
                 <ul class="list-group list-group-flush">
@@ -427,7 +427,7 @@
                         <li class="list-group-item">
                             <div class="row align-items-center">
                                 <div class="col-md-1">
-                                    <input type="checkbox" name="monitorIds" value="@monitor.Id" />
+                                    <input type="checkbox" name="headMonitorIds" value="@monitor.Id" />
                                 </div>
                                 <div class="col-md-7">
                                     <h6 class="mb-0">
@@ -514,13 +514,22 @@
         }
         @if (workers.Any())
         {
+                        <form asp-action="DeleteWorkers" method="post" id="deleteWorkersForm">
+                <input type="hidden" name="examId" value="@Model.Id" />
+                <div class="mb-3">
+                    <input type="checkbox" id="selectAllWorkers" onchange="toggleCheckboxes('workerIds', this.checked)" />
+                    <label for="selectAllWorkers" class="ml-2">Bütün işçiləri Seç</label>
+                </div>
             <ul class="list-group list-group-flush">
                 @foreach (var worker in workers)
                 {
                     var hasLog = ViewBag.MonitorsWithLogs != null && ViewBag.MonitorsWithLogs.Contains(worker.Id);
                     <li class="list-group-item">
                         <div class="row align-items-center">
-                            <div class="col-md-8">
+                                <div class="col-md-1">
+                                    <input type="checkbox" name="workerIds" value="@worker.Id" />
+                                </div>
+                            <div class="col-md-7">
                                 <h6 class="mb-0">
                                     @worker.Name @worker.Surname @worker.Fname -- @worker.WorkerType  
                                 </h6>
@@ -550,13 +559,17 @@
                     </li>
                 }
             </ul>
-            <div class="text-center mt-4">
-                <form asp-action="AssignWorkers" asp-route-id="@Model.Id" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
-                        <i class="bi bi-person-plus"></i> İşçi Təyin Et
+                <div class="text-center mt-4">
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteWorkersForm">
+                        <i class="bi bi-trash"></i> Seçilmişləri Sil
                     </button>
-                </form>
-            </div>
+                </div>
+            </form>
+            <form asp-action="AssignWorkers" asp-route-id="@Model.Id" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
+                    <i class="bi bi-person-plus"></i> İşçi Təyin Et
+                </button>
+            </form>
         }
         else
         {
@@ -578,13 +591,21 @@
             var reps = Model.ExamRepresentatives.Where(er => er.Role == 1);
         }
         @if (reps.Any())
-        {
+        {   <form asp-action="DeleteRepresentatives" method="post" id="deleteRepresentativesForm">
+                <input type="hidden" name="examId" value="@Model.Id" />
+                <div class="mb-3">
+                    <input type="checkbox" id="selectAllWorkers" onchange="toggleCheckboxes('representativeIds', this.checked)" />
+                    <label for="selectAllRepresentatives" class="ml-2">Bütün işçiləri Seç</label>
+                </div>
             <ul class="list-group list-group-flush">
                 @foreach (var rep in reps)
                 {
                     <li class="list-group-item">
                         <div class="row align-items-center">
-                            <div class="col-md-8">
+                                <div class="col-md-1">
+                                    <input type="checkbox" name="representativeIds" value="@rep.Id" />
+                                </div>
+                            <div class="col-md-7">
                                 <h6 class="mb-0">
                                     @rep.Name @rep.Surname @rep.FinCode
                                 </h6>
@@ -611,11 +632,15 @@
             </ul>
 
             <div class="text-center mt-4">
-
+                
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteRepresentativesForm">
+                        <i class="bi bi-trash"></i> Seçilmişləri Sil
+                    </button>
                 <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignRepresentatives" asp-route-examId="@Model.Id">
                     <i class="bi bi-plus-circle"></i> DİM nümayəndəsi təyin et
                 </a>
             </div>
+            </form>
         }
         else
         {

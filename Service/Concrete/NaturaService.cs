@@ -222,6 +222,8 @@ namespace ForQab.Service
 
             var monitors = await _naturaRepository.GetAllAsync(sectionId, 3, null, includes);
 
+            monitors = monitors.Where(m => m.Archive == 0 && m.Status == 0).ToList();
+
             if (genderId.HasValue)
                 monitors = monitors.Where(m => m.Gender == genderId.Value).ToList();
 

@@ -1,5 +1,6 @@
 ﻿using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Expert;
+using ForQab.Models;
 using ForQab.Repository.Abstract;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -69,20 +70,18 @@ namespace ForQab.Repository.Concrete
                 existingExpert.TelIs = entity.TelIs;
                 existingExpert.TelEl = entity.TelEl;
 
-                // SubProfessions yeniləməsi
+                existingExpert.ExpertsProfessions.Clear();
+
+                // Yeni ilişkileri ekle
                 if (entity.SelectedSubProfessions != null)
                 {
                     foreach (var subProfessionId in entity.SelectedSubProfessions)
                     {
-                        var subProfession = await _dbContext.SubProfessions.FindAsync(subProfessionId);
-                        if (subProfession != null)
+                        existingExpert.ExpertsProfessions.Add(new ExpertsProfession
                         {
-                            existingExpert.ExpertsProfessions.Add(new Models.ExpertsProfession
-                            {
-                                SubProfession = subProfession,
-                                Expert = existingExpert
-                            });
-                        }
+                            ExpertId = entity.Id,
+                            SubProfessionId = subProfessionId
+                        });
                     }
                 }
 
