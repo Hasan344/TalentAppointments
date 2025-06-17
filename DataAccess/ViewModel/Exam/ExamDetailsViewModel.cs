@@ -23,6 +23,7 @@ namespace ForQab.Models.ViewModels
         public string InventoryTransport { get; set; } = string.Empty;
         public List<ExamCommissionViewModel> ExamCommissions { get; set; } = new();
         public List<ExamDegreeViewModel> ExamDegrees { get; set; } = new();
+        public List<ExamSubjectViewModel> ExamSubjects { get; set; } = new();
         public List<RepresentativeViewModel> ExamRepresentatives { get; set; } = new();
         public List<ExpertViewModelForExam> Experts { get; set; } = new();
         public List<MonitorViewModel> Monitors { get; set; } = new();
@@ -61,6 +62,15 @@ namespace ForQab.Models.ViewModels
     }
 
     public class DegreeViewModel
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+    public class ExamSubjectViewModel
+    {
+        public SubjectViewModel Subject { get; set; } = new();
+    }
+
+    public class SubjectViewModel
     {
         public string Name { get; set; } = string.Empty;
     }

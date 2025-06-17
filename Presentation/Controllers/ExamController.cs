@@ -280,7 +280,7 @@ namespace ForQab.Presentation.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(EditExamViewModel exam, int[] selectedCommissions, int[] selectedDegrees)
+        public async Task<IActionResult> Edit(EditExamViewModel exam, int[] selectedCommissions, int[] selectedDegrees, int[] selectedSubjects)
         {
             var sectionId = await GetCurrentSectionIdAsync();
             if (!ModelState.IsValid)
@@ -288,7 +288,7 @@ namespace ForQab.Presentation.Controllers
                 await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
                 return View(exam);
             }
-            await _examService.UpdateExamAsync(exam, selectedCommissions, selectedDegrees);
+            await _examService.UpdateExamAsync(exam, selectedCommissions, selectedDegrees, selectedSubjects);
             return RedirectToAction(nameof(Index));
         }
         public async Task<IActionResult> EditForAssesment(int id)

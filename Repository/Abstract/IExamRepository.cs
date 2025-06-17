@@ -29,7 +29,7 @@ namespace ForQab.Repository.Abstract
         public Task<int> GetAvailableExpertsCountAsync(int sectionId, int[] selectedSubProfessions);
         public Task<int> GetAvailableMonitorsCountAsync(int sectionId, int genderId, DateOnly maxDate);
         public Task<int> GetAvailableHeadMonitorsCountAsync(int sectionId, int genderId, DateOnly maxDate);
-        public Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds, int[] degreeIds);
+        public Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds, int[] degreeIds, int[] selectedSubjects);
         public Task UpdateExamAsync(EditExamViewModelForAssesment exam);
         public Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId);
         Task<MemoryStream> ExportExamScheduleToWord();

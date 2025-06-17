@@ -44,11 +44,13 @@ namespace ForQab.Service
         {
             var commissions = await _examRepository.GetCommissionsAsync(sectionId);
             var degrees = await _context.Degrees.ToListAsync();
+            var subjects = await _context.Subjects.Where(s => s.SectionId == sectionId).ToListAsync();
 
             return new CreateExamViewModel
             {
                 Commissions = commissions.Select(sp => new SelectListItem { Text = sp.Name, Value = sp.Id.ToString() }).ToList(),
-                Degrees = degrees.Select(d => new SelectListItem { Text = d.Name, Value = d.Id.ToString() }).ToList()
+                Degrees = degrees.Select(d => new SelectListItem { Text = d.Name, Value = d.Id.ToString() }).ToList(),
+                Subjects = subjects.Select(s => new SelectListItem { Text = s.Name, Value = s.Id.ToString() }).ToList()
             };
         }
         //public async Task<CreateExamViewModelForAssesment> PrepareCreateExamViewModelAsyncForAssesment(int? sectionId)
@@ -69,6 +71,7 @@ namespace ForQab.Service
 
             var commissions = await _examRepository.GetCommissionsAsync(sectionId);
             var degrees = await _context.Degrees.ToListAsync();
+            var subjects = await _context.Subjects.Where(s => s.SectionId == sectionId).ToListAsync();
 
             return new EditExamViewModel
             {
@@ -91,7 +94,9 @@ namespace ForQab.Service
                 SelectedCommissions = exam.ExamCommissions?.Select(ec => ec.CommissionId).ToArray(),
                 Commissions = commissions.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }).ToList(),
                 SelectedDegrees = exam.ExamDegrees?.Select(ed => ed.DegreeId).ToArray(),
-                Degrees = degrees.Select(d => new SelectListItem { Value = d.Id.ToString(), Text = d.Name }).ToList()
+                Degrees = degrees.Select(d => new SelectListItem { Value = d.Id.ToString(), Text = d.Name }).ToList(),
+                SelectedSubjects = exam.ExamSubjects?.Select(ed => ed.SubjectId).ToArray(),
+                Subjects = subjects.Select(d => new SelectListItem { Value = d.Id.ToString(), Text = d.Name }).ToList()
             };
         }
         public async Task<EditExamViewModelForAssesment> PrepareEditExamViewModelAsyncForAssesment(int id, int? sectionId)
@@ -335,7 +340,7 @@ namespace ForQab.Service
 
                     // Uygun yeni uzmanı bul (sınavda zaten atanmamış olan)
                     var newExpert = await _expertRepository
-                        .FindSuitableExpertAsync(subprofessionId, currentExpert.Federation, currentExpertId, examId);
+                        .FindSuitableExpertAsync(subprofessionId, currentExpert.Federation, currentExpertId, examId, exam.ExamDate);
                     if (newExpert == null) return false;
 
                     // Yeni uzmanın zaten sınavda olup olmadığını kontrol et
@@ -555,9 +560,9 @@ namespace ForQab.Service
             return await _examRepository.GetSectionIdByExamIdAsync(examId);
         }
 
-        public async Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds, int[] degreeIds)
+        public async Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds, int[] degreeIds, int[] selectedSubjects)
         {
-            await _examRepository.UpdateExamAsync(exam, commissionIds, degreeIds);
+            await _examRepository.UpdateExamAsync(exam, commissionIds, degreeIds, selectedSubjects);
         }
         public async Task UpdateExamAsync(EditExamViewModelForAssesment exam)
         {
@@ -1030,6 +1035,10 @@ namespace ForQab.Service
                 ExamDegrees = exam.ExamDegrees.Select(ec => new ExamDegreeViewModel
                 {
                     Degree = new DegreeViewModel { Name = ec.Degrees.Name }
+                }).ToList(),
+                ExamSubjects = exam.ExamSubjects.Select(ec => new ExamSubjectViewModel
+                {
+                    Subject = new SubjectViewModel { Name = ec.Subjects.Name }
                 }).ToList(),
                 Experts = exam.Experts.Select(e => new ExpertViewModelForExam
                 {

@@ -48,5 +48,8 @@ public partial class Section
     public virtual ICollection<SubProfession> SubProfessions { get; set; } = new List<SubProfession>();
 
     [InverseProperty("Section")]
+    public virtual ICollection<Subject> Subjects { get; set; } = new List<Subject>();
+
+    [InverseProperty("Section")]
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

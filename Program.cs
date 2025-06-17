@@ -50,6 +50,8 @@ builder.Services.AddScoped<IExamExpertSubProfessionRepository, ExamExpertSubProf
 builder.Services.AddScoped<IMinistryRepresentativeService, MinistryRepresentativeService>();
 builder.Services.AddScoped<IMinistryRepresentativeRepository, MinistryRepresentativeRepository>();
 builder.Services.AddScoped<IBadgeExportService, BadgeExportService>();
+builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
+builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireNonAlphanumeric = false;
