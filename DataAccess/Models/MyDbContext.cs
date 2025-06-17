@@ -24,6 +24,8 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<Contract> Contracts { get; set; }
 
+    public virtual DbSet<Subject> Subjects { get; set; }
+
     public virtual DbSet<AspNetUserClaim> AspNetUserClaims { get; set; }
 
     public virtual DbSet<AspNetUserLogin> AspNetUserLogins { get; set; }
@@ -53,6 +55,8 @@ public partial class MyDbContext : DbContext
     public virtual DbSet<ExamRepresentative> ExamRepresentatives { get; set; }
 
     public virtual DbSet<ExamDegree> ExamDegrees { get; set; }
+
+    public virtual DbSet<ExamSubject> ExamSubjects { get; set; }
 
     public virtual DbSet<ExpertsProfession> ExpertsProfessions { get; set; }
 
@@ -170,6 +174,26 @@ public partial class MyDbContext : DbContext
             .WithMany(c => c.ExamDegrees)
             .HasForeignKey(ec => ec.DegreeId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ExamSubject>()
+            .HasKey(ec => new { ec.ExamId, ec.SubjectId });
+
+        modelBuilder.Entity<ExamSubject>()
+            .HasOne(ec => ec.Exams)
+            .WithMany(e => e.ExamSubjects)
+            .HasForeignKey(ec => ec.ExamId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ExamSubject>()
+            .HasOne(ec => ec.Subjects)
+            .WithMany(c => c.ExamSubjects)
+            .HasForeignKey(ec => ec.SubjectId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Subject>(entity =>
+        {
+            entity.HasOne(d => d.Section).WithMany(p => p.Subjects).HasConstraintName("FK_subject_sections");
+        });
 
         modelBuilder.Entity<ExamExpertSubProfession>()
         .ToTable("Exam_Expert_SubProfessions");

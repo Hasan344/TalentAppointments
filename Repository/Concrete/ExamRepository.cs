@@ -245,8 +245,8 @@ namespace ForQab.Repository.Concrete
                     .Where(e => e.Gender == genderId)
                     .OrderBy(e => e.AssignmentCount)
                     .ToList();
-                } 
-                
+                }
+
             }
 
             if (exam.SectionId == 2 || exam.SectionId == 5)
@@ -448,6 +448,8 @@ namespace ForQab.Repository.Concrete
                     .ThenInclude(ed => ed.Degrees)
                 .Include(e => e.District)
                 .Include(e => e.Representatives)
+                .Include(e => e.ExamSubjects)
+                    .ThenInclude(e => e.Subjects)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
@@ -501,7 +503,7 @@ namespace ForQab.Repository.Concrete
                 .CountAsync();
         }
 
-        public async Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds, int[] degreeIds)
+        public async Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds, int[] degreeIds, int[] selectedSubjects)
         {
             // Mevcut Exam'i bul ve ilişkili verileri include et
             var existingExam = await _context.Exams
@@ -511,6 +513,8 @@ namespace ForQab.Repository.Concrete
                 .Include(e => e.Section)
                 .Include(e => e.ExamDegrees)
                     .ThenInclude(e => e.Degrees)
+                .Include(e => e.ExamSubjects)
+                    .ThenInclude(e => e.Subjects)
                 .FirstOrDefaultAsync(e => e.Id == exam.Id);
 
             if (existingExam == null)
@@ -542,6 +546,10 @@ namespace ForQab.Repository.Concrete
             if (existingExam.ExamDegrees != null)
             {
                 existingExam.ExamDegrees.Clear();
+            }
+            if (existingExam.ExamSubjects != null)
+            {
+                existingExam.ExamSubjects.Clear();
             }
             if (commissionIds != null && commissionIds.Length > 0)
             {
@@ -579,8 +587,25 @@ namespace ForQab.Repository.Concrete
                     }
                 }
             }
+            if (selectedSubjects != null && selectedSubjects.Length > 0)
+            {
+                foreach (var subjectId in selectedSubjects)
+                {
+                    var subject = await _context.Subjects.FindAsync(subjectId);
+                    if (subject != null)
+                    {
+                        var examSubject = new ExamSubject
+                        {
+                            ExamId = existingExam.Id,
+                            SubjectId = subject.Id,
+                            Exams = existingExam,
+                            Subjects = subject
+                        };
+                        existingExam.ExamSubjects.Add(examSubject);
+                    }
+                }
+            }
 
-            // Değişiklikleri kaydet
             _context.Exams.Update(existingExam);
             await _context.SaveChangesAsync();
         }
@@ -733,14 +758,16 @@ namespace ForQab.Repository.Concrete
         {
             var exams = await _context.Exams
                                       .Include(e => e.ExamDegrees)
-                                          .ThenInclude(d => d.Degrees)  
+                                          .ThenInclude(d => d.Degrees)
                                       .Include(e => e.ExamCommissions)
-                                          .ThenInclude(c => c.Commission) 
+                                          .ThenInclude(c => c.Commission)
                                       .Include(e => e.ExamExpertSubProfessions)
-                                          .ThenInclude(s => s.SubProfession) 
+                                          .ThenInclude(s => s.SubProfession)
                                       .Include(e => e.ExamBuilding)
                                       .Include(e => e.District)
                                       .Include(e => e.Section)
+                                      .Include(e => e.ExamSubjects)
+                                          .ThenInclude(e => e.Subjects)
                                       .OrderBy(e => e.ExamDate)
                                       .ToListAsync();
 
@@ -771,8 +798,10 @@ namespace ForQab.Repository.Concrete
                 );
                 table.AppendChild(tblProp);
 
-                TableRow headerRow = new TableRow();
-                string[] headers = { "İmtahan Tarixi", "İstiqamət", "Təhsil səviyyəsi", "Komissiya",  "İmtahan keçirilən rayon", "İmtahan mərkəzinin adı", "İştirakçı Sayı", "Buraxılışın başlanması", "İmtahan başlanması", "İmtahanın bitməsi", "Qeyd" };
+                TableRow headerRow = new TableRow(new TableRowProperties(
+                                                      new TableHeader()
+                                                  ));
+                string[] headers = { "İmtahan Tarixi", "İstiqamət", "Təhsil səviyyəsi", "Komissiya", "İmtahan fənləri", "İmtahan keçirilən şəhər(rayon)", "İmtahan mərkəzinin adı və ünvanı", "İştirakçı Sayı", "Buraxılışın başlanması", "İmtahan başlanması", "İmtahanın bitməsi", "Qeyd" };
                 foreach (var header in headers)
                 {
                     TableCell cell = new TableCell(new Paragraph(new Run(new Text(header))));
@@ -783,7 +812,11 @@ namespace ForQab.Repository.Concrete
 
                 foreach (var exam in exams)
                 {
-                    TableRow row = new TableRow();
+                    TableRow row = new TableRow(
+                                            new TableRowProperties(
+                                                new CantSplit()
+                                            )
+                                        );
 
                     var sectionId = _context.Exams.Where(e => e.Id == exam.Id).Select(e => e.SectionId).FirstOrDefault();
                     string bgColor = "aae4e8";
@@ -821,11 +854,11 @@ namespace ForQab.Repository.Concrete
                     row.Append(CreateColoredCell(exam.ExamDate.ToString("dd.MM.yyyy"), bgColor));
                     row.Append(CreateColoredCell(exam.Section?.Name ?? "", bgColor));
                     row.Append(CreateColoredCell(string.Join(", ", exam.ExamDegrees?.Select(c => c.Degrees.Name) ?? new List<string>()), bgColor));
-                    row.Append(CreateColoredCell(
-                                                    string.Join(", ", exam.ExamCommissions?
+                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamCommissions?
                                                         .Select(c => $"{c.Commission.CommissionNo} - {c.Commission.Name}")
                                                         ?? new List<string>()),
                                                     bgColor));
+                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamSubjects?.Select(c => c.Subjects.Name) ?? new List<string>()), bgColor));
                     row.Append(CreateColoredCell(exam.District?.Name ?? "", bgColor));
                     row.Append(CreateColoredCell($"{exam.ExamBuilding?.Name ?? ""}, {exam.ExamBuilding?.Address ?? ""}", bgColor));
                     row.Append(CreateColoredCell(exam.StudentCount?.ToString() ?? "", bgColor));

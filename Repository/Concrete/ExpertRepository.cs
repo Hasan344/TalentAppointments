@@ -349,14 +349,13 @@ namespace ForQab.Repository.Concrete
                                     .FirstOrDefaultAsync();
 
         }
-        public async Task<Expert> FindSuitableExpertAsync(int? subProfessionId, int? federation, int excludeExpertId, int examId)
+        public async Task<Expert> FindSuitableExpertAsync(int? subProfessionId, int? federation, int excludeExpertId, int examId, DateOnly examDate)
         {
             return await _context.Experts
                 .Where(e => e.Id != excludeExpertId
                     && e.Federation == federation
                     && e.ExpertsProfessions.Any(sp => sp.SubProfessionId == subProfessionId)
-                    && !_context.ExamExpertSubProfessions.Any(ees => ees.ExamId == examId && ees.ExpertId == e.Id))
-                .OrderBy(e => e.AssignmentCount)
+                    && !_context.ExamExpertSubProfessions.Any(ees => ees.ExamId == examId && ees.ExpertId == e.Id && ees.Exam.ExamDate == examDate))
                 .FirstOrDefaultAsync();
         }
         public async Task<List<SubProfession>> GetSubProfessionsByFederationAsync(int federationId)

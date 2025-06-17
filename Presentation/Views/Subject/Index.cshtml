@@ -1,0 +1,38 @@
+﻿@model IEnumerable<ForQab.DataAccess.Models.Subject>
+
+<h2>İmtahan fənləri</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Fənn Adı</th>
+            <th>İstiqamət</th>
+            <th>Əməliyyatlar</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int rowNumber = 1;
+        }
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@rowNumber</td>
+                <td>@item.Name</td>
+                <td>@item.Section?.Name</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Redaktə</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Sil</a>
+                </td>
+            </tr>
+            rowNumber++;
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create" class="btn btn-primary">Yenisini yarat</a>
+
+<a class="btn btn-secondary px-4 py-2 mx-2" border: none;" asp-controller="Exam" asp-action="Index">
+    <i class="bi bi-home"></i> İmtahanlara qayıt
+</a>

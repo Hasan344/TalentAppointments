@@ -90,6 +90,17 @@
                         <span style="color: @secondaryColor;">---</span>
                     }
                 </dd>
+                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İmtahan fənləri:</dt>
+                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">
+                    @if (Model.ExamSubjects != null && Model.ExamSubjects.Any())
+                    {
+                        @string.Join(", ", Model.ExamSubjects.Select(sp => sp.Subject.Name))
+                    }
+                    else
+                    {
+                        <span style="color: @secondaryColor;">---</span>
+                    }
+                </dd>
             </dl>
         </div>
     </div>

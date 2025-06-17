@@ -46,6 +46,8 @@ namespace ForQab.Presentation.ViewModels
         public int[]? SelectedCommissions { get; set; }
         public List<SelectListItem>? Degrees { get; set; }
         public int[]? SelectedDegrees { get; set; }
+        public List<SelectListItem>? Subjects { get; set; }
+        public int[]? SelectedSubjects { get; set; }
         public byte? Shift { get; set; }
         public TimeSpan? StartTime { get; set; }
         public TimeSpan? EndTime { get; set; }

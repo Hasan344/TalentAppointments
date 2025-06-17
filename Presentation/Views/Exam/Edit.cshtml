@@ -60,6 +60,13 @@
                     <span asp-validation-for="SelectedDegrees" class="text-danger"></span>
                 </div>
 
+                <div class="mb-3">
+                    <label class="form-label">İmtahan fənni</label>
+                    <select asp-for="SelectedSubjects" class="form-select" asp-items="Model.Subjects" multiple style="background-color: #23272a; color: #ffffff;">
+                    </select>
+                    <span asp-validation-for="SelectedSubjects" class="text-danger"></span>
+                </div>
+
                 <div class="col-md-6 mb-3">
                     <label asp-for="ExamDate" class="form-label">İmtahan tarixi</label>
                     <input asp-for="ExamDate" class="form-control" type="date" style="background-color: #23272a; color: #ffffff;" />

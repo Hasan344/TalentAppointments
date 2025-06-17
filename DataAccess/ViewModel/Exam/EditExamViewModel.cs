@@ -49,5 +49,7 @@ namespace ForQab.DataAccess.ViewModel.Exam
         [Required]
         public int? StudentCount { get; set; }
         public TimeSpan? AdmissionTime { get; set; }
+        public List<SelectListItem>? Subjects { get; set; }
+        public int[]? SelectedSubjects { get; set; }
     }
 }
