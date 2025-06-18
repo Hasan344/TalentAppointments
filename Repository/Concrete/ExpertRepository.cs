@@ -295,11 +295,11 @@ namespace ForQab.Repository.Concrete
 
         public async Task<IEnumerable<Expert>> GetExpertLogsAsync(int? sectionId)
         {
-             var query = await _context.Experts
-                        .Include(xl => xl.ExpertLogs)
-                        .Where(xl => xl.ExpertLogs.Any() && xl.Kons == false)
-                        .ToListAsync();
-            if(sectionId != null)
+            var query = await _context.Experts
+                       .Include(xl => xl.ExpertLogs)
+                       .Where(xl => xl.ExpertLogs.Any() && xl.Kons == false)
+                       .ToListAsync();
+            if (sectionId != null)
             {
                 query = query.Where(xl => xl.SectionId == sectionId).ToList();
             }
@@ -352,11 +352,13 @@ namespace ForQab.Repository.Concrete
         public async Task<Expert> FindSuitableExpertAsync(int? subProfessionId, int? federation, int excludeExpertId, int examId, DateOnly examDate)
         {
             return await _context.Experts
-                .Where(e => e.Id != excludeExpertId
-                    && e.Federation == federation
-                    && e.ExpertsProfessions.Any(sp => sp.SubProfessionId == subProfessionId)
-                    && !_context.ExamExpertSubProfessions.Any(ees => ees.ExamId == examId && ees.ExpertId == e.Id && ees.Exam.ExamDate == examDate))
-                .FirstOrDefaultAsync();
+    .Where(e => e.Id != excludeExpertId
+        && e.Federation == federation
+        && e.ExpertsProfessions.Any(sp => sp.SubProfessionId == subProfessionId)
+        && !_context.ExamExpertSubProfessions.Any(ees => ees.ExamId == examId && ees.ExpertId == e.Id && ees.Exam.ExamDate == examDate))
+    .OrderBy(e => Guid.NewGuid()) // Random sırala
+    .FirstOrDefaultAsync();       // İlkini getir (yani rastgele seç)
+
         }
         public async Task<List<SubProfession>> GetSubProfessionsByFederationAsync(int federationId)
         {
