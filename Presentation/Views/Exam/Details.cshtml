@@ -108,9 +108,14 @@
     <div class="mt-4">
         <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Ekspertlər</h4>
         @{
-            var experts = Model.Experts.Where(m => m.Kons == false).ToList();
-            int counter = 1; // Initialize counter for experts
+            var experts = Model.Experts
+            .Where(m => m.Kons == false)
+            .OrderBy(e => e.ExamExpertSubProfessions.FirstOrDefault()?.Name)
+            .ThenBy(e => e.ExamExpertSubProfessions.FirstOrDefault()?.FederationName)
+            .ToList();
+            int counter = 1;
         }
+
         @if (experts.Any())
         {
             <!-- Tek Form -->

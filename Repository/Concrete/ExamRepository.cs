@@ -880,11 +880,39 @@ namespace ForQab.Repository.Concrete
                     cell.Append(cellProperties);
                     return cell;
                 }
+                // Footer oluştur
+                FooterPart footerPart = mainPart.AddNewPart<FooterPart>();
+                string footerPartId = mainPart.GetIdOfPart(footerPart);
 
+                // Sayfa numarası alanını oluştur
+                var paragraph = new Paragraph();
+                paragraph.Append(new ParagraphProperties(new Justification() { Val = JustificationValues.Center }));
+                paragraph.Append(new Run(
+                    new RunProperties(new NoProof()),
+                    new FieldChar() { FieldCharType = FieldCharValues.Begin }
+                ));
+                paragraph.Append(new Run(
+                    new FieldCode(" PAGE ") { Space = SpaceProcessingModeValues.Preserve }
+                ));
+                paragraph.Append(new Run(
+                    new FieldChar() { FieldCharType = FieldCharValues.Separate }
+                ));
+                paragraph.Append(new Run(new Text("1"))); // Placeholder
+                paragraph.Append(new Run(
+                    new FieldChar() { FieldCharType = FieldCharValues.End }
+                ));
+
+                Footer footer = new Footer(paragraph);
+                footerPart.Footer = footer;
+                footerPart.Footer.Save();
+
+                // SectionProperties'e footer referansını ekle
                 var sectionProps = new SectionProperties(
-                                   new PageSize() { Width = 16838, Height = 11906, Orient = PageOrientationValues.Landscape }, // A4 Landscape Boyutları
-                                   new PageMargin() { Top = 720, Right = 720, Bottom = 720, Left = 720 } // Kenar boşlukları
-                                   );
+                    new PageSize() { Width = 16838, Height = 11906, Orient = PageOrientationValues.Landscape },
+                    new PageMargin() { Top = 720, Right = 720, Bottom = 720, Left = 720 },
+                    new FooterReference() { Type = HeaderFooterValues.Default, Id = footerPartId }
+                );
+
                 body.Append(sectionProps);
                 body.Append(table);
                 mainPart.Document.Save();
