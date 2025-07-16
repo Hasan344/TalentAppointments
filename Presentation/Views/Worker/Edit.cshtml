@@ -62,6 +62,14 @@
                 </div>
 
                 <div class="mb-3">
+                    <label asp-for="District" class="form-label">Rayon</label>
+                    <select asp-for="District" class="form-select" asp-items="Model.Districts" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>Seçin...</option>
+                    </select>
+                    <span asp-validation-for="District" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
                     <label asp-for="ExamBuilding" class="form-label">İmtahan binası</label>
                     <select asp-for="ExamBuilding" class="form-select" asp-items="ViewBag.Building" style="background-color: #23272a; color: #ffffff;">
                         <option value="" disabled selected>Bina Seçin</option>
@@ -95,12 +103,29 @@
                     <span asp-validation-for="SSN" class="text-danger"></span>
                 </div>
 
+
                 <div class="mb-3">
-                    <label asp-for="District" class="form-label">Rayon</label>
-                    <select asp-for="District" class="form-select" asp-items="Model.Districts" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>Seçin...</option>
-                    </select>
-                    <span asp-validation-for="District" class="text-danger"></span>
+                    <label asp-for="Rekvizit" class="form-label">Rekvizit</label>
+                    <input asp-for="Rekvizit" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Rekvizit" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Voen" class="form-label">VÖEN</label>
+                    <input asp-for="Voen" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Voen" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="BankFilial" class="form-label">Bank Filialı</label>
+                    <input asp-for="BankFilial" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="BankFilial" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="BankFilialCode" class="form-label">Bank Filial kodu</label>
+                    <input asp-for="BankFilialCode" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="BankFilialCode" class="text-danger"></span>
                 </div>
  
                 <div class="d-flex justify-content-between">

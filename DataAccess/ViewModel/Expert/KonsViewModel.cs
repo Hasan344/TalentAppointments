@@ -8,6 +8,7 @@ namespace ForQab.DataAccess.ViewModel.Expert
         public string? Surname { get; set; }
         public string? Fname { get; set; }
         public int? SectionId { get; set; }
+        public int? Status { get; set; }
         public DateOnly? BirthDate { get; set; }
         public string? SSN { get; set; }
         public string? Rekvizit { get; set; }

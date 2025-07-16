@@ -118,8 +118,150 @@
         {
             <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir ekspert təyin edilməyib.</p>
         }
-    </div> 
-   
+    </div>
+    <!-- Assigned Head Monitors Section -->
+    <div class="mt-4">
+        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş İmtahan rəhbərləri</h4>
+        @{
+            var headMonitors = Model.Monitors.Where(m => m.Role == 1);
+        }
+        @if (headMonitors.Any())
+        {
+            <form asp-action="DeleteHeadMonitors" method="post" id="deleteHeadMonitorsForm">
+                <input type="hidden" name="examId" value="@Model.Id" />
+                <div class="mb-3">
+                    <input type="checkbox" id="selectAllHeadMonitors" onchange="toggleCheckboxes('headMonitorIds', this.checked)" />
+                    <label for="selectAllHeadMonitors" class="ml-2">Bütün İmtahan Rəhbərlərini Seç</label>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var monitor in headMonitors)
+                    {
+                        var hasLog = ViewBag.MonitorsWithLogs != null && ViewBag.MonitorsWithLogs.Contains(monitor.Id);
+                        <li class="list-group-item">
+                            <div class="row align-items-center">
+                                <div class="col-md-1">
+                                    <input type="checkbox" name="headMonitorIds" value="@monitor.Id" />
+                                </div>
+                                <div class="col-md-7">
+                                    <h6 class="mb-0">
+                                        @monitor.Name @monitor.Surname @monitor.Fname @monitor.Tel
+                                    </h6>
+                                    <small class="text-muted">
+                                        FinCode: @monitor.FinCode
+                                    </small>
+                                    @if (hasLog)
+                                    {
+                                        <span class="badge ml-2" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;">Qeydi var</span>
+                                    }
+                                </div>
+                                <div class="col-md-4 text-md-right mt-2 mt-md-0">
+                                    <a class="btn btn-sm btn-outline-secondary mr-2" asp-action="ChangeHeadMonitor" asp-route-examId="@Model.Id" asp-route-monitorId="@monitor.Id">
+                                        <i class="bi bi-pencil"></i> Dəyişdir
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-primary" asp-action="WriteMonitorLog" asp-route-examId="@Model.Id" asp-route-monitorId="@monitor.Id">
+                                        <i class="bi bi-chat"></i> Xüsusi qeyd yaz
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-info" asp-action="HeadMonitorDetails" asp-route-id="@monitor.Id">
+                                        <i class="bi bi-eye"></i> Detallara Bax
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+                <div class="text-center mt-3">
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteHeadMonitorsForm">
+                        <i class="bi bi-trash"></i> Seçilmişləri Sil
+                    </button>
+                    <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
+                        <i class="bi bi-person-plus"></i> İmtahan rəhbəri Təyin Et
+                    </a>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="text-center mt-3">
+                <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir İmtahan rəhbəri təyin edilməyib.</p>
+                <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
+                    <i class="bi bi-person-plus"></i> İmtahan rəhbəri Təyin Et
+                </a>
+            </div>
+        }
+    </div>
+    <!-- Assigned DİM Representatives Section -->
+    <div class="mt-4">
+        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş DİM Nümayəndələri</h4>
+        @{
+            var reps = Model.ExamRepresentatives.Where(er => er.Role == 1);
+        }
+        @if (reps.Any())
+        {
+               <form asp-action="DeleteRepresentatives" method="post" id="deleteRepresentativesForm">
+                <input type
+                    
+                    ="hidden" name="examId" value="@Model.Id" />
+                <div class="mb-3">
+                    <input type="checkbox" id="selectAllWorkers" onchange="toggleCheckboxes('representativeIds', this.checked)" />
+                    <label for="selectAllRepresentatives" class="ml-2">Bütün işçiləri Seç</label>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var rep in reps)
+                    {
+                        <li class="list-group-item">
+                            <div class="row align-items-center">
+                                <div class="col-md-1">
+                                    <input type="checkbox" name="representativeIds" value="@rep.Id" />
+                                </div>
+                                <div class="col-md-7">
+                                    <h6 class="mb-0">
+                                        @rep.Name @rep.Surname @rep.FinCode
+                                    </h6>
+                                    <small class="text-muted">
+                                        FinCode: @rep.FinCode
+                                    </small>
+                                </div>
+                                <div class="col-md-4 text-md-right mt-2 mt-md-0">
+                                    <a class="btn btn-sm btn-outline-secondary mr-2"
+                                       asp-action="ChangeRepresentative"
+                                       asp-route-examId="@Model.Id"
+                                       asp-route-representativeId="@rep.Id">
+                                        <i class="bi bi-pencil"></i> Dəyişdir
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-info"
+                                       asp-action="RepresentativeDetails"
+                                       asp-route-id="@rep.Id">
+                                        <i class="bi bi-eye"></i> Detallara Bax
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+
+                <div class="text-center mt-4">
+
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteRepresentativesForm">
+                        <i class="bi bi-trash"></i> Seçilmişləri Sil
+                    </button>
+                    <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignRepresentatives" asp-route-examId="@Model.Id">
+                        <i class="bi bi-plus-circle"></i> DİM nümayəndəsi təyin et
+                    </a>
+                </div>
+            </form>
+        }
+        else
+        {
+            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nümayəndə təyin edilməyib.</p>
+
+            <div class="text-center mt-4">
+
+                <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignRepresentatives" asp-route-examId="@Model.Id">
+                    <i class="bi bi-plus-circle"></i> DİM nümayəndəsi təyin et
+                </a>
+            </div>
+        }
+    </div>
         <!-- Action Buttons -->
          <div class="text-center mt-4">
 

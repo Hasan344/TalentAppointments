@@ -104,6 +104,7 @@ namespace ForQab.Repository.Concrete
             monitor.Position = model.Position;
             monitor.FinCode = model.FinCode;
             monitor.Serial = model.Serial;
+            monitor.TelIs = model.TelIs;
 
             _dbContext.Monitors.Update(monitor);
             await _dbContext.SaveChangesAsync();

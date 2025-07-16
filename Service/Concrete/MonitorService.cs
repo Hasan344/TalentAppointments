@@ -92,7 +92,7 @@ namespace ForQab.Service
         public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId)
         {
 
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorsProfessions", "Contracts" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorsProfessions", "Contracts", "ExamMonitors" };
             var query = await _monitorRepository.GetAllAsync(sectionId, 2, null, includes);
             return await _monitorRepository.GetAllAsync(sectionId, 2, null, includes);
         }
@@ -100,7 +100,7 @@ namespace ForQab.Service
         public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
 
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorsProfessions", "Contracts" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorsProfessions", "Contracts", "ExamMonitors" };
             var query = await _monitorRepository.GetAllAsync(sectionId, 2, null, includes);
             if (genderId.HasValue)
             {
@@ -139,7 +139,7 @@ namespace ForQab.Service
 
         public async Task<Monitor> GetByIdAsync(int id)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding", "ExamMonitors.Exams", "ExamMonitors.ExamRooms", "MonitorsProfessions.SubProfession", "MonitorLogs", "Contracts" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding", "ExamMonitors.Exams", "ExamMonitors.ExamRooms", "MonitorsProfessions.SubProfession", "MonitorLogs", "Contracts", "ExamMonitors" };
 
             var monitor = await _monitorRepository.GetByIdAsync(id, null, includes);
             if (monitor != null)
@@ -347,7 +347,7 @@ namespace ForQab.Service
         }
         public async Task<byte[]> ExportToExcelAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorsProfessions", "Contracts" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorsProfessions", "Contracts", "ExamMonitors" };
 
             // Filtreleri içeren veri çekme işlemi
             var monitors = await _monitorRepository.GetAllAsync(sectionId, 2, null, includes);
@@ -425,7 +425,7 @@ namespace ForQab.Service
                     monitor.BankFilialCode,
                     monitor.Section?.Name,
                     monitor.DistrictNavigation?.Name,
-                    monitor.AssignmentCount
+                    monitor.ComputedAssignmentCount
                 );
             }
 
@@ -443,7 +443,7 @@ namespace ForQab.Service
 
         public async Task<IEnumerable<Monitor>> GetAllArchivedAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorsProfessions", "Contracts" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "MonitorsProfessions", "Contracts", "ExamMonitors" };
             var query = await _monitorRepository.GetAllAsync(sectionId, 2, null, includes);
             if (genderId.HasValue && genderId > 0)
             {

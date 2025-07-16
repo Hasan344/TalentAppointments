@@ -352,13 +352,17 @@ namespace ForQab.Repository.Concrete
         public async Task<Expert> FindSuitableExpertAsync(int? subProfessionId, int? federation, int excludeExpertId, int examId, DateOnly examDate)
         {
             return await _context.Experts
-    .Where(e => e.Id != excludeExpertId
-        && e.Federation == federation
-        && e.ExpertsProfessions.Any(sp => sp.SubProfessionId == subProfessionId)
-        && !_context.ExamExpertSubProfessions.Any(ees => ees.ExamId == examId && ees.ExpertId == e.Id && ees.Exam.ExamDate == examDate))
-    .OrderBy(e => Guid.NewGuid()) // Random sırala
-    .FirstOrDefaultAsync();       // İlkini getir (yani rastgele seç)
-
+                                 .Where(e => e.Id != excludeExpertId
+                                     && e.Federation == federation
+                                     && e.Status == 0
+                                     && e.Archive == 0
+                                     && e.ExpertsProfessions.Any(sp => sp.SubProfessionId == subProfessionId)
+                                     && !_context.ExamExpertSubProfessions
+                                         .Any(ees => ees.ExamId == examId && ees.ExpertId == e.Id)
+                                     && !_context.ExamExpertSubProfessions
+                                         .Any(ees => ees.ExpertId == e.Id && ees.Exam.ExamDate == examDate))
+                                 .OrderBy(e => Guid.NewGuid())
+                                 .FirstOrDefaultAsync();
         }
         public async Task<List<SubProfession>> GetSubProfessionsByFederationAsync(int federationId)
         {

@@ -106,28 +106,37 @@ namespace ForQab.Repository.Concrete
             _dbContext.Monitors.Update(monitor);
             await _dbContext.SaveChangesAsync();
         }
-        public async Task<List<Monitor>> GetAvailableMonitorsAsync(int sectionId, int role, int gender, List<int> selectedMonitorList)
+        public async Task<List<Monitor>> GetAvailableMonitorsAsync(int sectionId, int role, int gender, List<int> selectedMonitorList, int? district)
         {
             if(sectionId == 1)
             {
 
                 return await _dbContext.Monitors
-                    .Where(m => m.Role == role && m.SectionId == sectionId && m.Gender == gender && !selectedMonitorList.Contains(m.Id))
+                    .Where(m => m.Role == role && m.SectionId == sectionId && m.Gender == gender && !selectedMonitorList.Contains(m.Id) && m.Status == 0 && m.Archive == 0)
+                    .OrderBy(m => m.Surname)
+                    .ToListAsync();
+            }
+            else if(sectionId == 2)
+            {
+                return await _dbContext.Monitors
+                    .Where(m => m.Role == role && m.SectionId == sectionId  && !selectedMonitorList.Contains(m.Id) && m.District == district && m.Status == 0 && m.Archive == 0)
+                    .OrderBy(m => m.Surname)
                     .ToListAsync();
             }
             else
             {
                 return await _dbContext.Monitors
-                    .Where(m => m.Role == role && m.SectionId == sectionId  && !selectedMonitorList.Contains(m.Id))
+                    .Where(m => m.Role == role && m.SectionId == sectionId  && !selectedMonitorList.Contains(m.Id) && m.Status == 0 && m.Archive == 0)
+                    .OrderBy(m => m.Surname)
                     .ToListAsync();
-
             }
         }
 
         public async Task<List<Monitor>> GetAvailableWorkersAsync(int sectionId, int role, int workerType, List<int> selectedMonitorList)
         {
             return await _dbContext.Monitors
-                .Where(m => m.Role == role && m.SectionId == sectionId && m.WorkerType == workerType && !selectedMonitorList.Contains(m.Id))
+                .Where(m => m.Role == role && m.SectionId == sectionId && m.WorkerType == workerType && !selectedMonitorList.Contains(m.Id) && m.Status == 0 && m.Archive == 0)
+                .OrderBy(m => m.Surname)
                 .ToListAsync();
         }
 

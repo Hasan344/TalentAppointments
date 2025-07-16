@@ -121,6 +121,7 @@ namespace ForQab.Repository.Concrete
                 .Include(e => e.DistrictNavigation)
                 .Include(e => e.GenderNavigation)
                 .Include(e => e.Contracts)
+                .Include(e => e.ExamExpertSubProfessions)
                 .Where(e => e.Kons == true)
                 .ToListAsync();
             }
@@ -131,6 +132,7 @@ namespace ForQab.Repository.Concrete
                 .Include(e => e.DistrictNavigation)
                 .Include(e => e.GenderNavigation)
                 .Include(e => e.Contracts)
+                .Include(e => e.ExamExpertSubProfessions)
                 .Where(e => e.SectionId == sectionId)
                 .Where(e => e.Kons == true)
                 .ToListAsync();
@@ -155,7 +157,8 @@ namespace ForQab.Repository.Concrete
                 Voen = entity.Voen,
                 Kons = true,
                 TelIs = entity.TelIs,
-                TelEl = entity.TelEl
+                TelEl = entity.TelEl,
+                Status = (byte?)entity.Status
             };
 
             // Link selected SubProfessions

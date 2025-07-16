@@ -4,15 +4,12 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml;
 using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.HeadMonitor;
-using ForQab.DataAccess.ViewModel.Monitor;
 using ForQab.Repository.Abstract;
-using ForQab.Repository.Concrete;
 using ForQab.Service.Abstract;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
-using System.Threading;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 
 namespace ForQab.Service
@@ -45,13 +42,13 @@ namespace ForQab.Service
         public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId)
         {
 
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts", "ExamMonitors" };
             var query = await _headMonitorRepository.GetAllAsync(sectionId, 1, null, includes);
             return await _headMonitorRepository.GetAllAsync(sectionId, 1, null, includes);
         }
         public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId,string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts", "ExamMonitors" };
 
             var query = await _headMonitorRepository.GetAllAsync(sectionId, 1, null, includes);
             if (genderId.HasValue )
@@ -91,7 +88,7 @@ namespace ForQab.Service
 
         public async Task<Monitor> GetByIdAsync(int id)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding", "ExamMonitors.Exams", "ExamMonitors.ExamRooms", "MonitorLogs", "Contracts" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding", "ExamMonitors.Exams", "ExamMonitors.ExamRooms", "MonitorLogs", "Contracts", "ExamMonitors" };
 
             var monitor = await _headMonitorRepository.GetByIdAsync(id, null, includes); 
             string photoPath = $@"\\teshkilat-db\Images\Talent\{monitor.FinCode}.jpg";
@@ -220,7 +217,7 @@ namespace ForQab.Service
 
         public async Task<byte[]> ExportToExcelAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts", "ExamMonitors" };
 
             var monitors = await _headMonitorRepository.GetAllAsync(sectionId, 1, null, includes);
 
@@ -297,7 +294,7 @@ namespace ForQab.Service
                     monitor.BankFilialCode,
                     monitor.Section?.Name,
                     monitor.DistrictNavigation?.Name,
-                    monitor.AssignmentCount
+                    monitor.ComputedAssignmentCount
                 );
             }
 
@@ -313,7 +310,7 @@ namespace ForQab.Service
         }
         public async Task<IEnumerable<Monitor>> GetAllArchivedAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts", "ExamMonitors" };
             var query = await _headMonitorRepository.GetAllAsync(sectionId, 1, null, includes);
             if (genderId.HasValue && genderId > 0)
             {
@@ -381,7 +378,16 @@ namespace ForQab.Service
             {
                 int nextNumber = monitor.Contracts.Count + 1;
                 string formattedNumber = nextNumber.ToString("D2");
-                string contractNo = $"QİR{monitor.FinCode}-{formattedNumber}";
+                string contractNo = "";
+                if (monitor.SectionId == 1)
+                {
+                     contractNo = $"İR{monitor.FinCode}-{formattedNumber}";
+                }
+                else
+                {
+                    contractNo = $"QİR{monitor.FinCode}-{formattedNumber}";
+
+                }
 
                 newContracts.Add(new Contract
                 {
