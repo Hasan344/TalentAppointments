@@ -322,7 +322,7 @@
     <div class="mt-4">
         <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Nəzarətçilər</h4>
         @{
-            var monitors = Model.Monitors.Where(m => m.Role == 2).ToList();
+            var monitors = Model.Monitors.Where(m => m.Role == 2).OrderBy(m => m.RoomId).ToList();
             counter = 1; // Initialize counter for monitors
         }
         @if (monitors.Any())

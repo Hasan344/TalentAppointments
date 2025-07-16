@@ -134,34 +134,28 @@ namespace ForQab.Repository.Concrete
 
             var assignedExpertIds = exam.Experts.Select(ex => ex.Id).ToList();
 
-            var experts = await _context.Experts
-                .Where(e => e.SectionId == exam.SectionId &&
-                            e.ExpertsProfessions.Any(sp => selectedSubProfessions.Contains(sp.SubProfessionId)) &&
-                            !assignedExpertIds.Contains(e.Id) &&
-                            e.Archive == 0 &&
-                            e.Status == 0 && e.Federation == federationId)
-                .Include(e => e.Exams)
-                .ToListAsync();
+            var availableExperts = await _context.Experts
+                                    .Where(e => e.SectionId == exam.SectionId &&
+                                                e.ExpertsProfessions.Any(sp => selectedSubProfessions.Contains(sp.SubProfessionId)) &&
+                                                !assignedExpertIds.Contains(e.Id) &&
+                                                e.Archive == 0 &&
+                                                e.Status == 0 &&
+                                                e.Federation == federationId && 
+                                                !_context.ExamExpertSubProfessions
+                                         .Any(ees => ees.ExamId == examId && ees.ExpertId == e.Id)
+                                     && !_context.ExamExpertSubProfessions
+                                         .Any(ees => ees.ExpertId == e.Id && ees.Exam.ExamDate == exam.ExamDate))
+                                    .Include(e => e.Exams)
+                                    .Include(e => e.ExamExpertSubProfessions)
+                                    .ToListAsync(); 
 
-            var availableExperts = new List<Expert>();
-
-            foreach (var expert in experts)
-            {
-                var isAssignedToAnotherExam = await _context.ExamExpertSubProfessions
-                    .AnyAsync(ees => ees.ExpertId == expert.Id && ees.Exam.ExamDate == exam.ExamDate);
-
-                if (!isAssignedToAnotherExam)
-                {
-                    availableExperts.Add(expert);
-                }
-            }
 
             if (availableExperts.Count < numberOfExperts)
             {
                 throw new InvalidOperationException("Yetərli sayda ekspert yoxdur.");
             }
 
-            var selectedExperts = availableExperts.OrderBy(e => e.AssignmentCount).Take(numberOfExperts).ToList();
+            var selectedExperts = availableExperts.OrderBy(e => e.ComputedAssignmentCount).Take(numberOfExperts).ToList();
             var shuffledSubProfessions = subProfessions.OrderBy(x => Guid.NewGuid()).ToList();
 
             for (int i = 0; i < selectedExperts.Count; i++)
@@ -223,6 +217,7 @@ namespace ForQab.Repository.Concrete
 
             var alreadyAssignedMonitorIds = exam.Monitors.Select(m => m.Id).ToHashSet();
             var availableMonitors = await _context.Monitors
+                .Include(e => e.ExamMonitors)
                 .Where(e => e.SectionId == exam.SectionId)
                 .Where(e => e.Role == 2)
                 .Where(e => e.Status == 0)
@@ -236,14 +231,14 @@ namespace ForQab.Repository.Concrete
                 if (genderId == null || genderId == 0)
                 {
                     availableMonitors = availableMonitors
-                                        .OrderBy(e => e.AssignmentCount)
+                                        .OrderBy(e => e.ComputedAssignmentCount)
                                         .ToList();
                 }
                 else
                 {
                     availableMonitors = availableMonitors
                     .Where(e => e.Gender == genderId)
-                    .OrderBy(e => e.AssignmentCount)
+                    .OrderBy(e => e.ComputedAssignmentCount)
                     .ToList();
                 }
 
@@ -253,7 +248,7 @@ namespace ForQab.Repository.Concrete
             {
                 availableMonitors = availableMonitors
                     .Where(e => e.District == exam.DistrictId)
-                    .OrderBy(e => e.AssignmentCount)
+                    .OrderBy(e => e.ComputedAssignmentCount)
                     .ToList();
             }
 
@@ -367,7 +362,8 @@ namespace ForQab.Repository.Concrete
             var alreadyAssignedMonitorIds = exam.Monitors.Select(m => m.Id).ToHashSet();
 
             // Head Monitors için uygun olanları al
-            var allMonitors = await _context.Monitors.Where(e => e.SectionId == exam.SectionId)
+            var allMonitors = await _context.Monitors.Include(e => e.ExamMonitors)
+                                                     .Where(e => e.SectionId == exam.SectionId)
                                                      .Where(e => e.Role == 1)
                                                      .Where(e => e.Status == 0)
                                                      .Where(e => e.District == exam.DistrictId)
@@ -379,7 +375,7 @@ namespace ForQab.Repository.Concrete
                 throw new Exception("Yeterli sayda rəhbər yoxdur.");
 
             var selectedMonitors = allMonitors
-                                    .OrderBy(e => e.AssignmentCount)
+                                    .OrderBy(e => e.ComputedAssignmentCount)
                                     .Take(numberOfMonitors)
                                     .ToList();
 
@@ -768,7 +764,9 @@ namespace ForQab.Repository.Concrete
                                       .Include(e => e.Section)
                                       .Include(e => e.ExamSubjects)
                                           .ThenInclude(e => e.Subjects)
+                                      .Where(e => e.Type == 1) 
                                       .OrderBy(e => e.ExamDate)
+                                      .ThenBy(e => e.SectionId)
                                       .ToListAsync();
 
             MemoryStream memoryStream = new MemoryStream();

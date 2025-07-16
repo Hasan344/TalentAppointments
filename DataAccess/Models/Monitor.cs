@@ -179,6 +179,8 @@ public partial class Monitor
     [InverseProperty("Monitor")]
     public virtual ICollection<MonitorsProfession> MonitorsProfessions { get; set; } = new List<MonitorsProfession>();
     public ICollection<Contract>? Contracts { get; set; }
+    [NotMapped]
+    public int ComputedAssignmentCount => ExamMonitors?.Count ?? 0;
 
 
 }

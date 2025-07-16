@@ -111,6 +111,7 @@
                     <th>Ata adı</th>
                     <th>İstiqamət</th>
                     <th>İxtisas</th>
+                    <th>İştirak sayı</th>
                     <th>Əməliyyatlar</th>
                 </tr>
             </thead>
@@ -141,6 +142,7 @@
                                 <span>---</span>
                             }
                         </td>
+                        <td>@Html.DisplayFor(modelItem => item.ComputedAssignmentCount)</td>
                         <td>
                             <div class="btn-group" role="group">
                                 <a class="btn btn-outline-warning btn-sm p-1" asp-action="Edit" asp-route-id="@item.Id">

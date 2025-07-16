@@ -139,6 +139,7 @@
                     <th>Seriya</th>
                     <th>İstiqamət</th>
                     <th>Rayon</th>
+                    <th>İştirak sayı</th>
                     <th class="text-center">Əməliyyatlar</th>
                 </tr>
             </thead>
@@ -162,6 +163,7 @@
                         <td>@Html.DisplayFor(m => item.Serial)</td>
                         <td>@Html.DisplayFor(m => item.Section.Name)</td>
                         <td>@Html.DisplayFor(m => item.DistrictNavigation.Name)</td>
+                        <td>@Html.DisplayFor(m => item.ComputedAssignmentCount)</td>
                         <td class="text-center">
                             <div class="btn-group">
                                 <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a>

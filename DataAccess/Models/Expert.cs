@@ -137,4 +137,7 @@ public partial class Expert
     [Column("contract_date")]
     public DateOnly? ContractDate { get; set; }
     public ICollection<Contract> Contracts { get; set; }
+    [NotMapped]
+    public int ComputedAssignmentCount => ExamExpertSubProfessions?.Count ?? 0;
+
 }

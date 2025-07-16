@@ -142,12 +142,12 @@ public class ExpertService : IExpertService
     }
     public async Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId)
     {
-        var includes = new string[] { "DistrictNavigation", "ExpertsProfessions.SubProfession", "Section", "GenderNavigation", "FederationNavigation", "Contracts" };
+        var includes = new string[] { "DistrictNavigation", "ExpertsProfessions.SubProfession", "Section", "GenderNavigation", "FederationNavigation", "Contracts", "ExamExpertSubProfessions" };
         return await _expertRepository.GetAllAsync(sectionId,null,includes);
     }
     public async Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? federationId, int? subProfessionId)
     {
-        var includes = new string[] { "DistrictNavigation", "ExpertsProfessions.SubProfession", "Section", "GenderNavigation", "FederationNavigation", "Contracts" };
+        var includes = new string[] { "DistrictNavigation", "ExpertsProfessions.SubProfession", "Section", "GenderNavigation", "FederationNavigation", "Contracts", "ExamExpertSubProfessions" };
 
         var query = await _expertRepository.GetAllAsync(sectionId, null, includes); 
         if (genderId.HasValue)
@@ -197,7 +197,7 @@ public class ExpertService : IExpertService
     }
     public async Task<IEnumerable<Expert>> GetArchivedExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId)
     {
-        var includes = new string[] { "DistrictNavigation", "ExpertsProfessions", "Section", "GenderNavigation", "FederationNavigation", "Contracts" };
+        var includes = new string[] { "DistrictNavigation", "ExpertsProfessions", "Section", "GenderNavigation", "FederationNavigation", "Contracts", "ExamExpertSubProfessions" };
 
         var query = await _expertRepository.GetAllArchivedAsync(sectionId, null, includes);
         if (genderId.HasValue)

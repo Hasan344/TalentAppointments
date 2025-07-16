@@ -132,6 +132,7 @@
                     <th>İstiqamət</th>
                     <th>Rayon</th>
                     <th>İş vəzifəsi</th>
+                    <th>İştirak sayı</th>
                     <th class="text-center">Əməliyyatlar</th>
                 </tr>
             </thead>
@@ -155,6 +156,7 @@
                         <td>@Html.DisplayFor(modelItem => item.Section.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.DistrictNavigation.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.WorkerTypeNavigation.Name)</td>
+                        <td>@Html.DisplayFor(modelItem => item.ComputedAssignmentCount)</td>
                         <td class="text-center">
                             <div class="btn-group">
                                 <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a>

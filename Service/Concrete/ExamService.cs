@@ -136,6 +136,7 @@ namespace ForQab.Service
         {
             var exam = await _examRepository.GetExamWithMonitorsAsync(examId);
             if (exam == null) return null;
+            var monitor = await _monitorRepository.GetByIdAsync(monitorId);
 
             var monitorAttribute = await _monitorRepository.GetMonitorAttributeByIdAsync(monitorId, role);
             var sectionId = exam.SectionId;
@@ -143,7 +144,7 @@ namespace ForQab.Service
             var selectedMonitorList = exam.Monitors.Select(m => m.Id).ToList();
             var availableMonitors = role == 5
                                     ? await _monitorRepository.GetAvailableWorkersAsync(sectionId, role, (int)monitorAttribute, selectedMonitorList)
-                                    : await _monitorRepository.GetAvailableMonitorsAsync(sectionId, role, (int)monitorAttribute, selectedMonitorList);
+                                    : await _monitorRepository.GetAvailableMonitorsAsync(sectionId, role, (int)monitorAttribute, selectedMonitorList, monitor.District);
 
 
             return new ChangeMonitorViewModel
@@ -801,7 +802,14 @@ namespace ForQab.Service
                 var mainPart = wordDocument.AddMainDocumentPart();
                 mainPart.Document = new Document();
                 var body = mainPart.Document.AppendChild(new Body());
+                if(exam.SectionId == 2)
+                {
 
+                    body.AppendChild(CreateCenteredBoldParagraph("QABİLİYYƏT İMTAHANI KOMİSSİYASININ QEYDİYYAT VƏRƏQİ", 16));
+                    body.AppendChild(CreateMixedBoldParagraph("İmtahanın adı: ", "\u00A0" + exam.Name, 14));
+                    body.AppendChild(CreateMixedBoldParagraph("Qiymətləndirmə binası: ", "\u00A0" + exam.ExamBuilding?.Code + " " + exam.ExamBuilding?.Name, 14));
+                    body.AppendChild(CreateMixedBoldParagraph("Tarix: ", "\u00A0" + exam.ExamDate, 14));
+                }else
                 body.AppendChild(CreateCenteredBoldParagraph("İMTAHANDAKI EKSPERTLƏRİN QEYDİYYAT VƏRƏQİ", 16));
                 body.AppendChild(CreateMixedBoldParagraph("İmtahanın adı: ", "\u00A0" + exam.Name, 14));
                 body.AppendChild(CreateMixedBoldParagraph("İmtahan binası: ", "\u00A0" + exam.ExamBuilding?.Code + " " + exam.ExamBuilding?.Name, 14));
@@ -1168,24 +1176,24 @@ namespace ForQab.Service
             using var workbook = new XLWorkbook();
             var worksheet = workbook.Worksheets.Add("Exam Data");
 
-            worksheet.Cell(1, 1).Value = "Vəsiqə nömrəsi";
-            worksheet.Cell(1, 2).Value = "Rayon";
+            worksheet.Cell(1, 1).Value = "V_NUM";
+            worksheet.Cell(1, 2).Value = "RAYON";
             worksheet.Cell(1, 3).Value = "SOY";
             worksheet.Cell(1, 4).Value = "ADI";
-            worksheet.Cell(1, 5).Value = "ATA";
+            worksheet.Cell(1, 5).Value = "BABA";
             worksheet.Cell(1, 6).Value = "BINA";
             worksheet.Cell(1, 7).Value = "IMT_KOD";
             worksheet.Cell(1, 8).Value = "IL";
             worksheet.Cell(1, 9).Value = "IMT_GUN";
             worksheet.Cell(1, 10).Value = "IMT_AY";
             worksheet.Cell(1, 11).Value = "imt_vezife";
-            worksheet.Cell(1, 12).Value = "Muqavile";
+            worksheet.Cell(1, 12).Value = "muqavile";
             worksheet.Cell(1, 13).Value = "MuqavileNo";
-            worksheet.Cell(1, 14).Value = "CINS";
+            worksheet.Cell(1, 14).Value = "cins";
             worksheet.Cell(1, 15).Value = "SERIYA_P";
             worksheet.Cell(1, 16).Value = "NUM_POSP";
             worksheet.Cell(1, 17).Value = "TELEFON";
-            worksheet.Cell(1, 18).Value = "SV_PINKOD";
+            worksheet.Cell(1, 18).Value = "sv_pinkod";
             worksheet.Cell(1, 19).Value = "VOEN";
             worksheet.Cell(1, 20).Value = "Hesablashma";
             worksheet.Cell(1, 21).Value = "rekvizit";
@@ -1200,28 +1208,28 @@ namespace ForQab.Service
                 foreach (var monitor in exam.Monitors) // Her Monitor için ayrı satır
                 {
                     worksheet.Cell(row, 1).Value = monitor.VNum;
-                    worksheet.Cell(row, 2).Value = exam.DistrictId;
+                    worksheet.Cell(row, 2).Value = exam.DistrictId.ToString();
                     worksheet.Cell(row, 3).Value = monitor.Surname;
                     worksheet.Cell(row, 4).Value = monitor.Name;
                     worksheet.Cell(row, 5).Value = monitor.Fname;
                     worksheet.Cell(row, 6).Value = exam.ExamBuilding.Code;
                     if(exam.ExamDegrees.Select(ed => ed.DegreeId).FirstOrDefault() == 2)
                     {
-                        worksheet.Cell(row, 7).Value = 36;
+                        worksheet.Cell(row, 7).Value = "36";
                     }else 
                     {
-                        worksheet.Cell(row, 7).Value = exam.Section?.SectCode;
+                        worksheet.Cell(row, 7).Value = exam.Section?.SectCode.ToString();
                     }
-                    worksheet.Cell(row, 8).Value = exam.ExamDate.Year;
-                    worksheet.Cell(row, 9).Value = exam.ExamDate.Day;
-                    worksheet.Cell(row, 10).Value = exam.ExamDate.Month;
+                    worksheet.Cell(row, 8).Value = exam.ExamDate.Year.ToString();
+                    worksheet.Cell(row, 9).Value = exam.ExamDate.Day.ToString();
+                    worksheet.Cell(row, 10).Value = exam.ExamDate.Month.ToString();
                     if (monitor.Role == 2 && exam.SectionId != 2)
                     {
-                        worksheet.Cell(row, 11).Value = "1,2";
+                        worksheet.Cell(row, 11).Value = "1.2";
                     }
                     else if (monitor.Role == 1 && exam.SectionId != 2)
                     {
-                        worksheet.Cell(row, 11).Value = "3,1";
+                        worksheet.Cell(row, 11).Value = "3.1";
                     }
                     else if (monitor.WorkerType == 1)
                     {
@@ -1233,7 +1241,7 @@ namespace ForQab.Service
                     }
                     else if (monitor.WorkerType == 3)
                     {
-                        worksheet.Cell(row, 11).Value = "30,1";
+                        worksheet.Cell(row, 11).Value = "30.1";
                     }
                     else if (monitor.Role == 1 && exam.SectionId == 2 && (exam.EndTime.Value - exam.StartTime.Value).Hours == 6)
                     {
@@ -1245,7 +1253,7 @@ namespace ForQab.Service
                     }
                     else if (monitor.Role == 1 && exam.SectionId == 2)
                     {
-                        worksheet.Cell(row, 11).Value = "3,1";
+                        worksheet.Cell(row, 11).Value = "3.1";
                     }
                     else if (monitor.Role == 2 && exam.SectionId == 2 && (exam.EndTime.Value - exam.StartTime.Value).Hours == 6)
                     {
@@ -1258,22 +1266,21 @@ namespace ForQab.Service
 
                     else if (monitor.Role == 2 && exam.SectionId == 2)
                     {
-                        worksheet.Cell(row, 11).Value = "1,2";
+                        worksheet.Cell(row, 11).Value = "1.2";
                     }
 
                     var latestContract = monitor.Contracts
-                        .OrderByDescending(c => c.Date)
+                        .OrderByDescending(c => c.Id)
                         .FirstOrDefault();
 
-                    worksheet.Cell(row, 12).Value = latestContract?.Date.ToString() ?? "";
+                    worksheet.Cell(row, 12).Value = latestContract?.Date.ToString("dd.MM.yyyy") ?? "";
                     worksheet.Cell(row, 13).Value = latestContract?.Number ?? "";
-                    worksheet.Cell(row, 14).Value = monitor.Gender;
+                    worksheet.Cell(row, 14).Value = monitor.Gender.ToString();
                     if (!string.IsNullOrEmpty(monitor?.Serial))
                     {
-                        if (monitor.Serial.StartsWith("AZ") || !monitor.Serial.StartsWith("A"))
-                            worksheet.Cell(row, 15).Value = "AZE";
-                        else if (monitor.Serial.StartsWith("AA"))
-                            worksheet.Cell(row, 15).Value = "AA";
+                        worksheet.Cell(row, 15).Value = monitor.Serial.StartsWith("AA") || monitor.Serial.Length == 7
+                                                        ? "AA"
+                                                        : (monitor.Serial.Length == 8 || monitor.Serial.StartsWith("AZE") ? "AZE" : null);
                     }
                     else
                     {
@@ -1301,7 +1308,7 @@ namespace ForQab.Service
                     worksheet.Cell(row, 22).Value = monitor.SSN;
                     worksheet.Cell(row, 23).Value = monitor.BankFilial;
                     worksheet.Cell(row, 24).Value = monitor.BankFilialCode;
-                    worksheet.Cell(row, 25).Value = exam.Shift;
+                    worksheet.Cell(row, 25).Value = exam.Shift.ToString();
                     row++;
                 }
                 if (exam.SectionId != 1)
@@ -1309,43 +1316,43 @@ namespace ForQab.Service
                     foreach (var expert in exam.Experts) // Her Monitor için ayrı satır
                     {
                         worksheet.Cell(row, 1).Value = "";
-                        worksheet.Cell(row, 2).Value = exam.DistrictId;
+                        worksheet.Cell(row, 2).Value = exam.DistrictId.ToString();
                         worksheet.Cell(row, 3).Value = expert.Surname;
                         worksheet.Cell(row, 4).Value = expert.Name;
                         worksheet.Cell(row, 5).Value = expert.Fname;
                         worksheet.Cell(row, 6).Value = exam.ExamBuilding.Code;
                         if (exam.ExamDegrees.Select(ed => ed.DegreeId).FirstOrDefault() == 2)
                         {
-                            worksheet.Cell(row, 7).Value = 36;
+                            worksheet.Cell(row, 7).Value = "36";
                         }
                         else
                         {
-                            worksheet.Cell(row, 7).Value = exam.Section?.SectCode;
+                            worksheet.Cell(row, 7).Value = exam.Section?.SectCode.ToString();
                         }
-                        worksheet.Cell(row, 8).Value = exam.ExamDate.Year;
-                        worksheet.Cell(row, 9).Value = exam.ExamDate.Day;
-                        worksheet.Cell(row, 10).Value = exam.ExamDate.Month;
+                        worksheet.Cell(row, 8).Value = exam.ExamDate.Year.ToString();
+                        worksheet.Cell(row, 9).Value = exam.ExamDate.Day.ToString();
+                        worksheet.Cell(row, 10).Value = exam.ExamDate.Month.ToString();
                         if (expert.Kons == false)
                         {
                             worksheet.Cell(row, 11).Value = "6";
                         }
                         else if (expert.Kons == true)
                         {
-                            worksheet.Cell(row, 11).Value = "6,1";
+                            worksheet.Cell(row, 11).Value = "6.1";
                         }
                         var latestContract = expert.Contracts
-                            .OrderByDescending(c => c.Date)
+                            .OrderByDescending(c => c.Id)
                             .FirstOrDefault();
 
-                        worksheet.Cell(row, 12).Value = latestContract?.Date.ToString() ?? "";
+                        worksheet.Cell(row, 12).Value = latestContract?.Date.ToString("dd.MM.yyyy") ?? "";
                         worksheet.Cell(row, 13).Value = latestContract?.Number ?? "";
-                        worksheet.Cell(row, 14).Value = expert.Gender;
+                        worksheet.Cell(row, 14).Value = expert.Gender.ToString();
                         if (!string.IsNullOrEmpty(expert?.Serial))
                         {
-                            if (expert.Serial.StartsWith("AZ") || !expert.Serial.StartsWith("A"))
-                                worksheet.Cell(row, 15).Value = "AZE";
-                            else if (expert.Serial.StartsWith("AA"))
-                                worksheet.Cell(row, 15).Value = "AA";
+                            worksheet.Cell(row, 15).Value = expert.Serial.StartsWith("AA") || expert.Serial.Length == 7
+                                                            ? "AA"
+                                                            : (expert.Serial.Length == 8 || expert.Serial.StartsWith("AZE") ? "AZE" : null);
+
                         }
                         else
                         {
@@ -1373,40 +1380,39 @@ namespace ForQab.Service
                         worksheet.Cell(row, 22).Value = expert.SSN;
                         worksheet.Cell(row, 23).Value = expert.BankFilial;
                         worksheet.Cell(row, 24).Value = expert.BankFilialCode;
-                        worksheet.Cell(row, 25).Value = exam.Shift;
+                        worksheet.Cell(row, 25).Value = exam.Shift.ToString();
                         row++;
                     }
                 }
                 foreach (var monitor in exam.Representatives) 
                 {
                     worksheet.Cell(row, 1).Value = "";
-                    worksheet.Cell(row, 2).Value = exam.DistrictId;
+                    worksheet.Cell(row, 2).Value = exam.DistrictId.ToString();
                     worksheet.Cell(row, 3).Value = monitor.Surname;
                     worksheet.Cell(row, 4).Value = monitor.Name;
                     worksheet.Cell(row, 5).Value = monitor.Fname;
                     worksheet.Cell(row, 6).Value = exam.ExamBuilding.Code;
                     if (exam.ExamDegrees.Select(ed => ed.DegreeId).FirstOrDefault() == 2)
                     {
-                        worksheet.Cell(row, 7).Value = 36;
+                        worksheet.Cell(row, 7).Value = "36";
                     }
                     else
                     {
-                        worksheet.Cell(row, 7).Value = exam.Section?.SectCode;
+                        worksheet.Cell(row, 7).Value = exam.Section?.SectCode.ToString();
                     }
-                    worksheet.Cell(row, 8).Value = exam.ExamDate.Year;
-                    worksheet.Cell(row, 9).Value = exam.ExamDate.Day;
-                    worksheet.Cell(row, 10).Value = exam.ExamDate.Month;
+                    worksheet.Cell(row, 8).Value = exam.ExamDate.Year.ToString();
+                    worksheet.Cell(row, 9).Value = exam.ExamDate.Day.ToString();
+                    worksheet.Cell(row, 10).Value = exam.ExamDate.Month.ToString();
                     worksheet.Cell(row, 11).Value = "";
 
                     worksheet.Cell(row, 12).Value = "";
                     worksheet.Cell(row, 13).Value =  "";
-                    worksheet.Cell(row, 14).Value = monitor.Gender;
+                    worksheet.Cell(row, 14).Value = monitor.Gender.ToString();
                     if (!string.IsNullOrEmpty(monitor?.Serial))
                     {
-                        if (monitor.Serial.StartsWith("AZ") || !monitor.Serial.StartsWith("A"))
-                            worksheet.Cell(row, 15).Value = "AZE";
-                        else if (monitor.Serial.StartsWith("AA"))
-                            worksheet.Cell(row, 15).Value = "AA";
+                        worksheet.Cell(row, 15).Value = monitor.Serial.StartsWith("AA") || monitor.Serial.Length == 7
+                                                        ? "AA"
+                                                        : (monitor.Serial.Length == 8 || monitor.Serial.StartsWith("AZE") ? "AZE" : null);
                     }
                     else
                     {
@@ -1434,7 +1440,7 @@ namespace ForQab.Service
                     worksheet.Cell(row, 22).Value = "";
                     worksheet.Cell(row, 23).Value = "";
                     worksheet.Cell(row, 24).Value = "";
-                    worksheet.Cell(row, 25).Value = exam.Shift;
+                    worksheet.Cell(row, 25).Value = exam.Shift.ToString();
                     row++;
                 }
             }
@@ -1446,11 +1452,11 @@ namespace ForQab.Service
 
         private string GetMonitorRoleValue(Monitor monitor, Exam exam)
         {
-            if (monitor.Role == 2 && exam.SectionId != 2) return "1,2";
-            if (monitor.Role == 1 && exam.SectionId != 2) return "3,1";
+            if (monitor.Role == 2 && exam.SectionId != 2) return "1.2";
+            if (monitor.Role == 1 && exam.SectionId != 2) return "3.1";
             if (monitor.WorkerType == 1) return "30";
             if (monitor.WorkerType == 2) return "29";
-            if (monitor.WorkerType == 3) return "30,1";
+            if (monitor.WorkerType == 3) return "30.1";
             return "";
         }
 
