@@ -33,6 +33,8 @@ namespace ForQab.Repository.Abstract
         public Task UpdateExamAsync(EditExamViewModelForAssesment exam);
         public Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId);
         Task<MemoryStream> ExportExamScheduleToWord();
+        Task<MemoryStream> ExportExamCalendarToWord();
+        Task<MemoryStream> ExportExamScheduleToWordForLetter();
         Task AddMonitorLogAsync(MonitorLog log);
         Task AddExpertLogAsync(ExpertLog logs);
         Task<List<int>> GetMonitorsWithLogsAsync(List<int> monitorIds);

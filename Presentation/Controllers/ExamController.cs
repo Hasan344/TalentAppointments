@@ -34,10 +34,12 @@ namespace ForQab.Presentation.Controllers
         {
             var sectionId = await GetCurrentSectionIdAsync();
             var exams = await _examService.GetExamsBySectionIdAsync(sectionId, examBuildingId);
-
+            var examBuildings = await _context.ExamBuildings.ToListAsync();
             ViewBag.Section = sectionId;
-
-            var examBuildings = await _context.ExamBuildings.Where(eb => eb.SectionId == sectionId).ToListAsync();
+            if (sectionId != null)
+            {
+                examBuildings = await _context.ExamBuildings.Where(eb => eb.SectionId == sectionId).ToListAsync();
+            }
             ViewBag.ExamBuildings = new SelectList(examBuildings, "Id", "Name");
             ViewBag.SelectedExamBuildingId = examBuildingId;
 
@@ -629,6 +631,20 @@ namespace ForQab.Presentation.Controllers
         {
             var memoryStream = await _examService.ExportExamScheduleToWord();
             return File(memoryStream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Təqvim qabiliyyət.docx");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportToWordCalendar()
+        {
+            var memoryStream = await _examService.ExportExamCalendarToWord();
+            return File(memoryStream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Təqvim qabiliyyət üçün.docx");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportToWordForLetter()
+        {
+            var memoryStream = await _examService.ExportExamScheduleToWordForLetter();
+            return File(memoryStream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Məktuba əlavə təqvim.docx");
         }
 
 

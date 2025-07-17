@@ -55,6 +55,19 @@
 
                 </div>
 
+
+                <div class="form-group">
+                    <label asp-for="StartTime" class="control-label">Başlama Saatı</label>
+                    <input asp-for="StartTime" type="time" class="form-control" value="@(Model?.StartTime.HasValue == true ? Model.StartTime.Value.ToString(@"hh\:mm") : "")" />
+                    <span asp-validation-for="StartTime" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="EndTime" class="control-label">Bitmə Saatı</label>
+                    <input asp-for="EndTime" type="time" class="form-control" value="@(Model?.EndTime.HasValue == true ? Model.EndTime.Value.ToString(@"hh\:mm") : "")" />
+                    <span asp-validation-for="EndTime" class="text-danger"></span>
+                </div>
+
                 <div class="form-group">
                     <div class="col-md-6 mb-3">
                         <label asp-for="Shift" class="form-label">Növbə</label>
