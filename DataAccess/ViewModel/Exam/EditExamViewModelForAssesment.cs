@@ -24,5 +24,7 @@ namespace ForQab.DataAccess.ViewModel.Exam
         [Required]
         public DateOnly ExamDate { get; set; }
         public byte? Shift { get; set; }
+        public TimeSpan? StartTime { get; set; }
+        public TimeSpan? EndTime { get; set; }
     }
 }

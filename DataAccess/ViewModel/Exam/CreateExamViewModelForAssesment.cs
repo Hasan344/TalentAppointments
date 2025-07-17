@@ -26,5 +26,7 @@ namespace ForQab.Presentation.ViewModels
         public byte? Shift { get; set; }
         [Required]
         public int? Type { get; set; }
+        public TimeSpan? StartTime { get; set; }
+        public TimeSpan? EndTime { get; set; }
     }
 }

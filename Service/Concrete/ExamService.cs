@@ -113,6 +113,8 @@ namespace ForQab.Service
                 ExamBuldingId = exam.ExamBuldingId,
                 ExamDate = exam.ExamDate,
                 Shift = exam.Shift,
+                StartTime = exam.StartTime,
+                EndTime = exam.EndTime,
             };
         }
 
@@ -619,6 +621,14 @@ namespace ForQab.Service
         public Task<MemoryStream> ExportExamScheduleToWord()
         {
             return _examRepository.ExportExamScheduleToWord();
+        }
+        public Task<MemoryStream> ExportExamCalendarToWord()
+        {
+            return _examRepository.ExportExamCalendarToWord();
+        }
+        public Task<MemoryStream> ExportExamScheduleToWordForLetter()
+        {
+            return _examRepository.ExportExamScheduleToWordForLetter();
         }
 
         public Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds)

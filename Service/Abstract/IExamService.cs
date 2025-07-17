@@ -35,6 +35,8 @@ namespace ForQab.Service.Abstract
         public Task<bool> AssignExpertsAsync(AssignExpertToExamViewModel model);
         public Task<int?> GetSectionIdByExamIdAsync(int examId);
         Task<MemoryStream> ExportExamScheduleToWord();
+        Task<MemoryStream> ExportExamCalendarToWord();
+        Task<MemoryStream> ExportExamScheduleToWordForLetter();
         public Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds, int[] degreeIds, int[] subjectIds);
         public Task UpdateExamAsync(EditExamViewModelForAssesment exam);
         public Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId);

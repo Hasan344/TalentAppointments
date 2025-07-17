@@ -98,6 +98,8 @@ namespace ForQab.Repository.Concrete
                 Type = entity.Type,
                 Shift = entity.Shift,
                 DistrictId = entity.DistrictId,
+                StartTime = entity.StartTime,
+                EndTime = entity.EndTime,
             };
             await _context.Exams.AddAsync(exam);
             await _context.SaveChangesAsync();
@@ -627,6 +629,8 @@ namespace ForQab.Repository.Concrete
             existingExam.Shift = exam.Shift;
             existingExam.DistrictId = exam.DistrictId;
             existingExam.ExamDate = exam.ExamDate;
+            existingExam.StartTime = exam.StartTime;
+            existingExam.EndTime = exam.EndTime;
 
             _context.Exams.Update(existingExam);
             await _context.SaveChangesAsync();
@@ -920,6 +924,313 @@ namespace ForQab.Repository.Concrete
             return memoryStream;
 
         }
+        public async Task<MemoryStream> ExportExamCalendarToWord()
+        {
+            var exams = await _context.Exams
+                                      .Include(e => e.ExamDegrees)
+                                          .ThenInclude(d => d.Degrees)
+                                      .Include(e => e.ExamCommissions)
+                                          .ThenInclude(c => c.Commission)
+                                      .Include(e => e.ExamExpertSubProfessions)
+                                          .ThenInclude(s => s.SubProfession)
+                                      .Include(e => e.ExamBuilding)
+                                      .Include(e => e.District)
+                                      .Include(e => e.Section)
+                                      .Include(e => e.ExamSubjects)
+                                          .ThenInclude(e => e.Subjects)
+                                      .Where(e => e.Type == 1)
+                                      .OrderBy(e => e.ExamDate)
+                                      .ThenBy(e => e.SectionId)
+                                      .ToListAsync();
+
+            MemoryStream memoryStream = new MemoryStream();
+            using (WordprocessingDocument wordDocument = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document, true))
+            {
+                MainDocumentPart mainPart = wordDocument.AddMainDocumentPart();
+                mainPart.Document = new Document();
+                Body body = new Body();
+                mainPart.Document.Append(body);
+
+                // Başlık ekleme
+                // Paragraph title = new Paragraph(new Run(new Text("Sınav Takvimi")));
+                //title.ParagraphProperties = new ParagraphProperties(new Justification() { Val = JustificationValues.Center });
+                //body.Append(title);
+
+                Table table = new Table();
+                TableProperties tblProp = new TableProperties(
+                    new TableWidth() { Width = "100%", Type = TableWidthUnitValues.Pct },
+                    new TableBorders(
+                        new TopBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new BottomBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new LeftBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new RightBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new InsideHorizontalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new InsideVerticalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 }
+                    )
+                );
+                table.AppendChild(tblProp);
+
+                TableRow headerRow = new TableRow(new TableRowProperties(
+                                                      new TableHeader()
+                                                  ));
+                string[] headers = { "İmtahan Tarixi", "İstiqamət", "Təhsil səviyyəsi", "Komissiya", "İmtahan fənləri", "İmtahan keçirilən şəhər(rayon)", "İmtahan mərkəzinin adı və ünvanı" };
+                foreach (var header in headers)
+                {
+                    TableCell cell = new TableCell(new Paragraph(new Run(new Text(header))));
+                    cell.Append(new TableCellProperties(new TableCellWidth { Type = TableWidthUnitValues.Auto }));
+                    headerRow.Append(cell);
+                }
+                table.Append(headerRow);
+
+                foreach (var exam in exams)
+                {
+                    TableRow row = new TableRow(
+                                            new TableRowProperties(
+                                                new CantSplit()
+                                            )
+                                        );
+
+                    var sectionId = _context.Exams.Where(e => e.Id == exam.Id).Select(e => e.SectionId).FirstOrDefault();
+                    string bgColor = "aae4e8";
+                    if (sectionId == 1)
+                    {
+                        bgColor = "94e3a9";
+                    }
+                    else if (sectionId == 2)
+                    {
+                        bgColor = "edf2b3";
+                    }
+                    else if (sectionId == 3)
+                    {
+                        bgColor = "cdd4f7";
+                    }
+                    else if (sectionId == 4)
+                    {
+                        bgColor = "cde8f7";
+                    }
+                    else if (sectionId == 5)
+                    {
+                        bgColor = "edcacd";
+                    }
+                    else if (sectionId == 6)
+                    {
+                        bgColor = "ddf5d7";
+                    }
+
+
+
+                    TableCellProperties cellProperties = new TableCellProperties(
+                        new Shading() { Val = ShadingPatternValues.Clear, Fill = bgColor }
+                    );
+
+                    row.Append(CreateColoredCell(exam.ExamDate.ToString("dd.MM.yyyy"), bgColor));
+                    row.Append(CreateColoredCell(exam.Section?.Name ?? "", bgColor));
+                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamDegrees?.Select(c => c.Degrees.Name) ?? new List<string>()), bgColor));
+                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamCommissions?
+                                                        .Select(c => $"{c.Commission.CommissionNo} - {c.Commission.Name}")
+                                                        ?? new List<string>()),
+                                                    bgColor));
+                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamSubjects?.Select(c => c.Subjects.Name) ?? new List<string>()), bgColor));
+                    row.Append(CreateColoredCell(exam.District?.Name ?? "", bgColor));
+                    row.Append(CreateColoredCell($"{exam.ExamBuilding?.Name ?? ""}, {exam.ExamBuilding?.Address ?? ""}", bgColor));
+
+                    table.Append(row);
+                }
+
+                // Yardımcı Metot: Renklendirilmiş hücre oluşturur
+                TableCell CreateColoredCell(string text, string bgColor)
+                {
+                    TableCell cell = new TableCell(new Paragraph(new Run(new Text(text))));
+                    TableCellProperties cellProperties = new TableCellProperties(
+                        new Shading() { Val = ShadingPatternValues.Clear, Fill = bgColor }
+                    );
+                    cell.Append(cellProperties);
+                    return cell;
+                }
+                // Footer oluştur
+                FooterPart footerPart = mainPart.AddNewPart<FooterPart>();
+                string footerPartId = mainPart.GetIdOfPart(footerPart);
+
+                // Sayfa numarası alanını oluştur
+                var paragraph = new Paragraph();
+                paragraph.Append(new ParagraphProperties(new Justification() { Val = JustificationValues.Center }));
+                paragraph.Append(new Run(
+                    new RunProperties(new NoProof()),
+                    new FieldChar() { FieldCharType = FieldCharValues.Begin }
+                ));
+                paragraph.Append(new Run(
+                    new FieldCode(" PAGE ") { Space = SpaceProcessingModeValues.Preserve }
+                ));
+                paragraph.Append(new Run(
+                    new FieldChar() { FieldCharType = FieldCharValues.Separate }
+                ));
+                paragraph.Append(new Run(new Text("1"))); // Placeholder
+                paragraph.Append(new Run(
+                    new FieldChar() { FieldCharType = FieldCharValues.End }
+                ));
+
+                Footer footer = new Footer(paragraph);
+                footerPart.Footer = footer;
+                footerPart.Footer.Save();
+
+                // SectionProperties'e footer referansını ekle
+                var sectionProps = new SectionProperties(
+                    new PageSize() { Width = 11906, Height = 16838, Orient = PageOrientationValues.Portrait },
+                    new PageMargin() { Top = 720, Right = 720, Bottom = 720, Left = 720 },
+                    new FooterReference() { Type = HeaderFooterValues.Default, Id = footerPartId }
+                );
+
+                body.Append(sectionProps);
+                body.Append(table);
+                mainPart.Document.Save();
+            }
+
+            memoryStream.Position = 0;
+            return memoryStream;
+
+        }
+        public async Task<MemoryStream> ExportExamScheduleToWordForLetter()
+        {
+            var exams = await _context.Exams
+                                      .Include(e => e.ExamDegrees)
+                                          .ThenInclude(d => d.Degrees)
+                                      .Include(e => e.ExamCommissions)
+                                          .ThenInclude(c => c.Commission)
+                                      .Include(e => e.ExamExpertSubProfessions)
+                                          .ThenInclude(s => s.SubProfession)
+                                      .Include(e => e.ExamBuilding)
+                                      .Include(e => e.District)
+                                      .Include(e => e.Section)
+                                      .Include(e => e.ExamSubjects)
+                                          .ThenInclude(e => e.Subjects)
+                                      .Where(e => e.Type == 1)
+                                      .OrderBy(e => e.ExamDate)
+                                      .ThenBy(e => e.SectionId)
+                                      .ToListAsync();
+
+            MemoryStream memoryStream = new MemoryStream();
+            using (WordprocessingDocument wordDocument = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document, true))
+            {
+                MainDocumentPart mainPart = wordDocument.AddMainDocumentPart();
+                mainPart.Document = new Document();
+                Body body = new Body();
+                mainPart.Document.Append(body);
+
+                // Başlık ekleme
+                // Paragraph title = new Paragraph(new Run(new Text("Sınav Takvimi")));
+                //title.ParagraphProperties = new ParagraphProperties(new Justification() { Val = JustificationValues.Center });
+                //body.Append(title);
+
+                Table table = new Table();
+                TableProperties tblProp = new TableProperties(
+                    new TableWidth() { Width = "100%", Type = TableWidthUnitValues.Pct },
+                    new TableBorders(
+                        new TopBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new BottomBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new LeftBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new RightBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new InsideHorizontalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new InsideVerticalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 }
+                    )
+                );
+                table.AppendChild(tblProp);
+
+                TableRow headerRow = new TableRow(new TableRowProperties(
+                                                      new TableHeader()
+                                                  ));
+                string[] headers = { "İmtahan Tarixi", "İstiqamət", "Təhsil səviyyəsi", "İmtahan keçirilən şəhər(rayon)", "İmtahan mərkəzinin adı və ünvanı", "İştirakçı Sayı", "Buraxılışın başlanması", "İmtahan başlanması", "İmtahanın bitməsi", "Qeyd" };
+                foreach (var header in headers)
+                {
+                    TableCell cell = new TableCell(new Paragraph(new Run(new Text(header))));
+                    cell.Append(new TableCellProperties(new TableCellWidth { Type = TableWidthUnitValues.Auto }));
+                    headerRow.Append(cell);
+                }
+                table.Append(headerRow);
+
+                foreach (var exam in exams)
+                {
+                    TableRow row = new TableRow(
+                                            new TableRowProperties(
+                                                new CantSplit()
+                                            )
+                                        );
+
+                    var sectionId = _context.Exams.Where(e => e.Id == exam.Id).Select(e => e.SectionId).FirstOrDefault();
+                    string bgColor = "ffffff";
+
+
+
+                    TableCellProperties cellProperties = new TableCellProperties(
+                        new Shading() { Val = ShadingPatternValues.Clear, Fill = bgColor }
+                    );
+
+                    row.Append(CreateColoredCell(exam.ExamDate.ToString("dd.MM.yyyy"), bgColor));
+                    row.Append(CreateColoredCell(exam.Section?.Name ?? "", bgColor));
+                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamDegrees?.Select(c => c.Degrees.Name) ?? new List<string>()), bgColor));
+                    row.Append(CreateColoredCell(exam.District?.Name ?? "", bgColor));
+                    row.Append(CreateColoredCell($"{exam.ExamBuilding?.Name ?? ""}, {exam.ExamBuilding?.Address ?? ""}", bgColor));
+                    row.Append(CreateColoredCell(exam.StudentCount?.ToString() ?? "", bgColor));
+                    row.Append(CreateColoredCell(exam.AdmissionTime?.ToString(@"hh\:mm") ?? "", bgColor));
+                    row.Append(CreateColoredCell(exam.StartTime?.ToString(@"hh\:mm") ?? "", bgColor));
+                    row.Append(CreateColoredCell(exam.EndTime?.ToString(@"hh\:mm") ?? "", bgColor));
+                    row.Append(CreateColoredCell("", bgColor));
+
+                    table.Append(row);
+                }
+
+                // Yardımcı Metot: Renklendirilmiş hücre oluşturur
+                TableCell CreateColoredCell(string text, string bgColor)
+                {
+                    TableCell cell = new TableCell(new Paragraph(new Run(new Text(text))));
+                    TableCellProperties cellProperties = new TableCellProperties(
+                        new Shading() { Val = ShadingPatternValues.Clear, Fill = bgColor }
+                    );
+                    cell.Append(cellProperties);
+                    return cell;
+                }
+                // Footer oluştur
+                FooterPart footerPart = mainPart.AddNewPart<FooterPart>();
+                string footerPartId = mainPart.GetIdOfPart(footerPart);
+
+                // Sayfa numarası alanını oluştur
+                var paragraph = new Paragraph();
+                paragraph.Append(new ParagraphProperties(new Justification() { Val = JustificationValues.Center }));
+                paragraph.Append(new Run(
+                    new RunProperties(new NoProof()),
+                    new FieldChar() { FieldCharType = FieldCharValues.Begin }
+                ));
+                paragraph.Append(new Run(
+                    new FieldCode(" PAGE ") { Space = SpaceProcessingModeValues.Preserve }
+                ));
+                paragraph.Append(new Run(
+                    new FieldChar() { FieldCharType = FieldCharValues.Separate }
+                ));
+                paragraph.Append(new Run(new Text("1"))); // Placeholder
+                paragraph.Append(new Run(
+                    new FieldChar() { FieldCharType = FieldCharValues.End }
+                ));
+
+                Footer footer = new Footer(paragraph);
+                footerPart.Footer = footer;
+                footerPart.Footer.Save();
+
+                // SectionProperties'e footer referansını ekle
+                var sectionProps = new SectionProperties(
+                    new PageSize() { Width = 11906, Height = 16838, Orient = PageOrientationValues.Portrait },
+                    new PageMargin() { Top = 720, Right = 720, Bottom = 720, Left = 720 },
+                    new FooterReference() { Type = HeaderFooterValues.Default, Id = footerPartId }
+                );
+
+                body.Append(sectionProps);
+                body.Append(table);
+                mainPart.Document.Save();
+            }
+
+            memoryStream.Position = 0;
+            return memoryStream;
+
+        }
+
 
         public async Task<List<DimRepresentative>> GetAvailableRepresentativesAsync()
         {
