@@ -30,4 +30,11 @@
     <Folder Include="wwwroot\img\tesviri\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Presentation\Views\Exam\AssignVolunteersForOthers.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

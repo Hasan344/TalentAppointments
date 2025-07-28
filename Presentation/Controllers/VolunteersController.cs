@@ -9,6 +9,8 @@ using ClosedXML.Excel;
 using System.Data;
 using ForQab.Presentation.Validators;
 using ForQab.Service.Abstract;
+using FluentValidation.Results;
+using ForQab.Migrations;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -56,6 +58,7 @@ namespace ForQab.Presentation.Controllers
             var sectionId = await GetCurrentSectionIdAsync();
             var sections = await _volunteerService.GetSectionsAsync(sectionId);
             ViewBag.SectionList = new SelectList(sections, "Id", "Name");
+            ViewBag.Section = sectionId;
             ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
             ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name");
             ViewData["District"] = new SelectList(_context.Districts, "Id", "Name"); 
@@ -73,25 +76,51 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Monitor monitor)
         {
-            var validator = new VolunteerValidator();
-            var result = validator.Validate(monitor);
-            if (!result.IsValid)
+            var sectionId = await GetCurrentSectionIdAsync();
+
+            ValidationResult result;
+
+            if (sectionId == 1)
             {
-                return View(monitor);
+                var validator = new VolunteerValidator();
+                result = validator.Validate(monitor);
+                if (!result.IsValid)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                    }
+                    await LoadViewData(monitor);
+                    return View(monitor);
+                }
             }
+            else
+            {
+                result = new ValidationResult();
+            }
+
             if (ModelState.IsValid)
             {
                 await _volunteerService.AddAsync(monitor);
                 return RedirectToAction(nameof(Index));
             }
+
+            var sections = await _volunteerService.GetSectionsAsync(sectionId);
+            ViewBag.Section = sectionId;
+            ViewBag.SectionList = new SelectList(sections, "Id", "Name");
+            ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
+            ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name");
             await LoadViewData(monitor);
             return View(monitor);
+
         }
 
         // GET: Volunteer/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var monitor = await _volunteerService.GetByIdAsync(id);
+            var sectionId = await GetCurrentSectionIdAsync();
+            ViewBag.Section = sectionId;
             if (monitor == null)
             {
                 return NotFound();
@@ -140,6 +169,8 @@ namespace ForQab.Presentation.Controllers
                     Console.WriteLine(error.ErrorMessage);
                 }
             }
+            var sectionId = await GetCurrentSectionIdAsync();
+            ViewBag.Section = sectionId;
             await LoadViewData(monitor);
             return View(monitor);
         }

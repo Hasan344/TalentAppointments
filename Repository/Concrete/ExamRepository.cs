@@ -1240,6 +1240,10 @@ namespace ForQab.Repository.Concrete
         {
             return await _context.DimRepresentatives.OrderBy(dr => dr.Surname).Where(dr => dr.Type == 2).ToListAsync();
         }
+        public async Task<List<Monitor>> GetAvailableVolunteersAsync(int? sectionId)
+        {
+            return await _context.Monitors.OrderBy(m => m.Surname).Where(m => m.Role == 4 && m.SectionId == sectionId).ToListAsync();
+        }
 
         public async Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds)
         {
@@ -1298,7 +1302,36 @@ namespace ForQab.Repository.Concrete
             await _context.SaveChangesAsync();
         }
 
-        public Task<List<DataAccess.Models.Monitor>> GetAvailableWorkersAsync(int buildingId)
+        public async Task AssignVolunteersToExamAsync(int examId, List<int> selectedVolunteerIds)
+        {
+            var exam = await _context.Exams
+                .Include(e => e.Monitors)
+                .FirstOrDefaultAsync(e => e.Id == examId);
+
+            if (exam == null)
+            {
+                throw new ArgumentException("İmtahan tapılmadı.");
+            }
+
+            var selectedVolunteers = await _context.Monitors
+                .Where(r => selectedVolunteerIds.Contains(r.Id))
+                .Where(dr => dr.Role == 4)
+                .ToListAsync();
+
+            if (selectedVolunteers.Count != selectedVolunteerIds.Count)
+            {
+                throw new ArgumentException("Seçilmiş sayıda könüllü yoxdur.");
+            }
+
+            foreach (var vol in selectedVolunteers)
+            {
+                exam.Monitors.Add(vol);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public Task<List<Monitor>> GetAvailableWorkersAsync(int buildingId)
         {
             return _context.Monitors
                                  .Where(m => m.Role == 5)

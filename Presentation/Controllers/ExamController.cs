@@ -971,6 +971,39 @@ namespace ForQab.Presentation.Controllers
 
             return RedirectToAction("Details", new { id = model.ExamId });
         }
+        public async Task<IActionResult> AssignVolunteersForOthers(int examId)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var volunteers = await _examService.GetAvailableVolunteersAsync(sectionId);
+
+            var viewModel = new AssignVolunteersToExamViewModel
+            {
+                ExamId = examId,
+                Volunteers = volunteers.Select(r => new VolunteerViewModelForAssign
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    Surname = r.Surname,
+                    FinCode = r.FinCode
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignVolunteersForOthers(AssignVolunteersToExamViewModel model)
+        {
+            if (model.SelectedVolunteerIds == null || !model.SelectedVolunteerIds.Any())
+            {
+                ModelState.AddModelError("", "Ən azı bir könüllü seçilməlidir.");
+                return View(model);
+            }
+
+            await _examService.AssignVolunteersToExamAsync(model.ExamId, model.SelectedVolunteerIds);
+
+            return RedirectToAction("Details", new { id = model.ExamId });
+        }
         [HttpPost]
         public async Task<IActionResult> DeleteExperts(int examId, List<int> expertIds)
         {

@@ -34,6 +34,27 @@
                 </div>
 
                 <div class="mb-3">
+                    <label asp-for="FinCode" class="form-label">Fin kod</label>
+                    <input asp-for="FinCode" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="FinCode" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Serial" class="form-label">Seriya və nömrəsi</label>
+                    <input asp-for="Serial" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="Serial" class="text-danger"></span>
+                </div>
+
+
+                <div class="mb-3">
+                    <label asp-for="SectionId" class="form-label">İstiqamət</label>
+                    <select asp-for="SectionId" class="form-select" asp-items="ViewBag.SectionList" style="background-color: #23272a; color: #ffffff;">
+                        <option value="" disabled selected>İstiqamət Seçin</option>
+                    </select>
+                    <span asp-validation-for="SectionId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
                     <label asp-for="Gender" class="form-label">Cinsiyyət</label>
                     <select asp-for="Gender" class="form-select" asp-items="ViewBag.Gender" style="background-color: #23272a; color: #ffffff;">
                         <option value="" disabled selected>Cins seçin</option>
@@ -46,13 +67,22 @@
                     <input type="hidden" asp-for="Role" value="4" />
                 </div>
 
+
                 <div class="mb-3">
-                    <label asp-for="ExamBuildingId" class="form-label">İmtahan binası</label>
-                    <select asp-for="ExamBuildingId" class="form-select" asp-items="ViewBag.Building" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>Bina Seçin</option>
-                    </select>
-                    <span asp-validation-for="ExamBuildingId" class="text-danger"></span>
+                    <label asp-for="TelIs" class="form-label">Telefonu</label>
+                    <input asp-for="TelIs" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="TelIs" class="text-danger"></span>
                 </div>
+                @if (@ViewBag.Section == 1)
+                {
+                    <div class="mb-3">
+                        <label asp-for="ExamBuildingId" class="form-label">İmtahan binası</label>
+                        <select asp-for="ExamBuildingId" class="form-select" asp-items="ViewBag.Building" style="background-color: #23272a; color: #ffffff;">
+                            <option value="" disabled selected>Bina Seçin</option>
+                        </select>
+                        <span asp-validation-for="ExamBuildingId" class="text-danger"></span>
+                    </div>
+                }
 
                 <!-- Submit -->
                 <div class="d-flex justify-content-between mt-4">
