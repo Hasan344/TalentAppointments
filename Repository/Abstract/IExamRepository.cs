@@ -2,6 +2,7 @@
 using ForQab.DataAccess.ViewModel.Exam;
 using ForQab.Presentation.ViewModels;
 using Microsoft.EntityFrameworkCore.Storage;
+using Monitor = ForQab.DataAccess.Models.Monitor;
 
 namespace ForQab.Repository.Abstract
 {
@@ -21,8 +22,10 @@ namespace ForQab.Repository.Abstract
         Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int type, int? examBuildingId);
         Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds);
         Task<List<DimRepresentative>> GetAvailableRepresentativesAsync();
+        Task<List<Monitor>> GetAvailableVolunteersAsync(int? sectionId);
         Task<List<DimRepresentative>> GetAvailableMinistryRepresentativesAsync();
-        Task AssignMinistryRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds);
+        Task AssignMinistryRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds); 
+        Task AssignVolunteersToExamAsync(int examId, List<int> selectedVolunteerIds);
         Task<List<DataAccess.Models.Monitor>> GetAvailableWorkersAsync(int buildingId);
         Task<IEnumerable<SubProfession>> GetSubProfessionsBySectionIdAsync(int? sectionId);
         public Task<int?> GetSectionIdByExamIdAsync(int examId);

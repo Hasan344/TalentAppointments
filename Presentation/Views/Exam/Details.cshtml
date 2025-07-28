@@ -518,9 +518,55 @@
                 </form>
                 </div>
         }
-    </div>
+        </div>
     }
-   
+    else
+    {
+        <div class="mt-4">
+            <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Könüllülər</h4>
+            @{
+                var volunteers = Model.Monitors.Where(m => m.Role == 4);
+            }
+            @if (volunteers.Any())
+            {
+                @foreach(var monitor in volunteers)
+                {
+
+                    <li class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-1">
+                                <input type="checkbox" name="volunteerIds" value="@monitor.Id" />
+                            </div>
+                            <div class="col-md-7">
+                                <h6 class="mb-0">
+                                    @monitor.Name @monitor.Surname @monitor.Fname @monitor.Tel
+                                </h6>
+                                <small class="text-muted">
+                                    FinCode: @monitor.FinCode
+                                </small>
+                            </div>
+                        </div>
+                    </li>
+                }
+                <div class="text-center mt-4">
+                    <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignVolunteersForOthers" asp-route-examId="@Model.Id">
+                        <i class="bi bi-person-plus"></i> Könüllü Təyin Et
+                    </a>
+                </div>
+
+            }
+            else
+            {
+                <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir könüllü təyin edilməyib.</p>
+                <div class="text-center mt-4">
+                    <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignVolunteersForOthers" asp-route-examId="@Model.Id">
+                        <i class="bi bi-person-plus"></i> Könüllü Təyin Et
+                    </a>
+                </div>
+            }
+        </div>
+    }
+
 
     <!-- Assigned Workers Section -->
     <div class="mt-4">
@@ -773,8 +819,6 @@
                 <i class="bi bi-download"></i> Qeydiyyat Vərəqi
             </button>
         </form>
-        @if(ViewBag.SectionId == 1)
-        {
             <form asp-action="ExportVolunteerRegister" method="post">
                 <input type="hidden" name="examId" value="@Model.Id" />
                 <button type="submit" class="btn btn-primary px-4 py-2 mx-2"
@@ -782,7 +826,7 @@
                     <i class="bi bi-download"></i> Könüllü Qeydiyyat Vərəqi
                 </button>
             </form>
-        }
+        
         @if(ViewBag.SectionId == 3 || ViewBag.SectionId == 4 || @ViewBag.SectionId == 6)
         {
             <form asp-action="ExportExpertRegister" method="post">

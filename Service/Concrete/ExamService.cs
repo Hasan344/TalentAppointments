@@ -640,9 +640,17 @@ namespace ForQab.Service
         {
             return _examRepository.GetAvailableRepresentativesAsync();
         }
+        public Task<List<Monitor>> GetAvailableVolunteersAsync(int? sectionId)
+        {
+            return _examRepository.GetAvailableVolunteersAsync(sectionId);
+        }
         public Task AssignMinistryRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds)
         {
             return _examRepository.AssignMinistryRepresentativesToExamAsync(examId, selectedRepresentativeIds);
+        }
+        public Task AssignVolunteersToExamAsync(int examId, List<int> selectedVolunteersIds)
+        {
+            return _examRepository.AssignVolunteersToExamAsync(examId, selectedVolunteersIds);
         }
 
         public Task<List<DimRepresentative>> GetAvailableMinistryRepresentativesAsync()
@@ -1174,6 +1182,8 @@ namespace ForQab.Service
                     .ThenInclude(em => em.WorkerTypeNavigation)
                 .Include(e => e.Monitors)
                     .ThenInclude(em => em.Contracts)
+                .Include(e => e.Monitors)
+                    .ThenInclude(em => em.MonitorLogs)
                 .Include(e => e.Experts)
                     .ThenInclude(em => em.Contracts)
                 .Include(e => e.ExamDegrees)
@@ -1215,7 +1225,9 @@ namespace ForQab.Service
             int row = 2;
             foreach (var exam in exams)
             {
-                foreach (var monitor in exam.Monitors) // Her Monitor için ayrı satır
+                var monitors = exam.Monitors
+                                   .Where(m => !m.MonitorLogs.Any(log => log.ExamId == exam.Id && log.Kind == 0));
+                foreach (var monitor in monitors) 
                 {
                     worksheet.Cell(row, 1).Value = monitor.VNum;
                     worksheet.Cell(row, 2).Value = exam.DistrictId.ToString();
