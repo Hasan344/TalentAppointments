@@ -64,10 +64,8 @@ namespace ForQab.Repository.Concrete
         {
             IQueryable<T> query = GetQuery(includes);
 
-            // ID filtresi ekleniyor
             query = query.Where(e => EF.Property<int>(e, "Id") == id);
 
-            // Eğer ekstra bir filtre varsa ekle
             if (exp is not null)
             {
                 query = query.Where(exp);

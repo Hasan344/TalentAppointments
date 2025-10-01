@@ -51,6 +51,7 @@ namespace ForQab.Service.Abstract
         Task<List<ExamExpertSubProfession>> GetExpertSubProfessionsByExamIdAsync(int examId);
         Task<ChangeExpertViewModel> GetChangeExpertViewModelAsync(int examId, int expertId);
         Task<bool> ChangeExpertAsync(int examId, int currentExpertId);
+        Task<bool> ChangeExpertAsync(ChangeExpertViewModel viewModel);
         Task<ChangeMonitorViewModel> GetChangeMonitorViewModelAsync(int examId, int monitorId, int role);
         Task<ChangeRepresentativeViewModel> GetChangeRepresentativeViewModelAsync(int examId, int representativeId);
         Task<bool> ChangeMonitorAsync(ChangeMonitorViewModel model);
@@ -73,6 +74,8 @@ namespace ForQab.Service.Abstract
         Task<byte[]> ExportExamToWordAsyncForMX(int examId);
         Task<byte[]> ExportExamToWordAsyncForV(int examId);
         Task<byte[]> GetExamDataForExport(DateOnly selectedDate, int sectionId);
+        Task<byte[]> ExportFoodAndWaterRangeAsync(DateOnly start, DateOnly end, int? sectionId, int examBuildingId);
+        Task<byte[]> GetExamDataForFoodAndWater(DateOnly startDate, DateOnly endDate,  int sectionId);
 
     }
 }

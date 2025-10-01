@@ -113,6 +113,7 @@ namespace ForQab.Presentation.Controllers
                 Voen = expert.Voen,
                 Kons = true,
                 FinCode = expert.FinCode,
+                SerialPrefix = expert.SerialPrefix,
                 Serial = expert.Serial,
                 Profession = expert.Profession,
                 TelEl = expert.TelEl,
@@ -250,6 +251,7 @@ namespace ForQab.Presentation.Controllers
                 new DataColumn("Ata adı"),
                 new DataColumn("İstiqamət"),
                 new DataColumn("Fin kodu"),
+                new DataColumn("Seriya nömrəsi"),
                 new DataColumn("Seriyası"),
                 new DataColumn("Cinsi"),
                 new DataColumn("Vəzifəsi"),
@@ -283,6 +285,7 @@ namespace ForQab.Presentation.Controllers
                     expert.Fname,
                     expert.Section?.Name ?? "---",
                     expert.FinCode,
+                    expert.SerialPrefix,
                     expert.Serial,
                     expert.GenderNavigation?.Name,
                     expert.Profession,
@@ -297,7 +300,7 @@ namespace ForQab.Presentation.Controllers
                     subProfessions,
                     latestContract?.Date.ToString("dd.MM.yyyy") ?? "", // Müqavilə tarixi
                     latestContract?.Number ?? "",
-                    expert.AssignmentCount
+                    expert.ComputedAssignmentCount
                 );
             }  // Excel dosyasını oluştur
             using (var workbook = new XLWorkbook())
@@ -345,7 +348,7 @@ namespace ForQab.Presentation.Controllers
 
                     foreach (var row in worksheet.RowsUsed().Skip(1))
                     {
-                        var finCode = row.Cell(7).GetString();
+                        var finCode = row.Cell(8).GetString();
                         if (string.IsNullOrEmpty(finCode) || existingFinCodes.Contains(finCode))
                         {
                             continue;
@@ -358,24 +361,25 @@ namespace ForQab.Presentation.Controllers
                             Name = row.Cell(3).GetString(),
                             Fname = row.Cell(4).GetString(),
                             Gender = row.Cell(5).GetValue<byte>(),
-                            Serial = row.Cell(6).IsEmpty() ? null : row.Cell(6).GetString(),
+                            SerialPrefix = row.Cell(6).IsEmpty() ? null : row.Cell(6).GetString(),
+                            Serial = row.Cell(7).IsEmpty() ? null : row.Cell(7).GetString(),
                             FinCode = finCode,
-                            Federation = _context.Professions.FirstOrDefault(p => p.Name == row.Cell(8).GetString())?.Id,
-                            Profession = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
-                            BirthDate = row.Cell(11).IsEmpty() ? null
-                                    : DateOnly.ParseExact(row.Cell(11).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
-                            TelIs = row.Cell(12).IsEmpty() ? null : row.Cell(12).GetString(),
-                            Voen = row.Cell(13).IsEmpty() ? null : row.Cell(13).GetString(),
-                            HesablashmaH = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
-                            Rekvizit = row.Cell(15).IsEmpty() ? null : row.Cell(15).GetString(),
-                            SSN = row.Cell(16).IsEmpty() ? null : row.Cell(16).GetString(),
-                            BankFilial = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
-                            BankFilialCode = row.Cell(18).IsEmpty() ? null : row.Cell(18).GetString(),
+                            Federation = _context.Professions.FirstOrDefault(p => p.Name == row.Cell(9).GetString())?.Id,
+                            Profession = row.Cell(11).IsEmpty() ? null : row.Cell(11).GetString(),
+                            BirthDate = row.Cell(12).IsEmpty() ? null
+                                    : DateOnly.ParseExact(row.Cell(12).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                            TelIs = row.Cell(13).IsEmpty() ? null : row.Cell(13).GetString(),
+                            Voen = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
+                            HesablashmaH = row.Cell(15).IsEmpty() ? null : row.Cell(15).GetString(),
+                            Rekvizit = row.Cell(16).IsEmpty() ? null : row.Cell(16).GetString(),
+                            SSN = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
+                            BankFilial = row.Cell(18).IsEmpty() ? null : row.Cell(18).GetString(),
+                            BankFilialCode = row.Cell(19).IsEmpty() ? null : row.Cell(19).GetString(),
                             Kons = true,
                             SectionId = sectionId,
                             Status = 0,
                         };
-                        var subProfessionNames = row.Cell(9).GetString().Split(',').Select(x => x.Trim()).ToList();
+                        var subProfessionNames = row.Cell(10).GetString().Split(',').Select(x => x.Trim()).ToList();
                         foreach (var subProfessionName in subProfessionNames)
                         {
                             var subProfession = _context.SubProfessions.FirstOrDefault(sp => sp.Name == subProfessionName);

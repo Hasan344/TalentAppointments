@@ -59,24 +59,24 @@ namespace ForQab.Service
              m.Surname.Contains(searchName, StringComparison.OrdinalIgnoreCase))
               .ToList();
             }
-            // FinCode filtresi
+            
             if (!string.IsNullOrEmpty(finCode))
             {
                 query = query.Where(m => m.FinCode.Contains(finCode, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
-            // Serial filtresi
+            
             if (!string.IsNullOrEmpty(serial))
             {
                 query = query.Where(m => m.Serial.Contains(serial, StringComparison.OrdinalIgnoreCase)).ToList();
             }
-            // District filtresi
+            
             if (district.HasValue && district > 0)
             {
                 query = query.Where(m => m.District == district.Value).ToList();
             }
             if (startYear.HasValue)
-                query = query.Where(m => m.BirthDate.Value.Year >= startYear.Value).ToList(); // Tarixi ilin başlanğıcına çeviririk.
+                query = query.Where(m => m.BirthDate.Value.Year >= startYear.Value).ToList(); 
             if (endYear.HasValue)
                 query = query.Where(m => m.BirthDate.Value.Year <= endYear.Value).ToList();
 
@@ -155,7 +155,7 @@ namespace ForQab.Service
                     var sections = await _context.Sections.ToListAsync();
                     var genders = await _context.Genders.ToListAsync();
 
-                    foreach (var row in worksheet.RowsUsed().Skip(1)) // Başlığı atla
+                    foreach (var row in worksheet.RowsUsed().Skip(1)) 
                     {
                         string finCode = row.Cell(12).IsEmpty() ? null : row.Cell(12).GetString();
 
@@ -167,44 +167,39 @@ namespace ForQab.Service
                                 return $"'{finCode}' FinCode-a sahib istifadəçi artıq mövcuddur. İdxala icazə verilmir.";
                             }
                         }
-                        string genderName = row.Cell(5).GetValue<string>();
                         string districtName = row.Cell(2).GetString();
                         string sectionName = row.Cell(6).GetString();
-                        byte? genderId = genders.FirstOrDefault(g => g.Name == genderName)?.Id;
                         int? districtId = districts.FirstOrDefault(d => d.Name == districtName)?.Id;
                         int? sectionId = sections.FirstOrDefault(s => s.Name == sectionName)?.Id;
 
                         var monitor = new Monitor
                         {
+                            VNum = row.Cell(1).IsEmpty() ? null : row.Cell(1).GetValue<string?>(),
+                            District = districtId,
                             Surname = row.Cell(3).GetString(),
                             Name = row.Cell(4).GetString(),
                             Fname = row.Cell(5).GetString(),
+                            SectionId = sectionId,
                             Archive = 0,
                             Status = 0,
                             AssignmentCount = 0,
-                            Gender = row.Cell(9).GetValue<byte>(),
-                            Role = 3,
-                            VNum = row.Cell(1).IsEmpty() ? null : row.Cell(1).GetValue<string?>(),
-                            //Profession = row.Cell(25).IsEmpty() ? null : row.Cell(7).GetString(),
-                            Workplace = row.Cell(15).IsEmpty() ? null : row.Cell(8).GetString(),
-                            Position = row.Cell(16).IsEmpty() ? null : row.Cell(18).GetString(),
-                            BirthDate = row.Cell(13).IsEmpty() ? null
-                            : DateOnly.ParseExact(row.Cell(13).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
-                            TelIs = row.Cell(11).IsEmpty() ? null : row.Cell(11).GetString(),
+                            Gender = row.Cell(7).GetValue<byte>(),
+                            Serial = row.Cell(8).IsEmpty() ? null : row.Cell(8).GetString(),
+                            SerialPrefix = row.Cell(9).IsEmpty() ? null : row.Cell(9).GetString(),
+                            TelIs = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
                             FinCode = finCode,
-                            Serial = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
-                            SectionId = sectionId,
-                            District = districtId,
-                            ContractDate = row.Cell(7).IsEmpty() ? null
-                            : DateOnly.ParseExact(row.Cell(7).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
-                            ContractNo = row.Cell(8).IsEmpty() ? null : row.Cell(8).GetString(),
-                            Uni = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
-                            SSN = row.Cell(20).GetString(),
-                            Rekvizit = row.Cell(19).GetString(),
-                            HesablashmaH = row.Cell(18).IsEmpty() ? null : row.Cell(18).GetString(),
-                            Voen = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
-                            BankFilial = row.Cell(21).GetString(),
-                            BankFilialCode = row.Cell(22).GetString(),
+                            BirthDate = row.Cell(12).IsEmpty() ? null
+                                : DateOnly.ParseExact(row.Cell(12).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                            Uni = row.Cell(13).IsEmpty() ? null : row.Cell(13).GetString(),
+                            Role = 3,
+                            Workplace = row.Cell(14).IsEmpty() ? null : row.Cell(14).GetString(),
+                            Position = row.Cell(15).IsEmpty() ? null : row.Cell(15).GetString(),
+                            Voen = row.Cell(16).IsEmpty() ? null : row.Cell(16).GetString(),
+                            HesablashmaH = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
+                            Rekvizit = row.Cell(18).GetString(),
+                            SSN = row.Cell(19).GetString(),
+                            BankFilial = row.Cell(20).GetString(),
+                            BankFilialCode = row.Cell(21).GetString(),
                         };
 
                         monitors.Add(monitor);
@@ -297,7 +292,7 @@ namespace ForQab.Service
                     monitor.Section?.Name,
                     monitor.DistrictNavigation?.Name,
                     monitor.NaturaTypeNavigation?.Name,
-                    monitor.AssignmentCount
+                    monitor.ComputedAssignmentCount
                 );
             }
 
@@ -307,7 +302,7 @@ namespace ForQab.Service
                 using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);
-                    return stream.ToArray(); // Byte dizisi olarak döndürüyoruz
+                    return stream.ToArray(); 
                 }
             }
         }
@@ -327,24 +322,24 @@ namespace ForQab.Service
              m.Surname.Contains(searchName, StringComparison.OrdinalIgnoreCase))
               .ToList();
             }
-            // FinCode filtresi
+            
             if (!string.IsNullOrEmpty(finCode))
             {
                 query = query.Where(m => m.FinCode.Contains(finCode, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
-            // Serial filtresi
+            
             if (!string.IsNullOrEmpty(serial))
             {
                 query = query.Where(m => m.Serial.Contains(serial, StringComparison.OrdinalIgnoreCase)).ToList();
             }
-            // District filtresi
+            
             if (district.HasValue && district > 0)
             {
                 query = query.Where(m => m.District == district.Value).ToList();
             }
             if (startYear.HasValue)
-                query = query.Where(m => m.BirthDate.Value.Year >= startYear.Value).ToList(); // Tarixi ilin başlanğıcına çeviririk.
+                query = query.Where(m => m.BirthDate.Value.Year >= startYear.Value).ToList(); 
             if (endYear.HasValue)
                 query = query.Where(m => m.BirthDate.Value.Year <= endYear.Value).ToList();
 
@@ -360,14 +355,13 @@ namespace ForQab.Service
         }
         public async Task<byte[]> ExportContractsToWordAsync(List<int> selectedExpertIds, DateTime contractDate)
         {
-            // 1) Monitorları ve mevcut Contract’ları al
+            
             var monitors = await _context.Monitors
                 .Include(m => m.Contracts)
                 .Where(m => selectedExpertIds.Contains(m.Id))
                 .Where(m => m.Archive == 0 && m.Role == 3 && m.Status == 0)
                 .ToListAsync();
 
-            // 2) Yeni Contract nesnelerini oluştur
             var newContracts = new List<Contract>();
             foreach (var monitor in monitors)
             {
@@ -383,25 +377,21 @@ namespace ForQab.Service
                 });
             }
 
-            // 3) DB’ye kaydet
             if (newContracts.Any())
             {
                 await _context.Contracts.AddRangeAsync(newContracts);
                 await _context.SaveChangesAsync();
             }
 
-            // 4) Şablonu oku
             var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Templates",
                                             "Naturaci-müqavile.docx");
             byte[] templateBytes = await File.ReadAllBytesAsync(templatePath);
             using var templateStream = new MemoryStream(templateBytes);
             using var templateDoc = WordprocessingDocument.Open(templateStream, false);
 
-            // Şablon body’sini çek
             var templateBody = templateDoc.MainDocumentPart.Document.Body;
             var templateElements = templateBody.Elements<OpenXmlElement>().ToList();
 
-            // 5) Yeni belgeyi oluştur ve gerekli part’ları ekle
             using var output = new MemoryStream();
             using (var newDoc = WordprocessingDocument.Create(output, WordprocessingDocumentType.Document))
             {
@@ -409,7 +399,6 @@ namespace ForQab.Service
                 mainPart.Document = new Document(new Body());
                 var body = mainPart.Document.Body;
 
-                // Şablondaki stilleri/numbering’i/theme’i/font tablosunu kopyala
                 if (templateDoc.MainDocumentPart.StyleDefinitionsPart != null)
                     mainPart.AddPart(templateDoc.MainDocumentPart.StyleDefinitionsPart);
                 if (templateDoc.MainDocumentPart.NumberingDefinitionsPart != null)
@@ -419,13 +408,12 @@ namespace ForQab.Service
                 if (templateDoc.MainDocumentPart.FontTablePart != null)
                     mainPart.AddPart(templateDoc.MainDocumentPart.FontTablePart);
 
-                // 6) Her bir contract için şablon elementlerini kopyala ve placeholder’ları değiştir
                 foreach (var contract in newContracts)
                 {
                     var monitor = monitors.First(m => m.Id == contract.MonitorId);
                     var fullName = $"{monitor.Surname} {monitor.Name} {monitor.Fname}";
 
-                    // Sayfa kırılımı
+                    
                     if (body.HasChildren)
                         body.AppendChild(new Paragraph(new Run(new Break { Type = BreakValues.Page })));
 
@@ -438,7 +426,7 @@ namespace ForQab.Service
                             var rows = table.Elements<TableRow>().ToList();
                             if (rows.Any(r => r.InnerText.Contains("İcraçı")))
                             {
-                                // Placeholder : Data mapping for İcraçı table
+                                
                                 var placeholders = new Dictionary<string, string>
                                         {
                                             { "Soyadı, adı, atasının adı", fullName },
@@ -460,11 +448,11 @@ namespace ForQab.Service
                                     {
                                         if (combinedText.Contains(placeholder.Key))
                                         {
-                                            // Tüm Text elemanlarını sil
+                                            
                                             foreach (var t in texts)
                                                 t.Text = "";
 
-                                            // Yeni değeri ilk run’a ekle (veya yeni run yarat)
+                                            
                                             var firstRun = row.Descendants<Run>().FirstOrDefault();
                                             if (firstRun != null)
                                             {
@@ -477,7 +465,7 @@ namespace ForQab.Service
                                                 firstRun.Parent.InsertAfter(newRun, firstRun);
                                             }
 
-                                            break; // Aynı satıra birden fazla yerleştirme yapma
+                                            break; 
                                         }
                                     }
                                 }
@@ -512,7 +500,7 @@ namespace ForQab.Service
                                     new RunFonts { Ascii = "Arial", HighAnsi = "Arial", EastAsia = "Arial" });
                                 p.AppendChild(nr);
                             }
-                            // 2) "Tarix:" satırına tarih ekle
+                            
                             else if (text.Contains("Bakı şəhəri"))
                             {
                                 var ilRun = p.Elements<Run>().FirstOrDefault(r => r.InnerText.Trim() == "Tarix:");
@@ -521,7 +509,7 @@ namespace ForQab.Service
                                 else
                                     p.Elements<Run>().Last().AppendChild(new Text($" {contractDate:dd.MM.yyyy}"));
                             }
-                            // 3) Alt çizgi placeholder yerine fullname
+                            
                             else if (p.InnerText.Contains("_"))
                             {
                                 foreach (var txt in p.Descendants<Text>())

@@ -49,4 +49,8 @@ public partial class DimRepresentative
     [InverseProperty("Representative")]
     public virtual ICollection<ExamRepresentative> ExamRepresentatives { get; set; } = new List<ExamRepresentative>();
 
+    [Column("serial_prefix")]
+    [StringLength(10)]
+    public string? SerialPrefix { get; set; }
+
 }

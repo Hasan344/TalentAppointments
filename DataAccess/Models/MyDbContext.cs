@@ -94,6 +94,8 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<NaturaType> NaturaTypes { get; set; }
 
+    public virtual DbSet<ExamExpert> ExamExperts { get; set; }
+
     public virtual DbSet<FinancialRate> FinancialRates { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -143,6 +145,8 @@ public partial class MyDbContext : DbContext
         modelBuilder.Entity<ExamCommission>()
             .HasKey(ec => new { ec.ExamId, ec.CommissionId }); // Composite key tanımlayın
 
+        modelBuilder.Entity<ExamExpert>()
+            .HasKey(ec => new { ec.ExamId, ec.ExpertId });
         modelBuilder.Entity<ExpertsProfession>()
             .HasKey(ec => new { ec.ExpertId, ec.SubProfessionId });
 

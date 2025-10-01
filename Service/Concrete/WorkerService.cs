@@ -160,7 +160,7 @@ namespace ForQab.Service
 
                     foreach (var row in worksheet.RowsUsed().Skip(1)) // Başlığı atla
                     {
-                        string finCode = row.Cell(11).IsEmpty() ? null : row.Cell(11).GetString();
+                        string finCode = row.Cell(12).IsEmpty() ? null : row.Cell(12).GetString();
 
                         if (!string.IsNullOrEmpty(finCode))
                         {
@@ -172,8 +172,8 @@ namespace ForQab.Service
                         }
                         string districtName = row.Cell(1).GetString();
                         string sectionName = row.Cell(5).GetString();
-                        string typeName = row.Cell(14).GetString();
-                        string examBuildingName = row.Cell(12).GetString();
+                        string typeName = row.Cell(15).GetString();
+                        string examBuildingName = row.Cell(13).GetString();
                         int? districtId = districts.FirstOrDefault(d => d.Name == districtName)?.Id;
                         int? sectionId = sections.FirstOrDefault(s => s.Name == sectionName)?.Id;
                         byte? typeId = workerTypes.FirstOrDefault(w => w.Name == typeName)?.Id;
@@ -190,19 +190,20 @@ namespace ForQab.Service
                                 : DateOnly.ParseExact(row.Cell(6).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
                             ContractNo = row.Cell(7).IsEmpty() ? null : row.Cell(7).GetString(),
                             Gender = row.Cell(8).GetValue<byte>(),
-                            Serial = row.Cell(9).IsEmpty() ? null : row.Cell(9).GetString(),
-                            TelIs = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
+                            SerialPrefix = row.Cell(9).IsEmpty() ? null : row.Cell(9).GetString(),
+                            Serial = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
+                            TelIs = row.Cell(11).IsEmpty() ? null : row.Cell(11).GetString(),
                             FinCode = finCode,
                             ExamBuildingId = examBuildingId,
-                            BirthDate = row.Cell(13).IsEmpty() ? null
-                                : DateOnly.ParseExact(row.Cell(13).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                            BirthDate = row.Cell(14).IsEmpty() ? null
+                                : DateOnly.ParseExact(row.Cell(14).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
                             WorkerType = typeId,
-                            Voen = row.Cell(15).IsEmpty() ? null : row.Cell(15).GetString(),
-                            HesablashmaH = row.Cell(16).IsEmpty() ? null : row.Cell(16).GetString(),
-                            Rekvizit = row.Cell(17).GetString(),
-                            SSN = row.Cell(18).GetString(),
-                            BankFilial = row.Cell(19).GetString(),
-                            BankFilialCode = row.Cell(20).GetString(),
+                            Voen = row.Cell(16).IsEmpty() ? null : row.Cell(16).GetString(),
+                            HesablashmaH = row.Cell(17).IsEmpty() ? null : row.Cell(17).GetString(),
+                            Rekvizit = row.Cell(18).GetString(),
+                            SSN = row.Cell(19).GetString(),
+                            BankFilial = row.Cell(20).GetString(),
+                            BankFilialCode = row.Cell(21).GetString(),
                             Archive = 0,
                             Status = 0,
                             AssignmentCount = 0,
@@ -262,6 +263,7 @@ namespace ForQab.Service
                 new DataColumn("Telefonu"),
                 new DataColumn("FİN kod"),
                 new DataColumn("Seriya"),
+                new DataColumn("Seriya nömrəsi"),
                 new DataColumn("SSN"),
                 new DataColumn("Rekvizit"),
                 new DataColumn("Hesablaşma hesabı"),
@@ -288,6 +290,7 @@ namespace ForQab.Service
                     monitor.BirthDate,
                     monitor.TelIs,
                     monitor.FinCode,
+                    monitor.SerialPrefix,
                     monitor.Serial,
                     monitor.SSN,
                     monitor.Rekvizit,

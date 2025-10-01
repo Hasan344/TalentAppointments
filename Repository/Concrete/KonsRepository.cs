@@ -18,8 +18,8 @@ namespace ForQab.Repository.Concrete
         {
             IQueryable<Expert> query = GetQuery(includes);
             return sectionId is null
-                ? await query.ToListAsync()
-                : await query.Where(e => EF.Property<int>(e, "SectionId") == sectionId).ToListAsync();
+                ? await query.OrderBy(e => e.Surname).ToListAsync()
+                : await query.Where(e => EF.Property<int>(e, "SectionId") == sectionId).OrderBy(e => e.Surname).ToListAsync();
         }
         private IQueryable<Expert> GetQuery(string[] includes)
         {
@@ -63,6 +63,7 @@ namespace ForQab.Repository.Concrete
                 existingExpert.BankFilialCode = entity.BankFilialCode;
                 existingExpert.BirthDate = entity.BirthDate;
                 existingExpert.FinCode = entity.FinCode;
+                existingExpert.SerialPrefix = entity.SerialPrefix;
                 existingExpert.Serial = entity.Serial;
                 existingExpert.Kons = true;
                 existingExpert.Voen = entity.Voen;
@@ -72,7 +73,6 @@ namespace ForQab.Repository.Concrete
 
                 existingExpert.ExpertsProfessions.Clear();
 
-                // Yeni ilişkileri ekle
                 if (entity.SelectedSubProfessions != null)
                 {
                     foreach (var subProfessionId in entity.SelectedSubProfessions)
@@ -161,7 +161,6 @@ namespace ForQab.Repository.Concrete
                 Status = (byte?)entity.Status
             };
 
-            // Link selected SubProfessions
             if (entity.SelectedSubProfessions != null)
             {
                 foreach (var subProfessionId in entity.SelectedSubProfessions)

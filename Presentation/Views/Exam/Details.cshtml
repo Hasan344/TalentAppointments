@@ -169,10 +169,13 @@
                                     </div>
                                 </div>
                                 <div class="col-md-3 text-md-right mt-2 mt-md-0">
-                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                    <a class="btn btn-sm btn-outline-secondary mr-2" asp-action="ChangeExpert" asp-route-examId="@Model.Id" asp-route-expertId="@expert.Id">
+                                        <i class="bi bi-pencil"></i> Dəyişdir
+                                    </a>
+                                   @*  <button type="button" class="btn btn-sm btn-outline-danger"
                                             onclick="changeExpert('@Model.Id', '@expert.Id')">
                                         <i class="bi bi-arrow-repeat"></i> Dəyiş
-                                    </button>
+                                    </button> *@
                                     <a class="btn btn-sm btn-outline-primary"
                                        asp-action="WriteExpertLog"
                                        asp-route-examId="@Model.Id"

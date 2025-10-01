@@ -69,7 +69,6 @@ public class ExpertService : IExpertService
 
     public async Task AddExpertAsync(ExpertViewModel expertViewModel)
     {
-        // Biznes qaydaları: Ekspert adının boş olmaması
         if (string.IsNullOrWhiteSpace(expertViewModel.Name))
             throw new ArgumentException("Ad boş ola bilməz.");
 
@@ -78,7 +77,6 @@ public class ExpertService : IExpertService
 
     public async Task UpdateExpertAsync(ExpertEditViewModel expert)
     {
-        // Biznes qaydaları: Ekspert ID-si yoxlanılır
         if (expert.Id <= 0)
             throw new ArgumentException("Id Xətası.");
 
@@ -100,7 +98,6 @@ public class ExpertService : IExpertService
 
     public async Task AddSubProfessionToExpertAsync(int expertId, SubProfession subProfession)
     {
-        // Biznes qaydaları: SubProfession adı yoxlanılır
         if (string.IsNullOrWhiteSpace(subProfession.Name))
             throw new ArgumentException("SubProfession name cannot be empty.");
 
@@ -142,14 +139,16 @@ public class ExpertService : IExpertService
     }
     public async Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId)
     {
-        var includes = new string[] { "DistrictNavigation", "ExpertsProfessions.SubProfession", "Section", "GenderNavigation", "FederationNavigation", "Contracts", "ExamExpertSubProfessions" };
+        var includes = new string[] { "DistrictNavigation", "ExpertsProfessions.SubProfession", "Section", "GenderNavigation", "FederationNavigation", "Contracts", "ExamExpertSubProfessions", "ExamExpertSubProfessions.Exam" };
         return await _expertRepository.GetAllAsync(sectionId,null,includes);
     }
     public async Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? federationId, int? subProfessionId)
     {
         var includes = new string[] { "DistrictNavigation", "ExpertsProfessions.SubProfession", "Section", "GenderNavigation", "FederationNavigation", "Contracts", "ExamExpertSubProfessions" };
 
-        var query = await _expertRepository.GetAllAsync(sectionId, null, includes); 
+        var query = await _expertRepository.GetAllAsync(sectionId, null, includes);
+
+        query = query.OrderBy(q => q.Surname).ThenBy(q => q.Name).ToList();
         if (genderId.HasValue)
         {
             query = query.Where(m => m.Gender == genderId.Value).ToList();
@@ -161,18 +160,15 @@ public class ExpertService : IExpertService
          m.Surname.Contains(searchName, StringComparison.OrdinalIgnoreCase))
           .ToList();
         }
-        // FinCode filtresi
         if (!string.IsNullOrEmpty(finCode))
         {
             query = query.Where(m => m.FinCode.Contains(finCode, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
-        // Serial filtresi
         if (!string.IsNullOrEmpty(serial))
         {
             query = query.Where(m => m.Serial.Contains(serial, StringComparison.OrdinalIgnoreCase)).ToList();
         }
-        // District filtresi
         if (district.HasValue && district > 0)
         {
             query = query.Where(m => m.District.HasValue && m.District == district.Value).ToList();
@@ -211,24 +207,21 @@ public class ExpertService : IExpertService
          m.Surname.Contains(searchName, StringComparison.OrdinalIgnoreCase))
           .ToList();
         }
-        // FinCode filtresi
         if (!string.IsNullOrEmpty(finCode))
         {
             query = query.Where(m => m.FinCode.Contains(finCode, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
-        // Serial filtresi
         if (!string.IsNullOrEmpty(serial))
         {
             query = query.Where(m => m.Serial.Contains(serial, StringComparison.OrdinalIgnoreCase)).ToList();
         }
-        // District filtresi
         if (district.HasValue && district > 0)
         {
             query = query.Where(m => m.District == district.Value).ToList();
         }
         if (startYear.HasValue)
-            query = query.Where(m => m.BirthDate.Value.Year >= startYear.Value).ToList(); // Tarixi ilin başlanğıcına çeviririk.
+            query = query.Where(m => m.BirthDate.Value.Year >= startYear.Value).ToList(); 
         if (endYear.HasValue)
             query = query.Where(m => m.BirthDate.Value.Year <= endYear.Value).ToList();
 
@@ -269,13 +262,11 @@ public class ExpertService : IExpertService
     }
     public async Task<byte[]> ExportContractsToWordAsync(List<int> selectedExpertIds, DateTime contractDate)
     {
-        // 1) expertları ve mevcut Contract’ları al
         var experts = await _context.Experts.Include(m => m.Contracts)
             .Where(m => selectedExpertIds.Contains(m.Id))
             .Where(m => m.Archive == 0 && m.Kons == false && m.Status == 0)
             .ToListAsync();
 
-        // 2) Yeni Contract nesnelerini oluştur
         var newContracts = new List<Contract>();
         foreach (var expert in experts)
         {
@@ -291,25 +282,21 @@ public class ExpertService : IExpertService
             });
         }
 
-        // 3) DB’ye kaydet
         if (newContracts.Any())
         {
             await _context.Contracts.AddRangeAsync(newContracts);
             await _context.SaveChangesAsync();
         }
 
-        // 4) Şablonu oku
         var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Templates",
                                         "Muqavile Ekspert QABİLİYYET 2024son.docx");
         byte[] templateBytes = await File.ReadAllBytesAsync(templatePath);
         using var templateStream = new MemoryStream(templateBytes);
         using var templateDoc = WordprocessingDocument.Open(templateStream, false);
 
-        // Şablon body’sini çek
         var templateBody = templateDoc.MainDocumentPart.Document.Body;
         var templateElements = templateBody.Elements<OpenXmlElement>().ToList();
 
-        // 5) Yeni belgeyi oluştur ve gerekli part’ları ekle
         using var output = new MemoryStream();
         using (var newDoc = WordprocessingDocument.Create(output, WordprocessingDocumentType.Document))
         {
@@ -317,7 +304,6 @@ public class ExpertService : IExpertService
             mainPart.Document = new Document(new Body());
             var body = mainPart.Document.Body;
 
-            // Şablondaki stilleri/numbering’i/theme’i/font tablosunu kopyala
             if (templateDoc.MainDocumentPart.StyleDefinitionsPart != null)
                 mainPart.AddPart(templateDoc.MainDocumentPart.StyleDefinitionsPart);
             if (templateDoc.MainDocumentPart.NumberingDefinitionsPart != null)
@@ -327,13 +313,11 @@ public class ExpertService : IExpertService
             if (templateDoc.MainDocumentPart.FontTablePart != null)
                 mainPart.AddPart(templateDoc.MainDocumentPart.FontTablePart);
 
-            // 6) Her bir contract için şablon elementlerini kopyala ve placeholder’ları değiştir
             foreach (var contract in newContracts)
             {
                 var expert = experts.First(m => m.Id == contract.ExpertId);
                 var fullName = $"{expert.Surname} {expert.Name} {expert.Fname}";
 
-                // Sayfa kırılımı
                 if (body.HasChildren)
                     body.AppendChild(new Paragraph(new Run(new Break { Type = BreakValues.Page })));
 
@@ -346,7 +330,6 @@ public class ExpertService : IExpertService
                         var rows = table.Elements<TableRow>().ToList();
                         if (rows.Any(r => r.InnerText.Contains("İcraçı")))
                         {
-                            // Placeholder : Data mapping for İcraçı table
                             var placeholders = new Dictionary<string, string>
                                         {
                                             { "Soyadı, adı, atasının adı", fullName },
@@ -368,11 +351,9 @@ public class ExpertService : IExpertService
                                 {
                                     if (combinedText.Contains(placeholder.Key))
                                     {
-                                        // Tüm Text elemanlarını sil
                                         foreach (var t in texts)
                                             t.Text = "";
 
-                                        // Yeni değeri ilk run’a ekle (veya yeni run yarat)
                                         var firstRun = row.Descendants<Run>().FirstOrDefault();
                                         if (firstRun != null)
                                         {
@@ -385,7 +366,7 @@ public class ExpertService : IExpertService
                                             firstRun.Parent.InsertAfter(newRun, firstRun);
                                         }
 
-                                        break; // Aynı satıra birden fazla yerleştirme yapma
+                                        break; 
                                     }
                                 }
                             }
@@ -420,7 +401,6 @@ public class ExpertService : IExpertService
                                 new RunFonts { Ascii = "Arial", HighAnsi = "Arial", EastAsia = "Arial" });
                             p.AppendChild(nr);
                         }
-                        // 2) "Tarix:" satırına tarih ekle
                         else if (text.Contains("Bakı şəhəri"))
                         {
                             var ilRun = p.Elements<Run>().FirstOrDefault(r => r.InnerText.Trim() == "Tarix:");
@@ -429,7 +409,6 @@ public class ExpertService : IExpertService
                             else
                                 p.Elements<Run>().Last().AppendChild(new Text($" {contractDate:dd.MM.yyyy}"));
                         }
-                        // 3) Alt çizgi placeholder yerine fullname
                         else if (p.InnerText.Contains("_"))
                         {
                             foreach (var txt in p.Descendants<Text>())

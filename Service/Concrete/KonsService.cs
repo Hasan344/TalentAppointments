@@ -60,18 +60,18 @@ namespace ForQab.Service
              m.Surname.Contains(searchName, StringComparison.OrdinalIgnoreCase))
               .ToList();
             }
-            // FinCode filtresi
+            
             if (!string.IsNullOrEmpty(finCode))
             {
                 query = query.Where(m => m.FinCode.Contains(finCode, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
-            // Serial filtresi
+            
             if (!string.IsNullOrEmpty(serial))
             {
                 query = query.Where(m => m.Serial.Contains(serial, StringComparison.OrdinalIgnoreCase)).ToList();
             }
-            // District filtresi
+            
             if (district.HasValue && district > 0)
             {
                 query = query.Where(m => m.District == district.Value).ToList();
@@ -146,14 +146,14 @@ namespace ForQab.Service
         }
         public async Task<byte[]> ExportContractsToWordAsync(List<int> selectedKonsIds, DateTime contractDate)
         {
-            // 1) Monitorları ve mevcut Contract’ları al
+            
             var kons = await _context.Experts
                                      .Include(e => e.Contracts)
                                      .Where(m => selectedKonsIds.Contains(m.Id))
                                      .Where(m => m.Archive == 0 && m.Kons == true && m.Status == 0)
                                      .ToListAsync();
 
-            // 2) Yeni Contract nesnelerini oluştur
+            
             var newContracts = new List<Contract>();
             foreach (var kon in kons)
             {
@@ -169,25 +169,21 @@ namespace ForQab.Service
                 });
             }
 
-            // 3) DB’ye kaydet
             if (newContracts.Any())
             {
                 await _context.Contracts.AddRangeAsync(newContracts);
                 await _context.SaveChangesAsync();
             }
 
-            // 4) Şablonu oku
             var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Templates",
                                             "konsertmeyster müqavilə.docx");
             byte[] templateBytes = await File.ReadAllBytesAsync(templatePath);
             using var templateStream = new MemoryStream(templateBytes);
             using var templateDoc = WordprocessingDocument.Open(templateStream, false);
 
-            // Şablon body’sini çek
             var templateBody = templateDoc.MainDocumentPart.Document.Body;
             var templateElements = templateBody.Elements<OpenXmlElement>().ToList();
 
-            // 5) Yeni belgeyi oluştur ve gerekli part’ları ekle
             using var output = new MemoryStream();
             using (var newDoc = WordprocessingDocument.Create(output, WordprocessingDocumentType.Document))
             {
@@ -195,7 +191,6 @@ namespace ForQab.Service
                 mainPart.Document = new Document(new Body());
                 var body = mainPart.Document.Body;
 
-                // Şablondaki stilleri/numbering’i/theme’i/font tablosunu kopyala
                 if (templateDoc.MainDocumentPart.StyleDefinitionsPart != null)
                     mainPart.AddPart(templateDoc.MainDocumentPart.StyleDefinitionsPart);
                 if (templateDoc.MainDocumentPart.NumberingDefinitionsPart != null)
@@ -205,13 +200,11 @@ namespace ForQab.Service
                 if (templateDoc.MainDocumentPart.FontTablePart != null)
                     mainPart.AddPart(templateDoc.MainDocumentPart.FontTablePart);
 
-                // 6) Her bir contract için şablon elementlerini kopyala ve placeholder’ları değiştir
                 foreach (var contract in newContracts)
                 {
                     var kon = kons.First(m => m.Id == contract.ExpertId);
                     var fullName = $"{kon.Surname} {kon.Name} {kon.Fname}";
 
-                    // Sayfa kırılımı
                     if (body.HasChildren)
                         body.AppendChild(new Paragraph(new Run(new Break { Type = BreakValues.Page })));
 
@@ -224,7 +217,7 @@ namespace ForQab.Service
                             var rows = table.Elements<TableRow>().ToList();
                             if (rows.Any(r => r.InnerText.Contains("İcraçı")))
                             {
-                                // Placeholder : Data mapping for İcraçı table
+                                
                                 var placeholders = new Dictionary<string, string>
                                         {
                                             { "Soyadı, adı, atasının adı", fullName },
@@ -246,11 +239,10 @@ namespace ForQab.Service
                                     {
                                         if (combinedText.Contains(placeholder.Key))
                                         {
-                                            // Tüm Text elemanlarını sil
+                                            
                                             foreach (var t in texts)
                                                 t.Text = "";
 
-                                            // Yeni değeri ilk run’a ekle (veya yeni run yarat)
                                             var firstRun = row.Descendants<Run>().FirstOrDefault();
                                             if (firstRun != null)
                                             {
@@ -263,7 +255,7 @@ namespace ForQab.Service
                                                 firstRun.Parent.InsertAfter(newRun, firstRun);
                                             }
 
-                                            break; // Aynı satıra birden fazla yerleştirme yapma
+                                            break; 
                                         }
                                     }
                                 }
@@ -298,7 +290,7 @@ namespace ForQab.Service
                                     new RunFonts { Ascii = "Arial", HighAnsi = "Arial", EastAsia = "Arial" });
                                 p.AppendChild(nr);
                             }
-                            // 2) "Tarix:" satırına tarih ekle
+                            
                             else if (text.Contains("Bakı şəhəri"))
                             {
                                 var ilRun = p.Elements<Run>().FirstOrDefault(r => r.InnerText.Trim() == "Tarix:");
@@ -307,7 +299,7 @@ namespace ForQab.Service
                                 else
                                     p.Elements<Run>().Last().AppendChild(new Text($" {contractDate:dd.MM.yyyy}"));
                             }
-                            // 3) Alt çizgi placeholder yerine fullname
+                            
                             else if (p.InnerText.Contains("_"))
                             {
                                 foreach (var txt in p.Descendants<Text>())

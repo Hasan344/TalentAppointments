@@ -77,6 +77,10 @@ public partial class Monitor
     [StringLength(10)]
     public string? FinCode { get; set; }
 
+    [Column("serial_prefix")]
+    [StringLength(10)]
+    public string? SerialPrefix { get; set; }
+
     [Column("serial")]
     [StringLength(15)]
     public string? Serial { get; set; }
