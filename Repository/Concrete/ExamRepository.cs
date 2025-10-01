@@ -44,7 +44,6 @@ namespace ForQab.Repository.Concrete
                 DistrictId = entity.DistrictId,
             };
 
-            //Link selected SubProfessions
             if (entity.SelectedCommissions != null)
             {
                 foreach (var commissionId in entity.SelectedCommissions)
@@ -52,10 +51,9 @@ namespace ForQab.Repository.Concrete
                     var commission = await _context.Commissions.FindAsync(commissionId);
                     if (commission != null)
                     {
-                        // Yeni ExamCommission oluştur ve ekle
                         var examCommission = new ExamCommission
                         {
-                            ExamId = exam.Id, // Exam'in Id'si otomatik olarak atanacak
+                            ExamId = exam.Id, 
                             CommissionId = commission.Id,
                             Exam = exam,
                             Commission = commission
@@ -71,10 +69,9 @@ namespace ForQab.Repository.Concrete
                     var degree = await _context.Degrees.FindAsync(degreeId);
                     if (degree != null)
                     {
-                        // Yeni ExamCommission oluştur ve ekle
                         var examDegree = new ExamDegree
                         {
-                            ExamId = exam.Id, // Exam'in Id'si otomatik olarak atanacak
+                            ExamId = exam.Id,
                             DegreeId = degree.Id,
                             Exams = exam,
                             Degrees = degree
@@ -363,7 +360,6 @@ namespace ForQab.Repository.Concrete
 
             var alreadyAssignedMonitorIds = exam.Monitors.Select(m => m.Id).ToHashSet();
 
-            // Head Monitors için uygun olanları al
             var allMonitors = await _context.Monitors.Include(e => e.ExamMonitors)
                                                      .Where(e => e.SectionId == exam.SectionId)
                                                      .Where(e => e.Role == 1)
@@ -428,15 +424,15 @@ namespace ForQab.Repository.Concrete
                     .ThenInclude(ec => ec.Commission)
                 .Include(e => e.Experts)
                     .ThenInclude(ex => ex.ExamExpertSubProfessions
-                        .Where(eesp => eesp.ExamId == id)) // Sadece bu imtahana aid olanlar
+                        .Where(eesp => eesp.ExamId == id)) 
                     .ThenInclude(eesp => eesp.SubProfession)
                 .Include(e => e.Experts)
                     .ThenInclude(ex => ex.ExamExpertSubProfessions
-                        .Where(eesp => eesp.ExamId == id)) // Sadece bu imtahana aid olanlar
+                        .Where(eesp => eesp.ExamId == id)) 
                     .ThenInclude(eesp => eesp.Federation)
                 .Include(e => e.Experts)
                     .ThenInclude(ex => ex.ExamExpertSubProfessions
-                        .Where(eesp => eesp.ExamId == id)) // Sadece bu imtahana aid olanlar
+                        .Where(eesp => eesp.ExamId == id)) 
                     .ThenInclude(eesp => eesp.ExamRoom)
                 .Include(e => e.Monitors)
                     .ThenInclude(e => e.ExamMonitors
@@ -503,7 +499,6 @@ namespace ForQab.Repository.Concrete
 
         public async Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds, int[] degreeIds, int[] selectedSubjects)
         {
-            // Mevcut Exam'i bul ve ilişkili verileri include et
             var existingExam = await _context.Exams
                 .Include(e => e.ExamCommissions)
                     .ThenInclude(ec => ec.Commission)
@@ -518,7 +513,6 @@ namespace ForQab.Repository.Concrete
             if (existingExam == null)
                 throw new ArgumentException("İmtahan tapılmadı");
 
-            // Exam'in özelliklerini güncelle
             existingExam.Id = exam.Id;
             existingExam.Name = exam.Name;
             existingExam.InventoryTransport = exam.InventoryTransport;
@@ -536,7 +530,6 @@ namespace ForQab.Repository.Concrete
             existingExam.DistrictId = exam.DistrictId;
             existingExam.ExamDate = exam.ExamDate;
 
-            // Mevcut ExamCommissions'ları temizle
             if (existingExam.ExamCommissions != null)
             {
                 existingExam.ExamCommissions.Clear();
@@ -609,7 +602,6 @@ namespace ForQab.Repository.Concrete
         }
         public async Task UpdateExamAsync(EditExamViewModelForAssesment exam)
         {
-            // Mevcut Exam'i bul ve ilişkili verileri include et
             var existingExam = await _context.Exams
                 .Include(e => e.ExamCommissions)
                     .ThenInclude(ec => ec.Commission)
@@ -746,7 +738,7 @@ namespace ForQab.Repository.Concrete
                 .Where(m => m.ExamBuildingId == exam.ExamBuldingId)
                 .ToListAsync();
 
-
+            
             foreach (var rep in selectedVolunteers)
             {
                 exam.Monitors.Add(rep);
@@ -872,7 +864,6 @@ namespace ForQab.Repository.Concrete
                     table.Append(row);
                 }
 
-                // Yardımcı Metot: Renklendirilmiş hücre oluşturur
                 TableCell CreateColoredCell(string text, string bgColor)
                 {
                     TableCell cell = new TableCell(new Paragraph(new Run(new Text(text))));
@@ -882,11 +873,10 @@ namespace ForQab.Repository.Concrete
                     cell.Append(cellProperties);
                     return cell;
                 }
-                // Footer oluştur
+                
                 FooterPart footerPart = mainPart.AddNewPart<FooterPart>();
                 string footerPartId = mainPart.GetIdOfPart(footerPart);
 
-                // Sayfa numarası alanını oluştur
                 var paragraph = new Paragraph();
                 paragraph.Append(new ParagraphProperties(new Justification() { Val = JustificationValues.Center }));
                 paragraph.Append(new Run(
@@ -908,7 +898,6 @@ namespace ForQab.Repository.Concrete
                 footerPart.Footer = footer;
                 footerPart.Footer.Save();
 
-                // SectionProperties'e footer referansını ekle
                 var sectionProps = new SectionProperties(
                     new PageSize() { Width = 16838, Height = 11906, Orient = PageOrientationValues.Landscape },
                     new PageMargin() { Top = 720, Right = 720, Bottom = 720, Left = 720 },
@@ -1037,7 +1026,6 @@ namespace ForQab.Repository.Concrete
                     table.Append(row);
                 }
 
-                // Yardımcı Metot: Renklendirilmiş hücre oluşturur
                 TableCell CreateColoredCell(string text, string bgColor)
                 {
                     TableCell cell = new TableCell(new Paragraph(new Run(new Text(text))));
@@ -1047,11 +1035,10 @@ namespace ForQab.Repository.Concrete
                     cell.Append(cellProperties);
                     return cell;
                 }
-                // Footer oluştur
+                
                 FooterPart footerPart = mainPart.AddNewPart<FooterPart>();
                 string footerPartId = mainPart.GetIdOfPart(footerPart);
 
-                // Sayfa numarası alanını oluştur
                 var paragraph = new Paragraph();
                 paragraph.Append(new ParagraphProperties(new Justification() { Val = JustificationValues.Center }));
                 paragraph.Append(new Run(
@@ -1073,7 +1060,6 @@ namespace ForQab.Repository.Concrete
                 footerPart.Footer = footer;
                 footerPart.Footer.Save();
 
-                // SectionProperties'e footer referansını ekle
                 var sectionProps = new SectionProperties(
                     new PageSize() { Width = 11906, Height = 16838, Orient = PageOrientationValues.Portrait },
                     new PageMargin() { Top = 720, Right = 720, Bottom = 720, Left = 720 },
@@ -1178,7 +1164,6 @@ namespace ForQab.Repository.Concrete
                     table.Append(row);
                 }
 
-                // Yardımcı Metot: Renklendirilmiş hücre oluşturur
                 TableCell CreateColoredCell(string text, string bgColor)
                 {
                     TableCell cell = new TableCell(new Paragraph(new Run(new Text(text))));
@@ -1188,11 +1173,9 @@ namespace ForQab.Repository.Concrete
                     cell.Append(cellProperties);
                     return cell;
                 }
-                // Footer oluştur
                 FooterPart footerPart = mainPart.AddNewPart<FooterPart>();
                 string footerPartId = mainPart.GetIdOfPart(footerPart);
 
-                // Sayfa numarası alanını oluştur
                 var paragraph = new Paragraph();
                 paragraph.Append(new ParagraphProperties(new Justification() { Val = JustificationValues.Center }));
                 paragraph.Append(new Run(
@@ -1205,7 +1188,7 @@ namespace ForQab.Repository.Concrete
                 paragraph.Append(new Run(
                     new FieldChar() { FieldCharType = FieldCharValues.Separate }
                 ));
-                paragraph.Append(new Run(new Text("1"))); // Placeholder
+                paragraph.Append(new Run(new Text("1"))); 
                 paragraph.Append(new Run(
                     new FieldChar() { FieldCharType = FieldCharValues.End }
                 ));
@@ -1214,7 +1197,6 @@ namespace ForQab.Repository.Concrete
                 footerPart.Footer = footer;
                 footerPart.Footer.Save();
 
-                // SectionProperties'e footer referansını ekle
                 var sectionProps = new SectionProperties(
                     new PageSize() { Width = 11906, Height = 16838, Orient = PageOrientationValues.Portrait },
                     new PageMargin() { Top = 720, Right = 720, Bottom = 720, Left = 720 },
@@ -1350,7 +1332,7 @@ namespace ForQab.Repository.Concrete
 
             if (exam == null)
             {
-                throw new Exception($"İmtahan tapılmadı : {examId}");  // 🔥 Log ekleyerek kontrol et
+                throw new Exception($"İmtahan tapılmadı : {examId}");  
             }
 
             return exam;
@@ -1405,11 +1387,10 @@ namespace ForQab.Repository.Concrete
 
                     body.AppendChild(CreateBoldCenteredParagraph("Xüsusi qabiliyyət tələb edən ixtisaslar üzrə qabiliyyət imtahanlarında"));
 
-                    // Second line
                     body.AppendChild(CreateBoldCenteredParagraph("İŞTİRAK EDƏN NƏZARƏTÇİLƏRİN QEYDİYYAT VƏRƏQİ"));
                     string logoPath = "wwwroot/img/State_Examination_Center_logo.svg.png";
                     AddImageToDocument(mainPart, logoPath);
-                    // Direction with italic
+                    
                     Paragraph directionParagraph = new Paragraph(
                         new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
                         new Run(new RunProperties(new Bold(),
@@ -1421,7 +1402,6 @@ namespace ForQab.Repository.Concrete
                     );
                     body.AppendChild(directionParagraph);
 
-                    // Exam building
                     Paragraph buildingParagraph = new Paragraph(
                         new ParagraphProperties(new Justification { Val = JustificationValues.Center }), new Run(new RunProperties(new Bold(),
                                                 new FontSize { Val = "28" }),
@@ -1433,10 +1413,8 @@ namespace ForQab.Repository.Concrete
                     );
                     body.AppendChild(buildingParagraph);
 
-                    // Line separator
                     body.AppendChild(CreateBoldCenteredParagraph("______________________________________________________________________"));
 
-                    // Exam date
                     string day = exam.ExamDate.Day.ToString();
                     string month = new System.Globalization.CultureInfo("az-Latn-AZ").DateTimeFormat.GetMonthName(exam.ExamDate.Month).ToLower();
 
@@ -1459,7 +1437,6 @@ namespace ForQab.Repository.Concrete
                     body.AppendChild(dateParagraph);
                     body.AppendChild(new Paragraph(new Run(new Text(""))));
 
-                    // Table with specific structure
                     Table table = new Table();
                     TableProperties tblProps = new TableProperties(
                         new TableBorders(
@@ -1481,7 +1458,6 @@ namespace ForQab.Repository.Concrete
                     cellSs.TableCellProperties.AppendChild(new Shading { Fill = "D9D9D9" });
                     headerRow1.AppendChild(cellSs);
 
-                    // Vəzifəsi 
                     TableCell cellVezifesi = new TableCell();
                     cellVezifesi.AppendChild(new Paragraph(new Run(new Text("Vəzifəsi (imtahan zalı, məşq zalı)"))));
                     cellVezifesi.TableCellProperties = new TableCellProperties();
@@ -1489,7 +1465,6 @@ namespace ForQab.Repository.Concrete
                     cellVezifesi.TableCellProperties.AppendChild(new Shading { Fill = "D9D9D9" });
                     headerRow1.AppendChild(cellVezifesi);
 
-                    // Soyadı, adı, ata adı
                     TableCell cellName = new TableCell();
                     cellName.AppendChild(new Paragraph(new Run(new Text("Soyadı, adı, ata adı"))));
                     cellName.TableCellProperties = new TableCellProperties();
@@ -1497,7 +1472,6 @@ namespace ForQab.Repository.Concrete
                     cellName.TableCellProperties.AppendChild(new Shading { Fill = "D9D9D9" });
                     headerRow1.AppendChild(cellName);
 
-                    // İmza / I növbə
                     TableCell cellImza1 = new TableCell();
                     cellImza1.AppendChild(new Paragraph(new Run(new Text("İmza / I növbə"))));
                     cellImza1.TableCellProperties = new TableCellProperties();
@@ -1505,7 +1479,6 @@ namespace ForQab.Repository.Concrete
                     cellImza1.TableCellProperties.AppendChild(new Shading { Fill = "D9D9D9" });
                     headerRow1.AppendChild(cellImza1);
 
-                    // İmza / II növbə
                     TableCell cellImza2 = new TableCell();
                     cellImza2.AppendChild(new Paragraph(new Run(new Text("İmza / II növbə"))));
                     cellImza2.TableCellProperties = new TableCellProperties();
@@ -1523,35 +1496,30 @@ namespace ForQab.Repository.Concrete
                     cellSsContinue.TableCellProperties.AppendChild(new VerticalMerge() { Val = MergedCellValues.Continue });
                     headerRow2.AppendChild(cellSsContinue);
 
-                    // I növbə
                     TableCell cellInnovbe = new TableCell();
                     cellInnovbe.AppendChild(new Paragraph(new Run(new Text("I növbə"))));
                     cellInnovbe.TableCellProperties = new TableCellProperties();
                     cellInnovbe.TableCellProperties.AppendChild(new Shading { Fill = "D9D9D9" });
                     headerRow2.AppendChild(cellInnovbe);
 
-                    // II növbə
                     TableCell cellIInnovbe = new TableCell();
                     cellIInnovbe.AppendChild(new Paragraph(new Run(new Text("II növbə"))));
                     cellIInnovbe.TableCellProperties = new TableCellProperties();
                     cellIInnovbe.TableCellProperties.AppendChild(new Shading { Fill = "D9D9D9" });
                     headerRow2.AppendChild(cellIInnovbe);
 
-                    // Continued cell for Soyadı, adı, ata adı
                     TableCell cellNameContinue = new TableCell();
                     cellNameContinue.AppendChild(new Paragraph());
                     cellNameContinue.TableCellProperties = new TableCellProperties();
                     cellNameContinue.TableCellProperties.AppendChild(new VerticalMerge() { Val = MergedCellValues.Continue });
                     headerRow2.AppendChild(cellNameContinue);
 
-                    // Continued cell for İmza / I növbə
                     TableCell cellImza1Continue = new TableCell();
                     cellImza1Continue.AppendChild(new Paragraph());
                     cellImza1Continue.TableCellProperties = new TableCellProperties();
                     cellImza1Continue.TableCellProperties.AppendChild(new VerticalMerge() { Val = MergedCellValues.Continue });
                     headerRow2.AppendChild(cellImza1Continue);
 
-                    // Continued cell for İmza / II növbə
                     TableCell cellImza2Continue = new TableCell();
                     cellImza2Continue.AppendChild(new Paragraph());
                     cellImza2Continue.TableCellProperties = new TableCellProperties();
@@ -1562,12 +1530,10 @@ namespace ForQab.Repository.Concrete
 
                     var monitorCount = monitors.Count;
 
-                    // Data rows
                     for (int i = 0; i < monitorCount; i++)
                     {
                         TableRow dataRow = new TableRow();
 
-                        // Row number cell
                         TableCell cellRowNum = new TableCell();
                         cellRowNum.AppendChild(new Paragraph(new Run(new Text($"{i + 1}."))));
                         dataRow.AppendChild(cellRowNum);
@@ -1668,14 +1634,12 @@ namespace ForQab.Repository.Concrete
                 imagePart.FeedData(stream);
             }
 
-            // Image ilişkilendirmesi için ID al
             string relationshipId = mainPart.GetIdOfPart(imagePart);
 
-            // Resmi ekle
             var element =
                 new Drawing(
                     new wp.Inline(
-                        new wp.Extent { Cx = 990000L, Cy = 792000L }, // Resmin boyutu (ayarlanabilir)
+                        new wp.Extent { Cx = 990000L, Cy = 792000L }, 
                         new wp.EffectExtent
                         {
                             LeftEdge = 0L,
@@ -1713,7 +1677,6 @@ namespace ForQab.Repository.Concrete
                     { DistanceFromTop = (UInt32Value)0U, DistanceFromBottom = (UInt32Value)0U }
                 );
 
-            // Paragraf oluşturarak en üste ekle
             Paragraph imageParagraph = new Paragraph(new Run(element));
             mainPart.Document.Body.InsertAt(imageParagraph, 0);
         }

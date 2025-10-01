@@ -70,6 +70,7 @@ namespace ForQab.Repository.Concrete
                 Federation = expertViewModel.Federation,
                 TelIs = expertViewModel.TelIs,
                 TelEl = expertViewModel.TelEl,
+                SerialPrefix = expertViewModel.SerialPrefix,
                 Serial = expertViewModel.Serial,
                 Kons = false,
                 Status = 0,
@@ -127,6 +128,7 @@ namespace ForQab.Repository.Concrete
                 existingExpert.HesablashmaH = expert.HesablashmaH;
                 existingExpert.TelIs = expert.TelIs;
                 existingExpert.TelEl = expert.TelEl;
+                existingExpert.SerialPrefix = expert.SerialPrefix;
                 existingExpert.Serial = expert.Serial;
 
                 // SubProfessions yeniləməsi
@@ -265,8 +267,8 @@ namespace ForQab.Repository.Concrete
         {
             IQueryable<Expert> query = GetQuery(includes);
             return sectionId is null
-                ? await query.Where(e => e.Kons == false).Where(e => e.Archive == 0).ToListAsync()
-                : await query.Where(e => EF.Property<int>(e, "SectionId") == sectionId).Where(e => e.Kons == false).Where(e => e.Archive == 0).ToListAsync();
+                ? await query.Where(e => e.Kons == false).Where(e => e.Archive == 0).Include(e => e.ExamExpertSubProfessions).OrderBy(e => e.Surname).ToListAsync()
+                : await query.Where(e => EF.Property<int>(e, "SectionId") == sectionId).Where(e => e.Kons == false).Include(e => e.ExamExpertSubProfessions).Where(e => e.Archive == 0).OrderBy(e => e.Surname).ToListAsync();
         }
         public async Task<List<Expert>> GetAllArchivedAsync(int? sectionId, Expression<Func<Expert, bool>> exp = null, params string[] includes)
         {
@@ -282,7 +284,7 @@ namespace ForQab.Repository.Concrete
             {
                 foreach (var item in includes)
                 {
-                    query = query.Include(item);  // Ensure the paths are valid
+                    query = query.Include(item);  
                 }
             }
             return query;

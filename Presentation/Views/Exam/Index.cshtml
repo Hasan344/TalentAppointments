@@ -165,9 +165,90 @@
         <a class="btn btn-sm btn-primary shadow-sm" asp-action="ExportToWordForLetter">
             <i class="bi bi-download"></i> Məktuba əlavə təqvim
         </a>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportRangeModal">
+            Yemək və su üçün export
+        </button>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportExcelModal">
+            Yemək və su üçün excel export
+        </button>
         <a class="btn btn-secondary px-4 py-2 mx-2" border: none;" asp-controller="Home" asp-action="Index">
             <i class="bi bi-home"></i> Ana səhifəyə qayıt
         </a>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="exportRangeModal" tabindex="-1" aria-labelledby="exportRangeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="ExportFoodAndWaterRange" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportRangeModalLabel">Tarix aralığı və bina seçin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="startDate" class="form-label">Başlangıç tarixi</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="endDate" class="form-label">Bitiş tarixi</label>
+                        <input type="date" class="form-control" id="endDate" name="endDate" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="examBuildingId" class="form-label">İmtahan binası (mütləq seçilməlidir)</label>
+                        <select class="form-select" id="examBuildingId" name="examBuildingId" required>
+                            <option value="" disabled selected>-- Binanı seçin --</option>
+                            @if (ViewBag.ExamBuildings != null)
+                            {
+                                foreach (var b in (IEnumerable<dynamic>)ViewBag.ExamBuilding)
+                                {
+                                    <option value="@b.Id">@b.Name</option>
+                                }
+                            }
+                        </select>
+                        <div class="form-text">Bina seçmədən export edə bilməyəcəksiniz.</div>
+                    </div>
+
+                    <div class="form-text">Seçilən tarixlər daxilində və seçilmiş binadakı imtahanlar üçün bir Word faylı yaradılacaq.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
+                    <button type="submit" class="btn btn-primary">Export et</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="exportExcelModal" tabindex="-1" aria-labelledby="exportExcelModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="ExportExamDataForFoodAndWater" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportExcelModalLabel">Tarix aralığı və bina seçin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="startDate" class="form-label">Başlangıç tarixi</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="endDate" class="form-label">Bitiş tarixi</label>
+                        <input type="date" class="form-control" id="endDate" name="endDate" required />
+                    </div>
+
+                    <div class="form-text">Seçilən tarixlər daxilində və seçilmiş binadakı imtahanlar üçün bir Excel faylı yaradılacaq.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
+                    <button type="submit" class="btn btn-primary">Export et</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

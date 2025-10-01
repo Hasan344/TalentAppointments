@@ -31,7 +31,7 @@ namespace ForQab.Repository.Concrete
             {
                 foreach (var item in includes)
                 {
-                    query = query.Include(item);  // Ensure the paths are valid
+                    query = query.Include(item);  
                 }
             }
             return query;

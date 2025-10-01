@@ -15,6 +15,7 @@ namespace ForQab.DataAccess.ViewModel.Monitor
         public string? Fname { get; set; }
         public string? Region { get; set; }
         public string? FinCode { get; set; }
+        public string? SerialPrefix { get; set; }
         public string? Serial { get; set; }
 
         [Required(ErrorMessage = "İstiqamət seçilməlidir")]

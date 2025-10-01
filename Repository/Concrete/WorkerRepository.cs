@@ -33,7 +33,7 @@ namespace ForQab.Repository.Concrete
             {
                 foreach (var item in includes)
                 {
-                    query = query.Include(item);  // Ensure the paths are valid
+                    query = query.Include(item);  
                 }
             }
             return query;
@@ -62,7 +62,6 @@ namespace ForQab.Repository.Concrete
                 throw new KeyNotFoundException("Monitor tapılmadı.");
             }
 
-            // Güncellenmesi gereken alanlar
             monitor.Name = model.Name;
             monitor.Surname = model.Surname;
             monitor.Fname = model.Fname;
@@ -80,6 +79,7 @@ namespace ForQab.Repository.Concrete
             monitor.ExamBuildingId = model.ExamBuilding;
             monitor.TelIs = model.TelIs;
             monitor.FinCode = model.FinCode;
+            monitor.SerialPrefix = model.SerialPrefix; 
             monitor.Serial = model.Serial;
 
             _dbContext.Monitors.Update(monitor);

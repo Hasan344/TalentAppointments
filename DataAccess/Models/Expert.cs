@@ -97,6 +97,7 @@ public partial class Expert
     [ForeignKey("District")]
     [InverseProperty("Experts")]
     public virtual District? DistrictNavigation { get; set; }
+    public virtual ICollection<ExamExpert> ExamExperts { get; set; } = new List<ExamExpert>();
 
     [Column("AssignmentCount")]
     public int? AssignmentCount { get; set; }
@@ -139,5 +140,14 @@ public partial class Expert
     public ICollection<Contract> Contracts { get; set; }
     [NotMapped]
     public int ComputedAssignmentCount => ExamExpertSubProfessions?.Count ?? 0;
+    [NotMapped]
+    public int ComputedAssignmentCountShift1 => ExamExpertSubProfessions?.Count(e => e.Exam?.Shift == 1) ?? 0;
+
+    [NotMapped]
+    public int ComputedAssignmentCountShift2 => ExamExpertSubProfessions?.Count(e => e.Exam?.Shift == 2) ?? 0;
+
+    [Column("serial_prefix")]
+    [StringLength(10)]
+    public string? SerialPrefix { get; set; }
 
 }

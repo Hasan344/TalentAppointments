@@ -26,8 +26,8 @@ namespace ForQab.Repository.Concrete
         {
             IQueryable<Monitor> query = GetQuery(includes);
             return sectionId is null
-                ? await query.Where(e => EF.Property<int>(e, "Role") == role).ToListAsync()
-                : await query.Where(e => EF.Property<int>(e, "SectionId") == sectionId).Where(e => EF.Property<int>(e, "Role") == role).ToListAsync();
+                ? await query.Where(e => EF.Property<int>(e, "Role") == role).OrderBy(e => e.Surname).ToListAsync()
+                : await query.Where(e => EF.Property<int>(e, "SectionId") == sectionId).Where(e => EF.Property<int>(e, "Role") == role).OrderBy(e => e.Surname).ToListAsync();
         }
         private IQueryable<Monitor> GetQuery(string[] includes)
         {
@@ -103,6 +103,7 @@ namespace ForQab.Repository.Concrete
             monitor.Profession = model.Profession;
             monitor.Position = model.Position;
             monitor.FinCode = model.FinCode;
+            monitor.SerialPrefix = model.SerialPrefix;
             monitor.Serial = model.Serial;
             monitor.TelIs = model.TelIs;
 

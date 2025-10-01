@@ -12,6 +12,7 @@ using DocumentFormat.OpenXml;
 using ClosedXML.Excel;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 using System.Text.RegularExpressions;
+using System.Globalization;
 using System.Threading;
 
 namespace ForQab.Service
@@ -297,7 +298,7 @@ namespace ForQab.Service
             if (exam == null) return false;
 
             var currentExamMonitor = await _examMonitorRepository.GetByExamAndMonitorAsync(model.ExamId, model.CurrentMonitorId);
-            int? roomId = currentExamMonitor?.RoomId; // Odayı sakla
+            int? roomId = currentExamMonitor?.RoomId; 
 
             if (currentExamMonitor != null)
             {
@@ -311,7 +312,7 @@ namespace ForQab.Service
             {
                 ExamId = model.ExamId,
                 MonitorId = model.NewMonitorId,
-                RoomId = roomId // Eski odasını ata
+                RoomId = roomId 
             };
 
             currentMonitor.AssignmentCount--;
@@ -329,7 +330,6 @@ namespace ForQab.Service
             {
                 try
                 {
-                    // Mevcut uzmanın alt uzmanlıklarını al
                     var currentExamExpertSubProfessions = await _examExpertSubProfessionRepository
                         .GetSubProfessionsByExpertAsync(examId, currentExpertId);
 
@@ -341,21 +341,17 @@ namespace ForQab.Service
 
                     var subprofessionId = subProfessions.FirstOrDefault()?.SubProfessionId ?? 0;
 
-                    // Uygun yeni uzmanı bul (sınavda zaten atanmamış olan)
                     var newExpert = await _expertRepository
                         .FindSuitableExpertAsync(subprofessionId, currentExpert.Federation, currentExpertId, examId, exam.ExamDate);
                     if (newExpert == null) return false;
 
-                    // Yeni uzmanın zaten sınavda olup olmadığını kontrol et
                     var isNewExpertAssigned = await _examExpertSubProfessionRepository
                         .IsExpertAssignedToExamAsync(examId, newExpert.Id);
                     if (isNewExpertAssigned)
                     {
-                        // Log: Yeni uzman zaten atanmış
-                        return false; // veya uygun bir hata mesajı döndür
+                        return false; 
                     }
 
-                    // Yeni uzmanın alt uzmanlıklarını hazırla
                     var newExamExpertSubProfessions = subProfessions.Select(sp => new ExamExpertSubProfession
                     {
                         ExamId = examId,
@@ -365,15 +361,12 @@ namespace ForQab.Service
                         RoomId = sp.RoomId
                     }).ToList();
 
-                    // Mevcut uzmanı kaldır
                     exam.Experts.Remove(currentExpert);
                     await _examExpertSubProfessionRepository.RemoveByExpertAsync(examId, currentExpertId);
 
-                    // Yeni uzmanı ekle
                     exam.Experts.Add(newExpert);
                     await _examExpertSubProfessionRepository.AddSubProfessionsAsync(newExamExpertSubProfessions);
 
-                    // Atama sayısını güncelle
                     currentExpert.AssignmentCount--;
                     newExpert.AssignmentCount++;
 
@@ -384,7 +377,6 @@ namespace ForQab.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    // Hata loglama (örneğin, ILogger ile)
                     Console.WriteLine($"Hata: {ex.Message}");
                     throw;
                 }
@@ -967,11 +959,11 @@ namespace ForQab.Service
             return new Paragraph(
                 new Run(
                     new RunProperties(new Bold(), new FontSize { Val = (fontSize * 2).ToString() }),
-                    new Text(boldText) // Bold olan hissə
+                    new Text(boldText) 
                 ),
                 new Run(
                     new RunProperties(new FontSize { Val = (fontSize * 2).ToString() }),
-                    new Text(normalText) // Normal olan hissə
+                    new Text(normalText) 
                 )
             );
         }
@@ -1083,7 +1075,7 @@ namespace ForQab.Service
                                 RoomName = eesp.ExamRoom?.Name,
                                 IsAttended = eesp.IsAttended
                             }).ToList(),
-                    IsAttended = e.ExamExpertSubProfessions.Any(eesp => eesp.IsAttended == 1) ? 1 : 0 // Örnek mantık
+                    IsAttended = e.ExamExpertSubProfessions.Any(eesp => eesp.IsAttended == 1) ? 1 : 0 
                 }).ToList(),
                 Monitors = exam.Monitors.Select(m => new MonitorViewModel
                 {
@@ -1306,11 +1298,10 @@ namespace ForQab.Service
                     }
                     else
                     {
-                        worksheet.Cell(row, 15).Value = ""; // Eğer Serial null veya boşsa hücreye boş değer ata
+                        worksheet.Cell(row, 15).Value = "";
                     }
                     if (!string.IsNullOrEmpty(monitor?.Serial))
                     {
-                        // Harfleri silip sadece rakamları al
                         string onlyNumbers = Regex.Replace(monitor.Serial, @"\D", "");
 
                         if (!string.IsNullOrEmpty(onlyNumbers))
@@ -1335,7 +1326,7 @@ namespace ForQab.Service
                 }
                 if (exam.SectionId != 1)
                 {
-                    foreach (var expert in exam.Experts) // Her Monitor için ayrı satır
+                    foreach (var expert in exam.Experts) 
                     {
                         worksheet.Cell(row, 1).Value = "";
                         worksheet.Cell(row, 2).Value = exam.DistrictId.ToString();
@@ -1378,11 +1369,10 @@ namespace ForQab.Service
                         }
                         else
                         {
-                            worksheet.Cell(row, 15).Value = ""; // Eğer Serial null veya boşsa hücreye boş değer ata
+                            worksheet.Cell(row, 15).Value = ""; 
                         }
                         if (!string.IsNullOrEmpty(expert?.Serial))
                         {
-                            // Harfleri silip sadece rakamları al
                             string onlyNumbers = Regex.Replace(expert.Serial, @"\D", "");
 
                             if (!string.IsNullOrEmpty(onlyNumbers))
@@ -1442,7 +1432,253 @@ namespace ForQab.Service
                     }
                     if (!string.IsNullOrEmpty(monitor?.Serial))
                     {
-                        // Harfleri silip sadece rakamları al
+                        string onlyNumbers = Regex.Replace(monitor.Serial, @"\D", "");
+
+                        if (!string.IsNullOrEmpty(onlyNumbers))
+                            worksheet.Cell(row, 16).Value = onlyNumbers;
+                        else
+                            worksheet.Cell(row, 16).Value = "";
+                    }
+                    else
+                    {
+                        worksheet.Cell(row, 16).Value = "";
+                    }
+                    worksheet.Cell(row, 17).Value = monitor.Tel;
+                    worksheet.Cell(row, 18).Value = monitor.FinCode;
+                    worksheet.Cell(row, 19).Value = "";
+                    worksheet.Cell(row, 20).Value = "";
+                    worksheet.Cell(row, 21).Value = "";
+                    worksheet.Cell(row, 22).Value = "";
+                    worksheet.Cell(row, 23).Value = "";
+                    worksheet.Cell(row, 24).Value = "";
+                    worksheet.Cell(row, 25).Value = exam.Shift.ToString();
+                    row++;
+                }
+            }
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            return stream.ToArray();
+        }
+        public async Task<byte[]> GetExamDataForFoodAndWater(DateOnly startDate, DateOnly endDate, int sectionId)
+        {
+            var exams = _context.Exams
+                .Include(e => e.Monitors)
+                    .ThenInclude(em => em.WorkerTypeNavigation)
+                .Include(e => e.Monitors)
+                    .ThenInclude(em => em.Contracts)
+                .Include(e => e.Monitors)
+                    .ThenInclude(em => em.MonitorLogs)
+                .Include(e => e.Experts)
+                    .ThenInclude(em => em.Contracts)
+                .Include(e => e.ExamDegrees)
+                .Include(e => e.Section)
+                .Include(e => e.ExamBuilding)
+                .Include(e => e.Representatives)
+                .Where(e => e.ExamDate >= startDate && e.ExamDate <= endDate && e.SectionId == sectionId )
+                .ToList();
+
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add("Exam Data");
+
+            worksheet.Cell(1, 1).Value = "V_NUM";
+            worksheet.Cell(1, 2).Value = "RAYON";
+            worksheet.Cell(1, 3).Value = "SOY";
+            worksheet.Cell(1, 4).Value = "ADI";
+            worksheet.Cell(1, 5).Value = "BABA";
+            worksheet.Cell(1, 6).Value = "BINA";
+            worksheet.Cell(1, 7).Value = "IMT_KOD";
+            worksheet.Cell(1, 8).Value = "IL";
+            worksheet.Cell(1, 9).Value = "IMT_GUN";
+            worksheet.Cell(1, 10).Value = "IMT_AY";
+            worksheet.Cell(1, 11).Value = "imt_vezife";
+            worksheet.Cell(1, 12).Value = "muqavile";
+            worksheet.Cell(1, 13).Value = "MuqavileNo";
+            worksheet.Cell(1, 14).Value = "cins";
+            worksheet.Cell(1, 15).Value = "SERIYA_P";
+            worksheet.Cell(1, 16).Value = "NUM_POSP";
+            worksheet.Cell(1, 17).Value = "TELEFON";
+            worksheet.Cell(1, 18).Value = "sv_pinkod";
+            worksheet.Cell(1, 19).Value = "VOEN";
+            worksheet.Cell(1, 20).Value = "Hesablashma";
+            worksheet.Cell(1, 21).Value = "rekvizit";
+            worksheet.Cell(1, 22).Value = "SSN";
+            worksheet.Cell(1, 23).Value = "Bank_Filialı";
+            worksheet.Cell(1, 24).Value = "Bank_Filial_Kodu";
+            worksheet.Cell(1, 25).Value = "Novbe";
+
+            int row = 2;
+            foreach (var exam in exams)
+            {
+                var monitors = exam.Monitors
+                                   .Where(m => !m.MonitorLogs.Any(log => log.ExamId == exam.Id && log.Kind == 0));
+                foreach (var monitor in monitors)
+                {
+                    worksheet.Cell(row, 1).Value = monitor.VNum;
+                    worksheet.Cell(row, 2).Value = exam.DistrictId.ToString();
+                    worksheet.Cell(row, 3).Value = monitor.Surname;
+                    worksheet.Cell(row, 4).Value = monitor.Name;
+                    worksheet.Cell(row, 5).Value = monitor.Fname;
+                    worksheet.Cell(row, 6).Value = exam.ExamBuilding.Code;
+                    worksheet.Cell(row, 8).Value = exam.ExamDate.Year.ToString();
+                    worksheet.Cell(row, 9).Value = exam.ExamDate.Day.ToString();
+                    worksheet.Cell(row, 10).Value = exam.ExamDate.Month.ToString();
+                    worksheet.Cell(row, 11).Value = monitor.Role switch
+                    {
+                        1 => "İmtahan rəhbəri",
+                        2 => "Nəzarətçi",
+                        4 => "Könüllü",
+                        _ => ""
+                    };
+
+                    var latestContract = monitor.Contracts
+                        .OrderByDescending(c => c.Id)
+                        .FirstOrDefault();
+
+                    worksheet.Cell(row, 12).Value = latestContract?.Date.ToString("dd.MM.yyyy") ?? "";
+                    worksheet.Cell(row, 13).Value = latestContract?.Number ?? "";
+                    worksheet.Cell(row, 14).Value = monitor.Gender.ToString();
+                    if (!string.IsNullOrEmpty(monitor?.Serial))
+                    {
+                        worksheet.Cell(row, 15).Value = monitor.Serial.StartsWith("AA") || monitor.Serial.Length == 7
+                                                        ? "AA"
+                                                        : (monitor.Serial.Length == 8 || monitor.Serial.StartsWith("AZE") ? "AZE" : null);
+                    }
+                    else
+                    {
+                        worksheet.Cell(row, 15).Value = "";
+                    }
+                    if (!string.IsNullOrEmpty(monitor?.Serial))
+                    {
+                        string onlyNumbers = Regex.Replace(monitor.Serial, @"\D", "");
+
+                        if (!string.IsNullOrEmpty(onlyNumbers))
+                            worksheet.Cell(row, 16).Value = onlyNumbers;
+                        else
+                            worksheet.Cell(row, 16).Value = "";
+                    }
+                    else
+                    {
+                        worksheet.Cell(row, 16).Value = "";
+                    }
+                    worksheet.Cell(row, 17).Value = monitor.TelIs;
+                    worksheet.Cell(row, 18).Value = monitor.FinCode;
+                    worksheet.Cell(row, 19).Value = monitor.Voen;
+                    worksheet.Cell(row, 20).Value = monitor.HesablashmaH;
+                    worksheet.Cell(row, 21).Value = monitor.Rekvizit;
+                    worksheet.Cell(row, 22).Value = monitor.SSN;
+                    worksheet.Cell(row, 23).Value = monitor.BankFilial;
+                    worksheet.Cell(row, 24).Value = monitor.BankFilialCode;
+                    worksheet.Cell(row, 25).Value = exam.Shift.ToString();
+                    row++;
+                }
+                    foreach (var expert in exam.Experts)
+                    {
+                        worksheet.Cell(row, 1).Value = "";
+                        worksheet.Cell(row, 2).Value = exam.DistrictId.ToString();
+                        worksheet.Cell(row, 3).Value = expert.Surname;
+                        worksheet.Cell(row, 4).Value = expert.Name;
+                        worksheet.Cell(row, 5).Value = expert.Fname;
+                        worksheet.Cell(row, 6).Value = exam.ExamBuilding.Code;
+                        if (exam.ExamDegrees.Select(ed => ed.DegreeId).FirstOrDefault() == 2)
+                        {
+                            worksheet.Cell(row, 7).Value = "36";
+                        }
+                        else
+                        {
+                            worksheet.Cell(row, 7).Value = exam.Section?.SectCode.ToString();
+                        }
+                        worksheet.Cell(row, 8).Value = exam.ExamDate.Year.ToString();
+                        worksheet.Cell(row, 9).Value = exam.ExamDate.Day.ToString();
+                        worksheet.Cell(row, 10).Value = exam.ExamDate.Month.ToString();
+
+                        worksheet.Cell(row, 11).Value = (bool)expert.Kons ? "Konsertmeyster" : "Ekspert";
+
+                    var latestContract = expert.Contracts
+                            .OrderByDescending(c => c.Id)
+                            .FirstOrDefault();
+
+                        worksheet.Cell(row, 12).Value = latestContract?.Date.ToString("dd.MM.yyyy") ?? "";
+                        worksheet.Cell(row, 13).Value = latestContract?.Number ?? "";
+                        worksheet.Cell(row, 14).Value = expert.Gender.ToString();
+                        if (!string.IsNullOrEmpty(expert?.Serial))
+                        {
+                            worksheet.Cell(row, 15).Value = expert.Serial.StartsWith("AA") || expert.Serial.Length == 7
+                                                            ? "AA"
+                                                            : (expert.Serial.Length == 8 || expert.Serial.StartsWith("AZE") ? "AZE" : null);
+
+                        }
+                        else
+                        {
+                            worksheet.Cell(row, 15).Value = "";
+                        }
+                        if (!string.IsNullOrEmpty(expert?.Serial))
+                        {
+                            string onlyNumbers = Regex.Replace(expert.Serial, @"\D", "");
+
+                            if (!string.IsNullOrEmpty(onlyNumbers))
+                                worksheet.Cell(row, 16).Value = onlyNumbers;
+                            else
+                                worksheet.Cell(row, 16).Value = "";
+                        }
+                        else
+                        {
+                            worksheet.Cell(row, 16).Value = "";
+                        }
+                        worksheet.Cell(row, 17).Value = expert.TelIs;
+                        worksheet.Cell(row, 18).Value = expert.FinCode;
+                        worksheet.Cell(row, 19).Value = expert.Voen;
+                        worksheet.Cell(row, 20).Value = expert.HesablashmaH;
+                        worksheet.Cell(row, 21).Value = expert.Rekvizit;
+                        worksheet.Cell(row, 22).Value = expert.SSN;
+                        worksheet.Cell(row, 23).Value = expert.BankFilial;
+                        worksheet.Cell(row, 24).Value = expert.BankFilialCode;
+                        worksheet.Cell(row, 25).Value = exam.Shift.ToString();
+                        row++;
+                    }
+                
+                foreach (var monitor in exam.Representatives)
+                {
+                    worksheet.Cell(row, 1).Value = "";
+                    worksheet.Cell(row, 2).Value = exam.DistrictId.ToString();
+                    worksheet.Cell(row, 3).Value = monitor.Surname;
+                    worksheet.Cell(row, 4).Value = monitor.Name;
+                    worksheet.Cell(row, 5).Value = monitor.Fname;
+                    worksheet.Cell(row, 6).Value = exam.ExamBuilding.Code;
+                    if (exam.ExamDegrees.Select(ed => ed.DegreeId).FirstOrDefault() == 2)
+                    {
+                        worksheet.Cell(row, 7).Value = "36";
+                    }
+                    else
+                    {
+                        worksheet.Cell(row, 7).Value = exam.Section?.SectCode.ToString();
+                    }
+                    worksheet.Cell(row, 8).Value = exam.ExamDate.Year.ToString();
+                    worksheet.Cell(row, 9).Value = exam.ExamDate.Day.ToString();
+                    worksheet.Cell(row, 10).Value = exam.ExamDate.Month.ToString();
+                    worksheet.Cell(row, 11).Value = monitor.Type switch
+                    {
+                        1 => "DİM nümayəndəsi",
+                        2 => "GİN nümayəndəsi",
+                        _ => ""
+                    };
+
+
+                    worksheet.Cell(row, 12).Value = "";
+                    worksheet.Cell(row, 13).Value = "";
+                    worksheet.Cell(row, 14).Value = monitor.Gender.ToString();
+                    if (!string.IsNullOrEmpty(monitor?.Serial))
+                    {
+                        worksheet.Cell(row, 15).Value = monitor.Serial.StartsWith("AA") || monitor.Serial.Length == 7
+                                                        ? "AA"
+                                                        : (monitor.Serial.Length == 8 || monitor.Serial.StartsWith("AZE") ? "AZE" : null);
+                    }
+                    else
+                    {
+                        worksheet.Cell(row, 15).Value = "";
+                    }
+                    if (!string.IsNullOrEmpty(monitor?.Serial))
+                    {
                         string onlyNumbers = Regex.Replace(monitor.Serial, @"\D", "");
 
                         if (!string.IsNullOrEmpty(onlyNumbers))
@@ -1491,5 +1727,317 @@ namespace ForQab.Service
         {
             throw new NotImplementedException();
         }
+        public async Task<bool> ChangeExpertAsync(ChangeExpertViewModel model)
+        {
+            var exam = await _context.Exams.FirstOrDefaultAsync(e => e.Id == model.ExamId);
+            if (exam == null) return false;
+
+            var currentAssignment = await _context.ExamExpertSubProfessions
+                .FirstOrDefaultAsync(x => x.ExamId == model.ExamId && x.ExpertId == model.CurrentExpertId);
+            if (currentAssignment == null) return false;
+
+            int subProfessionId = (int)currentAssignment.SubProfessionId;
+
+            _context.ExamExpertSubProfessions.Remove(currentAssignment);
+
+            var examExpertRecord = await _context.ExamExperts
+                .FirstOrDefaultAsync(x => x.ExamId == model.ExamId && x.ExpertId == model.CurrentExpertId);
+            if (examExpertRecord != null)
+            {
+                _context.ExamExperts.Remove(examExpertRecord);
+            }
+
+            var currentExpert = await _context.Experts.FindAsync(model.CurrentExpertId);
+            var newExpert = await _context.Experts.FindAsync(model.NewExpertId);
+            if (currentExpert == null || newExpert == null) return false;
+
+            var newSubProfessionAssignment = new ExamExpertSubProfession
+            {
+                ExamId = model.ExamId,
+                ExpertId = model.NewExpertId,
+                SubProfessionId = subProfessionId,
+                RoomId = currentAssignment.RoomId, 
+                FederationId = currentAssignment.FederationId,
+                IsAttended = 0
+            };
+            await _context.ExamExpertSubProfessions.AddAsync(newSubProfessionAssignment);
+
+            var newExamExpert = new ExamExpert
+            {
+                ExamId = model.ExamId,
+                ExpertId = model.NewExpertId
+            };
+            await _context.ExamExperts.AddAsync(newExamExpert);
+
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<byte[]> ExportFoodAndWaterRangeAsync(DateOnly start, DateOnly end, int? sectionId, int examBuildingId)
+        {
+            var query = _context.Exams
+                .Where(e => e.ExamDate >= start && e.ExamDate <= end);
+
+            if (sectionId.HasValue)
+                query = query.Where(e => e.SectionId == sectionId.Value);
+
+                query = query.Where(e => e.ExamBuldingId == examBuildingId);
+
+            var exams = await query
+                .Include(e => e.ExamBuilding)
+                .Include(e => e.District)
+                .Include(e => e.ExamMonitors).ThenInclude(em => em.Monitors)
+                .Include(e => e.ExamExpertSubProfessions).ThenInclude(es => es.Expert)
+                .Include(e => e.ExamExperts).ThenInclude(ee => ee.Experts) 
+                .Include(e => e.ExamRepresentatives).ThenInclude(ee => ee.Representative)
+                .OrderBy(e => e.ExamDate)
+                .ToListAsync();
+            var allRows = new List<(RowEntry row, int examId, DateTime examDate)>();
+            var culture = new CultureInfo("az-Latn-AZ");
+
+            foreach (var exam in exams)
+            {
+                DateTime examDateTime = exam.ExamDate.ToDateTime(System.TimeOnly.MinValue);
+                string rayon = exam.District?.Name ?? "";
+                string binaKodu = exam.ExamBuilding?.Code ?? exam.ExamBuilding?.Id.ToString() ?? "";
+
+                foreach (var es in exam.ExamExpertSubProfessions ?? Enumerable.Empty<ExamExpertSubProfession>())
+                {
+                    var expert = es.Expert;
+                    if (expert == null) continue;
+
+                    var r = new RowEntry
+                    {
+                        Rayon = rayon,
+                        BinaKodu = binaKodu,
+                        Soyad = expert.Surname ?? "",
+                        Ad = expert.Name ?? "",
+                        Ata = expert.Fname ?? "",
+                        Il = examDateTime.ToString("yyyy", CultureInfo.InvariantCulture),
+                        Gun = examDateTime.ToString("dd", CultureInfo.InvariantCulture),
+                        Ay = examDateTime.ToString("MMMM", culture),
+                        FinCode = GetPersonFinCode(expert.FinCode),
+                        Vezife = (expert.Kons == true) ? "Konsertmeyster" : "Ekspert"
+                    };
+                    allRows.Add((r, exam.Id, examDateTime));
+                }
+
+                foreach (var ee in exam.ExamExperts ?? Enumerable.Empty<ExamExpert>())
+                {
+                    var expert = ee.Experts; 
+                    if (expert == null) continue;
+
+                    var fin = GetPersonFinCode(expert.FinCode);
+                    if (allRows.Any(x => x.examId == exam.Id && x.row.Soyad == expert.Surname && x.row.Ad == expert.Name && x.row.FinCode == fin))
+                        continue;
+
+                    var r = new RowEntry
+                    {
+                        Rayon = rayon,
+                        BinaKodu = binaKodu,
+                        Soyad = expert.Surname ?? "",
+                        Ad = expert.Name ?? "",
+                        Ata = expert.Fname ?? "",
+                        Il = examDateTime.ToString("yyyy", CultureInfo.InvariantCulture),
+                        Gun = examDateTime.ToString("dd", CultureInfo.InvariantCulture),
+                        Ay = examDateTime.ToString("MMMM", culture),
+                        FinCode = fin,
+                        Vezife = (expert.Kons == true) ? "Konsertmeyster" : "Ekspert"
+                    };
+                    allRows.Add((r, exam.Id, examDateTime));
+                }
+
+                foreach (var em in exam.ExamMonitors ?? Enumerable.Empty<ExamMonitor>())
+                {
+                    var monitor = em.Monitors;
+                    if (monitor == null) continue;
+
+                    var r = new RowEntry
+                    {
+                        Rayon = rayon,
+                        BinaKodu = binaKodu,
+                        Soyad = monitor.Surname ?? "",
+                        Ad = monitor.Name ?? "",
+                        Ata = monitor.Fname ?? "",
+                        Il = examDateTime.ToString("yyyy", CultureInfo.InvariantCulture),
+                        Gun = examDateTime.ToString("dd", CultureInfo.InvariantCulture),
+                        Ay = examDateTime.ToString("MMMM", culture),
+                        FinCode = GetPersonFinCode(monitor.FinCode),
+                        Vezife = MapMonitorRole(monitor.Role, monitor.RoleNavigation?.ToString())
+                    };
+                    allRows.Add((r, exam.Id, examDateTime));
+                }
+                foreach (var em in exam.ExamRepresentatives ?? Enumerable.Empty<ExamRepresentative>())
+                {
+                    var representative = em.Representative; 
+                    if (representative == null) continue;
+
+
+                    var r = new RowEntry
+                    {
+                        Rayon = rayon,
+                        BinaKodu = binaKodu,
+                        Soyad = representative.Surname ?? "",
+                        Ad = representative.Name ?? "",
+                        Ata = representative.Fname ?? "",
+                        Il = examDateTime.ToString("yyyy", CultureInfo.InvariantCulture),
+                        Gun = examDateTime.ToString("dd", CultureInfo.InvariantCulture),
+                        Ay = examDateTime.ToString("MMMM", culture),
+                        FinCode = GetPersonFinCode(representative.FinCode),
+                        Vezife = MapRepresentativeRole((byte?)representative.Type, representative.Type.ToString())
+                    };
+                    allRows.Add((r, exam.Id, examDateTime));
+                }
+            }
+
+            using var mem = new MemoryStream();
+            using (var doc = WordprocessingDocument.Create(mem, DocumentFormat.OpenXml.WordprocessingDocumentType.Document, true))
+            {
+                var main = doc.AddMainDocumentPart();
+                main.Document = new Document();
+                var body = main.Document.AppendChild(new Body());
+
+                if (!allRows.Any())
+                {
+                    body.AppendChild(new Paragraph(new Run(new Text($"Seçilmiş tarix aralığında ({start} - {end}) imtahan tapılmadı."))));
+                    main.Document.Save();
+                    return mem.ToArray();
+                }
+
+                var table = new Table();
+
+                TableProperties tblProps = new TableProperties(
+                    new TableWidth { Width = "0", Type = TableWidthUnitValues.Auto },
+                    new TableBorders(
+                        new TopBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 4 },
+                        new BottomBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 4 },
+                        new LeftBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 4 },
+                        new RightBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 4 },
+                        new InsideHorizontalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 4 },
+                        new InsideVerticalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 4 }
+                    )
+                );
+                table.AppendChild(tblProps);
+
+                var headerRow = new TableRow();
+                headerRow.AppendChild(new TableRowProperties(new TableHeader())); 
+                var headers = new[] { "Rayon", "Bina kodu", "Soyad", "Ad", "Ata", "İl", "Gün", "Ay", "Fin kodu", "Vəzifə" };
+                foreach (var h in headers)
+                {
+                    var tc = new TableCell();
+                    var p = new Paragraph(new Run(new RunProperties(new Bold()), new Text(h ?? "")));
+                    tc.Append(p);
+                    tc.Append(new TableCellProperties(new TableCellWidth { Type = TableWidthUnitValues.Auto }));
+                    headerRow.Append(tc);
+                }
+                table.AppendChild(headerRow);
+
+                foreach (var item in allRows)
+                {
+                    var r = item.row;
+                    var tr = new TableRow();
+
+                    tr.AppendChild(new TableRowProperties(new CantSplit()));
+
+                    tr.Append(CreateTableCell(r.Rayon));
+                    tr.Append(CreateTableCell(r.BinaKodu));
+                    tr.Append(CreateTableCell(r.Soyad));
+                    tr.Append(CreateTableCell(r.Ad));
+                    tr.Append(CreateTableCell(r.Ata));
+                    tr.Append(CreateTableCell(r.Il));
+                    tr.Append(CreateTableCell(r.Gun));
+                    tr.Append(CreateTableCell(r.Ay));
+                    tr.Append(CreateTableCell(r.FinCode));
+                    tr.Append(CreateTableCell(r.Vezife));
+
+                    table.AppendChild(tr);
+                }
+
+                body.AppendChild(table);
+
+                main.Document.Save();
+            }
+
+            return mem.ToArray();
+        }
+
+
+        private static TableRow CreateTableRow(string[] cells, bool isHeader = false)
+        {
+            var tr = new TableRow();
+            foreach (var text in cells)
+            {
+                var tc = new TableCell();
+                Paragraph p;
+                if (isHeader)
+                {
+                    p = new Paragraph(new Run(new RunProperties(new Bold()), new Text(text ?? "")));
+                }
+                else
+                {
+                    p = new Paragraph(new Run(new Text(text ?? "")));
+                }
+                tc.Append(p);
+                tc.Append(new TableCellProperties(new TableCellWidth { Type = TableWidthUnitValues.Auto }));
+                tr.Append(tc);
+            }
+            return tr;
+        }
+
+        private static string GetPersonFinCode(string? finCode) => string.IsNullOrWhiteSpace(finCode) ? "" : finCode!;
+
+        private static string MapMonitorRole(byte? roleId, string? roleNameFromNav)
+        {
+            if (roleId.HasValue)
+            {
+                return roleId.Value switch
+                {
+                    1 => "İmtahan rəhbəri",
+                    2 => "Nəzarətçi",
+                    4 => "Könüllü",
+                    _ => roleNameFromNav ?? $"Role_{roleId.Value}"
+                };
+            }
+            return roleNameFromNav ?? "Monitor";
+        }
+        private static string MapRepresentativeRole(byte? roleId, string? roleNameFromNav)
+        {
+            if (roleId.HasValue)
+            {
+                return roleId.Value switch
+                {
+                    1 => "DİM nümayəndəsi",
+                    2 => "GİN nümayəndəsi",
+                    _ => roleNameFromNav ?? $"Role_{roleId.Value}"
+                };
+            }
+            return roleNameFromNav ?? "Nümayəndə";
+        }
+        private static TableCell CreateTableCell(string text)
+        {
+            var tc = new TableCell();
+            var p = new Paragraph(new Run(new Text(text ?? "")));
+
+            p.ParagraphProperties = new ParagraphProperties(new KeepLines());
+
+            tc.Append(p);
+            tc.Append(new TableCellProperties(new TableCellWidth { Type = TableWidthUnitValues.Auto }));
+            return tc;
+        }
+
+        private class RowEntry
+        {
+            public string Rayon { get; set; } = "";
+            public string BinaKodu { get; set; } = "";
+            public string Soyad { get; set; } = "";
+            public string Ad { get; set; } = "";
+            public string Ata { get; set; } = "";
+            public string Il { get; set; } = "";
+            public string Gun { get; set; } = "";
+            public string Ay { get; set; } = "";
+            public string FinCode { get; set; } = "";
+            public string Vezife { get; set; } = "";
+        }
+
     }
 }

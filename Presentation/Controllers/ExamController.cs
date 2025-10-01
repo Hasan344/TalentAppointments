@@ -34,7 +34,14 @@ namespace ForQab.Presentation.Controllers
         {
             var sectionId = await GetCurrentSectionIdAsync();
             var exams = await _examService.GetExamsBySectionIdAsync(sectionId, examBuildingId);
-            var examBuildings = await _context.ExamBuildings.ToListAsync();
+            var examBuildings = await _context.ExamBuildings.ToListAsync(); 
+            var buildings = await _context.ExamBuildings
+                        .Where(b => b.SectionId == sectionId || sectionId == null)
+                        .OrderBy(b => b.Name)
+                        .Select(b => new { b.Id, b.Name })
+                        .ToListAsync();
+
+            ViewBag.ExamBuilding = buildings;
             ViewBag.Section = sectionId;
             if (sectionId != null)
             {
@@ -123,23 +130,32 @@ namespace ForQab.Presentation.Controllers
 
             return View(viewModel);
         }
-        //[HttpGet]
-        //public async Task<IActionResult> ChangeExpert(int examId, int expertId)
-        //{
-        //    var viewModel = await _examService.GetChangeExpertViewModelAsync(examId, expertId);
-        //    if (viewModel == null) return NotFound();
-
-        //    return View(viewModel);
-        //}
-
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> ChangeExpert(int examId, int expertId)
         {
-            var success = await _examService.ChangeExpertAsync(examId, expertId);
+            var viewModel = await _examService.GetChangeExpertViewModelAsync(examId, expertId);
+            if (viewModel == null) return NotFound();
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeExpert(ChangeExpertViewModel viewModel)
+        {
+            var success = await _examService.ChangeExpertAsync(viewModel);
             if (!success) return NotFound();
 
-            return RedirectToAction("Details", new { id = examId });
+            return RedirectToAction("Details", new { id = viewModel.ExamId });
         }
+
+        //[HttpPost]
+        //public async Task<IActionResult> ChangeExpert(int examId, int expertId)
+        //{
+        //    var success = await _examService.ChangeExpertAsync(examId, expertId);
+        //    if (!success) return NotFound();
+
+        //    return RedirectToAction("Details", new { id = examId });
+        //}
 
         public async Task<IActionResult> ChangeMonitor(int examId, int monitorId)
         {
@@ -1170,6 +1186,14 @@ namespace ForQab.Presentation.Controllers
             var fileContent = await _examService.GetExamDataForExport(selectedDate, (int)sectionId);
             return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"ExamData_{selectedDate}.xlsx");
         }
+        [HttpPost]
+
+        public async Task<IActionResult> ExportExamDataForFoodAndWater(DateOnly startDate, DateOnly endDate)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var fileContent = await _examService.GetExamDataForFoodAndWater(startDate, endDate, (int)sectionId);
+            return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Yemək üçün {startDate}-{endDate}.xlsx");
+        }
 
         [HttpPost]
         public IActionResult ExportBadges(int examId)
@@ -1231,6 +1255,26 @@ namespace ForQab.Presentation.Controllers
             }
 
             return RedirectToAction("Details", new { id = examId });
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ExportFoodAndWaterRange(DateTime startDate, DateTime endDate, int examBuildingId)
+        {
+            // Basit validasyon
+            if (startDate.Date > endDate.Date)
+            {
+                TempData["ExportError"] = "Başlangıç tarixi bitiş tarixindən böyük ola bilməz.";
+                return RedirectToAction("Index");
+            }
+
+            var sectionId = await GetCurrentSectionIdAsync();
+            var start = DateOnly.FromDateTime(startDate.Date);
+            var end = DateOnly.FromDateTime(endDate.Date);
+
+            var bytes = await _examService.ExportFoodAndWaterRangeAsync(start, end, sectionId, examBuildingId);
+
+            var fileName = $"YemekSu_{start.ToString("yyyyMMdd")}_{end.ToString("yyyyMMdd")}.docx";
+            return File(bytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
         }
 
     }

@@ -38,6 +38,12 @@
                 </div>
 
                 <div class="mb-3">
+                    <label asp-for="SerialPrefix" class="form-label">Seriya</label>
+                    <input asp-for="SerialPrefix" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                    <span asp-validation-for="SerialPrefix" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
                     <label asp-for="Serial" class="form-label">Seriya nömrəsi</label>
                     <input asp-for="Serial" class="form-control" style="background-color: #23272a; color: #ffffff;" />
                     <span asp-validation-for="Serial" class="text-danger"></span>

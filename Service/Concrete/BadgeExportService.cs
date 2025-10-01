@@ -127,7 +127,7 @@
                 var body = new Body();
                 mainPart.Document.AppendChild(body);
 
-                int badgesPerRow = 2; // Keep 2 badges per row (2 columns)
+                int badgesPerRow = 2; 
                 var table = new Table();
                 var logoBytes = LoadLogoBytes();
 

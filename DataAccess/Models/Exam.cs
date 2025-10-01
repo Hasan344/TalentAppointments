@@ -63,6 +63,7 @@ public partial class Exam
 
     public virtual ICollection<ExamExpertSubProfession> ExamExpertSubProfessions { get; set; } = new List<ExamExpertSubProfession>();
     public virtual ICollection<ExamDegree> ExamDegrees { get; set; } = new List<ExamDegree>();
+    public virtual ICollection<ExamExpert> ExamExperts { get; set; } = new List<ExamExpert>();
     public virtual ICollection<ExamSubject> ExamSubjects { get; set; } = new List<ExamSubject>();
 
     [ForeignKey("ExamId")]

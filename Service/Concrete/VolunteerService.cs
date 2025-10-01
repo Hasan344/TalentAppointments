@@ -111,9 +111,9 @@ namespace ForQab.Service
                     var districts = await _context.Districts.ToListAsync();
                     var genders = await _context.Genders.ToListAsync();
 
-                    foreach (var row in worksheet.RowsUsed().Skip(1)) // Başlığı atla
+                    foreach (var row in worksheet.RowsUsed().Skip(1)) 
                     {
-                        string finCode = row.Cell(8).IsEmpty() ? null : row.Cell(8).GetString();
+                        string finCode = row.Cell(9).IsEmpty() ? null : row.Cell(9).GetString();
                          
                         if (!string.IsNullOrEmpty(finCode))
                         {
@@ -123,29 +123,29 @@ namespace ForQab.Service
                                 return $"'{finCode}' FinCode-a sahib istifadəçi artıq mövcuddur. İdxala icazə verilmir.";
                             }
                         }
-                        string genderName = row.Cell(5).GetValue<string>();
                         string districtName = row.Cell(1).GetString();
-                        byte? genderId = genders.FirstOrDefault(g => g.Name == genderName)?.Id;
                         int? districtId = districts.FirstOrDefault(d => d.Name == districtName)?.Id;
 
                         var monitor = new Monitor
                         {
+
+                            District = districtId,
                             Surname = row.Cell(2).GetString(),
                             Name = row.Cell(3).GetString(),
                             Fname = row.Cell(4).GetString(),
+                            Gender = row.Cell(5).GetValue<byte>(),
+                            SerialPrefix = row.Cell(6).IsEmpty() ? null : row.Cell(6).GetString(),
+                            Serial = row.Cell(7).IsEmpty() ? null : row.Cell(7).GetString(),
+                            TelIs = row.Cell(8).IsEmpty() ? null : row.Cell(8).GetString(),
+                            FinCode = finCode,
+                            BirthDate = row.Cell(10).IsEmpty() ? null
+                                : DateOnly.ParseExact(row.Cell(11).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                            Uni = row.Cell(11).IsEmpty() ? null : row.Cell(10).GetString(),
                             Archive = 0,
                             Status = 0,
                             AssignmentCount = 0,
-                            Gender = row.Cell(5).GetValue<byte>(),
                             Role = 4,
-                            BirthDate = row.Cell(9).IsEmpty() ? null
-                                : DateOnly.ParseExact(row.Cell(9).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
-                            TelIs = row.Cell(7).IsEmpty() ? null : row.Cell(7).GetString(),
-                            FinCode = finCode,
-                            Serial = row.Cell(6).IsEmpty() ? null : row.Cell(6).GetString(),
                             SectionId = 1,
-                            District = districtId,
-                            Uni = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
                         };
 
                         monitors.Add(monitor);
@@ -177,6 +177,7 @@ namespace ForQab.Service
                 new DataColumn("Təvəllüdü"),
                 new DataColumn("Telefonu"),
                 new DataColumn("FİN kod"),
+                new DataColumn("Seriya nömrəsi"),
                 new DataColumn("Seriya"),
                 new DataColumn("İstiqamət"),
                 new DataColumn("Rayon"),
@@ -198,6 +199,7 @@ namespace ForQab.Service
                     monitor.BirthDate,
                     monitor.TelIs,
                     monitor.FinCode,
+                    monitor.SerialPrefix,
                     monitor.Serial,
                     monitor.Section?.Name,
                     monitor.DistrictNavigation?.Name,
@@ -212,7 +214,7 @@ namespace ForQab.Service
                 using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);
-                    return stream.ToArray(); // Byte dizisi olarak döndürüyoruz
+                    return stream.ToArray(); 
                 }
             }
         }
