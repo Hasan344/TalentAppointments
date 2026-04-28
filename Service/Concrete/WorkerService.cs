@@ -74,7 +74,7 @@ namespace ForQab.Service
                 query = query.Where(m => m.District == district.Value).ToList();
             }
             if (startYear.HasValue)
-                query = query.Where(m => m.BirthDate.Value.Year >= startYear.Value).ToList(); // Tarixi ilin başlanğıcına çeviririk.
+                query = query.Where(m => m.BirthDate.Value.Year >= startYear.Value).ToList(); 
             if (endYear.HasValue)
                 query = query.Where(m => m.BirthDate.Value.Year <= endYear.Value).ToList();
 
@@ -158,7 +158,7 @@ namespace ForQab.Service
                     var workerTypes = await _context.WorkerTypes.ToListAsync();
                     var examBuildings = await _context.ExamBuildings.ToListAsync();
 
-                    foreach (var row in worksheet.RowsUsed().Skip(1)) // Başlığı atla
+                    foreach (var row in worksheet.RowsUsed().Skip(1)) 
                     {
                         string finCode = row.Cell(12).IsEmpty() ? null : row.Cell(12).GetString();
 
@@ -347,7 +347,7 @@ namespace ForQab.Service
                 query = query.Where(m => m.District == district.Value).ToList();
             }
             if (startYear.HasValue)
-                query = query.Where(m => m.BirthDate.Value.Year >= startYear.Value).ToList(); // Tarixi ilin başlanğıcına çeviririk.
+                query = query.Where(m => m.BirthDate.Value.Year >= startYear.Value).ToList(); 
             if (endYear.HasValue)
                 query = query.Where(m => m.BirthDate.Value.Year <= endYear.Value).ToList();
 

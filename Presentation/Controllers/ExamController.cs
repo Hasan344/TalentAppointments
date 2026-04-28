@@ -10,6 +10,8 @@ using ForQab.Presentation.ViewModels;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using ForQab.Service.Concrete;
+using ForQab.Migrations;
+using DocumentFormat.OpenXml.Bibliography;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -30,16 +32,32 @@ namespace ForQab.Presentation.Controllers
             _badgeExportService = badgeExportService;
         }
 
-        public async Task<IActionResult> Index(int? examBuildingId)
+        public async Task<IActionResult> Index(int? examBuildingId,int? year)
         {
+            if (!year.HasValue)
+            {
+                year = DateTime.Now.Year;
+            }
+            else if (year == 0)
+            {
+                year = null; 
+            }
             var sectionId = await GetCurrentSectionIdAsync();
-            var exams = await _examService.GetExamsBySectionIdAsync(sectionId, examBuildingId);
+            var exams = await _examService.GetExamsBySectionIdAsync(sectionId, examBuildingId, year);
             var examBuildings = await _context.ExamBuildings.ToListAsync(); 
             var buildings = await _context.ExamBuildings
                         .Where(b => b.SectionId == sectionId || sectionId == null)
                         .OrderBy(b => b.Name)
                         .Select(b => new { b.Id, b.Name })
-                        .ToListAsync();
+                        .ToListAsync(); 
+            var years = await _context.Exams
+        .Select(e => e.ExamDate.Year)
+        .Distinct()
+        .OrderByDescending(y => y)
+        .ToListAsync();
+
+            ViewBag.Years = years;
+            ViewBag.SelectedYear = year;
 
             ViewBag.ExamBuilding = buildings;
             ViewBag.Section = sectionId;
@@ -54,16 +72,16 @@ namespace ForQab.Presentation.Controllers
         }
 
 
-        public async Task<IActionResult> Assesments(int? examBuildingId)
+        public async Task<IActionResult> Assesments(int? examBuildingId, int? year)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var exams = await _examService.GetExamsBySectionIdAsyncForAssesment(sectionId, examBuildingId);
+            var exams = await _examService.GetExamsBySectionIdAsyncForAssesment(sectionId, examBuildingId, year);
             return View(exams);
         }
-        public async Task<IActionResult> Appeals(int? examBuildingId)
+        public async Task<IActionResult> Appeals(int? examBuildingId, int? year)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var exams = await _examService.GetExamsBySectionIdAsyncForAppeal(sectionId, examBuildingId);
+            var exams = await _examService.GetExamsBySectionIdAsyncForAppeal(sectionId, examBuildingId, year);
             return View(exams);
         }
 
@@ -643,23 +661,29 @@ namespace ForQab.Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ExportToWord()
+        public async Task<IActionResult> ExportToWord(int? year)
         {
-            var memoryStream = await _examService.ExportExamScheduleToWord();
+            var memoryStream = await _examService.ExportExamScheduleToWord(year);
             return File(memoryStream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Təqvim qabiliyyət.docx");
+        }
+        [HttpGet]
+        public async Task<IActionResult> ExportToWordForSeason(int? year)
+        {
+            var memoryStream = await _examService.ExportExamScheduleToWordForSeason(year);
+            return File(memoryStream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "T-İmtahan.docx");
         }
 
         [HttpGet]
-        public async Task<IActionResult> ExportToWordCalendar()
+        public async Task<IActionResult> ExportToWordCalendar(int? year)
         {
-            var memoryStream = await _examService.ExportExamCalendarToWord();
+            var memoryStream = await _examService.ExportExamCalendarToWord(year);
             return File(memoryStream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Təqvim qabiliyyət üçün.docx");
         }
 
         [HttpGet]
-        public async Task<IActionResult> ExportToWordForLetter()
+        public async Task<IActionResult> ExportToWordForLetter(int? year)
         {
-            var memoryStream = await _examService.ExportExamScheduleToWordForLetter();
+            var memoryStream = await _examService.ExportExamScheduleToWordForLetter(year);
             return File(memoryStream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Məktuba əlavə təqvim.docx");
         }
 
@@ -869,10 +893,10 @@ namespace ForQab.Presentation.Controllers
             return File(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"Könüllü qeydiyyat vərəqi (İmtahan Id:{examId}).docx");
         }
 
-        public async Task<IActionResult> ExportToExcel()
+        public async Task<IActionResult> ExportToExcel(int? year)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var exams = await _examService.GetExamsBySectionIdAsync(sectionId,null);
+            var exams = await _examService.GetExamsBySectionIdAsync(sectionId,null,year);
 
             var dt = new DataTable("Exams");
             dt.Columns.AddRange(new DataColumn[]
@@ -1276,6 +1300,27 @@ namespace ForQab.Presentation.Controllers
             var fileName = $"YemekSu_{start.ToString("yyyyMMdd")}_{end.ToString("yyyyMMdd")}.docx";
             return File(bytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
         }
+        [HttpGet("export-word")]
+        public async Task<IActionResult> ExportExamsForFoodToWord(
+    [FromQuery] DateTime start,
+    [FromQuery] DateTime end)
+        {
+            try
+            {
+                var wordDocument = await _examService.ExportFoodWaterSimpleReportAsync(
+                    DateOnly.FromDateTime(start),
+                    DateOnly.FromDateTime(end));
 
+                return File(
+                    wordDocument,
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    $"Yemek_Su_Raporu_{DateTime.Now:yyyyMMdd_HHmmss}.docx"
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Rapor oluşturulurken hata: {ex.Message}");
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using ForQab.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -110,6 +111,60 @@ public partial class MyDbContext : DbContext
             var connectionString = configuration.GetConnectionString("DefaultConnection");
             optionsBuilder.UseSqlServer(connectionString);
         }
+    }
+    public override int SaveChanges()
+    {
+        CapitalizeNames();
+        return base.SaveChanges();
+    }
+
+    public override async Task<int> SaveChangesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        CapitalizeNames();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void CapitalizeNames()
+    {
+        CapitalizeMonitorNames();
+        CapitalizeExpertNames();
+    }
+
+    // MONITORS
+    private void CapitalizeMonitorNames()
+    {
+        var entries = ChangeTracker.Entries<Monitor>()
+            .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+
+        foreach (var entry in entries)
+        {
+            entry.Entity.Name = ToProper(entry.Entity.Name);
+            entry.Entity.Surname = ToProper(entry.Entity.Surname);
+            entry.Entity.Fname = ToProper(entry.Entity.Fname);
+        }
+    }
+
+    // EXPERTS
+    private void CapitalizeExpertNames()
+    {
+        var entries = ChangeTracker.Entries<Expert>()
+            .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+
+        foreach (var entry in entries)
+        {
+            entry.Entity.Name = ToProper(entry.Entity.Name);
+            entry.Entity.Surname = ToProper(entry.Entity.Surname);
+            entry.Entity.Fname = ToProper(entry.Entity.Fname);
+        }
+    }
+
+    private string ToProper(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return text;
+
+        return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(text.ToLower());
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

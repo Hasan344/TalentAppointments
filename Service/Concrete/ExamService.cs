@@ -14,6 +14,14 @@ using Monitor = ForQab.DataAccess.Models.Monitor;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Threading;
+using Xceed.Document.NET;
+using Xceed.Words.NET;
+using Table = DocumentFormat.OpenXml.Wordprocessing.Table;
+using Document = DocumentFormat.OpenXml.Wordprocessing.Document;
+using Paragraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
+using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
+using Justification = DocumentFormat.OpenXml.Wordprocessing.Justification;
+using DocumentFormat.OpenXml.Bibliography;
 
 namespace ForQab.Service
 {
@@ -298,7 +306,7 @@ namespace ForQab.Service
             if (exam == null) return false;
 
             var currentExamMonitor = await _examMonitorRepository.GetByExamAndMonitorAsync(model.ExamId, model.CurrentMonitorId);
-            int? roomId = currentExamMonitor?.RoomId; 
+            int? roomId = currentExamMonitor?.RoomId;
 
             if (currentExamMonitor != null)
             {
@@ -312,11 +320,9 @@ namespace ForQab.Service
             {
                 ExamId = model.ExamId,
                 MonitorId = model.NewMonitorId,
-                RoomId = roomId 
+                RoomId = roomId
             };
 
-            currentMonitor.AssignmentCount--;
-            newMonitor.AssignmentCount++;
             await _examMonitorRepository.AddAsync(newExamMonitor);
             await _examRepository.SaveAsync();
             return true;
@@ -349,7 +355,7 @@ namespace ForQab.Service
                         .IsExpertAssignedToExamAsync(examId, newExpert.Id);
                     if (isNewExpertAssigned)
                     {
-                        return false; 
+                        return false;
                     }
 
                     var newExamExpertSubProfessions = subProfessions.Select(sp => new ExamExpertSubProfession
@@ -367,8 +373,6 @@ namespace ForQab.Service
                     exam.Experts.Add(newExpert);
                     await _examExpertSubProfessionRepository.AddSubProfessionsAsync(newExamExpertSubProfessions);
 
-                    currentExpert.AssignmentCount--;
-                    newExpert.AssignmentCount++;
 
                     await _examRepository.SaveAsync();
                     await transaction.CommitAsync();
@@ -526,19 +530,19 @@ namespace ForQab.Service
             return await _examRepository.GetByIdAsync(id);
         }
 
-        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int? examBuildingId)
+        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int? examBuildingId, int? year)
         {
-            return await _examRepository.GetExamsBySectionIdAsync(sectionId, 1, examBuildingId);
+            return await _examRepository.GetExamsBySectionIdAsync(sectionId, 1, year, examBuildingId);
         }
 
-        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAssesment(int? sectionId, int? examBuildingId)
+        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAssesment(int? sectionId, int? examBuildingId, int? year)
         {
-            return await _examRepository.GetExamsBySectionIdAsync(sectionId, 2, examBuildingId);
+            return await _examRepository.GetExamsBySectionIdAsync(sectionId, 2, year, examBuildingId);
         }
 
-        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAppeal(int? sectionId, int? examBuildingId)
+        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAppeal(int? sectionId, int? examBuildingId, int? year)
         {
-            return await _examRepository.GetExamsBySectionIdAsync(sectionId, 3, examBuildingId);
+            return await _examRepository.GetExamsBySectionIdAsync(sectionId, 3, year, examBuildingId);
         }
         public async Task<IEnumerable<SubProfession>> GetSubprofessionsBySectionIdAsync(int? sectionId)
         {
@@ -604,23 +608,27 @@ namespace ForQab.Service
         {
             await _examRepository.AssignWorkersToExamAsync(examId);
         }
-        
+
         public async Task AssignVolunteersToExamAsync(int examId)
         {
             await _examRepository.AssignVolunteersToExamAsync(examId);
         }
 
-        public Task<MemoryStream> ExportExamScheduleToWord()
+        public Task<MemoryStream> ExportExamScheduleToWord(int? year)
         {
-            return _examRepository.ExportExamScheduleToWord();
+            return _examRepository.ExportExamScheduleToWord(year);
         }
-        public Task<MemoryStream> ExportExamCalendarToWord()
+        public Task<MemoryStream> ExportExamScheduleToWordForSeason(int? year)
         {
-            return _examRepository.ExportExamCalendarToWord();
+            return _examRepository.ExportExamScheduleToWordForSeason(year);
         }
-        public Task<MemoryStream> ExportExamScheduleToWordForLetter()
+        public Task<MemoryStream> ExportExamCalendarToWord(int? year)
         {
-            return _examRepository.ExportExamScheduleToWordForLetter();
+            return _examRepository.ExportExamCalendarToWord(year);
+        }
+        public Task<MemoryStream> ExportExamScheduleToWordForLetter(int? year)
+        {
+            return _examRepository.ExportExamScheduleToWordForLetter(year);
         }
 
         public Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds)
@@ -697,7 +705,7 @@ namespace ForQab.Service
                 );
                 table.AppendChild(tblProp);
 
-                var roomHeader = exam.SectionId == 1  ? "Məntəqə kodu": "Zalın kodu";
+                var roomHeader = exam.SectionId == 1 ? "Məntəqə kodu" : "Zalın kodu";
 
                 var headerRow = new TableRow();
                 headerRow.Append(CreateTableCell("S/s", true, 1000));
@@ -708,7 +716,7 @@ namespace ForQab.Service
                 table.Append(headerRow);
 
                 int rowIndex = 1;
-                if(exam.SectionId != 3 && exam.SectionId != 4 && exam.SectionId != 6)
+                if (exam.SectionId != 3 && exam.SectionId != 4 && exam.SectionId != 6)
                 {
                     foreach (var expert in exam.ExamExpertSubProfessions)
                     {
@@ -716,13 +724,13 @@ namespace ForQab.Service
                         row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
                         row.Append(CreateTableCell(expert.ExamRoom?.Name, false, 1500));
                         row.Append(CreateTableCell($"Ekspert-{expert.SubProfession?.Name} ", false, 3000));
-                        row.Append(CreateTableCell( expert.Expert.Surname + " " + expert.Expert.Name + " " + expert.Expert.Fname, false, 6000));
+                        row.Append(CreateTableCell(expert.Expert.Surname + " " + expert.Expert.Name + " " + expert.Expert.Fname, false, 6000));
                         row.Append(CreateTableCell("", false, 2000));
                         table.Append(row);
                         rowIndex++;
                     }
                 }
-                
+
 
                 foreach (var monitor in exam.ExamMonitors.Where(em => em.Monitors.Role == 2))
                 {
@@ -730,7 +738,7 @@ namespace ForQab.Service
                     row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
                     row.Append(CreateTableCell(monitor.ExamRooms?.Name, false, 1500));
                     row.Append(CreateTableCell("Nəzarətçi ", false, 3000));
-                    row.Append(CreateTableCell( monitor.Monitors.Surname + " " + monitor.Monitors.Name + " " + monitor.Monitors.Fname, false, 6000));
+                    row.Append(CreateTableCell(monitor.Monitors.Surname + " " + monitor.Monitors.Name + " " + monitor.Monitors.Fname, false, 6000));
                     row.Append(CreateTableCell("", false, 2000));
                     table.Append(row);
                     rowIndex++;
@@ -752,7 +760,7 @@ namespace ForQab.Service
                     row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
                     row.Append(CreateTableCell(" ", false, 1500));
                     row.Append(CreateTableCell("DİM Nümayəndəsi", false, 3000));
-                    row.Append(CreateTableCell( representative.Surname + " " + representative.Name + " " + representative.Fname, false, 6000));
+                    row.Append(CreateTableCell(representative.Surname + " " + representative.Name + " " + representative.Fname, false, 6000));
                     row.Append(CreateTableCell("", false, 2000));
                     table.Append(row);
                     rowIndex++;
@@ -783,8 +791,8 @@ namespace ForQab.Service
                 body.AppendChild(table);
                 body.AppendChild(CreateItalicParagraph("Qeyd. İmtahana gəlməyənlərin qarşısında (imza bölməsində) iştirakçıların imtahan binasına buraxılışı başlandıqdan sonra “gəlmədi” yazılır.", 10));
 
-                    body.AppendChild(CreateCenteredBoldParagraph("\nÜmumi imtahan rəhbəri: _________ / _______________________ / ", 12));
-               
+                body.AppendChild(CreateCenteredBoldParagraph("\nÜmumi imtahan rəhbəri: _________ / _______________________ / ", 12));
+
 
 
                 mainPart.Document.Save();
@@ -812,15 +820,16 @@ namespace ForQab.Service
                 var mainPart = wordDocument.AddMainDocumentPart();
                 mainPart.Document = new Document();
                 var body = mainPart.Document.AppendChild(new Body());
-                if(exam.SectionId == 2)
+                if (exam.SectionId == 2)
                 {
 
                     body.AppendChild(CreateCenteredBoldParagraph("QABİLİYYƏT İMTAHANI KOMİSSİYASININ QEYDİYYAT VƏRƏQİ", 16));
                     body.AppendChild(CreateMixedBoldParagraph("İmtahanın adı: ", "\u00A0" + exam.Name, 14));
                     body.AppendChild(CreateMixedBoldParagraph("Qiymətləndirmə binası: ", "\u00A0" + exam.ExamBuilding?.Code + " " + exam.ExamBuilding?.Name, 14));
                     body.AppendChild(CreateMixedBoldParagraph("Tarix: ", "\u00A0" + exam.ExamDate, 14));
-                }else
-                body.AppendChild(CreateCenteredBoldParagraph("İMTAHANDAKI EKSPERTLƏRİN QEYDİYYAT VƏRƏQİ", 16));
+                }
+                else
+                    body.AppendChild(CreateCenteredBoldParagraph("İMTAHANDAKI EKSPERTLƏRİN QEYDİYYAT VƏRƏQİ", 16));
                 body.AppendChild(CreateMixedBoldParagraph("İmtahanın adı: ", "\u00A0" + exam.Name, 14));
                 body.AppendChild(CreateMixedBoldParagraph("İmtahan binası: ", "\u00A0" + exam.ExamBuilding?.Code + " " + exam.ExamBuilding?.Name, 14));
                 body.AppendChild(CreateMixedBoldParagraph("İmtahan tarixi: ", "\u00A0" + exam.ExamDate + " Saat " + exam.StartTime, 14));
@@ -850,18 +859,18 @@ namespace ForQab.Service
                 table.Append(headerRow);
 
                 int rowIndex = 1;
-                    foreach (var expert in exam.ExamExpertSubProfessions)
-                    {
-                        var row = new TableRow();
-                        row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
-                        row.Append(CreateTableCell(expert.Expert.Kons == false ? expert.ExamRoom?.Name : "", false, 1500));
-                        var vez = expert.Expert.Kons == false ? "Ekspert" : "Konsertmeyster";
-                        row.Append(CreateTableCell($"{vez}-{expert.SubProfession?.Name} ", false, 3000));
-                        row.Append(CreateTableCell(expert.Expert.Name + " " + expert.Expert.Surname + " " + expert.Expert.Fname, false, 6000));
-                        row.Append(CreateTableCell("", false, 2000));
-                        table.Append(row);
-                        rowIndex++;
-                    }
+                foreach (var expert in exam.ExamExpertSubProfessions)
+                {
+                    var row = new TableRow();
+                    row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
+                    row.Append(CreateTableCell(expert.Expert.Kons == false ? expert.ExamRoom?.Name : "", false, 1500));
+                    var vez = expert.Expert.Kons == false ? "Ekspert" : "Konsertmeyster";
+                    row.Append(CreateTableCell($"{vez}-{expert.SubProfession?.Name} ", false, 3000));
+                    row.Append(CreateTableCell(expert.Expert.Name + " " + expert.Expert.Surname + " " + expert.Expert.Fname, false, 6000));
+                    row.Append(CreateTableCell("", false, 2000));
+                    table.Append(row);
+                    rowIndex++;
+                }
 
                 body.AppendChild(table);
                 body.AppendChild(CreateItalicParagraph("Qeyd. İmtahana gəlməyən ekspertlərin qarşısında (imza bölməsində) iştirakçıların imtahan binasına buraxılışı başlandıqdan sonra “gəlmədi” yazılır.", 10));
@@ -959,11 +968,11 @@ namespace ForQab.Service
             return new Paragraph(
                 new Run(
                     new RunProperties(new Bold(), new FontSize { Val = (fontSize * 2).ToString() }),
-                    new Text(boldText) 
+                    new Text(boldText)
                 ),
                 new Run(
                     new RunProperties(new FontSize { Val = (fontSize * 2).ToString() }),
-                    new Text(normalText) 
+                    new Text(normalText)
                 )
             );
         }
@@ -1075,7 +1084,7 @@ namespace ForQab.Service
                                 RoomName = eesp.ExamRoom?.Name,
                                 IsAttended = eesp.IsAttended
                             }).ToList(),
-                    IsAttended = e.ExamExpertSubProfessions.Any(eesp => eesp.IsAttended == 1) ? 1 : 0 
+                    IsAttended = e.ExamExpertSubProfessions.Any(eesp => eesp.IsAttended == 1) ? 1 : 0
                 }).ToList(),
                 Monitors = exam.Monitors.Select(m => new MonitorViewModel
                 {
@@ -1132,7 +1141,6 @@ namespace ForQab.Service
             foreach (var expert in expertsToRemove)
             {
                 exam.Experts.Remove(expert);
-                expert.AssignmentCount--;
             }
             _examExpertSubProfessionRepository.RemoveRange(examExpertSubProfessions);
 
@@ -1148,7 +1156,6 @@ namespace ForQab.Service
             foreach (var monitor in monitorsToRemove)
             {
                 exam.Monitors.Remove(monitor);
-                monitor.AssignmentCount--;
             }
 
             await _examRepository.SaveAsync();
@@ -1219,7 +1226,7 @@ namespace ForQab.Service
             {
                 var monitors = exam.Monitors
                                    .Where(m => !m.MonitorLogs.Any(log => log.ExamId == exam.Id && log.Kind == 0));
-                foreach (var monitor in monitors) 
+                foreach (var monitor in monitors)
                 {
                     worksheet.Cell(row, 1).Value = monitor.VNum;
                     worksheet.Cell(row, 2).Value = exam.DistrictId.ToString();
@@ -1227,10 +1234,11 @@ namespace ForQab.Service
                     worksheet.Cell(row, 4).Value = monitor.Name;
                     worksheet.Cell(row, 5).Value = monitor.Fname;
                     worksheet.Cell(row, 6).Value = exam.ExamBuilding.Code;
-                    if(exam.ExamDegrees.Select(ed => ed.DegreeId).FirstOrDefault() == 2)
+                    if (exam.ExamDegrees.Select(ed => ed.DegreeId).FirstOrDefault() == 2)
                     {
                         worksheet.Cell(row, 7).Value = "36";
-                    }else 
+                    }
+                    else
                     {
                         worksheet.Cell(row, 7).Value = exam.Section?.SectCode.ToString();
                     }
@@ -1326,7 +1334,7 @@ namespace ForQab.Service
                 }
                 if (exam.SectionId != 1)
                 {
-                    foreach (var expert in exam.Experts) 
+                    foreach (var expert in exam.Experts)
                     {
                         worksheet.Cell(row, 1).Value = "";
                         worksheet.Cell(row, 2).Value = exam.DistrictId.ToString();
@@ -1369,7 +1377,7 @@ namespace ForQab.Service
                         }
                         else
                         {
-                            worksheet.Cell(row, 15).Value = ""; 
+                            worksheet.Cell(row, 15).Value = "";
                         }
                         if (!string.IsNullOrEmpty(expert?.Serial))
                         {
@@ -1396,7 +1404,7 @@ namespace ForQab.Service
                         row++;
                     }
                 }
-                foreach (var monitor in exam.Representatives) 
+                foreach (var monitor in exam.Representatives)
                 {
                     worksheet.Cell(row, 1).Value = "";
                     worksheet.Cell(row, 2).Value = exam.DistrictId.ToString();
@@ -1418,7 +1426,7 @@ namespace ForQab.Service
                     worksheet.Cell(row, 11).Value = "";
 
                     worksheet.Cell(row, 12).Value = "";
-                    worksheet.Cell(row, 13).Value =  "";
+                    worksheet.Cell(row, 13).Value = "";
                     worksheet.Cell(row, 14).Value = monitor.Gender.ToString();
                     if (!string.IsNullOrEmpty(monitor?.Serial))
                     {
@@ -1428,7 +1436,7 @@ namespace ForQab.Service
                     }
                     else
                     {
-                        worksheet.Cell(row, 15).Value = ""; 
+                        worksheet.Cell(row, 15).Value = "";
                     }
                     if (!string.IsNullOrEmpty(monitor?.Serial))
                     {
@@ -1475,7 +1483,7 @@ namespace ForQab.Service
                 .Include(e => e.Section)
                 .Include(e => e.ExamBuilding)
                 .Include(e => e.Representatives)
-                .Where(e => e.ExamDate >= startDate && e.ExamDate <= endDate && e.SectionId == sectionId )
+                .Where(e => e.ExamDate >= startDate && e.ExamDate <= endDate && e.SectionId == sectionId)
                 .ToList();
 
             using var workbook = new XLWorkbook();
@@ -1572,71 +1580,71 @@ namespace ForQab.Service
                     worksheet.Cell(row, 25).Value = exam.Shift.ToString();
                     row++;
                 }
-                    foreach (var expert in exam.Experts)
+                foreach (var expert in exam.Experts)
+                {
+                    worksheet.Cell(row, 1).Value = "";
+                    worksheet.Cell(row, 2).Value = exam.DistrictId.ToString();
+                    worksheet.Cell(row, 3).Value = expert.Surname;
+                    worksheet.Cell(row, 4).Value = expert.Name;
+                    worksheet.Cell(row, 5).Value = expert.Fname;
+                    worksheet.Cell(row, 6).Value = exam.ExamBuilding.Code;
+                    if (exam.ExamDegrees.Select(ed => ed.DegreeId).FirstOrDefault() == 2)
                     {
-                        worksheet.Cell(row, 1).Value = "";
-                        worksheet.Cell(row, 2).Value = exam.DistrictId.ToString();
-                        worksheet.Cell(row, 3).Value = expert.Surname;
-                        worksheet.Cell(row, 4).Value = expert.Name;
-                        worksheet.Cell(row, 5).Value = expert.Fname;
-                        worksheet.Cell(row, 6).Value = exam.ExamBuilding.Code;
-                        if (exam.ExamDegrees.Select(ed => ed.DegreeId).FirstOrDefault() == 2)
-                        {
-                            worksheet.Cell(row, 7).Value = "36";
-                        }
-                        else
-                        {
-                            worksheet.Cell(row, 7).Value = exam.Section?.SectCode.ToString();
-                        }
-                        worksheet.Cell(row, 8).Value = exam.ExamDate.Year.ToString();
-                        worksheet.Cell(row, 9).Value = exam.ExamDate.Day.ToString();
-                        worksheet.Cell(row, 10).Value = exam.ExamDate.Month.ToString();
+                        worksheet.Cell(row, 7).Value = "36";
+                    }
+                    else
+                    {
+                        worksheet.Cell(row, 7).Value = exam.Section?.SectCode.ToString();
+                    }
+                    worksheet.Cell(row, 8).Value = exam.ExamDate.Year.ToString();
+                    worksheet.Cell(row, 9).Value = exam.ExamDate.Day.ToString();
+                    worksheet.Cell(row, 10).Value = exam.ExamDate.Month.ToString();
 
-                        worksheet.Cell(row, 11).Value = (bool)expert.Kons ? "Konsertmeyster" : "Ekspert";
+                    worksheet.Cell(row, 11).Value = (bool)expert.Kons ? "Konsertmeyster" : "Ekspert";
 
                     var latestContract = expert.Contracts
                             .OrderByDescending(c => c.Id)
                             .FirstOrDefault();
 
-                        worksheet.Cell(row, 12).Value = latestContract?.Date.ToString("dd.MM.yyyy") ?? "";
-                        worksheet.Cell(row, 13).Value = latestContract?.Number ?? "";
-                        worksheet.Cell(row, 14).Value = expert.Gender.ToString();
-                        if (!string.IsNullOrEmpty(expert?.Serial))
-                        {
-                            worksheet.Cell(row, 15).Value = expert.Serial.StartsWith("AA") || expert.Serial.Length == 7
-                                                            ? "AA"
-                                                            : (expert.Serial.Length == 8 || expert.Serial.StartsWith("AZE") ? "AZE" : null);
+                    worksheet.Cell(row, 12).Value = latestContract?.Date.ToString("dd.MM.yyyy") ?? "";
+                    worksheet.Cell(row, 13).Value = latestContract?.Number ?? "";
+                    worksheet.Cell(row, 14).Value = expert.Gender.ToString();
+                    if (!string.IsNullOrEmpty(expert?.Serial))
+                    {
+                        worksheet.Cell(row, 15).Value = expert.Serial.StartsWith("AA") || expert.Serial.Length == 7
+                                                        ? "AA"
+                                                        : (expert.Serial.Length == 8 || expert.Serial.StartsWith("AZE") ? "AZE" : null);
 
-                        }
-                        else
-                        {
-                            worksheet.Cell(row, 15).Value = "";
-                        }
-                        if (!string.IsNullOrEmpty(expert?.Serial))
-                        {
-                            string onlyNumbers = Regex.Replace(expert.Serial, @"\D", "");
-
-                            if (!string.IsNullOrEmpty(onlyNumbers))
-                                worksheet.Cell(row, 16).Value = onlyNumbers;
-                            else
-                                worksheet.Cell(row, 16).Value = "";
-                        }
-                        else
-                        {
-                            worksheet.Cell(row, 16).Value = "";
-                        }
-                        worksheet.Cell(row, 17).Value = expert.TelIs;
-                        worksheet.Cell(row, 18).Value = expert.FinCode;
-                        worksheet.Cell(row, 19).Value = expert.Voen;
-                        worksheet.Cell(row, 20).Value = expert.HesablashmaH;
-                        worksheet.Cell(row, 21).Value = expert.Rekvizit;
-                        worksheet.Cell(row, 22).Value = expert.SSN;
-                        worksheet.Cell(row, 23).Value = expert.BankFilial;
-                        worksheet.Cell(row, 24).Value = expert.BankFilialCode;
-                        worksheet.Cell(row, 25).Value = exam.Shift.ToString();
-                        row++;
                     }
-                
+                    else
+                    {
+                        worksheet.Cell(row, 15).Value = "";
+                    }
+                    if (!string.IsNullOrEmpty(expert?.Serial))
+                    {
+                        string onlyNumbers = Regex.Replace(expert.Serial, @"\D", "");
+
+                        if (!string.IsNullOrEmpty(onlyNumbers))
+                            worksheet.Cell(row, 16).Value = onlyNumbers;
+                        else
+                            worksheet.Cell(row, 16).Value = "";
+                    }
+                    else
+                    {
+                        worksheet.Cell(row, 16).Value = "";
+                    }
+                    worksheet.Cell(row, 17).Value = expert.TelIs;
+                    worksheet.Cell(row, 18).Value = expert.FinCode;
+                    worksheet.Cell(row, 19).Value = expert.Voen;
+                    worksheet.Cell(row, 20).Value = expert.HesablashmaH;
+                    worksheet.Cell(row, 21).Value = expert.Rekvizit;
+                    worksheet.Cell(row, 22).Value = expert.SSN;
+                    worksheet.Cell(row, 23).Value = expert.BankFilial;
+                    worksheet.Cell(row, 24).Value = expert.BankFilialCode;
+                    worksheet.Cell(row, 25).Value = exam.Shift.ToString();
+                    row++;
+                }
+
                 foreach (var monitor in exam.Representatives)
                 {
                     worksheet.Cell(row, 1).Value = "";
@@ -1756,7 +1764,7 @@ namespace ForQab.Service
                 ExamId = model.ExamId,
                 ExpertId = model.NewExpertId,
                 SubProfessionId = subProfessionId,
-                RoomId = currentAssignment.RoomId, 
+                RoomId = currentAssignment.RoomId,
                 FederationId = currentAssignment.FederationId,
                 IsAttended = 0
             };
@@ -1781,14 +1789,14 @@ namespace ForQab.Service
             if (sectionId.HasValue)
                 query = query.Where(e => e.SectionId == sectionId.Value);
 
-                query = query.Where(e => e.ExamBuldingId == examBuildingId);
+            query = query.Where(e => e.ExamBuldingId == examBuildingId);
 
             var exams = await query
                 .Include(e => e.ExamBuilding)
                 .Include(e => e.District)
                 .Include(e => e.ExamMonitors).ThenInclude(em => em.Monitors)
                 .Include(e => e.ExamExpertSubProfessions).ThenInclude(es => es.Expert)
-                .Include(e => e.ExamExperts).ThenInclude(ee => ee.Experts) 
+                .Include(e => e.ExamExperts).ThenInclude(ee => ee.Experts)
                 .Include(e => e.ExamRepresentatives).ThenInclude(ee => ee.Representative)
                 .OrderBy(e => e.ExamDate)
                 .ToListAsync();
@@ -1824,7 +1832,7 @@ namespace ForQab.Service
 
                 foreach (var ee in exam.ExamExperts ?? Enumerable.Empty<ExamExpert>())
                 {
-                    var expert = ee.Experts; 
+                    var expert = ee.Experts;
                     if (expert == null) continue;
 
                     var fin = GetPersonFinCode(expert.FinCode);
@@ -1869,7 +1877,7 @@ namespace ForQab.Service
                 }
                 foreach (var em in exam.ExamRepresentatives ?? Enumerable.Empty<ExamRepresentative>())
                 {
-                    var representative = em.Representative; 
+                    var representative = em.Representative;
                     if (representative == null) continue;
 
 
@@ -1920,7 +1928,7 @@ namespace ForQab.Service
                 table.AppendChild(tblProps);
 
                 var headerRow = new TableRow();
-                headerRow.AppendChild(new TableRowProperties(new TableHeader())); 
+                headerRow.AppendChild(new TableRowProperties(new TableHeader()));
                 var headers = new[] { "Rayon", "Bina kodu", "Soyad", "Ad", "Ata", "İl", "Gün", "Ay", "Fin kodu", "Vəzifə" };
                 foreach (var h in headers)
                 {
@@ -2038,6 +2046,185 @@ namespace ForQab.Service
             public string FinCode { get; set; } = "";
             public string Vezife { get; set; } = "";
         }
+        public async Task<IEnumerable<ExamExportForFoodViewModel>> GetExamsForExportAsync()
+        {
+            var exams = await _examRepository.GetExamsForExportAsync();
+            return exams.Select(e => new ExamExportForFoodViewModel
+            {
+                Id = e.Id,
+                ExamBuildingName = e.ExamBuilding?.Name ?? "Bilinmeyen Bina",
+                ExamDate = e.ExamDate,
+                Food = e.Food,
+                Water = e.Water
+            });
+        }
+        public async Task<byte[]> GenerateExamWordReportAsync()
+        {
+            var exams = await GetExamsForExportAsync();
+
+            using (var stream = new MemoryStream())
+            {
+                // Boş Word dokümanı oluştur
+                using (var document = DocX.Create(stream))
+                {
+                    // Başlık ekle
+                    document.InsertParagraph("Sınav Raporu")
+                            .FontSize(20)
+                            .Bold()
+                            .Alignment = Alignment.center;
+
+                    document.InsertParagraph("");
+
+                    // Tablo oluştur
+                    var table = document.AddTable(exams.Count() + 1, 5);
+                    table.Design = TableDesign.TableGrid;
+                    table.Alignment = Alignment.center;
+                    table.AutoFit = AutoFit.Contents;
+
+                    // Başlık satırı
+                    table.Rows[0].Cells[0].Paragraphs[0].Append("№").Bold();
+                    table.Rows[0].Cells[1].Paragraphs[0].Append("Exam building").Bold();
+                    table.Rows[0].Cells[2].Paragraphs[0].Append("Exam date").Bold();
+                    table.Rows[0].Cells[3].Paragraphs[0].Append("Food provided").Bold();
+                    table.Rows[0].Cells[4].Paragraphs[0].Append("Water bottles").Bold();
+
+                    // Veri satırları
+                    int rowIndex = 1;
+                    foreach (var exam in exams)
+                    {
+                        table.Rows[rowIndex].Cells[0].Paragraphs[0].Append(exam.Id.ToString());
+                        table.Rows[rowIndex].Cells[1].Paragraphs[0].Append(exam.ExamBuildingName);
+                        table.Rows[rowIndex].Cells[2].Paragraphs[0].Append(exam.ExamDate.ToString("yyyy-MM-dd"));
+                        table.Rows[rowIndex].Cells[3].Paragraphs[0].Append(exam.Food?.ToString() ?? "0");
+                        table.Rows[rowIndex].Cells[4].Paragraphs[0].Append(exam.Water?.ToString() ?? "0");
+                        rowIndex++;
+                    }
+
+                    document.InsertTable(table);
+                    document.Save();
+                }
+
+                return stream.ToArray();
+            }
+        }
+        public async Task<byte[]> ExportFoodWaterSimpleReportAsync(DateOnly start, DateOnly end)
+        {
+            var examsQuery = _context.Exams
+                .Include(e => e.ExamBuilding)
+                .Where(e => e.ExamDate >= start && e.ExamDate <= end && (e.Food > 0 || e.Water > 0));
+
+            var exams = await examsQuery
+                .OrderBy(e => e.ExamDate)
+                .ThenBy(e => e.Id)
+                .ToListAsync();
+
+            var examData = exams.Select(e => new ExamExportForFoodViewModel
+            {
+                Id = e.Id,
+                ExamBuildingName = e.ExamBuilding?.Name ?? "Bilinmeyen Bina",
+                ExamDate = e.ExamDate,
+                Food = e.Food ?? 0,
+                Water = e.Water ?? 0
+            }).ToList();
+
+            using var stream = new MemoryStream();
+            using (var document = WordprocessingDocument.Create(stream, WordprocessingDocumentType.Document, true))
+            {
+                var mainPart = document.AddMainDocumentPart();
+                mainPart.Document = new Document();
+                var body = mainPart.Document.AppendChild(new Body());
+
+                // Başlık
+                var titleParagraph = new Paragraph(
+                    new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
+                    new Run(
+                        new RunProperties(new Bold(), new FontSize { Val = "36" }),
+                        new Text("İmtahan - Yiyecek/Su Raporu")
+                    )
+                );
+                body.AppendChild(titleParagraph);
+
+                // Tarih bilgisi
+                var dateParagraph = new Paragraph(
+                    new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
+                    new Run(
+                        new RunProperties(new FontSize { Val = "24" }),
+                        new Text($"Tarih: {start} - {end}")
+                    )
+                );
+                body.AppendChild(dateParagraph);
+                body.AppendChild(new Paragraph());
+
+                // Tablo oluştur
+                var table = new Table();
+
+                // Tablo özellikleri
+                var tblProps = new TableProperties(
+                    new TableWidth { Width = "100%", Type = TableWidthUnitValues.Pct },
+                    new TableBorders(
+                        new TopBorder { Val = BorderValues.Single, Size = 12 },
+                        new BottomBorder { Val = BorderValues.Single, Size = 12 },
+                        new LeftBorder { Val = BorderValues.Single, Size = 12 },
+                        new RightBorder { Val = BorderValues.Single, Size = 12 },
+                        new InsideHorizontalBorder { Val = BorderValues.Single, Size = 6 },
+                        new InsideVerticalBorder { Val = BorderValues.Single, Size = 6 }
+                    )
+                );
+                table.AppendChild(tblProps);
+
+                // Başlık satırı
+                var headerRow = new TableRow();
+                var headers = new[] { "№", "Exam building", "Exam date", "Food provided", "Water bottles" };
+
+                foreach (var header in headers)
+                {
+                    var cell = new TableCell(
+                        new TableCellProperties(new TableCellWidth { Type = TableWidthUnitValues.Auto }),
+                        new Paragraph(
+                            new Run(
+                                new RunProperties(new Bold()),
+                                new Text(header)
+                            )
+                        )
+                    );
+                    headerRow.AppendChild(cell);
+                }
+                table.AppendChild(headerRow);
+
+                // Veri satırları
+                for (int i = 0; i < examData.Count; i++)
+                {
+                    var exam = examData[i];
+                    var row = new TableRow();
+
+                    var cells = new[]
+                              {
+                                  (i + 1).ToString(), // sıra numarası
+                                  exam.ExamBuildingName,
+                                  exam.ExamDate.ToString("dd.MM.yyyy"),
+                                  exam.Food.ToString(),
+                                  exam.Water.ToString()
+                              };
+
+                    foreach (var cellText in cells)
+                    {
+                        var cell = new TableCell(
+                            new TableCellProperties(new TableCellWidth { Type = TableWidthUnitValues.Auto }),
+                            new Paragraph(new Run(new Text(cellText)))
+                        );
+                        row.AppendChild(cell);
+                    }
+
+                    table.AppendChild(row);
+                }
+
+                body.AppendChild(table);
+                mainPart.Document.Save();
+            }
+
+            return stream.ToArray();
+        }
+        
 
     }
 }

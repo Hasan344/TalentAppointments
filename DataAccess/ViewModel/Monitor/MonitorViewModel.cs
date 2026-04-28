@@ -36,6 +36,7 @@ namespace ForQab.DataAccess.ViewModel.Monitor
         public int? Role { get; set; }
         public int? Status { get; set; }
         public int? AssignmentCount { get; set; }
+        public int? ThisYearAssignmentCount { get; set; }
         public int? Archive { get; set; }
         public string? VNum { get; set; }
         public string? Workplace { get; set; }

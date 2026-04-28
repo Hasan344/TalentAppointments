@@ -51,8 +51,6 @@ namespace ForQab.Presentation.Controllers
 
             if (result.Succeeded)
             {
-                // await _signInManager.SignInAsync(user, isPersistent: false);
-                // TempData["sections"] = user.Section;
                 return RedirectToAction("Login", "Account");
             }
             foreach (var error in result.Errors)

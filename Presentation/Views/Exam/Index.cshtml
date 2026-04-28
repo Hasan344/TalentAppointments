@@ -66,10 +66,28 @@
                             }
                         </select>
                     </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-calendar"></i> İl üzrə
+                        </label>
+                        <select class="form-select form-select-sm"
+                                name="year"
+                                onchange="this.form.submit()">
+
+                            <option value="0">Hamısı</option>
+                            @foreach (var y in (List<int>)ViewBag.Years)
+                            {
+                                <option value="@y" selected="@(ViewBag.SelectedYear == y ? "selected" : null)">
+                                    @y
+                                </option>
+                            }
+                        </select>
+                    </div>
                     <div class="col-md-auto mt-2">
                         <a class="btn btn-outline-secondary btn-sm" href="@Url.Action("Index")">
                             <i class="bi bi-x-circle"></i> Filtri təmizlə
                         </a>
+                       
                     </div>
                 </form>
             </div>
@@ -153,20 +171,34 @@
         <button class="btn btn-sm btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#exportModal">
             <i class="bi bi-table"></i> Maliyyə Exceli al
         </button>
-        <a class="btn btn-sm btn-success shadow-sm" asp-action="ExportToExcel">
+        <a class="btn btn-sm btn-success shadow-sm"
+           asp-action="ExportToExcel"
+           asp-route-year="@ViewBag.SelectedYear">
             <i class="bi bi-download"></i> Excel-ə çıxarış
         </a>
-        <a class="btn btn-sm btn-primary shadow-sm" asp-action="ExportToWord">
+
+        <a class="btn btn-sm btn-primary shadow-sm"
+           asp-action="ExportToWord"
+           asp-route-year="@ViewBag.SelectedYear">
             <i class="bi bi-download"></i> Word-ə çıxarış
         </a>
-        <a class="btn btn-sm btn-primary shadow-sm" asp-action="ExportToWordCalendar">
+
+        <a class="btn btn-sm btn-primary shadow-sm"
+           asp-action="ExportToWordCalendar"
+           asp-route-year="@ViewBag.SelectedYear">
             <i class="bi bi-download"></i> Qabiliyyət təqvimi
         </a>
-        <a class="btn btn-sm btn-primary shadow-sm" asp-action="ExportToWordForLetter">
+
+        <a class="btn btn-sm btn-primary shadow-sm"
+           asp-action="ExportToWordForLetter"
+           asp-route-year="@ViewBag.SelectedYear">
             <i class="bi bi-download"></i> Məktuba əlavə təqvim
         </a>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportRangeModal">
             Yemək və su üçün export
+        </button>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportFoodWaterWordModal">
+            <i class="bi bi-file-word"></i> Yemək və su (sadə Word)
         </button>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportExcelModal">
             Yemək və su üçün excel export
@@ -174,6 +206,32 @@
         <a class="btn btn-secondary px-4 py-2 mx-2" border: none;" asp-controller="Home" asp-action="Index">
             <i class="bi bi-home"></i> Ana səhifəyə qayıt
         </a>
+    </div>
+</div><!-- Yemək və su üçün sadə Word Export Modal -->
+<div class="modal fade" id="exportFoodWaterWordModal" tabindex="-1" aria-labelledby="exportFoodWaterWordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="ExportExamsForFoodToWord" method="get">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportFoodWaterWordModalLabel">Tarix aralığı və bina seçin (Sadə Word)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="startDateWord" class="form-label">Başlangıç tarixi</label>
+                        <input type="date" class="form-control" id="startDateWord" name="start" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="endDateWord" class="form-label">Bitiş tarixi</label>
+                        <input type="date" class="form-control" id="endDateWord" name="end" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
+                    <button type="submit" class="btn btn-primary">Word Export et</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 <!-- Modal -->
