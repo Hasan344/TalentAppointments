@@ -11,6 +11,7 @@ using a = DocumentFormat.OpenXml.Drawing;
 using wp = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using pic = DocumentFormat.OpenXml.Drawing.Pictures;
 using Monitor = ForQab.DataAccess.Models.Monitor;
+using DocumentFormat.OpenXml.Bibliography;
 
 namespace ForQab.Repository.Concrete
 {
@@ -154,7 +155,7 @@ namespace ForQab.Repository.Concrete
                 throw new InvalidOperationException("Yetərli sayda ekspert yoxdur.");
             }
 
-            var selectedExperts = availableExperts.OrderBy(e => e.ComputedAssignmentCount).Take(numberOfExperts).ToList();
+            var selectedExperts = availableExperts.OrderBy(e => e.ThisYearAssignmentCount).Take(numberOfExperts).ToList();
             var shuffledSubProfessions = subProfessions.OrderBy(x => Guid.NewGuid()).ToList();
 
             for (int i = 0; i < selectedExperts.Count; i++)
@@ -170,7 +171,6 @@ namespace ForQab.Repository.Concrete
                 }
 
                 exam.Experts.Add(expert);
-                expert.AssignmentCount++;
 
                 var assignedSubProfession = shuffledSubProfessions[i % shuffledSubProfessions.Count];
 
@@ -222,7 +222,7 @@ namespace ForQab.Repository.Concrete
                 .Where(e => e.Status == 0)
                 .Where(e => e.Archive == 0)
                 .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id))
-                .OrderBy(e => e.AssignmentCount)
+                .OrderBy(e => e.ThisYearAssignmentCount)
                 .ToListAsync();
 
             if (exam.SectionId == 1)
@@ -230,14 +230,14 @@ namespace ForQab.Repository.Concrete
                 if (genderId == null || genderId == 0)
                 {
                     availableMonitors = availableMonitors
-                                        .OrderBy(e => e.ComputedAssignmentCount)
+                                        .OrderBy(e => e.ThisYearAssignmentCount)
                                         .ToList();
                 }
                 else
                 {
                     availableMonitors = availableMonitors
                     .Where(e => e.Gender == genderId)
-                    .OrderBy(e => e.ComputedAssignmentCount)
+                    .OrderBy(e => e.ThisYearAssignmentCount)
                     .ToList();
                 }
 
@@ -247,7 +247,7 @@ namespace ForQab.Repository.Concrete
             {
                 availableMonitors = availableMonitors
                     .Where(e => e.District == exam.DistrictId)
-                    .OrderBy(e => e.ComputedAssignmentCount)
+                    .OrderBy(e => e.ThisYearAssignmentCount)
                     .ToList();
             }
 
@@ -308,7 +308,6 @@ namespace ForQab.Repository.Concrete
                     RoomId = assignedRoomId
                 });
 
-                monitor.AssignmentCount++;
             }
 
             if (exam.SectionId == 2 || exam.SectionId == 5)
@@ -373,14 +372,13 @@ namespace ForQab.Repository.Concrete
                 throw new Exception("Yeterli sayda rəhbər yoxdur.");
 
             var selectedMonitors = allMonitors
-                                    .OrderBy(e => e.ComputedAssignmentCount)
+                                    .OrderBy(e => e.ThisYearAssignmentCount)
                                     .Take(numberOfMonitors)
                                     .ToList();
 
             foreach (var monitor in selectedMonitors)
             {
                 exam.Monitors.Add(monitor);
-                monitor.AssignmentCount++;
             }
 
             await _context.SaveChangesAsync();
@@ -448,7 +446,7 @@ namespace ForQab.Repository.Concrete
         }
 
 
-        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int type, int? examBuildingId = null)
+        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int type, int? year, int? examBuildingId = null)
         {
             var query = _context.Exams
                 .Include(e => e.Section)
@@ -457,8 +455,8 @@ namespace ForQab.Repository.Concrete
                 .Include(e => e.Experts)
                 .Include(e => e.Monitors)
                 .Include(e => e.District)
-                .Where(e => e.Type == type)
-                .AsQueryable();
+                .Where(e => e.Type == type )
+                .AsQueryable(); 
 
             if (sectionId.HasValue)
                 query = query.Where(e => e.SectionId == sectionId);
@@ -466,7 +464,11 @@ namespace ForQab.Repository.Concrete
             if (examBuildingId.HasValue)
                 query = query.Where(e => e.ExamBuldingId == examBuildingId);
 
-            return await query.OrderBy(e => e.ExamDate).ToListAsync();
+            if (year.HasValue && year != 0)
+                query = query.Where(e => e.ExamDate.Year == year);
+
+            var exams = query.OrderByDescending(e => e.ExamDate).ToListAsync();
+            return await exams;
         }
 
 
@@ -746,24 +748,30 @@ namespace ForQab.Repository.Concrete
 
             await _context.SaveChangesAsync();
         }
-        public async Task<MemoryStream> ExportExamScheduleToWord()
+        public async Task<MemoryStream> ExportExamScheduleToWord(int? year)
         {
-            var exams = await _context.Exams
-                                      .Include(e => e.ExamDegrees)
-                                          .ThenInclude(d => d.Degrees)
-                                      .Include(e => e.ExamCommissions)
-                                          .ThenInclude(c => c.Commission)
-                                      .Include(e => e.ExamExpertSubProfessions)
-                                          .ThenInclude(s => s.SubProfession)
-                                      .Include(e => e.ExamBuilding)
-                                      .Include(e => e.District)
-                                      .Include(e => e.Section)
-                                      .Include(e => e.ExamSubjects)
-                                          .ThenInclude(e => e.Subjects)
-                                      .Where(e => e.Type == 1) 
-                                      .OrderBy(e => e.ExamDate)
-                                      .ThenBy(e => e.SectionId)
-                                      .ToListAsync();
+            var query = _context.Exams
+                        .Include(e => e.ExamDegrees)
+                            .ThenInclude(d => d.Degrees)
+                        .Include(e => e.ExamCommissions)
+                            .ThenInclude(c => c.Commission)
+                        .Include(e => e.ExamExpertSubProfessions)
+                            .ThenInclude(s => s.SubProfession)
+                        .Include(e => e.ExamBuilding)
+                        .Include(e => e.District)
+                        .Include(e => e.Section)
+                        .Include(e => e.ExamSubjects)
+                            .ThenInclude(e => e.Subjects)
+                        .Where(e => e.Type == 1);
+
+            if (year.HasValue && year.Value != 0)
+            {
+                query = query.Where(e => e.ExamDate.Year == year.Value);
+            }
+
+            var exams = await query.OrderBy(e => e.ExamDate)
+                                   .ThenBy(e => e.SectionId)
+                                   .ToListAsync();
 
             MemoryStream memoryStream = new MemoryStream();
             using (WordprocessingDocument wordDocument = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document, true))
@@ -913,24 +921,175 @@ namespace ForQab.Repository.Concrete
             return memoryStream;
 
         }
-        public async Task<MemoryStream> ExportExamCalendarToWord()
+        public async Task<MemoryStream> ExportExamScheduleToWordForSeason(int? year)
         {
-            var exams = await _context.Exams
-                                      .Include(e => e.ExamDegrees)
-                                          .ThenInclude(d => d.Degrees)
-                                      .Include(e => e.ExamCommissions)
-                                          .ThenInclude(c => c.Commission)
-                                      .Include(e => e.ExamExpertSubProfessions)
-                                          .ThenInclude(s => s.SubProfession)
-                                      .Include(e => e.ExamBuilding)
-                                      .Include(e => e.District)
-                                      .Include(e => e.Section)
-                                      .Include(e => e.ExamSubjects)
-                                          .ThenInclude(e => e.Subjects)
-                                      .Where(e => e.Type == 1)
-                                      .OrderBy(e => e.ExamDate)
-                                      .ThenBy(e => e.SectionId)
-                                      .ToListAsync();
+            var query = _context.Exams
+                        .Include(e => e.ExamDegrees)
+                            .ThenInclude(d => d.Degrees)
+                        .Include(e => e.ExamCommissions)
+                            .ThenInclude(c => c.Commission)
+                        .Include(e => e.ExamExpertSubProfessions)
+                            .ThenInclude(s => s.SubProfession)
+                        .Include(e => e.ExamBuilding)
+                        .Include(e => e.District)
+                        .Include(e => e.Section)
+                        .Include(e => e.ExamSubjects)
+                            .ThenInclude(e => e.Subjects)
+            .Where(e => e.Type == 1);
+
+            if (year.HasValue && year.Value != 0)
+            {
+                query = query.Where(e => e.ExamDate.Year == year.Value);
+            }
+
+            var exams = await query.OrderBy(e => e.ExamDate)
+                                   .ThenBy(e => e.SectionId)
+                                   .ToListAsync();
+
+            MemoryStream memoryStream = new MemoryStream();
+            using (WordprocessingDocument wordDocument = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document, true))
+            {
+                MainDocumentPart mainPart = wordDocument.AddMainDocumentPart();
+                mainPart.Document = new Document();
+                Body body = new Body();
+                mainPart.Document.Append(body);
+
+
+                Table table = new Table();
+                TableProperties tblProp = new TableProperties(
+                    new TableWidth() { Width = "100%", Type = TableWidthUnitValues.Pct },
+                    new TableBorders(
+                        new TopBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new BottomBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new LeftBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new RightBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new InsideHorizontalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new InsideVerticalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 }
+                    )
+                );
+                table.AppendChild(tblProp);
+
+                TableRow headerRow = new TableRow(new TableRowProperties(
+                                                      new TableHeader()
+                                                  ));
+                string[] headers = { "Təhsil səviyyəsi", "İmtahan Tarixi", "İmtahan keçirilən şəhər(rayon)", "İştirakçı Sayı", "Binaların sayı", "İmtahan rəhbərlərinin sayı", "Zal nəzarətçilərinin sayı", "Ekspert sayı", "BR əməkdaşı" };
+                foreach (var header in headers)
+                {
+                    TableCell cell = new TableCell(new Paragraph(new Run(new Text(header))));
+                    cell.Append(new TableCellProperties(new TableCellWidth { Type = TableWidthUnitValues.Auto }));
+                    headerRow.Append(cell);
+                }
+                table.Append(headerRow);
+
+                foreach (var exam in exams)
+                {
+                    TableRow row = new TableRow(
+                                            new TableRowProperties(
+                                                new CantSplit()
+                                            )
+                                        );
+
+                    var sectionId = _context.Exams.Where(e => e.Id == exam.Id).Select(e => e.SectionId).FirstOrDefault();
+                    string bgColor = "ffffff";
+                    var role1MonitorCount = exam.ExamMonitors?
+                                                .Count(em => em.Monitors != null && em.Monitors.Role == 1) ?? 0;
+                    var role2MonitorCount = exam.ExamMonitors?
+                                                .Count(em => em.Monitors != null && em.Monitors.Role == 2) ?? 0;
+                    var role1ExpertCount = exam.ExamExperts?
+                                                .Count(em => em.Experts != null && em.Experts.Kons == false) ?? 0;
+
+
+                    TableCellProperties cellProperties = new TableCellProperties(
+                        new Shading() { Val = ShadingPatternValues.Clear, Fill = bgColor }
+                    );
+
+                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamDegrees?.Select(c => c.Degrees.Name) ?? new List<string>()), bgColor));
+                    row.Append(CreateColoredCell(exam.ExamDate.ToString("dd.MM.yyyy"), bgColor));
+                    row.Append(CreateColoredCell(exam.District?.Name ?? "", bgColor));
+                    row.Append(CreateColoredCell(exam.StudentCount?.ToString() ?? "", bgColor));
+                    row.Append(CreateColoredCell(exam.ExamBuilding?.Name.Count().ToString() ?? "" , bgColor));
+                    row.Append(CreateColoredCell(role1MonitorCount.ToString() ?? "", bgColor));
+                    row.Append(CreateColoredCell(role2MonitorCount.ToString() ?? "", bgColor));
+                    row.Append(CreateColoredCell(role1ExpertCount.ToString() ?? "", bgColor));
+                    row.Append(CreateColoredCell("", bgColor));
+
+                    table.Append(row);
+                }
+
+                TableCell CreateColoredCell(string text, string bgColor)
+                {
+                    TableCell cell = new TableCell(new Paragraph(new Run(new Text(text))));
+                    TableCellProperties cellProperties = new TableCellProperties(
+                        new Shading() { Val = ShadingPatternValues.Clear, Fill = bgColor }
+                    );
+                    cell.Append(cellProperties);
+                    return cell;
+                }
+
+                FooterPart footerPart = mainPart.AddNewPart<FooterPart>();
+                string footerPartId = mainPart.GetIdOfPart(footerPart);
+
+                var paragraph = new Paragraph();
+                paragraph.Append(new ParagraphProperties(new Justification() { Val = JustificationValues.Center }));
+                paragraph.Append(new Run(
+                    new RunProperties(new NoProof()),
+                    new FieldChar() { FieldCharType = FieldCharValues.Begin }
+                ));
+                paragraph.Append(new Run(
+                    new FieldCode(" PAGE ") { Space = SpaceProcessingModeValues.Preserve }
+                ));
+                paragraph.Append(new Run(
+                    new FieldChar() { FieldCharType = FieldCharValues.Separate }
+                ));
+                paragraph.Append(new Run(new Text("1"))); // Placeholder
+                paragraph.Append(new Run(
+                    new FieldChar() { FieldCharType = FieldCharValues.End }
+                ));
+
+                Footer footer = new Footer(paragraph);
+                footerPart.Footer = footer;
+                footerPart.Footer.Save();
+
+                var sectionProps = new SectionProperties(
+                    new PageSize() { Width = 16838, Height = 11906, Orient = PageOrientationValues.Landscape },
+                    new PageMargin() { Top = 720, Right = 720, Bottom = 720, Left = 720 },
+                    new FooterReference() { Type = HeaderFooterValues.Default, Id = footerPartId }
+                );
+
+                body.Append(sectionProps);
+                body.Append(table);
+                mainPart.Document.Save();
+            }
+
+            memoryStream.Position = 0;
+            return memoryStream;
+
+        }
+
+        public async Task<MemoryStream> ExportExamCalendarToWord(int? year)
+        {
+            var query = _context.Exams
+                        .Include(e => e.ExamDegrees)
+                            .ThenInclude(d => d.Degrees)
+                        .Include(e => e.ExamCommissions)
+                            .ThenInclude(c => c.Commission)
+                        .Include(e => e.ExamExpertSubProfessions)
+                            .ThenInclude(s => s.SubProfession)
+                        .Include(e => e.ExamBuilding)
+                        .Include(e => e.District)
+                        .Include(e => e.Section)
+                        .Include(e => e.ExamSubjects)
+                            .ThenInclude(e => e.Subjects)
+                        .Where(e => e.Type == 1);
+
+            if (year.HasValue && year.Value != 0)
+            {
+                query = query.Where(e => e.ExamDate.Year == year.Value);
+            }
+
+            var exams = await query.OrderBy(e => e.ExamDate)
+                                   .ThenBy(e => e.SectionId)
+                                   .ToListAsync();
 
             MemoryStream memoryStream = new MemoryStream();
             using (WordprocessingDocument wordDocument = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document, true))
@@ -1075,24 +1234,30 @@ namespace ForQab.Repository.Concrete
             return memoryStream;
 
         }
-        public async Task<MemoryStream> ExportExamScheduleToWordForLetter()
+        public async Task<MemoryStream> ExportExamScheduleToWordForLetter(int? year)
         {
-            var exams = await _context.Exams
-                                      .Include(e => e.ExamDegrees)
-                                          .ThenInclude(d => d.Degrees)
-                                      .Include(e => e.ExamCommissions)
-                                          .ThenInclude(c => c.Commission)
-                                      .Include(e => e.ExamExpertSubProfessions)
-                                          .ThenInclude(s => s.SubProfession)
-                                      .Include(e => e.ExamBuilding)
-                                      .Include(e => e.District)
-                                      .Include(e => e.Section)
-                                      .Include(e => e.ExamSubjects)
-                                          .ThenInclude(e => e.Subjects)
-                                      .Where(e => e.Type == 1)
-                                      .OrderBy(e => e.ExamDate)
-                                      .ThenBy(e => e.SectionId)
-                                      .ToListAsync();
+            var query = _context.Exams
+                        .Include(e => e.ExamDegrees)
+                            .ThenInclude(d => d.Degrees)
+                        .Include(e => e.ExamCommissions)
+                            .ThenInclude(c => c.Commission)
+                        .Include(e => e.ExamExpertSubProfessions)
+                            .ThenInclude(s => s.SubProfession)
+                        .Include(e => e.ExamBuilding)
+                        .Include(e => e.District)
+                        .Include(e => e.Section)
+                        .Include(e => e.ExamSubjects)
+                            .ThenInclude(e => e.Subjects)
+                        .Where(e => e.Type == 1);
+
+            if (year.HasValue && year.Value != 0)
+            {
+                query = query.Where(e => e.ExamDate.Year == year.Value);
+            }
+
+            var exams = await query.OrderBy(e => e.ExamDate)
+                                   .ThenBy(e => e.SectionId)
+                                   .ToListAsync();
 
             MemoryStream memoryStream = new MemoryStream();
             using (WordprocessingDocument wordDocument = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document, true))
@@ -1706,7 +1871,6 @@ namespace ForQab.Repository.Concrete
                     if (expert != null)
                     {
                         exam.Experts.Add(expert);
-                        expert.AssignmentCount++;
                     }
                 }
             }
@@ -1745,7 +1909,37 @@ namespace ForQab.Repository.Concrete
             await _context.ExamMonitors.AddRangeAsync(examMonitorList);
             await _context.SaveChangesAsync();
         }
+        public async Task<IEnumerable<Exam>> GetExamsForExportAsync()
+        {
+            return await _context.Exams
+                .Include(e => e.ExamBuilding)
+                .OrderBy(e => e.ExamDate)
+                .ThenBy(e => e.Id)
+                .ToListAsync();
+        }
+        public async Task<List<Exam>> GetBySectionBuildingAndYearAsync(
+    int? sectionId,
+    int? examBuildingId,
+    int? year)
+        {
+            IQueryable<Exam> query = _context.Exams
+                .Include(e => e.ExamBuilding)
+                .Include(e => e.Section)
+                .Include(e => e.ExamCommissions)
+                    .ThenInclude(ec => ec.Commission);
 
+            if (sectionId.HasValue)
+                query = query.Where(e => e.SectionId == sectionId);
 
+            if (examBuildingId.HasValue)
+                query = query.Where(e => e.ExamBuldingId == examBuildingId);
+
+            if (year.HasValue)
+                query = query.Where(e => e.ExamDate.Year == year);
+
+            return await query
+                .OrderByDescending(e => e.ExamDate)
+                .ToListAsync();
+        }
     }
 }

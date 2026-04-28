@@ -19,7 +19,7 @@ namespace ForQab.Repository.Abstract
         Task AssignRandomHeadMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate);
         Task AssignWorkersToExamAsync(int examId);
         Task AssignVolunteersToExamAsync(int examId);
-        Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int type, int? examBuildingId);
+        Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int type, int? examBuildingId, int? year);
         Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds);
         Task<List<DimRepresentative>> GetAvailableRepresentativesAsync();
         Task<List<Monitor>> GetAvailableVolunteersAsync(int? sectionId);
@@ -35,9 +35,10 @@ namespace ForQab.Repository.Abstract
         public Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds, int[] degreeIds, int[] selectedSubjects);
         public Task UpdateExamAsync(EditExamViewModelForAssesment exam);
         public Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId);
-        Task<MemoryStream> ExportExamScheduleToWord();
-        Task<MemoryStream> ExportExamCalendarToWord();
-        Task<MemoryStream> ExportExamScheduleToWordForLetter();
+        Task<MemoryStream> ExportExamScheduleToWord(int? year);
+        Task<MemoryStream> ExportExamScheduleToWordForSeason(int? year); 
+        Task<MemoryStream> ExportExamCalendarToWord(int? year);
+        Task<MemoryStream> ExportExamScheduleToWordForLetter(int? year);
         Task AddMonitorLogAsync(MonitorLog log);
         Task AddExpertLogAsync(ExpertLog logs);
         Task<List<int>> GetMonitorsWithLogsAsync(List<int> monitorIds);
@@ -52,5 +53,11 @@ namespace ForQab.Repository.Abstract
         Task<byte[]> ExportExamMonitorsToWordAsync(int examId);
         //Task<Exam> GetExamWithExpertsByIdAsync(int examId);
         //Task<List<Expert>> GetExpertsByIdsAsync(int[] expertIds);
+        Task<IEnumerable<Exam>> GetExamsForExportAsync(); 
+        Task<List<Exam>> GetBySectionBuildingAndYearAsync(
+    int? sectionId,
+    int? examBuildingId,
+    int? year
+);
     }
 }

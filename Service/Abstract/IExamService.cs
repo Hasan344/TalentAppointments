@@ -1,4 +1,5 @@
-﻿using ForQab.DataAccess.Models;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Exam;
 using ForQab.Models.ViewModels;
 using ForQab.Presentation.ViewModels;
@@ -24,9 +25,9 @@ namespace ForQab.Service.Abstract
         Task AssignExpertsForMXToExamAsync(AssignExpertForMXToExamViewModel viewModel);
         Task AssignMonitorsForMXToExamAsync(AssignMonitorForMXToExamViewModel viewModel);
         Task AssignWorkersForMXToExamAsync(AssignWorkerForMXToExamViewModel viewModel);
-        Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int? examBuildingId);
-        Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAssesment(int? sectionId, int? examBuildingId);
-        Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAppeal(int? sectionId, int? examBuildingId);
+        Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int? examBuildingId,int? year);
+        Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAssesment(int? sectionId, int? examBuildingId, int? year);
+        Task<IEnumerable<Exam>> GetExamsBySectionIdAsyncForAppeal(int? sectionId, int? examBuildingId, int? year);
         Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds);
         Task<List<DimRepresentative>> GetAvailableRepresentativesAsync();
         Task<List<Monitor>> GetAvailableVolunteersAsync(int? sectionId);
@@ -37,9 +38,10 @@ namespace ForQab.Service.Abstract
         Task<IEnumerable<SubProfession>> GetSubprofessionsBySectionIdAsync(int? sectionId);
         public Task<bool> AssignExpertsAsync(AssignExpertToExamViewModel model);
         public Task<int?> GetSectionIdByExamIdAsync(int examId);
-        Task<MemoryStream> ExportExamScheduleToWord();
-        Task<MemoryStream> ExportExamCalendarToWord();
-        Task<MemoryStream> ExportExamScheduleToWordForLetter();
+        Task<MemoryStream> ExportExamScheduleToWord(int? year);
+        Task<MemoryStream> ExportExamScheduleToWordForSeason(int? year);
+        Task<MemoryStream> ExportExamCalendarToWord(int? year);
+        Task<MemoryStream> ExportExamScheduleToWordForLetter(int? year);
         public Task UpdateExamAsync(EditExamViewModel exam, int[] commissionIds, int[] degreeIds, int[] subjectIds);
         public Task UpdateExamAsync(EditExamViewModelForAssesment exam);
         public Task<IEnumerable<Commission>> GetCommissionsAsync(int? sectionId);
@@ -77,5 +79,9 @@ namespace ForQab.Service.Abstract
         Task<byte[]> ExportFoodAndWaterRangeAsync(DateOnly start, DateOnly end, int? sectionId, int examBuildingId);
         Task<byte[]> GetExamDataForFoodAndWater(DateOnly startDate, DateOnly endDate,  int sectionId);
 
+        Task<byte[]> GenerateExamWordReportAsync();
+        Task<IEnumerable<ExamExportForFoodViewModel>> GetExamsForExportAsync();
+        Task<byte[]> ExportFoodWaterSimpleReportAsync(DateOnly start, DateOnly end);
+        
     }
 }

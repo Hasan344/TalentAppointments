@@ -37,7 +37,7 @@ namespace ForQab.Presentation.Controllers
 
             if (entity == null)
                 return false;
-
+             
             // SectionId'nin varlığını kontrol et
             var sectionProperty = typeof(TEntity).GetProperty("SectionId");
             if (sectionProperty == null)

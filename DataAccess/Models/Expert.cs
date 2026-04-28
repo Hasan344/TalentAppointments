@@ -149,5 +149,19 @@ public partial class Expert
     [Column("serial_prefix")]
     [StringLength(10)]
     public string? SerialPrefix { get; set; }
+    [NotMapped]
+    public int ThisYearAssignmentCount
+    {
+        get
+        {
+            var currentYear = DateTime.Now.Year;
+
+            return ExamExpertSubProfessions?
+                .Count(em =>
+                    em.Exam != null &&
+                    em.Exam.ExamDate.Year == currentYear
+                ) ?? 0;
+        }
+    }
 
 }

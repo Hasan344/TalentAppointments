@@ -184,7 +184,21 @@ public partial class Monitor
     public virtual ICollection<MonitorsProfession> MonitorsProfessions { get; set; } = new List<MonitorsProfession>();
     public ICollection<Contract>? Contracts { get; set; }
     [NotMapped]
-    public int ComputedAssignmentCount => ExamMonitors?.Count ?? 0;
+    public int ComputedAssignmentCount => ExamMonitors?.Count ?? 0; 
+    [NotMapped]
+    public int ThisYearAssignmentCount
+    {
+        get
+        {
+            var currentYear = DateTime.Now.Year;
+
+            return ExamMonitors?
+                .Count(em =>
+                    em.Exams != null &&
+                    em.Exams.ExamDate.Year == currentYear
+                ) ?? 0;
+        }
+    }
 
 
 }
