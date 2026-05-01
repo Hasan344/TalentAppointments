@@ -1,72 +1,379 @@
-﻿/* General Styling */
-body.bg-light {
-    background-color: #D9D9D9; /* Kurumsal açık ton */
+﻿/* =========================================================
+   Qabiliyyət — Home Page (Modern redesign)
+   Stack: standalone CSS, çalışır Bootstrap 5 ilə yan-yana
+   ========================================================= */
+
+:root {
+    --qab-bg: #f7f8fc;
+    --qab-surface: #ffffff;
+    --qab-text: #0f172a;
+    --qab-text-muted: #64748b;
+    --qab-border: rgba(15, 23, 42, 0.08);
+    --qab-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06);
+    --qab-shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+    --qab-shadow-lg: 0 25px 50px -12px rgba(15, 23, 42, 0.18);
+    --qab-radius: 18px;
+    --qab-radius-lg: 24px;
 }
 
-.bg-main {
-    background-color: #F2F2F2;
+/* ---------- Page wrapper ---------- */
+.qab-home {
+    background: var(--qab-bg);
+    color: var(--qab-text);
+    min-height: calc(100vh - 80px);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-.bg-navbar {
-    background-color: #325e61;
+/* =========================================================
+   HERO
+   ========================================================= */
+.qab-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 4.5rem 0 3.5rem;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #312e81 100%);
+    color: #ffffff;
+    border-radius: 0 0 32px 32px;
+    margin-bottom: 3rem;
 }
 
-.bg-second {
-    background-color: #174D38;
+.qab-hero__bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
 }
 
-.bg-card {
-    background-color: #323861;
+.qab-hero__blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.55;
+    animation: qab-float 14s ease-in-out infinite;
 }
 
-/* Navbar Styling */
-.navbar.bg-primary {
-    background-color: #898989; /* Lacivert */
+.qab-hero__blob--1 {
+    width: 380px;
+    height: 380px;
+    background: #6366f1;
+    top: -120px;
+    left: -100px;
 }
 
-.navbar-brand {
-    font-weight: bold;
+.qab-hero__blob--2 {
+    width: 340px;
+    height: 340px;
+    background: #ec4899;
+    bottom: -120px;
+    right: -80px;
+    animation-delay: -4s;
 }
 
-/* Hero Section Styling */
-.bg-primary {
-    background-color: #898989; /* Lacivert */
+.qab-hero__blob--3 {
+    width: 260px;
+    height: 260px;
+    background: #06b6d4;
+    top: 40%;
+    left: 55%;
+    animation-delay: -8s;
+    opacity: 0.35;
 }
 
-/* Cards Styling */
-.hover-card {
-    transition: all 0.3s ease-in-out;
-    border-radius: 8px;
+.qab-hero__grid {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
 }
 
-    .hover-card:hover {
-        background-color: #F5F5F5; /* Hafif gri */
-        transform: translateY(-5px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+.qab-hero__inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.qab-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    margin-bottom: 1.5rem;
+}
+
+    .qab-hero__badge i {
+        color: #fbbf24;
     }
 
-/* Button Styling */
-.btn-outline-primary {
-    color: #1A237E;
-    border-color: #1A237E;
-    font-weight: bold;
+.qab-hero__title {
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    margin-bottom: 1rem;
+    line-height: 1.1;
 }
 
-    .btn-outline-primary:hover {
-        background-color: #FFC107; /* Altın Sarısı */
-        border-color: #FFC107;
-        color: #1A237E;
+.qab-hero__title-accent {
+    background: linear-gradient(120deg, #818cf8 0%, #f472b6 50%, #fbbf24 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.qab-hero__subtitle {
+    font-size: clamp(1rem, 1.5vw, 1.15rem);
+    color: rgba(255, 255, 255, 0.75);
+    max-width: 620px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+@keyframes qab-float {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
     }
 
-/* Typography */
-.text-light {
-    color: #FAFAFA !important;
+    33% {
+        transform: translate(30px, -40px) scale(1.05);
+    }
+
+    66% {
+        transform: translate(-20px, 30px) scale(0.95);
+    }
 }
 
-.text-dark {
-    color: #424242 !important;
+/* =========================================================
+   SECTION HEADER
+   ========================================================= */
+.qab-section {
+    padding-bottom: 4rem;
 }
 
-.text-muted {
-    color: #757575 !important;
+.qab-section__header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.qab-section__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--qab-text);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.qab-section__hint {
+    color: var(--qab-text-muted);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* =========================================================
+   GRID
+   ========================================================= */
+.qab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+}
+
+/* =========================================================
+   CARD
+   ========================================================= */
+.qab-card {
+    --card-accent: #6366f1;
+    --card-accent-soft: rgba(99, 102, 241, 0.1);
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.4rem 1.5rem;
+    background: var(--qab-surface);
+    border: 1px solid var(--qab-border);
+    border-radius: var(--qab-radius);
+    text-decoration: none;
+    color: var(--qab-text);
+    box-shadow: var(--qab-shadow-sm);
+    overflow: hidden;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease;
+}
+
+    .qab-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--card-accent);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .qab-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--qab-shadow-md);
+        border-color: var(--card-accent);
+        color: var(--qab-text);
+        text-decoration: none;
+    }
+
+        .qab-card:hover::before {
+            transform: scaleX(1);
+        }
+
+    .qab-card:focus-visible {
+        outline: 2px solid var(--card-accent);
+        outline-offset: 3px;
+    }
+
+/* Icon */
+.qab-card__icon {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-accent-soft);
+    color: var(--card-accent);
+    border-radius: 14px;
+    font-size: 1.5rem;
+    transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.qab-card:hover .qab-card__icon {
+    transform: scale(1.08) rotate(-4deg);
+}
+
+/* Body */
+.qab-card__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.qab-card__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: var(--qab-text);
+    letter-spacing: -0.01em;
+}
+
+.qab-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--qab-text-muted);
+    transition: color 0.25s ease, gap 0.25s ease;
+}
+
+    .qab-card__cta i {
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+.qab-card:hover .qab-card__cta {
+    color: var(--card-accent);
+    gap: 0.55rem;
+}
+
+    .qab-card:hover .qab-card__cta i {
+        transform: translateX(3px);
+    }
+
+/* =========================================================
+   CARD ACCENT VARIANTS
+   ========================================================= */
+.qab-card--primary {
+    --card-accent: #6366f1;
+    --card-accent-soft: rgba(99, 102, 241, 0.10);
+}
+
+.qab-card--indigo {
+    --card-accent: #4f46e5;
+    --card-accent-soft: rgba(79, 70, 229, 0.10);
+}
+
+.qab-card--violet {
+    --card-accent: #8b5cf6;
+    --card-accent-soft: rgba(139, 92, 246, 0.10);
+}
+
+.qab-card--rose {
+    --card-accent: #e11d48;
+    --card-accent-soft: rgba(225, 29, 72, 0.10);
+}
+
+.qab-card--amber {
+    --card-accent: #d97706;
+    --card-accent-soft: rgba(217, 119, 6, 0.10);
+}
+
+.qab-card--orange {
+    --card-accent: #ea580c;
+    --card-accent-soft: rgba(234, 88, 12, 0.10);
+}
+
+.qab-card--emerald {
+    --card-accent: #059669;
+    --card-accent-soft: rgba(5, 150, 105, 0.10);
+}
+
+.qab-card--teal {
+    --card-accent: #0d9488;
+    --card-accent-soft: rgba(13, 148, 136, 0.10);
+}
+
+.qab-card--cyan {
+    --card-accent: #0891b2;
+    --card-accent-soft: rgba(8, 145, 178, 0.10);
+}
+
+.qab-card--slate {
+    --card-accent: #475569;
+    --card-accent-soft: rgba(71, 85, 105, 0.10);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 768px) {
+    .qab-hero {
+        padding: 3rem 0 2.5rem;
+        margin-bottom: 2rem;
+        border-radius: 0 0 24px 24px;
+    }
+
+    .qab-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .qab-card {
+        padding: 1.2rem 1.25rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .qab-hero__blob {
+        animation: none;
+    }
+
+    .qab-card,
+    .qab-card__icon,
+    .qab-card__cta,
+    .qab-card__cta i,
+    .qab-card::before {
+        transition: none;
+    }
 }

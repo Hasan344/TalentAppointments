@@ -1,179 +1,217 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Ana səhifə";
 }
 @model string;
 
 <link rel="stylesheet" href="~/css/Home/Index.css" asp-append-version="true" />
-<body class="bg-main">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg  bg-navbar shadow-sm">
-        <div class="container">
-            <a class="navbar-brand" href="#">Qabiliyyət İmtahanları</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Headmonitors/index">İmtahan Rəhbərləri</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Monitors/index">Nəzarətçilər</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Expert/index">Ekspertlər</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
 
+<div class="qab-home">
     <!-- Hero Section -->
-    <section class="bg-second text-white py-5">
-        <div class="container text-center">
-            <h1 class="display-4 mb-3">
-                    <span>Qabiliyyət İmtahanları</span>
+    <section class="qab-hero">
+        <div class="qab-hero__bg">
+            <div class="qab-hero__blob qab-hero__blob--1"></div>
+            <div class="qab-hero__blob qab-hero__blob--2"></div>
+            <div class="qab-hero__blob qab-hero__blob--3"></div>
+            <div class="qab-hero__grid"></div>
+        </div>
+
+        <div class="container qab-hero__inner">
+            <span class="qab-hero__badge">
+                <i class="bi bi-stars"></i>
+                <span>İdarəetmə Paneli</span>
+            </span>
+            <h1 class="qab-hero__title">
+                Qabiliyyət İmtahanlarının <span class="qab-hero__title-accent">İdarəetmə Sistemi</span>
             </h1>
-        </div>
-    </section>
-
-    <!-- Main Content Section -->
-    <section class="container my-5">
-        <div class="row g-4">
-            <!-- Card 1 -->
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0 hover-card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">İmtahan Rəhbərləri</h5>
-                        <a href="/Headmonitors/index" class="btn btn-primary rounded-pill px-4 py-2">Keçid</a>
-                    </div>
-                </div>
-            </div>
-            <!-- Card 2 -->
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0 hover-card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Nəzarətçilər</h5>
-                        <a href="/Monitors/index" class="btn btn-secondary rounded-pill px-4 py-2">Keçid</a>
-                    </div>
-                </div>
-            </div>
-            <!-- Card 3 -->
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0 hover-card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Ekspertlər</h5>
-                        <a href="/Expert/index" class="btn btn-outline-dark rounded-pill px-4 py-2">Keçid</a>
-                    </div>
-                </div>
-            </div>
             
-            <!-- Card 4 -->
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0 hover-card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">İmtahanlar</h5>
-                        <a href="/Exam/index" class="btn btn-danger rounded-pill px-4 py-2">Keçid</a>
-                    </div>
-                </div>
-            </div>
-            <!-- Card 6 -->
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0 hover-card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">DİM nümayəndələri</h5>
-                        <a href="/Representative/index" class="btn btn-outline-info rounded-pill px-4 py-2">Keçid</a>
-                    </div>
-                </div>
-            </div>
-            <!-- Card 7 -->
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-0 hover-card">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Könüllülər</h5>
-                            <a href="/Volunteers/index" class="btn btn-success rounded-pill px-4 py-2">Keçid</a>
-                        </div>
-                    </div>
-            </div>
-            @if (@ViewBag.Section == 1)
-            {
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-0 hover-card">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Nazirlik nümayəndələri</h5>
-                            <a href="/MinistryRepresentative/index" class="btn btn-success rounded-pill px-4 py-2">Keçid</a>
-                        </div>
-                    </div>
-                </div>
-            }
-            else if (@ViewBag.Section == 3 || @ViewBag.Section == 4 || @ViewBag.SectionId == 6)
-            {
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-0 hover-card">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Konsertmeysterlər</h5>
-                            <a href="/Kons/index" class="btn btn-success rounded-pill px-4 py-2">Keçid</a>
-                        </div>
-                    </div>
-                </div>
-            }
-            else if (@ViewBag.Section == 2)
-            {
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-0 hover-card">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Naturaçılar</h5>
-                            <a href="/Natura/index" class="btn btn-success rounded-pill px-4 py-2">Keçid</a>
-                        </div>
-                    </div>
-                </div>
-            }
-            else if(@ViewBag.Section == null)
-            {
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-0 hover-card">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Könüllülər</h5>
-                            <a href="/Volunteers/index" class="btn btn-success rounded-pill px-4 py-2">Keçid</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-0 hover-card">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Konsertmeysterlər</h5>
-                            <a href="/Kons/index" class="btn btn-success rounded-pill px-4 py-2">Keçid</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-0 hover-card">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Naturaçılar</h5>
-                            <a href="/Natura/index" class="btn btn-success rounded-pill px-4 py-2">Keçid</a>
-                        </div>
-                    </div>
-                </div>
-            }
-            <!-- Card 12 -->
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0 hover-card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Digər işçilər</h5>
-                        <a href="/Worker/index" class="btn btn-outline-dark rounded-pill px-4 py-2">Keçid</a>
-                    </div>
-                </div>
-            </div>
-            <!-- Card 8 -->
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0 hover-card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">İmtahan təqvimi</h5>
-                        <a href="/Calendar/Index" class="btn btn-success rounded-pill px-4 py-2">Keçid</a>
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
-</body>
+
+    <!-- Cards Section -->
+    <section class="container qab-section">
+        <div class="qab-section__header">
+            <h2 class="qab-section__title">Bölmələr</h2>
+            <p class="qab-section__hint">Davam etmək üçün bölmə seçin</p>
+        </div>
+
+        <div class="qab-grid">
+            <!-- İmtahan Rəhbərləri -->
+            <a href="/Headmonitors/index" class="qab-card qab-card--primary">
+                <div class="qab-card__icon">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+                <div class="qab-card__body">
+                    <h5 class="qab-card__title">İmtahan Rəhbərləri</h5>
+                    <span class="qab-card__cta">
+                        Keçid <i class="bi bi-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- Nəzarətçilər -->
+            <a href="/Monitors/index" class="qab-card qab-card--indigo">
+                <div class="qab-card__icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div class="qab-card__body">
+                    <h5 class="qab-card__title">Nəzarətçilər</h5>
+                    <span class="qab-card__cta">
+                        Keçid <i class="bi bi-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- Ekspertlər -->
+            <a href="/Expert/index" class="qab-card qab-card--slate">
+                <div class="qab-card__icon">
+                    <i class="bi bi-mortarboard"></i>
+                </div>
+                <div class="qab-card__body">
+                    <h5 class="qab-card__title">Ekspertlər</h5>
+                    <span class="qab-card__cta">
+                        Keçid <i class="bi bi-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- İmtahanlar -->
+            <a href="/Exam/index" class="qab-card qab-card--rose">
+                <div class="qab-card__icon">
+                    <i class="bi bi-journal-text"></i>
+                </div>
+                <div class="qab-card__body">
+                    <h5 class="qab-card__title">İmtahanlar</h5>
+                    <span class="qab-card__cta">
+                        Keçid <i class="bi bi-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- DİM nümayəndələri -->
+            <a href="/Representative/index" class="qab-card qab-card--cyan">
+                <div class="qab-card__icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="qab-card__body">
+                    <h5 class="qab-card__title">DİM nümayəndələri</h5>
+                    <span class="qab-card__cta">
+                        Keçid <i class="bi bi-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- Könüllülər -->
+            <a href="/Volunteers/index" class="qab-card qab-card--emerald">
+                <div class="qab-card__icon">
+                    <i class="bi bi-heart"></i>
+                </div>
+                <div class="qab-card__body">
+                    <h5 class="qab-card__title">Könüllülər</h5>
+                    <span class="qab-card__cta">
+                        Keçid <i class="bi bi-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+
+            @if (ViewBag.Section == 1)
+            {
+                <!-- Nazirlik nümayəndələri -->
+                <a href="/MinistryRepresentative/index" class="qab-card qab-card--amber">
+                    <div class="qab-card__icon">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div class="qab-card__body">
+                        <h5 class="qab-card__title">Nazirlik nümayəndələri</h5>
+                        <span class="qab-card__cta">
+                            Keçid <i class="bi bi-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+            }
+            else if (ViewBag.Section == 3 || ViewBag.Section == 4 || ViewBag.SectionId == 6)
+            {
+                <!-- Konsertmeysterlər -->
+                <a href="/Kons/index" class="qab-card qab-card--violet">
+                    <div class="qab-card__icon">
+                        <i class="bi bi-music-note-beamed"></i>
+                    </div>
+                    <div class="qab-card__body">
+                        <h5 class="qab-card__title">Konsertmeysterlər</h5>
+                        <span class="qab-card__cta">
+                            Keçid <i class="bi bi-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+            }
+            else if (ViewBag.Section == 2)
+            {
+                <!-- Naturaçılar -->
+                <a href="/Natura/index" class="qab-card qab-card--orange">
+                    <div class="qab-card__icon">
+                        <i class="bi bi-palette"></i>
+                    </div>
+                    <div class="qab-card__body">
+                        <h5 class="qab-card__title">Naturaçılar</h5>
+                        <span class="qab-card__cta">
+                            Keçid <i class="bi bi-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+            }
+            else if (ViewBag.Section == null)
+            {
+                <!-- Konsertmeysterlər (admin) -->
+                <a href="/Kons/index" class="qab-card qab-card--violet">
+                    <div class="qab-card__icon">
+                        <i class="bi bi-music-note-beamed"></i>
+                    </div>
+                    <div class="qab-card__body">
+                        <h5 class="qab-card__title">Konsertmeysterlər</h5>
+                        <span class="qab-card__cta">
+                            Keçid <i class="bi bi-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Naturaçılar (admin) -->
+                <a href="/Natura/index" class="qab-card qab-card--orange">
+                    <div class="qab-card__icon">
+                        <i class="bi bi-palette"></i>
+                    </div>
+                    <div class="qab-card__body">
+                        <h5 class="qab-card__title">Naturaçılar</h5>
+                        <span class="qab-card__cta">
+                            Keçid <i class="bi bi-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+            }
+
+            <!-- Digər işçilər -->
+            <a href="/Worker/index" class="qab-card qab-card--slate">
+                <div class="qab-card__icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="qab-card__body">
+                    <h5 class="qab-card__title">Digər işçilər</h5>
+                    <span class="qab-card__cta">
+                        Keçid <i class="bi bi-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- İmtahan təqvimi -->
+            <a href="/Calendar/Index" class="qab-card qab-card--teal">
+                <div class="qab-card__icon">
+                    <i class="bi bi-calendar3"></i>
+                </div>
+                <div class="qab-card__body">
+                    <h5 class="qab-card__title">İmtahan təqvimi</h5>
+                    <span class="qab-card__cta">
+                        Keçid <i class="bi bi-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+        </div>
+    </section>
+</div>

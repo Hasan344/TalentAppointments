@@ -1,206 +1,196 @@
 ﻿@model IEnumerable<ForQab.DataAccess.Models.Monitor>
-
 @{
     ViewData["Title"] = "Digər işçilər";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
+    var q = ViewContext.HttpContext.Request.Query;
 }
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-success">@TempData["Message"]</div>
-}
-
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 <link rel="stylesheet" href="~/css/Monitors/Index.css" asp-append-version="true" />
 
-<div class="container mt-5">
-    <h1 class="text-center mb-4 fw-bold text-primary">Digər işçilər</h1>
+<div class="container qab-page">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="qab-alert qab-alert--success"><i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]</div>
+    }
 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-            <a class="btn btn-success" asp-action="Create"><i class="bi bi-plus-circle"></i> Yeni İşçi</a>
-            <a class="btn btn-outline-primary" href="@Url.Action("ExportToExcel", "Worker", new { searchName = ViewContext.HttpContext.Request.Query["searchName"], finCode = ViewContext.HttpContext.Request.Query["finCode"], serial = ViewContext.HttpContext.Request.Query["serial"], genderId = ViewContext.HttpContext.Request.Query["genderId"], district = ViewContext.HttpContext.Request.Query["district"] })">
-                <i class="bi bi-file-earmark-excel"></i> Excel'e çıxarış
-            </a>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
-                <i class="bi bi-file-earmark-word"></i> Müqavilə Export
-            </button>@*
-            <a class="btn btn-outline-secondary" asp-action="Archived"><i class="bi bi-archive"></i> Arxiv</a>
-            <a class="btn btn-outline-info" asp-action="MonitorLogs"><i class="bi bi-journal"></i> Xüsusi qeydlər</a> *@
-        </div>
-    </div>
-
-
-    <!-- Export Modal -->
-    <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exportModalLabel">Müqavilə Export</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form method="post" asp-action="ExportContracts">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="contractDate" class="form-label">Müqavilə Tarixi</label>
-                            <input type="date" id="contractDate" name="contractDate" class="form-control" required />
-                        </div>
-                        @* <div class="mb-3">
-                            <label for="workerType" class="form-label">İşçi tipi</label>
-                            <select id="workerType" name="workerType" class="form-select" required onchange="filterByWorkerType()">
-                                <option value="">-- Seçin --</option>
-                                @foreach (var wt in ViewBag.WorkerTypes
-                                    )
-                                    {
-                                    <option value="@wt.Value">@wt.Text</option>
-                                    }
-                            </select>
-                        </div>
- *@
-                        <p>Seçdiyiniz işçinin müqaviləsi export ediləcək:</p>
-                        <div class="table-responsive" style="max-height:200px; overflow:auto;">
-                            <table class="table table-sm table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Seçin</th>
-                                        <th>Ad</th>
-                                        <th>Soyad</th>
-                                        <th>FİN Kodu</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in Model)
-                                    {
-                                        <tr data-workertype ="@item.WorkerType">
-                                            <td>
-                                                <input type="radio" name="selectedExpertIds" value="@item.Id" class="select-item" />
-                                            </td>
-                                            <td>@item.Name</td>
-                                            <td>@item.Surname</td>
-                                            <td>@item.FinCode</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
-                        <button type="submit" class="btn btn-primary">Export et</button>
-                    </div>
-                </form>
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-people-fill"></i></span>
+                    Digər işçilər
+                </h1>
+            </div>
+            <div style="display:flex;gap:.5rem;">
+                <a class="qab-page-header__back" asp-action="Archived"><i class="bi bi-archive"></i> Arxiv</a>
+                <a class="qab-page-header__back" asp-controller="Home" asp-action="Index"><i class="bi bi-house"></i> Ana səhifə</a>
             </div>
         </div>
     </div>
 
-    <form method="get" class="d-flex flex-wrap gap-2 align-items-center">
-        <input type="text" name="searchName" value="@ViewContext.HttpContext.Request.Query["searchName"]" class="form-control" placeholder="Ad və soyad axtar..." style="max-width: 200px;" />
-        <input type="text" name="finCode" value="@ViewContext.HttpContext.Request.Query["finCode"]" class="form-control" placeholder="FİN Kod..." style="max-width: 150px;" />
-        <input type="text" name="serial" value="@ViewContext.HttpContext.Request.Query["serial"]" class="form-control" placeholder="Seriya..." style="max-width: 150px;" />
-        <select name="genderId" class="form-select" style="max-width: 150px;">
-            <option value="">Cins seçin</option>
-            @foreach (var gender in ViewBag.Genders)
-            {
-                <option value="@gender.Id" selected="@(gender.Id.ToString() == ViewContext.HttpContext.Request.Query["genderId"])">@gender.Name</option>
-            }
-        </select>
-        <select name="district" class="form-select" style="max-width: 150px;">
-            <option value="">Rayon seçin</option>
-            @foreach (var district in ViewBag.Districts)
-            {
-                <option value="@district.Id" selected="@(district.Id.ToString() == ViewContext.HttpContext.Request.Query["district"])">@district.Name</option>
-            }
-        </select>
-        <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Axtar</button>
-        <a href="@Url.Action("Index", "Worker")" class="btn btn-outline-danger"><i class="bi bi-x-circle"></i> Sıfırla</a>
-    </form>
+    <div class="qab-actionbar">
+        <a class="qab-btn qab-btn--primary" asp-action="Create"><i class="bi bi-plus-circle"></i> Yeni işçi</a>
+        <a class="qab-btn qab-btn--excel" asp-action="ExportToExcel"><i class="bi bi-file-earmark-excel"></i> Excel-ə çıxarış</a>
+        <button class="qab-btn qab-btn--word" data-bs-toggle="modal" data-bs-target="#contractModal">
+            <i class="bi bi-file-earmark-word"></i> Müqavilə export
+        </button>
+        <form asp-action="ImportFromExcel" enctype="multipart/form-data" method="post" style="margin:0;">
+            <label class="qab-btn qab-btn--outline qab-btn--sm" style="cursor:pointer;margin:0;">
+                <i class="bi bi-upload"></i> Excel idxal
+                <input type="file" name="excelFile" style="display:none;" onchange="this.form.submit()" />
+            </label>
+        </form>
+    </div>
 
+    <!-- Filters -->
+    <div class="qab-card" style="margin-bottom:1.25rem;">
+        <div class="qab-card__body qab-card__body--tight">
+            <form method="get" asp-action="Index" class="qab-filters">
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">Ad / Soyad</label>
+                    <input type="text" name="searchName" value="@q["searchName"]" class="form-control" placeholder="Ad..." />
+                </div>
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">FİN Kod</label>
+                    <input type="text" name="finCode" value="@q["finCode"]" class="form-control" placeholder="FİN..." />
+                </div>
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">İşçi tipi</label>
+                    <select name="workerTypeId" class="form-select">
+                        <option value="">Hamısı</option>
+                        @if (ViewBag.WorkerTypes != null)
+                        {
+                            foreach (var wt in (IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)ViewBag.WorkerTypes)
+                            {
+                                <option value="@wt.Value" selected="@(wt.Value == q["workerTypeId"] ? "selected" : null)">@wt.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">Rayon</label>
+                    <select name="district" class="form-select">
+                        <option value="">Hamısı</option>
+                        @foreach (var d in ViewBag.Districts)
+                        {
+                            <option value="@d.Id" selected="@(d.Id.ToString() == q["district"] ? "selected" : null)">@d.Name</option>
+                        }
+                    </select>
+                </div>
+                <div style="display:flex;gap:.4rem;align-items:end;">
+                    <button type="submit" class="qab-btn qab-btn--primary qab-btn--sm"><i class="bi bi-search"></i> Axtar</button>
+                    <a href="@Url.Action("Index")" class="qab-btn qab-btn--ghost qab-btn--sm"><i class="bi bi-x-circle"></i> Sıfırla</a>
+                </div>
+            </form>
+        </div>
+    </div>
 
-
-    <div class="table-responsive">
-        <table class="table table-hover table-bordered align-middle shadow-sm">
-            <thead class="table-dark">
+    <div class="qab-table-wrap">
+        <table class="qab-table qab-table--compact">
+            <colgroup>
+                <col style="width:2.5rem">
+                <col style="width:auto">
+                <col style="width:8rem">
+                <col style="width:7.5rem">
+                <col style="width:8rem">
+                <col style="width:7rem">
+                <col style="width:4rem">
+                <col style="width:6.5rem">
+            </colgroup>
+            <thead>
                 <tr>
                     <th>#</th>
-                    <th>Ad</th>
-                    <th>Soyad</th>
-                    <th>Ata adı</th>
-                    <th>Cins</th>
-                    <th>Doğum tarixi</th>
-                    <th>İş yeri</th>
-                    <th>Tel.</th>
-                    <th>FİN Kodu</th>
-                    <th>Seriya</th>
-                    <th>İstiqamət</th>
+                    <th>Ad Soyad</th>
+                    <th>İşçi tipi</th>
+                    <th>Telefon</th>
+                    <th>FİN / Seriya</th>
                     <th>Rayon</th>
-                    <th>İş vəzifəsi</th>
-                    <th>İştirak sayı</th>
-                    <th class="text-center">Əməliyyatlar</th>
+                    <th>İştirak</th>
+                    <th>Əməliyyatlar</th>
                 </tr>
             </thead>
             <tbody>
-                @{
-                    int rowNumber = 1;
-                }
+                @{ int i = 1; }
                 @foreach (var item in Model)
                 {
-                    <tr class="align-middle @(item.Status == 1 ? "table-danger" : "")">
-                        <td>@rowNumber</td>
-                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Surname)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Fname)</td>
-                        <td>@Html.DisplayFor(modelItem => item.GenderNavigation.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.BirthDate)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Workplace)</td>
-                        <td>@Html.DisplayFor(modelItem => item.TelIs)</td>
-                        <td>@Html.DisplayFor(modelItem => item.FinCode)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Serial)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Section.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.DistrictNavigation.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.WorkerTypeNavigation.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.ComputedAssignmentCount)</td>
-                        <td class="text-center">
-                            <div class="btn-group">
-                                <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a>
-                                <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@item.Id"><i class="bi bi-eye"></i></a>
-                                <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash"></i></a>
+                    <tr>
+                        <td class="qab-col-num">@i</td>
+                        <td>
+                            <div class="qab-col-name">
+                                <strong>@item.Surname @item.Name @item.Fname</strong>
+                                @if (!string.IsNullOrEmpty(item.ExamBuilding?.Name))
+                                {
+                                    <span class="qab-badge qab-badge--neutral" style="font-size:.72rem;">@item.ExamBuilding.Name</span>
+                                }
+                            </div>
+                        </td>
+                        <td><span class="qab-badge qab-badge--primary">@item.WorkerTypeNavigation?.Name</span></td>
+                        <td class="qab-col-date">@item.TelIs</td>
+                        <td>
+                            <div style="font-size:.83rem;">
+                                <div>@item.FinCode</div>
+                                <div class="text-muted">@item.SerialPrefix @item.Serial</div>
+                            </div>
+                        </td>
+                        <td class="qab-col-wrap">@item.DistrictNavigation?.Name</td>
+                        <td><span class="qab-badge qab-badge--neutral">@item.ComputedAssignmentCount</span></td>
+                        <td>
+                            <div class="qab-table__actions">
+                                <a class="qab-table__action-btn qab-table__action-btn--view"
+                                   asp-action="Details" asp-route-id="@item.Id" title="Detallar">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a class="qab-table__action-btn qab-table__action-btn--edit"
+                                   asp-action="Edit" asp-route-id="@item.Id" title="Redaktə">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a class="qab-table__action-btn qab-table__action-btn--delete"
+                                   asp-action="Delete" asp-route-id="@item.Id" title="Sil">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>
-                    rowNumber++;
+                    i++;
                 }
             </tbody>
         </table>
     </div>
 </div>
 
-@* <script>
-    // Checkbox Select All
-    document.getElementById('selectAll').addEventListener('change', function () {
-        var checked = this.checked;
-        document.querySelectorAll('.select-item').forEach(cb => cb.checked = checked);
-    });
-    // Button Select All
-    document.getElementById('selectAllBtn').addEventListener('click', function () {
-        document.querySelectorAll('.select-item').forEach(cb => cb.checked = true);
-        document.getElementById('selectAll').checked = true;
-    });
-</script> *@
-@* <script>
-    function filterByWorkerType() {
-        const selectedType = document.getElementById("workerType").value;
-        const rows = document.querySelectorAll("#exportModal tbody tr");
-
-        rows.forEach(row => {
-            const rowType = row.getAttribute("data-workertype");
-            row.style.display = (!selectedType || rowType === selectedType) ? "" : "none";
-        });
-    }
-
-    document.querySelector("form[method='post']").addEventListener("submit", function () {
-        const selectedType = document.getElementById("workerType").value;
-        const hiddenInput = document.createElement("input");
-        hiddenInput.type = "hidden";
-        hiddenInput.name = "workerType";
-        hiddenInput.value = selectedType;
-        this.appendChild(hiddenInput);
-    });
-</script> *@
+<!-- Müqavilə Modal -->
+<div class="modal fade" id="contractModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content qab-page">
+            <form asp-action="ExportContracts" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Müqavilə export</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="qab-form__field">
+                        <label class="form-label">Müqavilə tarixi</label>
+                        <input type="date" name="contractDate" class="form-control" required />
+                    </div>
+                    <div class="qab-form__field">
+                        <label class="form-label">İşçi tipi</label>
+                        <select name="workerType" class="form-select" required>
+                            <option value="">Seçin</option>
+                            @if (ViewBag.WorkerTypes != null)
+                            {
+                                foreach (var wt in (IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)ViewBag.WorkerTypes)
+                                {
+                                    <option value="@wt.Value">@wt.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="qab-btn qab-btn--ghost" data-bs-dismiss="modal">Bağla</button>
+                    <button type="submit" class="qab-btn qab-btn--primary">Export et</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

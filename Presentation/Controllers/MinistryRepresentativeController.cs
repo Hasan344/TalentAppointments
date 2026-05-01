@@ -1,9 +1,11 @@
-﻿using ForQab.DataAccess.Models;
+﻿using ClosedXML.Excel;
+using ForQab.DataAccess.Models;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -122,6 +124,51 @@ namespace ForQab.Presentation.Controllers
                 await _representativeService.DeleteRepresentativeAsync(id);
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> ExportToExcel()
+        {
+            var representatives = await _representativeService.GetAllRepresentativesAsync();
+
+            var dt = new DataTable("MinistryRepresentatives");
+            dt.Columns.AddRange(new DataColumn[]
+            {
+                new DataColumn("Ad"),
+                new DataColumn("Soyad"),
+                new DataColumn("Ata adı"),
+                new DataColumn("Fin Kod"),
+                new DataColumn("Telefon"),
+                new DataColumn("Seriya prefiksi"),
+                new DataColumn("Seriya nömrəsi"),
+            });
+
+            foreach (var rep in representatives)
+            {
+                dt.Rows.Add(
+                    rep.Name,
+                    rep.Surname,
+                    rep.Fname,
+                    rep.FinCode,
+                    rep.Tel,
+                    rep.SerialPrefix ?? "",
+                    rep.Serial
+                );
+            }
+
+            using (var workbook = new XLWorkbook())
+            {
+                workbook.Worksheets.Add(dt, "Nazirlik Nümayəndələri");
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(
+                        content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "Nazirlik nümayəndələri.xlsx"
+                    );
+                }
+            }
         }
 
         private bool CommissionExists(int id)

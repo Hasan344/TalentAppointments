@@ -1,190 +1,174 @@
 ﻿@model ForQab.DataAccess.Models.Monitor
-
 @{
-    ViewData["Title"] = "İşçi əlavə et";
+    ViewData["Title"] = "Yeni işçi";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
-<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-}
-<div class="container py-4" style="background-color: #2c2f33; border-radius: 10px; color: #ffffff;">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <h1 class="text-center mb-4">@ViewData["Title"]</h1>
-            <hr style="border-color: #7289da;" />
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 
-            <form asp-action="Create" method="post" class="p-3">
-                <div class="mb-3">
-                    <label asp-for="Name" class="form-label">Ad</label>
-                    <input asp-for="Name" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+<div class="container qab-page">
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-person-plus"></i></span>
+                    Yeni işçi əlavə et
+                </h1>
+            </div>
+            <a class="qab-page-header__back" asp-action="Index"><i class="bi bi-arrow-left"></i> Geri</a>
+        </div>
+    </div>
+
+    <form asp-action="Create" method="post" class="qab-form">
+        <div asp-validation-summary="ModelOnly" class="qab-form__validation"></div>
+        <input type="hidden" asp-for="Role" value="5" />
+        <input type="hidden" asp-for="Status" value="0" />
+        <input type="hidden" asp-for="Archive" value="0" />
+
+        <!-- Şəxsi məlumatlar -->
+        <div class="qab-form__section">
+            <div class="qab-form__section-title">Şəxsi məlumatlar</div>
+            <div class="qab-form__row">
+                <div class="qab-form__field">
+                    <label asp-for="Name" class="form-label">Ad <span class="text-danger">*</span></label>
+                    <input asp-for="Name" class="form-control" />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
-
-                <div class="mb-3">
-                    <label asp-for="Surname" class="form-label">Soyad</label>
-                    <input asp-for="Surname" class="form-control" style="background-color: #23272a; color: #ffffff;" />
+                <div class="qab-form__field">
+                    <label asp-for="Surname" class="form-label">Soyad <span class="text-danger">*</span></label>
+                    <input asp-for="Surname" class="form-control" />
                     <span asp-validation-for="Surname" class="text-danger"></span>
                 </div>
-
-                <div class="mb-3">
-                    <label asp-for="Fname" class="form-label">Atanın Adı</label>
-                    <input asp-for="Fname" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="Fname" class="text-danger"></span>
+                <div class="qab-form__field">
+                    <label asp-for="Fname" class="form-label">Ata adı</label>
+                    <input asp-for="Fname" class="form-control" />
                 </div>
-
-                <div class="mb-3">
-                    <label asp-for="ExamBuildingId" class="form-label">İmtahan binası</label>
-                    <select asp-for="ExamBuildingId" class="form-select" asp-items="ViewBag.Building" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>Bina Seçin</option>
-                    </select>
-                    <span asp-validation-for="ExamBuildingId" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="SectionId" class="form-label">İstiqamət</label>
-                    <select asp-for="SectionId" class="form-select" asp-items="ViewBag.SectionList" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>İstiqamət Seçin</option>
-                    </select>
-                    <span asp-validation-for="SectionId" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="WorkerType" class="form-label">İşçi tipi</label>
-                    <select asp-for="WorkerType" class="form-select" asp-items="ViewBag.WorkerType" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>Tip Seçin</option>
-                    </select>
-                    <span asp-validation-for="WorkerType" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Gender" class="form-label">Cins</label>
-                    <select asp-for="Gender" class="form-select" asp-items="ViewBag.Gender" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>Cins Seçin</option>
-                    </select>
-                    <span asp-validation-for="Gender" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <input type="hidden" asp-for="Role" value="5" />
-                </div>
-
-                <div class="mb-3">
-                    <input type="hidden" asp-for="Status" value="0" />
-                </div>
-
-                <div class="mb-3">
-                    <input type="hidden" asp-for="AssignmentCount" value="0" />
-                </div>
-
-                <div class="mb-3">
-                    <input type="hidden" asp-for="Archive" value="0" />
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Profession" class="form-label">İxtisas</label>
-                    <input asp-for="Profession" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="Profession" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Workplace" class="form-label">İş Yeri</label>
-                    <input asp-for="Workplace" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="Workplace" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="TelIs" class="form-label">Telefonu</label>
-                    <input asp-for="TelIs" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="TelIs" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="FinCode" class="form-label">FİN Kodu</label>
-                    <input asp-for="FinCode" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="FinCode" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="SerialPrefix" class="form-label">Seriya</label>
-                    <input asp-for="SerialPrefix" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="SerialPrefix" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Serial" class="form-label">Seriya nömrəsi</label>
-                    <input asp-for="Serial" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="Serial" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="BirthDate" class="form-label">Doğum tarixi</label>
-                    <input asp-for="BirthDate" type="date" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="BirthDate" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="HesablashmaH" class="form-label">Hesablashma Hesabı</label>
-                    <input asp-for="HesablashmaH" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="HesablashmaH" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="SSN" class="form-label">SSN</label>
-                    <input asp-for="SSN" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="SSN" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Rekvizit" class="form-label">Rekvizit</label>
-                    <input asp-for="Rekvizit" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="Rekvizit" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Voen" class="form-label">VÖEN</label>
-                    <input asp-for="Voen" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="Voen" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="BankFilial" class="form-label">Bank Filialı</label>
-                    <input asp-for="BankFilial" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="BankFilial" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="BankFilialCode" class="form-label">Bank Filial kodu</label>
-                    <input asp-for="BankFilialCode" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="BankFilialCode" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="District" class="form-label" style="font-weight: 500;">Rayon</label>
-                    <select asp-for="District" class="form-select" asp-items="ViewBag.District" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>Seçin...</option>
-                    </select>
-                    <span asp-validation-for="District" class="text-danger"></span>
-                </div>
-
-                <div class="d-flex justify-content-between">
-                    <a asp-action="Index" class="btn btn-secondary" style="background-color: #2f3136; color: #ffffff;">Geri</a>
-                    <button type="submit" class="btn btn-primary" style="background-color: #7289da; border-color: #7289da;">Yarat</button>
-                </div>
-            </form>
-        </div>
-        <form asp-controller="Worker" asp-action="ImportFromExcel" enctype="multipart/form-data" method="post">
-            <div class="mb-3">
-                <label for="excelFile" class="form-label">Excel Faylı Yükləyin</label>
-                <input type="file" name="excelFile" id="excelFile" class="form-control" />
             </div>
-            <button type="submit" class="btn btn-primary">Fayl yüklə</button>
-        </form>
-    </div>
+            <div class="qab-form__row">
+                <div class="qab-form__field">
+                    <label asp-for="Gender" class="form-label">Cins</label>
+                    <select asp-for="Gender" class="form-select"
+                            asp-items="@(ViewData["Gender"] as SelectList)">
+                        <option value="">Seçin</option>
+                    </select>
+                </div>
+                <div class="qab-form__field">
+                    <label asp-for="BirthDate" class="form-label">Doğum tarixi</label>
+                    <input asp-for="BirthDate" type="date" class="form-control" />
+                </div>
+                <div class="qab-form__field">
+                    <label asp-for="TelIs" class="form-label">Telefon</label>
+                    <input asp-for="TelIs" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <!-- İş məlumatları -->
+        <div class="qab-form__section">
+            <div class="qab-form__section-title">İş məlumatları</div>
+            <div class="qab-form__row">
+                <div class="qab-form__field">
+                    <label asp-for="WorkerType" class="form-label">İşçi tipi <span class="text-danger">*</span></label>
+                    <select asp-for="WorkerType" class="form-select"
+                            asp-items="@(ViewBag.WorkerTypes as SelectList)">
+                        <option value="">Seçin</option>
+                    </select>
+                </div>
+                <div class="qab-form__field">
+                    <label asp-for="SectionId" class="form-label">İstiqamət <span class="text-danger">*</span></label>
+                    <select asp-for="SectionId" class="form-select"
+                            asp-items="@(ViewBag.SectionList as SelectList)">
+                        <option value="">Seçin</option>
+                    </select>
+                </div>
+                <div class="qab-form__field">
+                    <label asp-for="ExamBuildingId" class="form-label">İmtahan binası <span class="text-danger">*</span></label>
+                    <select asp-for="ExamBuildingId" class="form-select"
+                            asp-items="@(ViewBag.ExamBuilding as SelectList)">
+                        <option value="">Seçin</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sənəd məlumatları -->
+        <div class="qab-form__section">
+            <div class="qab-form__section-title">Sənəd məlumatları</div>
+            <div class="qab-form__row">
+                <div class="qab-form__field">
+                    <label asp-for="FinCode" class="form-label">FİN Kod</label>
+                    <input asp-for="FinCode" class="form-control" />
+                </div>
+                <div class="qab-form__field">
+                    <label asp-for="SerialPrefix" class="form-label">Seriya prefiksi</label>
+                    <input asp-for="SerialPrefix" class="form-control" />
+                </div>
+                <div class="qab-form__field">
+                    <label asp-for="Serial" class="form-label">Seriya nömrəsi</label>
+                    <input asp-for="Serial" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Ünvan -->
+        <div class="qab-form__section">
+            <div class="qab-form__section-title">Ünvan</div>
+            <div class="qab-form__row">
+                <div class="qab-form__field">
+                    <label asp-for="District" class="form-label">Rayon <span class="text-danger">*</span></label>
+                    <select asp-for="District" class="form-select"
+                            asp-items="@(ViewData["District"] as SelectList)">
+                        <option value="">Seçin</option>
+                    </select>
+                </div>
+                <div class="qab-form__field">
+                    <label asp-for="Region" class="form-label">Region</label>
+                    <input asp-for="Region" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Maliyyə məlumatları -->
+        <div class="qab-form__section">
+            <div class="qab-form__section-title">Maliyyə məlumatları</div>
+            <div class="qab-form__row">
+                <div class="qab-form__field">
+                    <label asp-for="SSN" class="form-label">SSN</label>
+                    <input asp-for="SSN" class="form-control" />
+                </div>
+                <div class="qab-form__field">
+                    <label asp-for="Rekvizit" class="form-label">Rekvizit</label>
+                    <input asp-for="Rekvizit" class="form-control" />
+                </div>
+                <div class="qab-form__field">
+                    <label asp-for="HesablashmaH" class="form-label">Hesablaşma hesabı</label>
+                    <input asp-for="HesablashmaH" class="form-control" />
+                </div>
+                <div class="qab-form__field">
+                    <label asp-for="Voen" class="form-label">VÖEN</label>
+                    <input asp-for="Voen" class="form-control" />
+                </div>
+                <div class="qab-form__field">
+                    <label asp-for="BankFilial" class="form-label">Bank filialı</label>
+                    <input asp-for="BankFilial" class="form-control" />
+                </div>
+                <div class="qab-form__field">
+                    <label asp-for="BankFilialCode" class="form-label">Bank filial kodu</label>
+                    <input asp-for="BankFilialCode" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <div class="qab-form__footer">
+            <a asp-action="Index" class="qab-btn qab-btn--outline">
+                <i class="bi bi-arrow-left"></i> Ləğv et
+            </a>
+            <button type="submit" class="qab-btn qab-btn--primary qab-btn--lg">
+                <i class="bi bi-check-circle"></i> Yarat
+            </button>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }

@@ -1,38 +1,208 @@
 ﻿@{
-    ViewData["Title"] = "Təqvim";
+    ViewData["Title"] = "İmtahan Təqvimi";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 
-<link rel="stylesheet" href="~/css/Calendar/Index.css" />
-<div class="calendar-container">
-    <div id="calendar"></div>
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Calendar/Index.css" asp-append-version="true" />
+
+<div class="container qab-page">
+
+    <!-- Page Header -->
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-calendar3"></i></span>
+                    İmtahan Təqvimi
+                </h1>
+                <p class="qab-page-header__subtitle">Bütün imtahanları təqvim formatında izləyin</p>
+            </div>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                <a class="qab-page-header__back" asp-controller="Exam" asp-action="Index">
+                    <i class="bi bi-journal-text"></i> İmtahanlar
+                </a>
+                <a class="qab-page-header__back" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-house"></i> Ana səhifə
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend + View switcher -->
+    <div class="qab-cal-toolbar">
+        <div class="qab-cal-legend">
+            <span class="qab-cal-legend__item">
+                <span class="qab-cal-legend__dot" style="background:#6366f1;"></span> Ümumi
+            </span>
+            <span class="qab-cal-legend__item">
+                <span class="qab-cal-legend__dot" style="background:#059669;"></span> Musiqi
+            </span>
+            <span class="qab-cal-legend__item">
+                <span class="qab-cal-legend__dot" style="background:#0891b2;"></span> İncəsənət
+            </span>
+            <span class="qab-cal-legend__item">
+                <span class="qab-cal-legend__dot" style="background:#d97706;"></span> İdman
+            </span>
+            <span class="qab-cal-legend__item">
+                <span class="qab-cal-legend__dot" style="background:#8b5cf6;"></span> Digər
+            </span>
+        </div>
+
+        <div class="qab-cal-viewbtns" id="calViewBtns">
+            <button class="qab-btn qab-btn--primary qab-btn--sm active-view" data-view="dayGridMonth">
+                <i class="bi bi-grid"></i> Ay
+            </button>
+            <button class="qab-btn qab-btn--ghost qab-btn--sm" data-view="dayGridWeek">
+                <i class="bi bi-calendar-week"></i> Həftə
+            </button>
+            <button class="qab-btn qab-btn--ghost qab-btn--sm" data-view="listMonth">
+                <i class="bi bi-list-ul"></i> Siyahı
+            </button>
+        </div>
+    </div>
+
+    <!-- Calendar Card -->
+    <div class="qab-cal-card">
+        <div id="calendar"></div>
+    </div>
+
+    <!-- Event Detail Panel (click açılır) -->
+    <div id="qabEventPanel" class="qab-event-panel" style="display:none;">
+        <div class="qab-event-panel__header">
+            <div>
+                <h4 class="qab-event-panel__title" id="panelTitle">—</h4>
+                <p class="qab-event-panel__sub" id="panelSub">—</p>
+            </div>
+            <button class="qab-event-panel__close" id="panelClose">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="qab-event-panel__body">
+            <div class="qab-details__row">
+                <dt class="qab-details__label">Tarix</dt>
+                <dd class="qab-details__value" id="panelDate">—</dd>
+            </div>
+            <div class="qab-details__row">
+                <dt class="qab-details__label">Saat</dt>
+                <dd class="qab-details__value" id="panelTime">—</dd>
+            </div>
+            <div class="qab-details__row">
+                <dt class="qab-details__label">Bina</dt>
+                <dd class="qab-details__value" id="panelBuilding">—</dd>
+            </div>
+            <div class="qab-details__row">
+                <dt class="qab-details__label">İstiqamət</dt>
+                <dd class="qab-details__value" id="panelSection">—</dd>
+            </div>
+            <div class="qab-details__row">
+                <dt class="qab-details__label">İştirakçı</dt>
+                <dd class="qab-details__value" id="panelStudents">—</dd>
+            </div>
+        </div>
+        <div class="qab-event-panel__footer">
+            <a id="panelLink" href="#" class="qab-btn qab-btn--primary qab-btn--sm">
+                <i class="bi bi-eye"></i> Detallara keç
+            </a>
+        </div>
+    </div>
+
 </div>
 
-<script src="~/lib/fullcalendar/main.min.js"></script>
+@section Scripts {
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var calendarEl = document.getElementById('calendar');
+document.addEventListener('DOMContentLoaded', function () {
 
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            headerToolbar: {
-                start: 'prev,next today',
-                center: 'title',
-                end: 'dayGridMonth,dayGridWeek,dayGridDay'
-            },
-            events: '/Calendar/GetCalendarEvents', // Backend'den eventleri çekiyor
-            eventClick: function (info) {
-                // Detay sayfasına yönlendirme
-                var examId = info.event.id; // Backend'den dönen sınav ID'si
-                window.location.href = '/Exam/Details/' + examId;
-            },
-                eventContent: function (arg) {
-                return {
-                    html: '<b>' + arg.event.title + '</b>'
-                };
+    // Section → rəng map
+    var sectionColors = {
+        1: '#6366f1',   // Ümumi
+        2: '#059669',   // Rəsm/İncəsənət kimi
+        3: '#059669',   // Musiqi
+        4: '#059669',
+        5: '#0891b2',   // İncəsənət
+        6: '#d97706',   // İdman
+    };
+    var defaultColor = '#8b5cf6';
+
+    var calendarEl = document.getElementById('calendar');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        locale: 'az',
+        initialView: 'dayGridMonth',
+        height: 'auto',
+        firstDay: 1,            // Bazar ertəsindən başla
+        buttonText: {
+            today: 'Bu gün',
+            month: 'Ay',
+            week:  'Həftə',
+            day:   'Gün',
+            list:  'Siyahı'
+        },
+        headerToolbar: {
+            start: 'prev,next today',
+            center: 'title',
+            end: ''             // View düymələrini özümüz idarə edirik
+        },
+        events: {
+            url: '/Calendar/GetCalendarEvents',
+            failure: function () {
+                console.error('Təqvim hadisələri yüklənmədi.');
             }
-        });
-        
-        calendar.render();
+        },
+        eventColor: defaultColor,
+        eventDisplay: 'block',
+        displayEventTime: false,
+        dayMaxEvents: 3,        // +N more düyməsi
+        eventDidMount: function (info) {
+            // Hər event-ə section rəngi ver
+            var sectionId = info.event.extendedProps.sectionId;
+            var color = sectionColors[sectionId] || defaultColor;
+            info.el.style.backgroundColor = color;
+            info.el.style.borderColor = color;
+        },
+        eventClick: function (info) {
+            info.jsEvent.preventDefault();
+            var props = info.event.extendedProps;
+
+            // Panel-i doldur
+            document.getElementById('panelTitle').textContent   = info.event.title;
+            document.getElementById('panelSub').textContent     = props.section || '';
+            document.getElementById('panelDate').textContent    = props.examDate || '';
+            document.getElementById('panelTime').textContent    =
+                (props.startTime || '--') + ' → ' + (props.endTime || '--');
+            document.getElementById('panelBuilding').textContent = props.building || '—';
+            document.getElementById('panelSection').textContent  = props.section  || '—';
+            document.getElementById('panelStudents').textContent = props.studentCount != null
+                ? props.studentCount + ' nəfər' : '—';
+            document.getElementById('panelLink').href = '/Exam/Details/' + info.event.id;
+
+            document.getElementById('qabEventPanel').style.display = 'block';
+        },
+        // Boş gün click-də paneli bağla
+        dateClick: function () {
+            document.getElementById('qabEventPanel').style.display = 'none';
+        }
     });
-    
+
+    calendar.render();
+
+    // Xarici view düymələri
+    document.getElementById('calViewBtns').addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-view]');
+        if (!btn) return;
+        calendar.changeView(btn.dataset.view);
+        document.querySelectorAll('#calViewBtns [data-view]').forEach(function (b) {
+            b.classList.remove('qab-btn--primary');
+            b.classList.add('qab-btn--ghost');
+        });
+        btn.classList.add('qab-btn--primary');
+        btn.classList.remove('qab-btn--ghost');
+    });
+
+    // Panel bağla
+    document.getElementById('panelClose').addEventListener('click', function () {
+        document.getElementById('qabEventPanel').style.display = 'none';
+    });
+});
 </script>
+}

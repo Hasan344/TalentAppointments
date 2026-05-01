@@ -1,10 +1,10 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="az">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Qabiliyyət</title>
-       <link rel="stylesheet" href="~/css/Layout.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/Layout.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ForQab.styles.css" asp-append-version="true" />
@@ -14,41 +14,75 @@
 <body>
     @RenderSection("Styles", required: false)
 
-    <header>
-        <nav class="navbar navbar-expand-lg ">
+    @{
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+        string IsActive(params string[] controllers) =>
+            controllers.Any(c => string.Equals(c, currentController, StringComparison.OrdinalIgnoreCase)) ? "qab-nav__link--active" : "";
+    }
+
+    <header class="qab-nav">
+        <nav class="navbar navbar-expand-lg qab-nav__bar">
             <div class="container-fluid">
-                <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Talent Appointments</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+                <!-- Brand -->
+                <a class="qab-nav__brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="qab-nav__brand-mark">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </span>
+                    <span class="qab-nav__brand-text">Qabiliyyət</span>
+                </a>
+
+                <!-- Mobile toggle -->
+                <button class="navbar-toggler qab-nav__toggler" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#qabNavbarNav"
+                        aria-controls="qabNavbarNav" aria-expanded="false" aria-label="Menyunu aç">
+                    <span class="qab-nav__toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
+
+                <!-- Collapsible content -->
+                <div class="collapse navbar-collapse" id="qabNavbarNav">
+                    <!-- Primary nav -->
+                    <ul class="navbar-nav qab-nav__list me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Exam" asp-action="Index">İmtahanlar</a>
+                            <a class="qab-nav__link @IsActive("Home")" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door"></i>
+                                <span>Ana səhifə</span>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Ana səhifə</a>
+                            <a class="qab-nav__link @IsActive("Exam")" asp-controller="Exam" asp-action="Index">
+                                <i class="bi bi-journal-text"></i>
+                                <span>İmtahanlar</span>
+                            </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="qab-nav__link @IsActive("Calendar")" asp-controller="Calendar" asp-action="Index">
+                                <i class="bi bi-calendar3"></i>
+                                <span>Təqvim</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Auth area -->
+                    <ul class="navbar-nav qab-nav__list qab-nav__list--auth">
                         <partial name="_LoginPartial" />
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
-    
+
     @* <footer class="footer ">
         <div class="container">
             <p>&copy; 2024-2025 Qabiliyyət</p>
         </div>
     </footer>
-     *@
+    *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

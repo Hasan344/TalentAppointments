@@ -1,47 +1,38 @@
 ﻿@model ForQab.DataAccess.Models.Expert
-
 @{
-    ViewData["Title"] = "Konsertmeyster silinməsi";
+    ViewData["Title"] = "Konsertmeysteri sil";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 
-<div class="container py-5">
+<div class="container qab-page">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg">
-                <div class="card-header bg-danger text-white">
-                    <h3 class="mb-0">Konsertmeyster Detalları</h3>
+        <div class="col-md-6 col-lg-5">
+            <div class="qab-confirm">
+                <div class="qab-confirm__header">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <h3>Silinməni təsdiqləyin</h3>
                 </div>
-                <div class="card-body">
-                    <h4 class="text-center mb-4">Detallı informasiya</h4>
-
-                    <dl class="row">
-                        <dt class="col-sm-4 font-weight-bold">Ad, soyad:</dt>
-                        <dd class="col-sm-8">@Html.DisplayFor(model => model.Name) @Html.DisplayFor(model => model.Surname)</dd>
-
-                        <dt class="col-sm-4 font-weight-bold">Ata adı:</dt>
-                        <dd class="col-sm-8">@Html.DisplayFor(model => model.Fname)</dd>
-
-                        <dt class="col-sm-4 font-weight-bold">İstiqamət:</dt>
-                        <dd class="col-sm-8">@Html.DisplayFor(model => model.Section.Name)</dd>
-
-                        <dt class="col-sm-4 font-weight-bold">İxtisas:</dt>
-                        <dd class="col-sm-8">
-                            @if (Model.ExpertsProfessions != null && Model.ExpertsProfessions.Any())
-                            {
-                                @string.Join(", ", Model.ExpertsProfessions.Select(sp => sp.SubProfession.Name))
-                            }
-                            else
-                            {
-                                <span>---</span>
-                            }
-                        </dd>
+                <div class="qab-confirm__body">
+                    <p class="qab-confirm__lead">Bu konsertmeysteri silmək istədiyinizə <strong>əminsiniz?</strong></p>
+                    <dl class="qab-confirm__list">
+                        <div class="qab-confirm__row"><dt>Ad Soyad</dt><dd>@Model.Name @Model.Surname @Model.Fname</dd></div>
+                        <div class="qab-confirm__row"><dt>FİN Kod</dt><dd>@Model.FinCode</dd></div>
+                        <div class="qab-confirm__row">
+                            <dt>İxtisaslar</dt>
+                            <dd>@(Model.ExpertsProfessions?.Any() == true ? string.Join(", ", Model.ExpertsProfessions.Select(ep => ep.SubProfession?.Name)) : "—")</dd>
+                        </div>
                     </dl>
-
-                    <div class="mt-4 text-center">
-                        <form asp-action="Delete">
+                    <div class="qab-confirm__footer">
+                        <a asp-action="Index" class="qab-btn qab-btn--outline qab-btn--lg">
+                            <i class="bi bi-x-circle"></i> İmtina et
+                        </a>
+                        <form asp-action="Delete" method="post" style="margin:0;">
+                            @Html.AntiForgeryToken()
                             <input type="hidden" asp-for="Id" />
-                            <button type="submit" class="btn btn-danger btn-lg px-4">Sil</button>
-                            <a asp-action="Index" class="btn btn-dark btn-lg px-4 ml-3">Siyahıya qayıt</a>
+                            <button type="submit" class="qab-btn qab-btn--danger qab-btn--lg">
+                                <i class="bi bi-trash"></i> Bəli, sil
+                            </button>
                         </form>
                     </div>
                 </div>

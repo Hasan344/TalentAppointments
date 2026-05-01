@@ -1,39 +1,70 @@
-﻿@using ForQab.DataAccess.ViewModel.Exam
-@model AssignRepresentativesToExamViewModel
+﻿@* AssignRepresentatives.cshtml *@
+@model ForQab.DataAccess.ViewModel.Exam.AssignRepresentativesToExamViewModel
 
 @{
-    ViewData["Title"] = "Nümayəndə təyin etmə";
+    ViewData["Title"] = "Nümayəndə təyin et";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Nümayəndə təyin etmə</h2>
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 
-<form asp-action="AssignRepresentatives" method="post">
-    <input type="hidden" asp-for="ExamId" />
+<div class="container qab-page">
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-people"></i></span>
+                    Nümayəndə təyin et
+                </h1>
+                <p class="qab-page-header__subtitle">İmtahan: <strong>@ViewBag.ExamName</strong></p>
+            </div>
+            <a class="qab-page-header__back" asp-action="Details" asp-route-id="@Model.ExamId">
+                <i class="bi bi-arrow-left"></i> Geri
+            </a>
+        </div>
+    </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Seç</th>
-                <th>Ad</th>
-                <th>Soyad</th>
-                <th>FinCode</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (var i = 0; i < Model.Representatives.Count; i++)
+    <form asp-action="AssignRepresentatives" method="post" class="qab-form">
+        <input type="hidden" name="ExamId" value="@Model.ExamId" />
+
+        <div class="qab-form__section">
+            <div class="qab-form__section-title">Nümayəndələri seçin</div>
+
+            @if (Model.Representatives != null && Model.Representatives.Any())
             {
-                <tr>
-                    <td>
-                        <input type="checkbox" name="SelectedRepresentativeIds" value="@Model.Representatives[i].Id" />
-                    </td>
-                    <td>@Model.Representatives[i].Name</td>
-                    <td>@Model.Representatives[i].Surname</td>
-                    <td>@Model.Representatives[i].FinCode</td>
-                </tr>
+                <ul class="qab-list">
+                    @foreach (var rep in Model.Representatives)
+                    {
+                        var isSelected = Model.SelectedRepresentativeIds?.Contains(rep.Id) == true;
+                        <li class="qab-list__item">
+                            <div class="qab-list__check">
+                                <input type="checkbox" name="SelectedRepresentativeIds" value="@rep.Id"
+                                       id="rep-@rep.Id" style="width:16px;height:16px;"
+                                       @(isSelected ? "checked" : "") />
+                            </div>
+                            <div class="qab-list__main">
+                                <label class="qab-list__name" for="rep-@rep.Id" style="cursor:pointer;">
+                                    @rep.Name @rep.Surname 
+                                </label>
+                                <p class="qab-list__meta">FİN: @rep.FinCode</p>
+                            </div>
+                        </li>
+                    }
+                </ul>
             }
-        </tbody>
-    </table>
+            else
+            {
+                <div class="qab-empty-state">Mövcud nümayəndə yoxdur.</div>
+            }
+        </div>
 
-    <button type="submit" class="btn btn-primary">Təyin et</button>
-</form>
-
+        <div class="qab-form__footer">
+            <a asp-action="Details" asp-route-id="@Model.ExamId" class="qab-btn qab-btn--outline">
+                <i class="bi bi-arrow-left"></i> Ləğv et
+            </a>
+            <button type="submit" class="qab-btn qab-btn--primary">
+                <i class="bi bi-check-circle"></i> Yadda saxla
+            </button>
+        </div>
+    </form>
+</div>

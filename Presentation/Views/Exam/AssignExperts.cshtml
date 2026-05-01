@@ -1,196 +1,209 @@
-﻿@using ForQab.DataAccess.ViewModel.Exam
-@model AssignExpertToExamViewModel
+﻿@model ForQab.DataAccess.ViewModel.Exam.AssignExpertToExamViewModel
 
-<link rel="stylesheet" href="~/css/expert/Edit.css" asp-append-version="true" />
+@{
+    ViewData["Title"] = "Ekspert təyin et";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
+}
 
-<div class="container mt-5">
-    <div class="card shadow-lg border-0 rounded-4 p-4">
-        <h2 class="mb-4 text-center text-dark fw-bold">İmtahana Ekspert Təyin Et</h2>
-        <h4 class="text-center text-muted">@ViewBag.ExamName</h4>
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="alert alert-danger text-center">@TempData["ErrorMessage"]</div>
-        }
+<div class="container qab-page">
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-mortarboard"></i></span>
+                    Ekspert təyin et
+                </h1>
+                <p class="qab-page-header__subtitle">İmtahan: <strong>@ViewBag.ExamName</strong></p>
+            </div>
+            <a class="qab-page-header__back" asp-action="Details" asp-route-id="@Model.ExamId">
+                <i class="bi bi-arrow-left"></i> Geri
+            </a>
+        </div>
+    </div>
 
-        <form asp-action="AssignExperts" method="post" id="assignForm">
-            <input type="hidden" asp-for="ExamId" />
-            <input type="hidden" asp-for="SectionId" />
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="qab-alert qab-alert--success">
+            <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="qab-alert qab-alert--danger">
+            <i class="bi bi-exclamation-circle-fill"></i> @TempData["ErrorMessage"]
+        </div>
+    }
 
-            <div id="expertContainer">
-                <div class="expert-form row mb-3 p-3 bg-light rounded-3 shadow-sm">
-                    @if (ViewBag.Section == 1 || ViewBag.Section == 4)
-                    {
-                        <div class="col-md-3">
-                            <label class="form-label fw-semibold">Ekspert sayı</label>
-                            <input type="number" name="Assignments[0].NumberOfExperts" class="form-control" value="1" required />
-                            <span asp-validation-for="Assignments[0].NumberOfExperts" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label fw-semibold">Federasiya</label>
-                            <select name="Assignments[0].FederationId" class="form-select federation-dropdown" required>
-                                <option value="">Federation seçin</option>
-                                @foreach (var federation in Model.Federations)
+    <form asp-action="AssignExperts" method="post">
+        <input type="hidden" name="ExamId" value="@Model.ExamId" />
+
+        <div id="expertFormsContainer">
+            <!-- İlk form sətri -->
+            <div class="expert-form qab-assign-row">
+                <div>
+                    <label class="form-label">Ekspert sayı</label>
+                    <input type="number" name="Assignments[0].NumberOfExperts" class="form-control" value="1" required min="1" />
+                </div>
+
+                @if (@ViewBag.Section == 2 || @ViewBag.Section == 5)
+                {
+                    <div>
+                        <label class="form-label">Məntəqə</label>
+                        @if (Model.Rooms != null && Model.Rooms.Any())
+                        {
+                            <select name="Assignments[0].RoomId" class="form-select room-dropdown room-select" required>
+                                <option value="">Seçin</option>
+                                @foreach (var room in Model.Rooms)
                                 {
-                                    <option value="@federation.Value">@federation.Text</option>
+                                    <option value="@room.Value">@room.Text</option>
                                 }
                             </select>
-
-                            <span asp-validation-for="Assignments[0].FederationId" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label fw-semibold">İxtisas</label>
-                            <select name="Assignments[0].SelectedSubProfessions" class="form-select sub-profession-dropdown" required>
+                        }
+                        else
+                        {
+                            <p class="text-muted">Otaq yoxdur.</p>
+                        }
+                    </div>
+                }
+                else if (@ViewBag.Section == 3 || @ViewBag.Section == 4 || @ViewBag.Section == 6)
+                {
+                    <div>
+                        <label class="form-label">İxtisas</label>
+                        @if (Model.SubProfessions != null && Model.SubProfessions.Any())
+                        {
+                            <select name="Assignments[0].RoomId" class="form-select" required>
                                 <option value="">Seçin</option>
                                 @foreach (var sp in Model.SubProfessions)
                                 {
                                     <option value="@sp.Value">@sp.Text</option>
                                 }
                             </select>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div>
+                        <label class="form-label">Təhsil müəssisəsi</label>
+                        <select name="Assignments[0].FederationId" class="form-select federation-dropdown" required>
+                            <option value="">Seçin</option>
+                            @foreach (var federation in Model.Federations)
+                            {
+                                <option value="@federation.Value">@federation.Text</option>
+                            }
+                        </select>
+                    </div>
 
-                            <span asp-validation-for="Assignments[0].SelectedSubProfessions" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label fw-semibold">Məntəqə</label>
-                            <select name="Assignments[0].RoomId" class="form-select room-dropdown" required>
-                                <option value="">Məntəqə seçin</option>
-                                @foreach (var room in Model.Rooms)
-                                {
-                                    <option value="@room.Value">@room.Text</option>
-                                }
-                            </select>
+                    <div>
+                        <label class="form-label">Fənn</label>
+                        <select name="Assignments[0].SelectedSubProfessions" class="form-select sub-profession-dropdown" required>
+                            <option value="">Seçin</option>
+                            @foreach (var sp in Model.SubProfessions)
+                            {
+                                <option value="@sp.Value">@sp.Text</option>
+                            }
+                        </select>
+                    </div>
 
-                            <span asp-validation-for="Assignments[0].RoomId" class="text-danger"></span>
-                        </div>
-                    }else
-                    @if (@ViewBag.Section == 2 || @ViewBag.Section == 5)
-                    {
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">Ekspert sayı</label>
-                                <input type="number" name="Assignments[0].NumberOfExperts" class="form-control" value="1" required  />
-                                <span asp-validation-for="Assignments[0].NumberOfExperts" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">Təhsil müəssisəsi</label>
-                                <select name="Assignments[0].FederationId" class="form-select federation-dropdown" required>
-                                    <option value="">Təhsil müəssisəsi seçin</option>
-                                    @foreach (var federation in Model.Federations)
-                                    {
-                                        <option value="@federation.Value">@federation.Text</option>
-                                    }
-                                </select>
-                                <span asp-validation-for="Assignments[0].FederationId" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">Fənn</label>
-                                <select name="Assignments[0].SelectedSubProfessions" class="form-select sub-profession-dropdown" required>
-                                    <option value="">Seçin</option>
-                                    @foreach (var sp in Model.SubProfessions)
-                                    {
-                                        <option value="@sp.Value">@sp.Text</option>
-                                    }
-                                </select>
-                                <span asp-validation-for="Assignments[0].SelectedSubProfessions" class="text-danger"></span>
-                            </div>
-                    }
-
-                </div>
+                    <div>
+                        <label class="form-label">Məntəqə</label>
+                        <select name="Assignments[0].RoomId" class="form-select room-dropdown" required>
+                            <option value="">Seçin</option>
+                            @foreach (var room in Model.Rooms)
+                            {
+                                <option value="@room.Value">@room.Text</option>
+                            }
+                        </select>
+                    </div>
+                }
             </div>
+        </div>
 
-            <div class="mt-4 d-flex justify-content-center gap-3">
-                <button type="button" id="addExpertBtn" class="btn btn-outline-success px-4 py-2">Yeni Ekspert +</button>
-                <button type="submit" class="btn btn-primary px-4 py-2">Ekspert Təyin Et</button>
-            </div>
-        </form>
-    </div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.75rem 0 1.5rem;">
+            <button type="button" id="addExpertBtn" class="qab-btn qab-btn--outline-primary qab-btn--sm">
+                <i class="bi bi-plus-circle"></i> Sətir əlavə et
+            </button>
+        </div>
+
+        <div style="display:flex;gap:.5rem;">
+            <a asp-action="Details" asp-route-id="@Model.ExamId" class="qab-btn qab-btn--outline">
+                <i class="bi bi-x-circle"></i> Ləğv et
+            </a>
+            <button type="submit" class="qab-btn qab-btn--primary">
+                <i class="bi bi-check-circle"></i> Ekspertləri təyin et
+            </button>
+        </div>
+    </form>
 </div>
 
-<script>
-    document.getElementById('addExpertBtn').addEventListener('click', function () {
-        var container = document.getElementById('expertContainer');
-        var forms = container.children;
-        var newForm = container.firstElementChild.cloneNode(true);
-        var newIndex = forms.length;
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        var assignmentIndex = 1;
 
-        // Name attribute güncelleme
-        Array.from(newForm.querySelectorAll('[name]')).forEach(function (input) {
-            var name = input.getAttribute('name');
-            if (name) {
-                var updatedName = name.replace(/\[\d+\]/, `[${newIndex}]`);
-                input.setAttribute('name', updatedName);
-            }
-            input.value = '';
-        });
+        document.getElementById('addExpertBtn').addEventListener('click', function () {
+            var container = document.getElementById('expertFormsContainer');
+            var firstForm = container.querySelector('.expert-form');
+            var newForm = firstForm.cloneNode(true);
 
-        // Sil butonu ekleme
-        var removeButton = document.createElement('button');
-        removeButton.textContent = '✖';
-        removeButton.type = 'button';
-        removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'remove-expert-btn');
-        removeButton.style.padding = '2px 6px'; 
-        removeButton.style.fontSize = '12px'; 
-        removeButton.style.marginLeft = '10px'; 
-        removeButton.addEventListener('click', function () {
-            newForm.remove();
-        });
-
-        // Sil butonunu sağ tarafa ekleme
-        var buttonContainer = document.createElement('div');
-        buttonContainer.classList.add('text-end');
-        buttonContainer.appendChild(removeButton);
-
-        newForm.appendChild(buttonContainer);
-        container.appendChild(newForm);
-    });
-
-    // Yeni eklenen satırları silebilme
-    document.addEventListener('click', function (event) {
-        if (event.target.classList.contains('remove-expert-btn')) {
-            event.target.closest('.expert-form').remove();
-        }
-    });
-</script>
-
-
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-
-<script>
-    $(document).ready(function () {
-        var section = @ViewBag.Section;
-        if (section === 1) {
-            $('select[name^="Assignments"][name$="SelectedSubProfessions"]').hide();
-
-            $(document).on('change', 'select[name^="Assignments"][name$="FederationId"]', function () {
-                var federationId = $(this).val();
-                var subProfessionDropdown = $(this).closest('.expert-form').find('select[name^="Assignments"][name$="SelectedSubProfessions"]');
-
-                if (federationId) {
-                    $.ajax({
-                        url: '/Exam/GetSubProfessionsByFederation',
-                        type: 'GET',
-                        data: { federationId: federationId },
-                        success: function (data) {
-                            subProfessionDropdown.empty(); // Önce listeyi temizle
-                            if (data.length > 0) {
-                                $.each(data, function (index, item) {
-                                    subProfessionDropdown.append(new Option(item.name, item.id));
-                                });
-                                subProfessionDropdown.show(); // Eğer veri geldiyse dropdown'ı göster
-                            } else {
-                                subProfessionDropdown.hide(); // Veri yoksa dropdown'ı gizle
-                            }
-                        },
-                        error: function () {
-                            alert("Sub-professions yüklenirken hata oluştu.");
-                        }
-                    });
-                } else {
-                    subProfessionDropdown.empty().hide(); // Federation seçimi kaldırılırsa dropdown'ı da gizle
-                }
+            // Update input names
+            newForm.querySelectorAll('[name]').forEach(function (el) {
+                el.name = el.name.replace('[0]', '[' + assignmentIndex + ']');
+                if (el.tagName === 'INPUT') el.value = el.type === 'number' ? '1' : '';
+                if (el.tagName === 'SELECT') el.selectedIndex = 0;
             });
-        }
-    });
-</script>
 
+            var removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'qab-btn qab-btn--outline-danger qab-btn--sm remove-expert-btn';
+            removeBtn.innerHTML = '<i class="bi bi-trash"></i>';
+            removeBtn.style.alignSelf = 'end';
+            newForm.appendChild(removeBtn);
+
+            container.appendChild(newForm);
+            assignmentIndex++;
+        });
+
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('.remove-expert-btn')) {
+                e.target.closest('.expert-form').remove();
+            }
+        });
+
+        // Section 1: Sub-profession AJAX loading
+        $(document).ready(function () {
+            var section = @ViewBag.Section;
+            if (section === 1) {
+                $('select[name$="SelectedSubProfessions"]').hide();
+
+                $(document).on('change', 'select[name$="FederationId"]', function () {
+                    var federationId = $(this).val();
+                    var subDrop = $(this).closest('.expert-form').find('select[name$="SelectedSubProfessions"]');
+
+                    if (federationId) {
+                        $.ajax({
+                            url: '/Exam/GetSubProfessionsByFederation',
+                            type: 'GET',
+                            data: { federationId: federationId },
+                            success: function (data) {
+                                subDrop.empty();
+                                if (data.length > 0) {
+                                    data.forEach(function (item) {
+                                        subDrop.append(new Option(item.name, item.id));
+                                    });
+                                    subDrop.show();
+                                } else {
+                                    subDrop.hide();
+                                }
+                            }
+                        });
+                    } else {
+                        subDrop.empty().hide();
+                    }
+                });
+            }
+        });
+    </script>
+}

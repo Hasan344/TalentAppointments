@@ -1,166 +1,202 @@
-﻿@using ForQab.DataAccess.ViewModel.Exam
+@using ForQab.DataAccess.ViewModel.Exam
 @model AssignMonitorsToExamViewModel
 
-<div class="container mt-5">
-    <div class="card shadow-lg border-0 rounded-4 p-4">
-        <h2 class="mb-4 text-center text-dark fw-bold">İmtahana Nəzarətçi Təyin Et</h2>
-        <h4 class="text-center text-muted">@ViewBag.ExamName</h4>
+@{
+    ViewData["Title"] = "Nəzarətçi təyin et";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
+}
 
-        @if (!ViewData.ModelState.IsValid)
-        {
-            <div class="alert alert-danger text-center">
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
+
+<div class="container qab-page">
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-shield-check"></i></span>
+                    Nəzarətçi təyin et
+                </h1>
+                <p class="qab-page-header__subtitle">İmtahan: <strong>@ViewBag.ExamName</strong></p>
+            </div>
+            <a class="qab-page-header__back" asp-action="Details" asp-route-id="@Model.ExamId">
+                <i class="bi bi-arrow-left"></i> Geri
+            </a>
+        </div>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="qab-alert qab-alert--danger">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <div>
                 @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
                 {
-                    <p>@error.ErrorMessage</p>
+                    <div>@error.ErrorMessage</div>
                 }
             </div>
-        }
+        </div>
+    }
 
-        <form asp-action="AssignMonitors" method="post"> 
-            <input type="hidden" asp-for="ExamId" />
-            <input type="hidden" asp-for="SectionId" />
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="qab-alert qab-alert--danger">
+            <i class="bi bi-exclamation-circle-fill"></i> @TempData["ErrorMessage"]
+        </div>
+    }
 
-            <div id="monitorContainer">
-                <div class="monitor-form row mb-3 p-3 bg-light rounded-3 shadow-sm">
-                    @if (ViewBag.Section == 1)
-                    {
-                        <div class="col-md-3">
-                            <label class="form-label fw-semibold">Cinsiyyət</label>
-                            <select name="Assignments[0].GenderId" class="form-select">
-                                <option value="">Cinsiyyət seçin</option>
-                                <option value="2">Qadın</option>
-                                <option value="1">Kişi</option>
-                            </select>
-                        </div>
-                    }
-                    @if (@ViewBag.Section == 1 || @ViewBag.Section == 3 || @ViewBag.Section == 4 || @ViewBag.Section == 6)
-                    {
-                        <div class="col-md-3">
-                            <label class="form-label fw-semibold">Məntəqə</label>
-                            @if (Model.Rooms != null && Model.Rooms.Any())
-                            {
-                                <select name="Assignments[0].RoomId" class="form-select room-dropdown room-select">
-                                    <option value="">Seçin</option>
-                                    @foreach (var room in Model.Rooms)
-                                    {
-                                        <option value="@room.Value">@room.Text</option>
-                                    }
-                                </select>
-                            }
-                            else
-                            {
-                                <p>Otaq yoxdur.</p>
-                            }
-                            <span asp-validation-for="Assignments[0].RoomId" class="text-danger"></span>
-                        </div>
-                    }
-                    @if ( @ViewBag.Section == 3 || @ViewBag.Section == 4 || @ViewBag.Section == 6)
-                    {
-                        <div class="col-md-3">
-                            <label class="form-label fw-semibold">İxtisas</label>
-                            @if (Model.SubProfessions != null && Model.SubProfessions.Any())
-                            {
-                                <select name="Assignments[0].RoomId" class="form-select room-dropdown room-select">
-                                    <option value="">Seçin</option>
-                                    @foreach (var subProfession in Model.SubProfessions)
-                                    {
-                                        <option value="@subProfession.Value">@subProfession.Text</option>
-                                    }
-                                </select>
-                            }
-                            else
-                            {
-                                <p>İxtisas yoxdur.</p>
-                            }
-                            <span asp-validation-for="Assignments[0].SubProfessionId" class="text-danger"></span>
-                        </div>
-                    }
-                    <div class="col-md-3">
-                        <label class="form-label fw-semibold">Nəzarətçi sayı</label>
-                        <input type="number" name="Assignments[0].NumberOfMonitors" class="form-control" required />
-                        <span asp-validation-for="Assignments[0].NumberOfMonitors" class="text-danger"></span>
+    <form asp-action="AssignMonitors" method="post">
+        <input type="hidden" asp-for="ExamId" />
+        <input type="hidden" asp-for="SectionId" />
+
+        <div id="monitorContainer">
+            <div class="monitor-form qab-assign-row">
+
+                @if (ViewBag.Section == 1)
+                {
+                    <div>
+                        <label class="form-label">Cinsiyyət</label>
+                        <select name="Assignments[0].GenderId" class="form-select">
+                            <option value="">Seçin</option>
+                            <option value="2">Qadın</option>
+                            <option value="1">Kişi</option>
+                        </select>
                     </div>
-                </div>
-            </div>
+                }
 
-            <div class="mt-4 d-flex justify-content-center gap-3">
-                <button type="button" id="addMonitorBtn" class="btn btn-outline-success px-4 py-2">Yeni Nəzarətçi +</button>
-                <button type="submit" class="btn btn-primary px-4 py-2">Nəzarətçi Təyin Et</button>
+                @if (ViewBag.Section == 1 || ViewBag.Section == 3 || ViewBag.Section == 4 || ViewBag.Section == 6)
+                {
+                    <div>
+                        <label class="form-label">Məntəqə</label>
+                        @if (Model.Rooms != null && Model.Rooms.Any())
+                        {
+                            <select name="Assignments[0].RoomId" class="form-select room-select">
+                                <option value="">Seçin</option>
+                                @foreach (var room in Model.Rooms)
+                                {
+                                    <option value="@room.Value">@room.Text</option>
+                                }
+                            </select>
+                        }
+                        else
+                        {
+                            <p class="text-muted" style="padding:.55rem 0;">Otaq yoxdur.</p>
+                        }
+                        <span asp-validation-for="Assignments[0].RoomId" class="text-danger"></span>
+                    </div>
+                }
+
+                @if (ViewBag.Section == 3 || ViewBag.Section == 4 || ViewBag.Section == 6)
+                {
+                    <div>
+                        <label class="form-label">İxtisas</label>
+                        @if (Model.SubProfessions != null && Model.SubProfessions.Any())
+                        {
+                            <select name="Assignments[0].SubProfessionId" class="form-select">
+                                <option value="">Seçin</option>
+                                @foreach (var sp in Model.SubProfessions)
+                                {
+                                    <option value="@sp.Value">@sp.Text</option>
+                                }
+                            </select>
+                        }
+                        else
+                        {
+                            <p class="text-muted" style="padding:.55rem 0;">İxtisas yoxdur.</p>
+                        }
+                        <span asp-validation-for="Assignments[0].SubProfessionId" class="text-danger"></span>
+                    </div>
+                }
+
+                <div>
+                    <label class="form-label">Nəzarətçi sayı</label>
+                    <input type="number" name="Assignments[0].NumberOfMonitors"
+                           class="form-control" value="1" min="1" required />
+                    <span asp-validation-for="Assignments[0].NumberOfMonitors" class="text-danger"></span>
+                </div>
+
+                @if (ViewBag.Section == 1)
+                {
+                    <div>
+                        <label class="form-label">Maks. doğum tarixi</label>
+                        <input type="date" name="Assignments[0].MaxDate" class="form-control" />
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:.5rem;padding-top:1.6rem;">
+                        <input type="checkbox" name="Assignments[0].IsReserve"
+                               id="isReserve0" class="reserve-checkbox"
+                               style="width:16px;height:16px;" />
+                        <label for="isReserve0" class="form-label" style="margin:0;">Ehtiyat</label>
+                    </div>
+                }
             </div>
-        </form>
-    </div>
+        </div>
+
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.75rem 0 1.5rem;">
+            <button type="button" id="addMonitorBtn" class="qab-btn qab-btn--outline-primary qab-btn--sm">
+                <i class="bi bi-plus-circle"></i> Yeni sətir əlavə et
+            </button>
+        </div>
+
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <a asp-action="Details" asp-route-id="@Model.ExamId" class="qab-btn qab-btn--outline">
+                <i class="bi bi-x-circle"></i> Ləğv et
+            </a>
+            <button type="submit" class="qab-btn qab-btn--primary">
+                <i class="bi bi-check-circle"></i> Nəzarətçiləri təyin et
+            </button>
+        </div>
+    </form>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll(".reserve-checkbox").forEach(function (checkbox) {
-            checkbox.addEventListener("change", function () {
-                let roomSelect = this.closest(".monitor-form").querySelector(".room-select");
-                if (this.checked) {
-                    roomSelect.disabled = true;
-                    roomSelect.value = "";
-                } else {
-                    roomSelect.disabled = false;
-                }
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".reserve-checkbox").forEach(function (cb) {
+                cb.addEventListener("change", function () {
+                    var roomSel = this.closest(".monitor-form").querySelector(".room-select");
+                    if (roomSel) {
+                        roomSel.disabled = this.checked;
+                        if (this.checked) roomSel.value = "";
+                    }
+                });
             });
         });
-    });
-</script>
 
-<script>
-    document.getElementById('addMonitorBtn').addEventListener('click', function () {
-        var container = document.getElementById('monitorContainer');
-        var forms = container.getElementsByClassName('monitor-form');
-        var newForm = forms[0].cloneNode(true);
-        var newIndex = forms.length;
+        document.getElementById("addMonitorBtn").addEventListener("click", function () {
+            var container = document.getElementById("monitorContainer");
+            var forms = container.getElementsByClassName("monitor-form");
+            var newForm = forms[0].cloneNode(true);
+            var newIndex = forms.length;
 
-        // Yeni indekslər əlavə etmək üçün
-        Array.from(newForm.querySelectorAll('[name]')).forEach(function (input) {
-            var name = input.getAttribute('name');
-            if (name) {
-                var updatedName = name.replace(/\[\d+\]/, `[${newIndex}]`);
-                input.setAttribute('name', updatedName);
-            }
+            newForm.querySelectorAll("[name]").forEach(function (el) {
+                el.name = el.name.replace(/\[0\]/, "[" + newIndex + "]");
+                if (el.tagName === "INPUT") {
+                    if (el.type === "number") el.value = "1";
+                    else if (el.type === "checkbox") el.checked = false;
+                    else el.value = "";
+                }
+                if (el.tagName === "SELECT") el.selectedIndex = 0;
+                if (el.id) el.id = el.id.replace(/0$/, newIndex);
+            });
 
-            if (input.type === 'checkbox') {
-                input.checked = false; 
-            } else {
-                input.value = ''; 
-            }
+            newForm.querySelectorAll("label[for]").forEach(function (lbl) {
+                lbl.setAttribute("for", lbl.getAttribute("for").replace(/0$/, newIndex));
+            });
+
+            var removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.className = "qab-btn qab-btn--outline-danger qab-btn--sm remove-monitor-btn";
+            removeBtn.innerHTML = '<i class="bi bi-trash"></i>';
+            removeBtn.style.alignSelf = "end";
+            newForm.appendChild(removeBtn);
+
+            container.appendChild(newForm);
         });
 
-        // Əgər əvvəlki `remove` düyməsi varsa, sil
-        var existingRemoveButton = newForm.querySelector('.remove-monitor-btn');
-        if (existingRemoveButton) {
-            existingRemoveButton.remove();
-        }
-
-        // Sil butonu yarat və əlavə et
-        var removeButton = document.createElement('button');
-        removeButton.textContent = '✖';
-        removeButton.type = 'button';
-        removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'remove-expert-btn');
-        removeButton.style.padding = '2px 6px';
-        removeButton.style.fontSize = '12px';
-        removeButton.style.marginLeft = '10px';
-        removeButton.addEventListener('click', function () {
-            newForm.remove();
+        document.addEventListener("click", function (e) {
+            if (e.target.closest(".remove-monitor-btn")) {
+                e.target.closest(".monitor-form").remove();
+            }
         });
-
-        // Sil butonunu sağ tarafa ekleme
-        var buttonContainer = document.createElement('div');
-        buttonContainer.classList.add('text-end');
-        buttonContainer.appendChild(removeButton);
-
-        newForm.appendChild(buttonContainer);
-        container.appendChild(newForm);
-    });
-
-    // Yeni eklenen satırları silebilme
-    document.addEventListener('click', function (event) {
-        if (event.target.classList.contains('remove-expert-btn')) {
-            event.target.closest('.expert-form').remove();
-        }
-    });
-
-</script>
+    </script>
+}

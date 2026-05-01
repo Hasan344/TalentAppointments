@@ -1,95 +1,88 @@
-﻿@model IEnumerable<ForQab.DataAccess.Models.Monitor>
+﻿@* MonitorLogs.cshtml — bütün nəzarətçilərin qeydləri *@
+@model IEnumerable<ForQab.DataAccess.Models.Monitor>
 
 @{
-    ViewData["Title"] = "Bütün Nəzarətçi Qeydləri";
+    ViewData["Title"] = "Xüsusi qeydlər";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4">Bütün Nəzarətçi Qeydləri</h2>
-    @if (Model.Any())
-    {
-        foreach (var monitor in Model)
-        {
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        @monitor.Name @monitor.Surname @monitor.Fname
-                        <small>(FinCode: @monitor.FinCode)</small>
-                    </h5>
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-striped mb-0">
-                        <thead>
-                            <tr>
-                                <th scope="col" style="width: 5%;">#</th>
-                                <th scope="col">Qeyd</th>
-                                <th scope="col">İmtahan ID</th>
-                                <th scope="col">Daxil edən istifadəçi</th>
-                                <th scope="col">Daxil edilən tarix</th>
-                                <th scope="col" style="width: 30%;">Növ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (monitor.MonitorLogs != null && monitor.MonitorLogs.Any())
-                            {
-                                int count = 1;
-                                foreach (var log in monitor.MonitorLogs)
-                                {
-                                    <tr>
-                                        <th scope="row">@count</th>
-                                        <td>@log.Note</td>
-                                        <td>@log.ExamId</td>
-                                        <td>@log.UserName</td>
-                                        <td>@log.Time</td>
-                                        <td>
-                                            @switch (log.Kind)
-                                            {
-                                                case 0:
-                                                    @:Gəlməyən haqqında qeyd
-                                                    break;
-                                                case 1:
-                                                    @:Xaric olan haqqında qeyd
-                                                    break;
-                                                case 2:
-                                                    @:Digər səbəblərlə bağlı qeyd
-                                                    break;
-                                                default:
-                                                    @:Bilinməyən
-                                                    break;
-                                            }
-                                        </td>
-                                        <td>
-                                            <form asp-action="DeleteLogs" method="post">
-                                                <input type="hidden" name="id" value="@log.Id" />
-                                                <button type="submit" class="btn btn-danger btn-sm"
-                                                        onclick="return confirm('Bu logu silmək istədiyinizə əminsiniz?');">
-                                                    Sil
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    count++;
-                                }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td colspan="4" class="text-center">Heç bir qeyd tapılmadı.</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
+
+<div class="container qab-page">
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-journal-text"></i></span>
+                    Xüsusi qeydlər
+                </h1>
             </div>
-        }
-    }
-    else
-    {
-        <div class="alert alert-info">
-            Sistemdə heç bir Nəzarətçi tapılmadı.
+            <a class="qab-page-header__back" asp-action="Index"><i class="bi bi-arrow-left"></i> Geri</a>
         </div>
-    }
-    <div class="mt-3">
-        <a class="btn btn-secondary" href="javascript:history.back()">Geri Qayıt</a>
+    </div>
+
+    <div class="qab-table-wrap">
+        <div class="qab-table-scroll">
+            <table class="qab-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nəzarətçi</th>
+                        <th>Qeydlər</th>
+                        <th>Əməliyyatlar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int rowNumber = 1; }
+                    @foreach (var item in Model)
+                    {
+                        @if (item.MonitorLogs?.Any() == true)
+                        {
+                            <tr>
+                                <td class="qab-col-num">@rowNumber</td>
+                                <td>
+                                    <div class="qab-col-name">
+                                        <strong>@item.Surname @item.Name @item.Fname</strong>
+                                        <span class="text-muted" style="font-size:.82rem;">@item.FinCode</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display:flex;flex-direction:column;gap:.35rem;">
+                                        @foreach (var log in item.MonitorLogs)
+                                        {
+                                            <div style="display:flex;align-items:center;gap:.5rem;">
+                                                @if (log.Kind == 0)
+                                                {
+                                                    <span class="qab-badge qab-badge--danger"><i class="bi bi-x-circle"></i> Gəlmədi</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="qab-badge qab-badge--warning"><i class="bi bi-exclamation-circle"></i> Qeyd</span>
+                                                }
+                                                <span style="font-size:.85rem;">@log.Note</span>
+                                                <span class="text-muted" style="font-size:.78rem;">— @log.Time?.ToString("dd.MM.yyyy HH:mm")</span>
+                                                <form asp-action="DeleteLogs" method="post" style="margin:0;">
+                                                    <input type="hidden" name="id" value="@log.Id" />
+                                                    <button type="submit" class="qab-table__action-btn qab-table__action-btn--delete" title="Sil" style="width:26px;height:26px;">
+                                                        <i class="bi bi-trash" style="font-size:.75rem;"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <a class="qab-table__action-btn qab-table__action-btn--view"
+                                       asp-action="Details" asp-route-id="@item.Id">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            rowNumber++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

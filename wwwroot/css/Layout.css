@@ -1,76 +1,397 @@
-﻿
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f7fa;
+﻿/* =========================================================
+   Qabiliyyət — Navigation (Modern redesign)
+   Note: Bütün stillər `qab-nav__` prefiksindədir,
+         mövcud Layout.css ilə konflikt yoxdur.
+   ========================================================= */
+
+:root {
+    --qab-nav-bg: #0f172a;
+    --qab-nav-bg-blur: rgba(15, 23, 42, 0.85);
+    --qab-nav-text: rgba(255, 255, 255, 0.75);
+    --qab-nav-text-active: #ffffff;
+    --qab-nav-accent: #818cf8;
+    --qab-nav-accent-hover: #a5b4fc;
+    --qab-nav-border: rgba(255, 255, 255, 0.08);
+    --qab-nav-hover-bg: rgba(255, 255, 255, 0.06);
+    --qab-nav-active-bg: rgba(129, 140, 248, 0.15);
+    --qab-nav-height: 68px;
+    --qab-nav-radius: 10px;
 }
 
-.bg-header {
-    background-color: #3255ff;
+/* =========================================================
+   WRAPPER + BAR
+   ========================================================= */
+.qab-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    background: var(--qab-nav-bg-blur);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border-bottom: 1px solid var(--qab-nav-border);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
 }
 
-.navbar {
-    background-color: #325e61;
+.qab-nav__bar {
+    min-height: var(--qab-nav-height);
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
 }
 
-.navbar-brand {
-    font-weight: bold;
-    color: #fff;
+/* =========================================================
+   BRAND
+   ========================================================= */
+.qab-nav__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: -0.01em;
+    transition: opacity 0.2s ease;
 }
 
-.navbar-nav .nav-link {
-    color: #fff !important;
-    font-weight: 500;
-}
-
-    .navbar-nav .nav-link:hover {
-        color: #f0f0f0 !important;
-    }
-
-.footer {
-    background-color: #343a40;
-    color: #fff;
-    padding: 20px 0;
-}
-
-    .footer .container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .footer a {
-        color: #fff;
+    .qab-nav__brand:hover {
+        color: #ffffff;
+        opacity: 0.92;
         text-decoration: none;
     }
 
-        .footer a:hover {
-            text-decoration: underline;
-        }
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
+.qab-nav__brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+    color: #ffffff;
+    font-size: 1.1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-.btn-light {
-    background-color: #f8f9fa;
-    border: none;
-    color: #007bff;
+.qab-nav__brand-text {
+    background: linear-gradient(120deg, #ffffff 0%, #cbd5e1 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
-    .btn-light:hover {
-        background-color: #e2e6ea;
-        color: #0056b3;
+/* =========================================================
+   MOBILE TOGGLER
+   ========================================================= */
+.qab-nav__toggler {
+    border: 1px solid var(--qab-nav-border);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.45rem 0.6rem;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+    .qab-nav__toggler:focus {
+        box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.35);
     }
 
-.navbar-toggler {
-    border-color: #fff;
+.qab-nav__toggler-icon {
+    display: block;
+    width: 22px;
+    height: 16px;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85));
+    background-size: 100% 2px;
+    background-position: top, center, bottom;
+    background-repeat: no-repeat;
 }
 
-.navbar-toggler-icon {
-    background-color: #fff;
+/* =========================================================
+   NAV LIST + LINKS
+   ========================================================= */
+.qab-nav__list {
+    align-items: center;
+    gap: 0.25rem;
 }
-footer {
+
+.qab-nav__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.55rem 0.95rem;
+    color: var(--qab-nav-text);
+    font-size: 0.93rem;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: var(--qab-nav-radius);
+    transition: color 0.2s ease, background-color 0.2s ease;
     position: relative;
-    z-index: 10; /* Footer'ın diğer elementlerden daha önde olmasını sağlar */
+    white-space: nowrap;
+}
+
+    .qab-nav__link i {
+        font-size: 1rem;
+        opacity: 0.85;
+    }
+
+    .qab-nav__link:hover {
+        color: var(--qab-nav-text-active);
+        background-color: var(--qab-nav-hover-bg);
+        text-decoration: none;
+    }
+
+.qab-nav__link--active {
+    color: var(--qab-nav-text-active);
+    background-color: var(--qab-nav-active-bg);
+}
+
+    .qab-nav__link--active::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -2px;
+        transform: translateX(-50%);
+        width: 24px;
+        height: 2px;
+        background: var(--qab-nav-accent);
+        border-radius: 2px;
+    }
+
+/* =========================================================
+   AUTH BUTTONS (logged-out state)
+   ========================================================= */
+.qab-nav__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--qab-nav-radius);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+    .qab-nav__btn i {
+        font-size: 0.95rem;
+    }
+
+.qab-nav__btn--ghost {
+    color: var(--qab-nav-text);
+    border-color: var(--qab-nav-border);
+}
+
+    .qab-nav__btn--ghost:hover {
+        color: var(--qab-nav-text-active);
+        background: var(--qab-nav-hover-bg);
+        border-color: rgba(255, 255, 255, 0.18);
+        text-decoration: none;
+    }
+
+.qab-nav__btn--primary {
+    color: #ffffff;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    box-shadow: 0 1px 2px rgba(99, 102, 241, 0.3);
+    margin-left: 0.4rem;
+}
+
+    .qab-nav__btn--primary:hover {
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.45);
+        text-decoration: none;
+    }
+
+/* =========================================================
+   USER DROPDOWN (logged-in state)
+   ========================================================= */
+.qab-nav__user {
+    margin-left: 0.4rem;
+}
+
+.qab-nav__user-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.85rem 0.4rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--qab-nav-border);
+    color: var(--qab-nav-text-active);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+    .qab-nav__user-trigger:hover,
+    .qab-nav__user-trigger[aria-expanded="true"] {
+        background: rgba(255, 255, 255, 0.09);
+        border-color: rgba(255, 255, 255, 0.18);
+        color: var(--qab-nav-text-active);
+        text-decoration: none;
+    }
+
+    .qab-nav__user-trigger::after {
+        display: none; /* Bootstrap-ın default caret-ini gizlədirik */
+    }
+
+.qab-nav__avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.qab-nav__user-name {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.qab-nav__user-caret {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    transition: transform 0.2s ease;
+}
+
+.qab-nav__user-trigger[aria-expanded="true"] .qab-nav__user-caret {
+    transform: rotate(180deg);
+}
+
+/* Dropdown menu */
+.qab-nav__dropdown {
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 14px;
+    padding: 0.5rem;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+    min-width: 240px;
+    margin-top: 0.5rem;
+}
+
+.qab-nav__dropdown-header {
+    padding: 0.6rem 0.75rem 0.5rem;
+}
+
+.qab-nav__dropdown-name {
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 0.95rem;
+    line-height: 1.2;
+}
+
+.qab-nav__dropdown-email {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 0.15rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.qab-nav__dropdown-divider {
+    margin: 0.35rem 0;
+    border: 0;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.qab-nav__logout-form {
+    margin: 0;
+}
+
+.qab-nav__dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
+    text-align: left;
+    font-size: 0.9rem;
+    color: #0f172a;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+    .qab-nav__dropdown-item:hover {
+        background: rgba(15, 23, 42, 0.05);
+    }
+
+.qab-nav__dropdown-item--danger {
+    color: #dc2626;
+}
+
+    .qab-nav__dropdown-item--danger:hover {
+        background: rgba(220, 38, 38, 0.08);
+        color: #b91c1c;
+    }
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 991.98px) {
+    .qab-nav__bar {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+
+    .qab-nav__list {
+        align-items: stretch;
+        gap: 0.15rem;
+        padding: 0.75rem 0;
+    }
+
+    .qab-nav__list--auth {
+        border-top: 1px solid var(--qab-nav-border);
+        padding-top: 0.75rem;
+        margin-top: 0.5rem;
+    }
+
+    .qab-nav__link,
+    .qab-nav__btn {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 0.7rem 0.95rem;
+    }
+
+    .qab-nav__link--active::after {
+        display: none; /* Mobil-də underline çıxarılır, sadəcə bg saxlanır */
+    }
+
+    .qab-nav__btn--primary {
+        margin-left: 0;
+    }
+
+    .qab-nav__user-trigger {
+        width: 100%;
+        justify-content: flex-start;
+        border-radius: var(--qab-nav-radius);
+    }
+
+    .qab-nav__dropdown {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .qab-nav__link,
+    .qab-nav__btn,
+    .qab-nav__user-trigger,
+    .qab-nav__user-caret {
+        transition: none;
+    }
+
+    .qab-nav__btn--primary:hover {
+        transform: none;
+    }
 }

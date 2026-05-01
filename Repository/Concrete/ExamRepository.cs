@@ -204,7 +204,12 @@ namespace ForQab.Repository.Concrete
             await _context.SaveChangesAsync();
         }
 
-        public async Task AssignRandomMonitorsToExamAsync(int examId, int numberOfMonitors, int? genderId, DateOnly? maxDate, int? roomId)
+        public async Task AssignRandomMonitorsToExamAsync(
+    int examId,
+    int numberOfMonitors,
+    int? genderId,
+    DateOnly? maxDate,
+    int? roomId)
         {
             var exam = await _context.Exams
                 .Include(e => e.Monitors)
@@ -215,34 +220,47 @@ namespace ForQab.Repository.Concrete
                 throw new ArgumentException("İmtahan tapılmadı");
 
             var alreadyAssignedMonitorIds = exam.Monitors.Select(m => m.Id).ToHashSet();
+
+            // -------------------------------------------------------
+            // DÜZƏLİŞ: OrderBy(e => e.ThisYearAssignmentCount) SQL-dən
+            // silindi — bu [NotMapped] property EF Core-da translate
+            // olunmur. Əvəzinə ToListAsync()-dən sonra in-memory sıralama.
+            // -------------------------------------------------------
             var availableMonitors = await _context.Monitors
                 .Include(e => e.ExamMonitors)
+                    .ThenInclude(em => em.Exams)          // ThisYearAssignmentCount üçün lazımdır
                 .Where(e => e.SectionId == exam.SectionId)
                 .Where(e => e.Role == 2)
-                .Where(e => e.Status == 0)
-                .Where(e => e.Archive == 0)
+                .Where(e => (int?)e.Status == 0)
+                .Where(e => (int)e.Archive == 0)
                 .Where(e => !alreadyAssignedMonitorIds.Contains(e.Id))
-                .OrderBy(e => e.ThisYearAssignmentCount)
-                .ToListAsync();
+                .ToListAsync();                            // ← client-side-a keçirik
 
+            // İndi in-memory olaraq ThisYearAssignmentCount-a görə sırala
+            availableMonitors = availableMonitors
+                .OrderBy(e => e.ThisYearAssignmentCount)
+                .ToList();
+
+            // Section 1: cinsiyyət + maksimum doğum tarixi filtrləri
             if (exam.SectionId == 1)
             {
-                if (genderId == null || genderId == 0)
+                if (genderId != null && genderId != 0)
                 {
                     availableMonitors = availableMonitors
-                                        .OrderBy(e => e.ThisYearAssignmentCount)
-                                        .ToList();
-                }
-                else
-                {
-                    availableMonitors = availableMonitors
-                    .Where(e => e.Gender == genderId)
-                    .OrderBy(e => e.ThisYearAssignmentCount)
-                    .ToList();
+                        .Where(e => e.Gender == genderId)
+                        .OrderBy(e => e.ThisYearAssignmentCount)
+                        .ToList();
                 }
 
+                if (maxDate.HasValue && maxDate.Value != default)
+                {
+                    availableMonitors = availableMonitors
+                        .Where(e => e.BirthDate == null || e.BirthDate >= maxDate.Value)
+                        .ToList();
+                }
             }
 
+            // Section 2 / 5: rayona görə filtrə
             if (exam.SectionId == 2 || exam.SectionId == 5)
             {
                 availableMonitors = availableMonitors
@@ -251,12 +269,14 @@ namespace ForQab.Repository.Concrete
                     .ToList();
             }
 
-            List<Monitor> selectedMonitors = new List<Monitor>();
+            // Eyni gündə başqa imtahana təyin olunmamış nəzarətçiləri seç
+            var selectedMonitors = new List<Monitor>();
 
             foreach (var monitor in availableMonitors)
             {
                 var isAssignedToAnotherExam = await _context.ExamMonitors
-                    .AnyAsync(em => em.MonitorId == monitor.Id && em.Exams.ExamDate == exam.ExamDate);
+                    .AnyAsync(em => em.MonitorId == monitor.Id &&
+                                    em.Exams.ExamDate == exam.ExamDate);
 
                 if (!isAssignedToAnotherExam)
                 {
@@ -269,10 +289,12 @@ namespace ForQab.Repository.Concrete
 
             if (selectedMonitors.Count < numberOfMonitors)
             {
-                throw new InvalidOperationException("Yetərli sayda nəzarətçi yoxdur.");
+                throw new InvalidOperationException("Yetərli sayda nəzarətçi yoxdur. " +
+                    $"Tələb: {numberOfMonitors}, mövcud: {selectedMonitors.Count}");
             }
 
-            List<int> availableRooms = new List<int>();
+            // Otaq təyinatı (Section 2 / 5)
+            var availableRooms = new List<int>();
 
             if (exam.SectionId == 2 || exam.SectionId == 5)
             {
@@ -307,19 +329,18 @@ namespace ForQab.Repository.Concrete
                     MonitorId = monitor.Id,
                     RoomId = assignedRoomId
                 });
-
             }
 
+            // Section 2/5: əlavə ehtiyat nəzarətçilər
             if (exam.SectionId == 2 || exam.SectionId == 5)
             {
-                int additionalMonitorsCount = 0;
-
-                if (numberOfMonitors >= 6 && numberOfMonitors <= 10)
-                    additionalMonitorsCount = 1;
-                else if (numberOfMonitors >= 11 && numberOfMonitors <= 21)
-                    additionalMonitorsCount = 2;
-                else if (numberOfMonitors >= 22)
-                    additionalMonitorsCount = 3;
+                int additionalMonitorsCount = numberOfMonitors switch
+                {
+                    >= 6 and <= 10 => 1,
+                    >= 11 and <= 21 => 2,
+                    >= 22 => 3,
+                    _ => 0
+                };
 
                 var extraMonitors = availableMonitors
                     .Skip(numberOfMonitors)
@@ -329,7 +350,8 @@ namespace ForQab.Repository.Concrete
                 foreach (var monitor in extraMonitors)
                 {
                     var isAssignedToAnotherExam = await _context.ExamMonitors
-                        .AnyAsync(em => em.MonitorId == monitor.Id && em.Exams.ExamDate == exam.ExamDate);
+                        .AnyAsync(em => em.MonitorId == monitor.Id &&
+                                        em.Exams.ExamDate == exam.ExamDate);
 
                     if (!isAssignedToAnotherExam)
                     {

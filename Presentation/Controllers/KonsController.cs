@@ -27,17 +27,42 @@ namespace ForQab.Presentation.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId)
+        public async Task<IActionResult> Index(
+    string searchName,
+    int? genderId,
+    string? finCode,
+    string serial,
+    int? district,
+    int? startYear,
+    int? endYear,
+    int? subProfessionId,
+    int page = 1,
+    int pageSize = 25)
         {
+            var sectionId = await GetCurrentSectionIdAsync();
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
-            var sectionId = await GetCurrentSectionIdAsync();
             var subProfessions = await _subProfessionService.GetAllSubProfessionsAsync(sectionId);
-            var experts = await _konsService.GetAllAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, subProfessionId);
+
+            var all = await _konsService.GetAllAsync(
+                sectionId, searchName, genderId, finCode, serial,
+                district, startYear, endYear, subProfessionId);
+
+            var totalCount = all.Count();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            page = Math.Max(1, Math.Min(page, totalPages == 0 ? 1 : totalPages));
+
+            var paged = all.Skip((page - 1) * pageSize).Take(pageSize);
+
             ViewBag.SubProfessions = subProfessions;
             ViewBag.Genders = genders;
             ViewBag.Districts = districts;
-            return View(experts);
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalCount = totalCount;
+
+            return View(paged);
         }
         [HttpGet]
         public async Task<IActionResult> Create()

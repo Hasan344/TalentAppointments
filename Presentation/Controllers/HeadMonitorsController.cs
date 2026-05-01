@@ -30,18 +30,35 @@ namespace ForQab.Presentation.Controllers
         }
 
         // GET: HeadMonitors
-        public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        public async Task<IActionResult> Index(
+    string searchName,
+    int? genderId,
+    string? finCode,
+    string serial,
+    int? district,
+    int? startYear,
+    int? endYear,
+    int page = 1,
+    int pageSize = 25)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var model = await _headMonitorService.GetAllAsync(sectionId,searchName, genderId, finCode, serial, district, startYear, endYear);
+            var all = await _headMonitorService.GetAllAsync(
+                sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
 
-            var genders = _context.Genders.ToList();
-            var districts = _context.Districts.ToList();
+            var totalCount = all.Count();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            page = Math.Max(1, Math.Min(page, totalPages == 0 ? 1 : totalPages));
 
-            ViewBag.Genders = genders;
-            ViewBag.Districts = districts;
-            return View(model);
+            var paged = all.Skip((page - 1) * pageSize).Take(pageSize);
 
+            ViewBag.Genders = _context.Genders.ToList();
+            ViewBag.Districts = _context.Districts.ToList();
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalCount = totalCount;
+
+            return View(paged);
         }
         public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {

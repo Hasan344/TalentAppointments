@@ -3,123 +3,377 @@
 
 @{
     ViewData["Title"] = "Qeydiyyat";
+    Layout = null;
 }
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="az">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"]</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Qeydiyyat — Qabiliyyət</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
     <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
         body {
-            background-color: #f4f7fa;
-            font-family: 'Arial', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #312e81 100%);
+            position: relative;
+            overflow: hidden;
+            padding: 1.5rem 0;
         }
 
-        .register-container {
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 30px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        body::before, body::after {
+            content: "";
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: .45;
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::before {
+            width: 500px; height: 500px;
+            background: #6366f1;
+            top: -150px; left: -150px;
+            animation: blobFloat 16s ease-in-out infinite;
+        }
+        body::after {
+            width: 400px; height: 400px;
+            background: #ec4899;
+            bottom: -130px; right: -120px;
+            animation: blobFloat 20s ease-in-out infinite reverse;
         }
 
-            .register-container h1 {
-                font-size: 1.8rem;
-                font-weight: 600;
-                margin-bottom: 20px;
-                text-align: center;
-                color: #333;
-            }
-
-        .form-group label {
-            font-weight: 500;
+        @@keyframes blobFloat {
+            0%,100% { transform: translate(0,0) scale(1); }
+            33%      { transform: translate(40px,-50px) scale(1.07); }
+            66%      { transform: translate(-30px,40px) scale(0.93); }
         }
 
-        .btn-primary {
+        .auth-grid {
+            position: fixed; inset: 0; z-index: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at center, #000 20%, transparent 80%);
+            -webkit-mask-image: radial-gradient(ellipse at center, #000 20%, transparent 80%);
+            pointer-events: none;
+        }
+
+        .auth-card {
+            position: relative;
+            z-index: 1;
             width: 100%;
+            max-width: 460px;
+            margin: 1.5rem;
+            background: rgba(255,255,255,.97);
+            border-radius: 24px;
+            box-shadow:
+                0 25px 50px -12px rgba(0,0,0,.45),
+                0 0 0 1px rgba(255,255,255,.08);
+            overflow: hidden;
+            animation: cardIn .5s cubic-bezier(.4,0,.2,1);
         }
 
-        .btn-link {
-            font-size: 0.875rem;
-            color: #007bff;
-            text-decoration: none;
+        @@keyframes cardIn {
+            from { opacity:0; transform: translateY(20px) scale(.97); }
+            to   { opacity:1; transform: translateY(0) scale(1); }
         }
 
-            .btn-link:hover {
-                text-decoration: underline;
-            }
-
-        .form-text {
-            font-size: 0.875rem;
-            color: #6c757d;
+        .auth-card__header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #312e81 100%);
+            padding: 1.75rem 2rem 1.5rem;
             text-align: center;
         }
 
-        hr {
-            border: 0;
-            border-top: 1px solid #e3e3e3;
-            margin: 15px 0;
+        .auth-card__logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px; height: 52px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+            margin-bottom: .75rem;
+            box-shadow: 0 4px 12px rgba(99,102,241,.4), inset 0 1px 0 rgba(255,255,255,.2);
+        }
+        .auth-card__logo i { font-size: 1.5rem; color: #fff; }
+        .auth-card__title {
+            color: #fff;
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin: 0 0 .2rem;
+            letter-spacing: -.02em;
+        }
+        .auth-card__sub {
+            color: rgba(255,255,255,.65);
+            font-size: .85rem;
+            margin: 0;
+        }
+
+        .auth-card__body { padding: 1.75rem 2rem; }
+
+        .auth-alert {
+            background: rgba(220,38,38,.08);
+            border: 1px solid rgba(220,38,38,.2);
+            border-radius: 10px;
+            color: #b91c1c;
+            padding: .75rem 1rem;
+            margin-bottom: 1.25rem;
+            font-size: .88rem;
+            display: flex;
+            align-items: flex-start;
+            gap: .5rem;
+        }
+
+        /* Section divider */
+        .auth-section {
+            font-size: .72rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin: 1.25rem 0 .85rem;
+            padding-bottom: .45rem;
+            border-bottom: 1px solid rgba(15,23,42,.07);
+        }
+        .auth-section:first-of-type { margin-top: 0; }
+
+        /* Grid row */
+        .auth-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .75rem;
+        }
+        .auth-row--full { grid-column: 1 / -1; }
+
+        .auth-field { margin-bottom: .85rem; }
+        .auth-field label {
+            display: block;
+            font-size: .8rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: .3rem;
+            letter-spacing: .01em;
+        }
+        .auth-field__wrap { position: relative; }
+        .auth-field__icon {
+            position: absolute;
+            left: .85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: .95rem;
+            pointer-events: none;
+        }
+        .auth-field input {
+            width: 100%;
+            padding: .65rem .9rem .65rem 2.35rem;
+            border: 1.5px solid rgba(15,23,42,.12);
+            border-radius: 11px;
+            font-size: .92rem;
+            color: #0f172a;
+            background: #fff;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .auth-field input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+        }
+        .auth-field input::placeholder { color: #cbd5e1; }
+        .auth-field .text-danger {
+            font-size: .76rem;
+            margin-top: .25rem;
+            display: block;
+        }
+
+        .auth-field__eye {
+            position: absolute;
+            right: .85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: .95rem;
+            transition: color .15s;
+        }
+        .auth-field__eye:hover { color: #6366f1; }
+
+        .auth-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            width: 100%;
+            padding: .75rem 1rem;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(99,102,241,.35);
+            transition: transform .2s, box-shadow .2s;
+            margin-top: .5rem;
+        }
+        .auth-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(99,102,241,.45);
+        }
+
+        .auth-card__footer {
+            text-align: center;
+            padding: .85rem 2rem 1.5rem;
+            font-size: .88rem;
+            color: #64748b;
+        }
+        .auth-card__footer a {
+            color: #6366f1;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .auth-card__footer a:hover { text-decoration: underline; }
+
+        @@media (max-width: 480px) {
+            .auth-card { border-radius: 18px; margin: 1rem; }
+            .auth-card__header { padding: 1.5rem 1.5rem 1.25rem; }
+            .auth-card__body { padding: 1.5rem; }
+            .auth-card__footer { padding: .75rem 1.5rem 1.25rem; }
+            .auth-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
+    <div class="auth-grid"></div>
 
-    <div class="register-container">
-        <h1>@ViewData["Title"]</h1>
+    <div class="auth-card">
+        <!-- Header -->
+        <div class="auth-card__header">
+            <div class="auth-card__logo">
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <h1 class="auth-card__title">Hesab yarat</h1>
+            <p class="auth-card__sub">Qabiliyyət İmtahanları İdarəetmə Sistemi</p>
+        </div>
 
-        @if (Model != null)
-        {
-            <form method="post" asp-action="Register">
-                <div class="form-group">
-                    <label for="UserName">İstifadəçi adı</label>
-                    <input asp-for="UserName" class="form-control" placeholder="İstifadəçi adı daxil edin" />
+        <!-- Body -->
+        <div class="auth-card__body">
+
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState.Values.Any(v => v.Errors.Any()))
+            {
+                <div class="auth-alert">
+                    <i class="bi bi-exclamation-circle-fill" style="flex-shrink:0;margin-top:.1rem;"></i>
+                    <div>
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <div>@error.ErrorMessage</div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <form method="post" asp-action="Register" novalidate>
+                @Html.AntiForgeryToken()
+
+                <!-- Şəxsi məlumatlar -->
+                <div class="auth-section">Şəxsi məlumatlar</div>
+                <div class="auth-row">
+                    <div class="auth-field">
+                        <label asp-for="FirstName">Ad</label>
+                        <div class="auth-field__wrap">
+                            <i class="bi bi-person auth-field__icon"></i>
+                            <input asp-for="FirstName" type="text" placeholder="Adınız" />
+                        </div>
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="auth-field">
+                        <label asp-for="LastName">Soyad</label>
+                        <div class="auth-field__wrap">
+                            <i class="bi bi-person auth-field__icon"></i>
+                            <input asp-for="LastName" type="text" placeholder="Soyadınız" />
+                        </div>
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Hesab məlumatları -->
+                <div class="auth-section">Hesab məlumatları</div>
+                <div class="auth-field">
+                    <label asp-for="UserName">İstifadəçi adı</label>
+                    <div class="auth-field__wrap">
+                        <i class="bi bi-at auth-field__icon"></i>
+                        <input asp-for="UserName" type="text"
+                               placeholder="İstifadəçi adı seçin"
+                               autocomplete="username" />
+                    </div>
                     <span asp-validation-for="UserName" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label for="FirstName">Ad</label>
-                    <input asp-for="FirstName" class="form-control" placeholder="Ad daxil edin" />
-                    <span asp-validation-for="FirstName" class="text-danger"></span>
+
+                <div class="auth-row">
+                    <div class="auth-field">
+                        <label asp-for="Password">Şifrə</label>
+                        <div class="auth-field__wrap">
+                            <i class="bi bi-lock auth-field__icon"></i>
+                            <input asp-for="Password" type="password" id="pw1"
+                                   placeholder="Ən az 6 simvol"
+                                   autocomplete="new-password" />
+                            <button type="button" class="auth-field__eye" onclick="togglePw('pw1','eye1')" tabindex="-1">
+                                <i class="bi bi-eye" id="eye1"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="auth-field">
+                        <label asp-for="ConfirmPassword">Şifrəni təsdiqlə</label>
+                        <div class="auth-field__wrap">
+                            <i class="bi bi-lock-fill auth-field__icon"></i>
+                            <input asp-for="ConfirmPassword" type="password" id="pw2"
+                                   placeholder="Şifrəni təkrar daxil edin"
+                                   autocomplete="new-password" />
+                            <button type="button" class="auth-field__eye" onclick="togglePw('pw2','eye2')" tabindex="-1">
+                                <i class="bi bi-eye" id="eye2"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="LastName">Soyad</label>
-                    <input asp-for="LastName" class="form-control" placeholder="Soyad daxil edin" />
-                    <span asp-validation-for="LastName" class="text-danger"></span>
-                </div>
-
-                <div class="form-group">
-                    <label for="Password">Şifrə</label>
-                    <input asp-for="Password" class="form-control" type="password" placeholder="Şifrə daxil edin" />
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-
-                <div class="form-group">
-                    <label for="ConfirmPassword">Şifrəni təsdiqlə</label>
-                    <input asp-for="ConfirmPassword" class="form-control" type="password" placeholder="Şifrəni təkrar daxil edin" />
-                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                </div>
-
-                <hr />
-                <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                <button type="submit" class="auth-btn">
+                    <i class="bi bi-person-check"></i>
+                    Hesab yarat
+                </button>
             </form>
-        }
-        else
-        {
-            <p>Error: Model is null</p>
-        }
+        </div>
 
-        <div class="form-text mt-2">
-            <p class="text-center">Already have an account? <a asp-action="Login" class="btn-link">Log in</a></p>
+        <!-- Footer -->
+        <div class="auth-card__footer">
+            Artıq hesabınız var? <a asp-action="Login">Daxil olun</a>
         </div>
     </div>
 
-    @section Scripts {
-        <partial name="_ValidationScriptsPartial" />
-    }
-
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        function togglePw(inputId, iconId) {
+            var inp  = document.getElementById(inputId);
+            var icon = document.getElementById(iconId);
+            var isPass = inp.type === 'password';
+            inp.type  = isPass ? 'text' : 'password';
+            icon.className = isPass ? 'bi bi-eye-slash' : 'bi bi-eye';
+        }
+    </script>
 </body>
 </html>

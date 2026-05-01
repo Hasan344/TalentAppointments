@@ -23,21 +23,44 @@ namespace ForQab.Presentation.Controllers
         private readonly IMonitorService _monitorService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public MonitorsController(MyDbContext context ,UserManager<ApplicationUser> userManager, IMonitorService monitorService) : base(context, userManager)
+        public MonitorsController(MyDbContext context, UserManager<ApplicationUser> userManager, IMonitorService monitorService) : base(context, userManager)
         {
             _userManager = userManager;
             _monitorService = monitorService;
         }
 
-        public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        public async Task<IActionResult> Index(
+    string searchName,
+    int? genderId,
+    string? finCode,
+    string serial,
+    int? district,
+    int? startYear,
+    int? endYear,
+    int page = 1,
+    int pageSize = 25)
         {
             var currentUserSection = await GetCurrentSectionIdAsync();
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
-            var model = await _monitorService.GetAllAsync(currentUserSection,searchName,genderId,finCode,serial,district, startYear, endYear);
+
+            var all = await _monitorService.GetAllAsync(
+                currentUserSection, searchName, genderId, finCode, serial, district, startYear, endYear);
+
+            var totalCount = all.Count();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            page = Math.Max(1, Math.Min(page, totalPages == 0 ? 1 : totalPages));
+
+            var paged = all.Skip((page - 1) * pageSize).Take(pageSize);
+
             ViewBag.Genders = genders;
             ViewBag.Districts = districts;
-            return View(model);
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalCount = totalCount;
+
+            return View(paged);
         }
         public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
         {
@@ -247,7 +270,7 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> RestoreStatus(int id)
         {
             var monitor = await _monitorService.GetByIdAsync(id);
-            if (monitor == null)    
+            if (monitor == null)
             {
                 return NotFound();
             }
@@ -336,7 +359,7 @@ namespace ForQab.Presentation.Controllers
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]
-        public async Task<IActionResult> ExportContracts(List<int> selectedMonitorIds,DateTime contractDate,string searchName,int? districtId)
+        public async Task<IActionResult> ExportContracts(List<int> selectedMonitorIds, DateTime contractDate, string searchName, int? districtId)
         {
             if (selectedMonitorIds == null || !selectedMonitorIds.Any())
                 return RedirectToAction(nameof(Index));

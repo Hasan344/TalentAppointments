@@ -1,285 +1,262 @@
 ﻿@model ForQab.DataAccess.Models.Expert
-
 @{
-    ViewData["Title"] = "Detallar";
-    string primaryColor = "#0056b3"; // Official primary color
-    string secondaryColor = "#6c757d"; // Official secondary color
+    ViewData["Title"] = "Konsertmeyster detalları";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Expert/Index.css" asp-append-version="true" />
 
-<div class="container py-5" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-    <h1 class="text-center mb-4" style="color: @primaryColor; font-weight: bold;">Konsertmeyster Detalları</h1>
-    <hr class="mb-4" />
+<div class="container qab-page">
 
-    <div class="row">
-        <div class="row g-4">
-            <!-- Left column: Photo -->
-            <div class="col-lg-4 d-flex justify-content-center align-items-start">
-                <div class="card shadow-sm border-0 rounded-4" style="width: 100%; max-width: 320px;">
-                    <div class="card-body text-center">
-                        <div class="col-md-12 d-flex flex-column align-items-center mb-4">
-                            @if (!string.IsNullOrEmpty(Model.Photo))
-                            {
-                                <img src="@Model.Photo" class="img-fluid rounded-circle shadow mb-2" style="width: 200px; height: 200px; object-fit: cover;" alt="Ekspert Foto" />
-                            }
-                            else
-                            {
-                                <div class="d-flex justify-content-center align-items-center bg-light rounded-circle shadow mb-2" style="width: 200px; height: 200px;">
-                                    <i class="bi bi-person-fill text-secondary" style="font-size: 4rem;"></i>
-                                </div>
-                            }
-                        </div>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="qab-alert qab-alert--success"><i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]</div>
+    }
 
-
-                        <h4 class="mb-1">@Model.Name @Model.Surname</h4>
-                        <p class="text-muted mb-0">@Model.Fname</p>
-                        <small class="text-secondary">@Model.Section?.Name</small>
-                    </div>
-                </div>
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-music-note-beamed"></i></span>
+                    @Model.Surname @Model.Name @Model.Fname
+                </h1>
+                <p class="qab-page-header__subtitle">
+                    Konsertmeyster &middot; @Model.Section?.Name
+                    @if (Model.Status == 1)
+                    {
+                        <span class="qab-status-badge qab-status-badge--blocked ms-2">
+                            <i class="bi bi-x-circle-fill"></i> Çağırıla bilməz
+                        </span>
+                    }
+                </p>
             </div>
+            <a class="qab-page-header__back" asp-action="Index"><i class="bi bi-arrow-left"></i> Siyahıya qayıt</a>
+        </div>
+    </div>
 
-            <!-- Right column: Details -->
-            <div class="col-lg-8">
-                <div class="card shadow-sm border-0 rounded-4 p-4">
-                    <h4 class="mb-4" style="color:@primaryColor;">Şəxsi Məlumatlar</h4>
-                    <div class="row mb-3">
-                        <div class="col-sm-5 fw-semibold text-secondary">Doğum tarixi:</div>
-                        <div class="col-sm-7">@Model.BirthDate?.ToString("dd.MM.yyyy")</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-5 fw-semibold text-secondary">Fin Kodu:</div>
-                        <div class="col-sm-7">@Model.FinCode</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-5 fw-semibold text-secondary">Seriya:</div>
-                        <div class="col-sm-7">@Model.SerialPrefix</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-5 fw-semibold text-secondary">Seriya nömrəsi:</div>
-                        <div class="col-sm-7">@Model.Serial</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-5 fw-semibold text-secondary">Telefon:</div>
-                        <div class="col-sm-7">@Model.TelIs</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-5 fw-semibold text-secondary">Müəssisə - Təhsil səviyyəsi:</div>
-                        <div class="col-sm-7">@Model.Profession</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-5 fw-semibold text-secondary">İxtisaslar:</div>
-                        <div class="col-sm-7">
-                            @if (Model.ExpertsProfessions != null && Model.ExpertsProfessions.Any())
-                            {
-                                @string.Join(", ", Model.ExpertsProfessions.Select(p => p.SubProfession?.Name))
-                            }
-                            else
-                            {
-                                <span class="text-muted">---</span>
-                            }
+    <!-- Info Card -->
+    <div class="qab-card" style="margin-bottom:1.5rem;">
+        <div class="qab-card__header">
+            <h2 class="qab-card__title"><i class="bi bi-person-circle"></i> Şəxsi məlumatlar</h2>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                <a class="qab-btn qab-btn--outline-warning qab-btn--sm" asp-action="Edit" asp-route-id="@Model.Id">
+                    <i class="bi bi-pencil-square"></i> Redaktə
+                </a>
+                <a class="qab-btn qab-btn--outline-danger qab-btn--sm" asp-action="Delete" asp-route-id="@Model.Id">
+                    <i class="bi bi-trash"></i> Sil
+                </a>
+            </div>
+        </div>
+        <div class="qab-card__body">
+            <div style="display:grid;grid-template-columns:auto 1fr;gap:2rem;align-items:start;">
+                <!-- Avatar -->
+                <div style="text-align:center;min-width:270px;">
+                    @if (!string.IsNullOrEmpty(Model.Photo))
+                    {
+                        <img src="@Model.Photo" class="rounded-circle"
+                             style="width:250px;height:250px;object-fit:cover;border:4px solid var(--qab-border);box-shadow:var(--qab-shadow-md);" />
+                    }
+                    else
+                    {
+                        <div style="width:250px;height:250px;border-radius:50%;background:var(--qab-primary-soft);
+                                    display:flex;align-items:center;justify-content:center;margin:0 auto;
+                                    border:4px solid var(--qab-border);box-shadow:var(--qab-shadow-md);">
+                            <i class="bi bi-person-fill" style="font-size:6rem;color:var(--qab-primary);"></i>
                         </div>
+                    }
+                    <p style="margin:.6rem 0 0;font-size:.85rem;color:var(--qab-text-muted);">
+                        Ümumi: <strong>@Model.ComputedAssignmentCount</strong>
+                    </p>
+                    <p style="margin:.2rem 0 0;font-size:.85rem;color:var(--qab-text-muted);">
+                        Bu il: <strong>@Model.ThisYearAssignmentCount</strong>
+                    </p>
+                </div>
+
+                <!-- Details -->
+                <div class="qab-details__grid">
+                    <div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Ad</dt><dd class="qab-details__value">@Model.Name @Model.Surname @Model.Fname</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Doğum tarixi</dt><dd class="qab-details__value">@Model.BirthDate?.ToString("dd.MM.yyyy")</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">İş tel.</dt><dd class="qab-details__value">@Model.TelIs</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Əlaqə tel.</dt><dd class="qab-details__value">@Model.TelEl</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">FİN Kod</dt><dd class="qab-details__value">@Model.FinCode</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Seriya</dt><dd class="qab-details__value">@Model.SerialPrefix @Model.Serial</dd></div>
                     </div>
-
-                    <hr class="my-4" />
-
-                    <h4 class="mb-4" style="color:@primaryColor;">Bank Məlumatları</h4>
-                    @{
-                        var bankInfos = new (string, string)[]
+                    <div>
+                        <div class="qab-details__row"><dt class="qab-details__label">İstiqamət</dt><dd class="qab-details__value">@Model.Section?.Name</dd></div>
+                        <div class="qab-details__row">
+                            <dt class="qab-details__label">İxtisaslar</dt>
+                            <dd class="qab-details__value">
+                                @if (Model.ExpertsProfessions?.Any() == true)
+                                {
+                                    @string.Join(", ", Model.ExpertsProfessions.Select(ep => ep.SubProfession?.Name))
+                                }
+                                else { <span class="text-muted">—</span> }
+                            </dd>
+                        </div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Peşə</dt><dd class="qab-details__value">@Model.Profession</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Müqavilə</dt><dd class="qab-details__value">@Model.ContractNo — @Model.ContractDate?.ToString("dd.MM.yyyy")</dd></div>
+                        @if (!string.IsNullOrEmpty(Model.StatusReason))
                         {
-                    ("Rekvizit", Model.Rekvizit),
-                    ("Bank filialı", Model.BankFilial),
-                    ("Bank filial kodu", Model.BankFilialCode),
-                    ("Hesablaşma hesabı", Model.HesablashmaH),
-                    ("VÖEN", Model.Voen),
-                    ("SSN", Model.SSN)
-                        };
-
-                        foreach (var item in bankInfos)
-                        {
-                            <div class="row mb-3">
-                                <div class="col-sm-5 fw-semibold text-secondary">@item.Item1:</div>
-                                <div class="col-sm-7">@item.Item2</div>
+                            <div class="qab-details__row">
+                                <dt class="qab-details__label" style="color:var(--qab-danger);">Çağırılmama səbəbi</dt>
+                                <dd class="qab-details__value" style="color:var(--qab-danger);">@Model.StatusReason</dd>
                             </div>
                         }
-                    }<hr class="my-4" />
-                    @{
-                        var latestContract = Model.Contracts
-                        .OrderByDescending(c => c.Id)
-                        .FirstOrDefault();
-                    }
-                    <div class="card shadow-sm border-0 rounded-4 p-4">
-                        <h4 class="mb-4" style="color:@primaryColor;">Digər Məlumatlar</h4>
-                        <div class="row mb-3">
-                            <div class="col-sm-5 fw-semibold text-secondary">İmtahanlarda iştirak sayı:</div>
-                            <div class="col-sm-7">@Model.ComputedAssignmentCount</div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-sm-5 fw-semibold text-secondary">Müqavilə tarixi:</div>
-                            <div class="col-sm-7">@latestContract?.Date.ToString("dd/MM/yyyy")</div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-sm-5 fw-semibold text-secondary">Müqavilə nömrəsi:</div>
-                            <div class="col-sm-7">@latestContract?.Number</div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-sm-5 fw-semibold text-secondary">Rayon:</div>
-                            <div class="col-sm-7">@Model.DistrictNavigation?.Name</div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-sm-5 fw-semibold text-secondary">İş yerində vəzifəsi:</div>
-                            <div class="col-sm-7">@Model.Profession</div>
-                        </div>
-                        <hr class="my-4" />
-
-                    <hr class="my-4" />
-
-                    <div class="row mb-3">
-                        <div class="col-sm-5 fw-semibold text-danger">Arxivlənmə səbəbi:</div>
-                        <div class="col-sm-7 text-danger">@Model.ArchiveReason</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-5 fw-semibold text-danger">Çağırılmama səbəbi:</div>
-                        <div class="col-sm-7 text-danger">@Model.StatusReason</div>
-                    </div>
-
-                    <div class="text-center mt-4">
-                        <a class="btn btn-outline-primary me-3" asp-action="Edit" asp-route-id="@Model.Id">
-                            <i class="bi bi-pencil-square me-1"></i> Düzəliş et
-                        </a>
-                        <a class="btn btn-outline-danger me-3" asp-action="Delete" asp-route-id="@Model.Id">
-                            <i class="bi bi me-1"></i> Sil və ya Arxivlə
-                        </a>
-                        <a class="btn btn-outline-secondary me-3" asp-action="Index">
-                            <i class="bi bi-list-ul me-1"></i> Siyahıya qayıt
-                        </a>
-                        <hr />
-                        <a class="btn btn-outline-info" asp-action="ExpertLog" asp-route-expertId="@Model.Id">
-                            <i class="bi bi-journal-text me-1"></i> Qeydlər
-                        </a>
-                    </div>
-
-                    <div class="text-center mt-3">
-                        <button class="btn btn-outline-danger me-2" data-bs-toggle="modal" data-bs-target="#statusReasonModal">
-                            <i class="bi bi-x-circle me-1"></i> Çağırıla bilməz
-                        </button>
-
-                        <form asp-action="RestoreStatus" method="post" class="d-inline">
-                            <input type="hidden" name="id" value="@Model.Id" />
-                            <button type="submit" class="btn btn-outline-success">
-                                <i class="bi bi-check-circle me-1"></i> Çağırıla bilər
-                            </button>
-                        </form>
+                        @if (!string.IsNullOrEmpty(Model.ArchiveReason))
+                        {
+                            <div class="qab-details__row">
+                                <dt class="qab-details__label">Arxivləmə səbəbi</dt>
+                                <dd class="qab-details__value">@Model.ArchiveReason</dd>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
-        </div>
-        </div>
-        </div>
-<div class="card shadow-sm border-0 rounded-4 mt-5 p-4">
-    <h4 class="mb-3" style="color:@primaryColor;">Konsertmeysterin iştirak etdiyi imtahanlar</h4>
-    <table class="table table-striped table-hover align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>İmtahan ID</th>
-                <th>Tarix</th>
-                <th>Zal</th>
-                <th>Başlama</th>
-                <th>Bitmə</th>
-                <th>İştirak statusu</th>
-                <th>İxtisas</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.ExamExpertSubProfessions)
-            {
-                <tr>
-                    <td>@item.Exam.Id</td>
-                    <td>@item.Exam.ExamDate.ToString("dd.MM.yyyy")</td>
-                    <td>@item.ExamRoom?.Name</td>
-                    <td>@item.Exam.StartTime</td>
-                    <td>@item.Exam.EndTime</td>
-                    <td>@item.SubProfession?.Name</td>
-                    <td>
-                        @{
-                            var expertLog = item.Expert.ExpertLogs
-                            .FirstOrDefault(log => log.ExamId == item.Exam.Id); // ExamId ilə uyğun log tapılır
 
-                            string statusText;
-                            if (expertLog == null)
-                            {
-                                statusText = "İştirak etdi";
-                            }
-                            else if (expertLog.Kind == 0)
-                            {
-                                statusText = "Gəlmədi";
-                            }
-                            else
-                            {
-                                statusText = "Qeydi var";
-                            }
-                        }
-                        @statusText
-                    </td>
-                    <td>
-                        <a class="btn btn-sm btn-outline-info" asp-controller="Exam" asp-action="Details" asp-route-id="@item.Exam.Id">
-                            Detallar
-                        </a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
-<div class="modal fade" id="statusReasonModal" tabindex="-1" aria-labelledby="statusReasonModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="statusReasonModalLabel">Status Dəyişmə Səbəbi</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="changeStatusForm" asp-action="ChangeStatus" method="post">
-                <div class="modal-body">
+            <!-- Status actions -->
+            <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.25rem;padding-top:1rem;border-top:1px dashed var(--qab-border);">
+                <button class="qab-btn qab-btn--outline-danger qab-btn--sm"
+                        data-bs-toggle="modal" data-bs-target="#statusModal">
+                    <i class="bi bi-x-circle"></i> Çağırıla bilməz
+                </button>
+                <form asp-action="RestoreStatus" method="post" style="margin:0;">
                     <input type="hidden" name="id" value="@Model.Id" />
-                    <div class="mb-3">
-                        <label for="statusReason" class="form-label">Səbəb</label>
-                        <textarea class="form-control" id="statusReason" name="statusReason" rows="3" required></textarea>
+                    <button type="submit" class="qab-btn qab-btn--outline-success qab-btn--sm">
+                        <i class="bi bi-check-circle"></i> Çağırıla bilər
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- İmtahanlar -->
+    <div class="qab-section-block">
+        <h3 class="qab-section-block__title">
+            <i class="bi bi-journal-text"></i> İştirak etdiyi imtahanlar
+        </h3>
+
+        @if (Model.ExamExpertSubProfessions?.Any() == true)
+        {
+                var examYears = Model.ExamExpertSubProfessions
+                    .Where(e => e.Exam != null)
+                    .Select(e => e.Exam!.ExamDate.Year)
+                    .Distinct().OrderByDescending(y => y).ToList();
+
+                var yearParam = Context.Request.Query["examYear"].ToString();
+                int selectedYear = string.IsNullOrEmpty(yearParam)
+                    ? (examYears.FirstOrDefault() == 0 ? DateTime.Now.Year : examYears.FirstOrDefault())
+                    : int.Parse(yearParam);
+
+                var grouped = Model.ExamExpertSubProfessions
+                    .Where(e => e.Exam?.ExamDate.Year == selectedYear)
+                    .GroupBy(e => e.ExamId)
+                    .OrderByDescending(g => g.First().Exam?.ExamDate)
+                    .ToList();
+          
+
+            <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;">
+                <span style="font-size:.85rem;color:var(--qab-text-muted);font-weight:600;">İl:</span>
+                @foreach (var y in examYears)
+                {
+                    <a href="?examYear=@y"
+                       class="qab-btn qab-btn--sm @(y == selectedYear ? "qab-btn--primary" : "qab-btn--ghost")"
+                       style="min-width:3.5rem;justify-content:center;">@y</a>
+                }
+                <span style="font-size:.82rem;color:var(--qab-text-muted);margin-left:.5rem;">— <strong>@grouped.Count</strong> imtahan</span>
+            </div>
+
+            @if (grouped.Any())
+            {
+                <div class="qab-table-wrap">
+                    <table class="qab-table">
+                        <thead>
+                            <tr>
+                                <th>İmtahan</th>
+                                <th>Tarix</th>
+                                <th>İxtisas / Məntəqə</th>
+                                <th>Status</th>
+                                <th>Detallar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var group in grouped)
+                            {
+                                var exam = group.First().Exam;
+                                var expertLog = Model.ExpertLogs?
+                                    .FirstOrDefault(log => log.ExamId == group.Key);
+                                string statusText  = expertLog == null ? "İştirak etdi"
+                                    : expertLog.Kind == 0 ? "Gəlmədi" : "Qeydi var";
+                                string statusClass = expertLog == null ? "qab-badge--success"
+                                    : expertLog.Kind == 0 ? "qab-badge--danger" : "qab-badge--warning";
+
+                                <tr>
+                                    <td>
+                                        <strong style="font-size:.9rem;">@exam?.Name</strong>
+                                        <div class="text-muted" style="font-size:.78rem;">#@group.Key</div>
+                                    </td>
+                                    <td class="qab-col-date">@exam?.ExamDate.ToString("dd.MM.yyyy")</td>
+                                    <td>
+                                        @foreach (var eesp in group)
+                                        {
+                                            <div style="font-size:.83rem;">
+                                                @eesp.SubProfession?.Name
+                                                @if (!string.IsNullOrEmpty(eesp.ExamRoom?.Name))
+                                                {
+                                                    <span class="text-muted"> — @eesp.ExamRoom.Name</span>
+                                                }
+                                            </div>
+                                        }
+                                    </td>
+                                    <td><span class="qab-badge @statusClass">@statusText</span></td>
+                                    <td>
+                                        <a class="qab-table__action-btn qab-table__action-btn--view"
+                                           asp-controller="Exam" asp-action="Details" asp-route-id="@group.Key">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="qab-empty-state">@selectedYear ilində bu konsertmeyster heç bir imtahana təyin edilməyib.</div>
+            }
+        }
+        else
+        {
+            <div class="qab-empty-state">Bu konsertmeyster heç bir imtahana təyin edilməyib.</div>
+        }
+    </div>
+</div>
+
+<!-- Status modal -->
+<div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content qab-page">
+            <form asp-action="ChangeStatus" method="post">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <div class="modal-header">
+                    <h5 class="modal-title" style="color:var(--qab-danger);">
+                        <i class="bi bi-x-circle"></i> Çağırıla bilməz
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="qab-form__field">
+                        <label class="form-label">Səbəb</label>
+                        <textarea name="statusReason" class="form-control" rows="3"
+                                  placeholder="Çağırıla bilməmə səbəbini qeyd edin..." required></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
-                    <button type="submit" class="btn btn-danger">Təsdiqlə</button>
+                    <button type="button" class="qab-btn qab-btn--ghost" data-bs-dismiss="modal">Ləğv et</button>
+                    <button type="submit" class="qab-btn qab-btn--danger">Təsdiqlə</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            $("#changeStatusForm").submit(function (event) {
-                event.preventDefault();
-
-                var formData = $(this).serialize();
-
-                $.ajax({
-                    type: "POST",
-                    url: "@Url.Action("ChangeStatus")",
-                    data: formData,
-                    success: function (response) {
-                        alert("Status uğurla dəyişdirildi!");
-                        var modal = $("#statusReasonModal");
-                        modal.modal("hide");
-
-                        modal.on("hidden.bs.modal", function () {
-                            $("body").removeClass("modal-open");
-                            $(".modal-backdrop").remove();
-                        });
-                    },
-                    error: function () {
-                        alert("Xəta baş verdi, yenidən cəhd edin.");
-                    }
-                });
-            });
-        });
-    </script>
-}

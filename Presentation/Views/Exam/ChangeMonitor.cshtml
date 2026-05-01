@@ -1,20 +1,64 @@
 ﻿@model ForQab.DataAccess.ViewModel.Exam.ChangeMonitorViewModel
 
 @{
-    ViewData["Title"] = "Nəzarətçi Dəyişdir";
+    ViewData["Title"] = "Nəzarətçini dəyişdir";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Nəzarətçini Dəyişdir</h2>
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 
-<form asp-action="ChangeMonitor" method="post">
-    <input type="hidden" asp-for="ExamId" />
-    <input type="hidden" asp-for="CurrentMonitorId" />
-
-    <div class="mb-3">
-        <label for="newMonitorId" class="form-label">Yeni Nəzarətçi Seçin:</label>
-        <select asp-for="NewMonitorId" asp-items="Model.AvailableMonitors" class="form-select"></select>
+<div class="container qab-page">
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-arrow-repeat"></i></span>
+                    Nəzarətçini dəyişdir
+                </h1>
+            </div>
+            <a class="qab-page-header__back" asp-action="Details" asp-route-id="@Model.ExamId">
+                <i class="bi bi-arrow-left"></i> Geri
+            </a>
+        </div>
     </div>
 
-    <button type="submit" class="btn btn-primary">Yadda Saxla</button>
-    <a asp-action="Details" asp-route-id="@Model.ExamId" class="btn btn-secondary">İmtahana Qayıt</a>
-</form>
+    <form asp-action="ChangeMonitor" method="post" class="qab-form">
+        <input type="hidden" asp-for="ExamId" />
+        <input type="hidden" asp-for="CurrentMonitorId" />
+
+        <div class="qab-form__section">
+            <div class="qab-form__section-title">Cari nəzarətçi</div>
+
+            
+                <div style="display:flex;align-items:center;gap:1rem;padding:1rem;background:var(--qab-danger-soft);border-radius:12px;margin-bottom:1rem;">
+                    <div style="width:42px;height:42px;border-radius:50%;background:var(--qab-danger);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <div>
+                        <p style="margin:0;font-size:.85rem;color:var(--qab-text-muted);">Cari nəzarətçi — dəyişdiriləcək</p>
+                    </div>
+                </div>
+            
+        </div>
+
+        <div class="qab-form__section">
+            <div class="qab-form__section-title">Yeni nəzarətçi seçin</div>
+
+            <div class="qab-form__field">
+                <label class="form-label">Nəzarətçi</label>
+                <select asp-for="NewMonitorId" class="form-select" asp-items="Model.AvailableMonitors" required>
+                    <option value="" disabled selected>Nəzarətçi seçin</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="qab-form__footer">
+            <a asp-action="Details" asp-route-id="@Model.ExamId" class="qab-btn qab-btn--outline">
+                <i class="bi bi-x-circle"></i> Ləğv et
+            </a>
+            <button type="submit" class="qab-btn qab-btn--primary">
+                <i class="bi bi-arrow-repeat"></i> Dəyişdir
+            </button>
+        </div>
+    </form>
+</div>
