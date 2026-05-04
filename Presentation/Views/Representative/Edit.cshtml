@@ -1,126 +1,81 @@
 ﻿@using ForQab.DataAccess.Models
 @model DimRepresentative
 @{
-    ViewData["Title"] = "DİM Nümayəndəsini redaktə et";
+    ViewData["Title"] = "DİM nümayəndəsini redaktə et";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 
-<div class="container py-4" style="background-color: #2c2f33; border-radius: 10px; color: #ffffff;">
+<div class="container qab-page">
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-pencil-square"></i></span>
+                    DİM nümayəndəsini redaktə et
+                </h1>
+                <p class="qab-page-header__subtitle">@Model.Surname @Model.Name @Model.Fname</p>
+            </div>
+            <a class="qab-page-header__back" asp-action="Index"><i class="bi bi-arrow-left"></i> Geri</a>
+        </div>
+    </div>
+
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <h1 class="text-center mb-4">@ViewData["Title"]</h1>
-            <hr style="border-color: #7289da;" />
-
-            <form asp-controller="Representative" asp-action="Edit" method="post" class="p-3">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
+        <div class="col-md-8 col-lg-7">
+            <form asp-controller="Representative" asp-action="Edit" method="post" class="qab-form">
+                <div asp-validation-summary="ModelOnly" class="qab-form__validation"></div>
                 <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="Type" value="1" />
 
-                <div class="mb-3">
-                    <label asp-for="Name" class="form-label">Nümayəndənin Adı</label>
-                    <input asp-for="Name" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
-                <div class="mb-3">
-                    <label asp-for="Surname" class="form-label">Soyadı</label>
-                    <input asp-for="Surname" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="Surname" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Fname" class="form-label">Ata adı</label>
-                    <input asp-for="Fname" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="Fname" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="FinCode" class="form-label">Fin Kod</label>
-                    <input asp-for="FinCode" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="FinCode" class="text-danger"></span>
+                <div class="qab-form__section">
+                    <div class="qab-form__section-title">Şəxsi məlumatlar</div>
+                    <div class="qab-form__row">
+                        <div class="qab-form__field">
+                            <label asp-for="Name" class="form-label">Ad <span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="qab-form__field">
+                            <label asp-for="Surname" class="form-label">Soyad <span class="text-danger">*</span></label>
+                            <input asp-for="Surname" class="form-control" />
+                            <span asp-validation-for="Surname" class="text-danger"></span>
+                        </div>
+                        <div class="qab-form__field">
+                            <label asp-for="Fname" class="form-label">Ata adı</label>
+                            <input asp-for="Fname" class="form-control" />
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Tel" class="form-label">Telefon</label>
-                    <input asp-for="Tel" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="Tel" class="text-danger"></span>
+                <div class="qab-form__section">
+                    <div class="qab-form__section-title">Sənəd məlumatları</div>
+                    <div class="qab-form__row">
+                        <div class="qab-form__field">
+                            <label asp-for="FinCode" class="form-label">FİN Kod</label>
+                            <input asp-for="FinCode" class="form-control" />
+                        </div>
+                        <partial name="_SerialPrefixSelect" model="@Model.SerialPrefix" />
+                        <div class="qab-form__field">
+                            <label asp-for="Serial" class="form-label">Seriya nömrəsi</label>
+                            <input asp-for="Serial" class="form-control" />
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="SerialPrefix" class="form-label">Seriya</label>
-                    <input asp-for="SerialPrefix" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="SerialPrefix" class="text-danger"></span>
+                <div class="qab-form__section">
+                    <div class="qab-form__section-title">Əlaqə</div>
+                    <div class="qab-form__field">
+                        <label asp-for="Tel" class="form-label">Telefon</label>
+                        <input asp-for="Tel" class="form-control" />
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Serial" class="form-label">Seriya nömrəsi</label>
-                    <input asp-for="Serial" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="Serial" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Gender" class="form-label">Cins</label>
-                    <select asp-for="Gender" class="form-select" asp-items="ViewBag.Gender" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>Cins Seçin</option>
-                    </select>
-                    <span asp-validation-for="Gender" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <input type="hidden" asp-for="Type" value="1" />
-                </div>
-
-                <div class="d-flex justify-content-between">
-                    <a asp-action="Index" class="btn btn-secondary" style="background-color: #2f3136; color: #ffffff;">Geri</a>
-                    <button type="submit" class="btn btn-primary" style="background-color: #7289da; border-color: #7289da;">Yadda saxla</button>
+                <div class="qab-form__footer">
+                    <a asp-action="Index" class="qab-btn qab-btn--outline"><i class="bi bi-arrow-left"></i> Ləğv et</a>
+                    <button type="submit" class="qab-btn qab-btn--primary qab-btn--lg"><i class="bi bi-check-circle"></i> Yadda saxla</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
-
-<style>
-    .modern-select {
-        background-color: #23272a;
-        color: #ffffff;
-        border: 1px solid #7289da;
-        border-radius: 5px;
-        padding: 10px;
-        transition: all 0.3s ease;
-        font-size: 1rem;
-        line-height: 1.5;
-    }
-
-        .modern-select:focus {
-            border-color: #99aab5;
-            outline: none;
-            box-shadow: 0 0 4px #7289da;
-        }
-
-        .modern-select option {
-            background-color: #23272a;
-            color: #ffffff;
-        }
-
-            .modern-select option:hover {
-                background-color: #2c2f33;
-                color: #7289da;
-            }
-
-    /* Hover Effect */
-    .modern-select:hover {
-        border-color: #99aab5;
-        background-color: #2c2f33;
-        cursor: pointer;
-    }
-
-    /* Placeholder option styling */
-    .modern-select option:disabled {
-        color: #7289da;
-        font-style: italic;
-    }
-</style>
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }

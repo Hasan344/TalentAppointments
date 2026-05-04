@@ -1,152 +1,194 @@
 ﻿@model ForQab.Presentation.ViewModels.CreateExamViewModel
 
 @{
-    ViewData["Title"] = "İmtahan Yarat";
+    ViewData["Title"] = "İmtahan yarat";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container py-4" style="background-color: #174D38; border-radius: 10px; color: #ffffff;">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <h1 class="text-center mb-4">@ViewData["Title"]</h1>
-            <hr style="border-color: #7289da;" />
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 
-            <form asp-action="Create" method="post" class="p-3">
-                <div class="mb-3">
-                    <label asp-for="Name" class="form-label">İmtahanın Adı</label>
-                    <input asp-for="Name" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
+<div class="container qab-page">
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-plus-circle"></i></span>
+                    Yeni imtahan yarat
+                </h1>
+                <p class="qab-page-header__subtitle">İmtahan məlumatlarını daxil edin</p>
+            </div>
+            <a class="qab-page-header__back" asp-action="Index">
+                <i class="bi bi-arrow-left"></i> Geri
+            </a>
+        </div>
+    </div>
 
-                <div class="mb-3">
+    <form asp-action="Create" method="post" class="qab-form">
+        <div asp-validation-summary="ModelOnly" class="qab-form__validation"></div>
+
+        <!-- Section: Əsas məlumatlar -->
+        <div class="qab-form__section">
+            <div class="qab-form__section-title">Əsas məlumatlar</div>
+
+            <div class="qab-form__field">
+                <label asp-for="Name" class="form-label">İmtahanın adı</label>
+                <input asp-for="Name" class="form-control" placeholder="Məsələn: Qabiliyyət imtahanı 2026" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="qab-form__row">
+                <div class="qab-form__field">
                     <label asp-for="SectionId" class="form-label">İstiqamət</label>
-                    <select asp-for="SectionId" class="form-select" asp-items="ViewBag.SectionList" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>İstiqamət Seçin</option>
+                    <select asp-for="SectionId" class="form-select" asp-items="ViewBag.SectionList">
+                        <option value="" disabled selected>İstiqamət seçin</option>
                     </select>
                     <span asp-validation-for="SectionId" class="text-danger"></span>
                 </div>
 
-                <div class="mb-3">
+                <div class="qab-form__field">
                     <label asp-for="DistrictId" class="form-label">Rayon</label>
-                    <select asp-for="DistrictId" class="form-select" asp-items="ViewBag.DistrictList" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>Rayon Seçin</option>
+                    <select asp-for="DistrictId" class="form-select" asp-items="ViewBag.DistrictList">
+                        <option value="" disabled selected>Rayon seçin</option>
                     </select>
                     <span asp-validation-for="DistrictId" class="text-danger"></span>
                 </div>
 
-                <div class="mb-3">
-                    <input type="hidden" asp-for="Type" value="1" />
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="ExamBuldingId" class="form-label">İmtahan Binası</label>
-                    <select asp-for="ExamBuldingId" class="form-select" asp-items="ViewBag.ExamBuildingList" style="background-color: #23272a; color: #ffffff;">
-                        <option value="" disabled selected>İmtahan Binasi Seçin</option>
+                <div class="qab-form__field">
+                    <label asp-for="ExamBuldingId" class="form-label">İmtahan binası</label>
+                    <select asp-for="ExamBuldingId" class="form-select" asp-items="ViewBag.ExamBuildingList">
+                        <option value="" disabled selected>Bina seçin</option>
                     </select>
                     <span asp-validation-for="ExamBuldingId" class="text-danger"></span>
                 </div>
+            </div>
 
+            <input type="hidden" asp-for="Type" value="1" />
+        </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Kommissiyalar</label>
-                    <select asp-for="SelectedCommissions" class="form-select" asp-items="Model.Commissions" multiple style="background-color: #23272a; color: #ffffff;">
-                    </select>
+        <!-- Section: Əlaqəli məlumatlar -->
+        <div class="qab-form__section">
+            <div class="qab-form__section-title">Əlaqəli məlumatlar</div>
+
+            <div class="qab-form__row">
+                <div class="qab-form__field">
+                    <label class="form-label">Komissiyalar</label>
+                    <select asp-for="SelectedCommissions" class="form-select" asp-items="Model.Commissions" multiple></select>
                     <span asp-validation-for="SelectedCommissions" class="text-danger"></span>
                 </div>
 
-                <div class="mb-3">
+                <div class="qab-form__field">
                     <label class="form-label">Təhsil səviyyəsi</label>
-                    <select asp-for="SelectedDegrees" class="form-select" asp-items="Model.Degrees" multiple style="background-color: #23272a; color: #ffffff;">
-                    </select>
+                    <select asp-for="SelectedDegrees" class="form-select" asp-items="Model.Degrees" multiple></select>
                     <span asp-validation-for="SelectedDegrees" class="text-danger"></span>
                 </div>
 
-                <div class="mb-3">
+                <div class="qab-form__field">
                     <label class="form-label">İmtahan fənni</label>
-                    <select asp-for="SelectedSubjects" class="form-select" asp-items="Model.Subjects" multiple style="background-color: #23272a; color: #ffffff;">
-                    </select>
+                    <select asp-for="SelectedSubjects" class="form-select" asp-items="Model.Subjects" multiple></select>
                     <span asp-validation-for="SelectedSubjects" class="text-danger"></span>
                 </div>
+            </div>
+        </div>
 
+        <!-- Section: Tarix və müddət -->
+        <div class="qab-form__section">
+            <div class="qab-form__section-title">Tarix və müddət</div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="ExamDate" class="form-label">İmtahan Tarixi</label>
-                        <input asp-for="ExamDate" type="date" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                        <span asp-validation-for="ExamDate" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Duration" class="form-label">Müddət (saat)</label>
-                        <input asp-for="Duration" type="number" step="0.5" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                        <span asp-validation-for="Duration" class="text-danger"></span>
-                    </div>
+            <div class="qab-form__row">
+                <div class="qab-form__field">
+                    <label asp-for="ExamDate" class="form-label">İmtahan tarixi</label>
+                    <input asp-for="ExamDate" type="date" class="form-control" />
+                    <span asp-validation-for="ExamDate" class="text-danger"></span>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Water" class="form-label">Su sayı</label>
-                        <input asp-for="Water" type="number" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                        <span asp-validation-for="Water" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Food" class="form-label">Yemək Sayı</label>
-                        <input asp-for="Food" type="number" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                        <span asp-validation-for="Food" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="StudentCount" class="form-label">İştirakçı sayı</label>
-                        <input asp-for="StudentCount" type="number" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                        <span asp-validation-for="StudentCount" class="text-danger"></span>
-                    </div>
+                <div class="qab-form__field">
+                    <label asp-for="Duration" class="form-label">Müddət (saat)</label>
+                    <input asp-for="Duration" type="number" step="0.5" class="form-control" />
+                    <span asp-validation-for="Duration" class="text-danger"></span>
                 </div>
 
-                <div class="form-group">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Shift" class="form-label">Növbə</label>
-                        <input asp-for="Shift" type="number" class="form-control" style="background-color: #23272a; color: #ffffff;" />
-                        <span asp-validation-for="Shift" class="text-danger"></span>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label asp-for="AdmissionTime" class="control-label">Buraxılış Saatı</label>
-                    <input asp-for="AdmissionTime" type="time" class="form-control" value="@Model.AdmissionTime?.ToString(@"hh\:mm")" />
+                <div class="qab-form__field">
+                    <label asp-for="AdmissionTime" class="form-label">Buraxılış saatı</label>
+                    <input asp-for="AdmissionTime" type="time" class="form-control"
+                           value="@Model?.AdmissionTime?.ToString(@"hh\:mm")" />
                     <span asp-validation-for="AdmissionTime" class="text-danger"></span>
                 </div>
 
-                <div class="form-group">
-                    <label asp-for="StartTime" class="control-label">Başlama Saatı</label>
-                    <input asp-for="StartTime" type="time" class="form-control" value="@Model.StartTime?.ToString(@"hh\:mm")" />
+                <div class="qab-form__field">
+                    <label asp-for="StartTime" class="form-label">Başlama saatı</label>
+                    <input asp-for="StartTime" type="time" class="form-control"
+                           value="@Model?.StartTime?.ToString(@"hh\:mm")" />
                     <span asp-validation-for="StartTime" class="text-danger"></span>
                 </div>
 
-                <div class="form-group">
-                    <label asp-for="EndTime" class="control-label">Bitmə Saatı</label>
-                    <input asp-for="EndTime" type="time" class="form-control" value="@Model.EndTime?.ToString(@"hh\:mm")" />
+                <div class="qab-form__field">
+                    <label asp-for="EndTime" class="form-label">Bitmə saatı</label>
+                    <input asp-for="EndTime" type="time" class="form-control"
+                           value="@Model?.EndTime?.ToString(@"hh\:mm")" />
                     <span asp-validation-for="EndTime" class="text-danger"></span>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Notes" class="form-label">Qeydlər</label>
-                    <textarea asp-for="Notes" class="form-control" rows="3" style="background-color: #23272a; color: #ffffff;"></textarea>
-                    <span asp-validation-for="Notes" class="text-danger"></span>
+                <div class="qab-form__field">
+                    <label asp-for="Shift" class="form-label">Növbə</label>
+                    <input asp-for="Shift" type="number" class="form-control" />
+                    <span asp-validation-for="Shift" class="text-danger"></span>
                 </div>
-
-                <div class="mb-3">
-                    <label asp-for="InventoryTransport" class="form-label">İnventar Daşıma</label>
-                    <textarea asp-for="InventoryTransport" class="form-control" rows="3" style="background-color: #23272a; color: #ffffff;"></textarea>
-                    <span asp-validation-for="InventoryTransport" class="text-danger"></span>
-                </div>
-
-                <div class="d-flex justify-content-between">
-                    <a asp-action="Index" class="btn btn-secondary">Geri</a>
-                    <button type="submit" class="btn btn-primary" style="background-color: #7289da; border-color: #7289da;">Yarat</button>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
+
+        <!-- Section: Logistika -->
+        <div class="qab-form__section">
+            <div class="qab-form__section-title">Logistika</div>
+
+            <div class="qab-form__row">
+                <div class="qab-form__field">
+                    <label asp-for="StudentCount" class="form-label">İştirakçı sayı</label>
+                    <input asp-for="StudentCount" type="number" class="form-control" />
+                    <span asp-validation-for="StudentCount" class="text-danger"></span>
+                </div>
+
+                <div class="qab-form__field">
+                    <label asp-for="Water" class="form-label">Su sayı</label>
+                    <input asp-for="Water" type="number" class="form-control" />
+                    <span asp-validation-for="Water" class="text-danger"></span>
+                </div>
+
+                <div class="qab-form__field">
+                    <label asp-for="Food" class="form-label">Yemək sayı</label>
+                    <input asp-for="Food" type="number" class="form-control" />
+                    <span asp-validation-for="Food" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Əlavə qeydlər -->
+        <div class="qab-form__section">
+            <div class="qab-form__section-title">Əlavə qeydlər</div>
+
+            <div class="qab-form__field">
+                <label asp-for="Notes" class="form-label">Qeydlər</label>
+                <textarea asp-for="Notes" class="form-control" rows="3"
+                          placeholder="İmtahanla bağlı əlavə qeydlər..."></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+
+            <div class="qab-form__field">
+                <label asp-for="InventoryTransport" class="form-label">İnventar daşıma</label>
+                <textarea asp-for="InventoryTransport" class="form-control" rows="3"
+                          placeholder="Daşınmalı inventar haqqında məlumat..."></textarea>
+                <span asp-validation-for="InventoryTransport" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="qab-form__footer">
+            <a asp-action="Index" class="qab-btn qab-btn--outline">
+                <i class="bi bi-arrow-left"></i> Ləğv et
+            </a>
+            <button type="submit" class="qab-btn qab-btn--primary qab-btn--lg">
+                <i class="bi bi-check-circle"></i> Yarat
+            </button>
+        </div>
+    </form>
 </div>
 
 @section Scripts {

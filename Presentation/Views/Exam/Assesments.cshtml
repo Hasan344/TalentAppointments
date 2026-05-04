@@ -5,195 +5,98 @@
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-5">
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 
-    <div class="mb-4 d-flex justify-content-between">
-        <div>
-                <a class="btn btn-sm btn-success shadow-sm" asp-action="CreateForAssesment">
-                    <i class="bi bi-plus-circle"></i> Yeni qiymətləndirmə yarat
-                </a>
+<div class="container qab-page">
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-pen"></i></span>
+                    Qiymətləndirmələr
+                </h1>
+                <p class="qab-page-header__subtitle">Qiymətləndirmə imtahanlarını idarə edin</p>
+            </div>
+            <a class="qab-page-header__back" asp-action="Index">
+                <i class="bi bi-arrow-left"></i> İmtahanlara qayıt
+            </a>
         </div>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped table-hover shadow-sm">
-            <thead class="table-light">
-                <tr>
-                    <th>ID</th>
-                    <th>Adı</th>
-                    <th>Tarix</th> 
-                    <th>Komissiya</th>
-                    <th>İmtahan binası</th>
-                    <th>İstiqamət</th>
-                    <th>Əməliyyatlar</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr class="align-middle">
-                        <td>@Html.DisplayFor(modelItem => item.Id)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.ExamDate)</td>
-                        <td>@Html.DisplayFor(modelItem => item.StudentCount)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Water)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Food)</td>
-                        <td>
-                            @if (item.ExamCommissions != null && item.ExamCommissions.Any())
-                            {
-                                <ul class="list-unstyled mb-0">
-                                    @foreach (var commission in item.ExamCommissions)
-                                    {
-                                        <li>@commission.Commission.Name</li>
-                                    }
-                                </ul>
-                            }
-                            else
-                            {
-                                <span>---</span>
-                            }
-                        </td>
-                        <td>@Html.DisplayFor(modelItem => item.ExamBuilding.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Section.Name)</td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <a class="btn btn-outline-warning btn-sm p-1" asp-action="EditForAssesment" asp-route-id="@item.Id">
-                                    <i class="bi bi-pencil-square" style="font-size: 0.75rem;"></i> Redaktə
-                                </a>
-                                <a class="btn btn-outline-info btn-sm p-1" asp-action="DetailsOfAssesment" asp-route-id="@item.Id">
-                                    <i class="bi bi-eye" style="font-size: 0.75rem;"></i> Detallar
-                                </a>
-                                <a class="btn btn-outline-danger btn-sm p-1" asp-action="Delete" asp-route-id="@item.Id">
-                                    <i class="bi bi-trash" style="font-size: 0.75rem;"></i> Sil
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-    <div class="mb-4 text-end">
-        <a class="btn btn-secondary px-4 py-2 mx-2"  border: none;" asp-controller="Exam" asp-action="Index">
-            <i class="bi bi-home"></i> İmtahanlara qayıt
+    <div class="qab-actionbar">
+        <a class="qab-btn qab-btn--primary" asp-action="CreateForAssesment">
+            <i class="bi bi-plus-circle"></i> Yeni qiymətləndirmə yarat
         </a>
     </div>
+
+    <div class="qab-table-wrap">
+        <div class="qab-table-scroll">
+            <table class="qab-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>ID</th>
+                        <th>Adı</th>
+                        <th>Tarix</th>
+                        <th>Başlama</th>
+                        <th>Bitmə</th>
+                        <th>Komissiya</th>
+                        <th>İmtahan binası</th>
+                        <th>İstiqamət</th>
+                        <th class="text-end">Əməliyyatlar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int rowNumber = 1;
+                    }
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@rowNumber</td>
+                            <td><span class="qab-table__id">#@item.Id</span></td>
+                            <td><strong>@item.Name</strong></td>
+                            <td>@item.ExamDate.ToString("dd/MM/yyyy")</td>
+                            <td>@item.StartTime</td>
+                            <td>@item.EndTime</td>
+                            <td>
+                                @if (item.ExamCommissions != null && item.ExamCommissions.Any())
+                                {
+                                    <ul>
+                                        @foreach (var commission in item.ExamCommissions)
+                                        {
+                                            <li>@commission.Commission.Name</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">---</span>
+                                }
+                            </td>
+                            <td>@item.ExamBuilding?.Name</td>
+                            <td>@item.Section?.Name</td>
+                            <td>
+                                <div class="qab-table__actions">
+                                    <a class="qab-table__action-btn qab-table__action-btn--edit"
+                                       asp-action="EditForAssesment" asp-route-id="@item.Id" title="Redaktə">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a class="qab-table__action-btn qab-table__action-btn--view"
+                                       asp-action="DetailsOfAssesment" asp-route-id="@item.Id" title="Detallar">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a class="qab-table__action-btn qab-table__action-btn--delete"
+                                       asp-action="Delete" asp-route-id="@item.Id" title="Sil">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        rowNumber++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-
-
-
-@section Styles {
-    <style>
-        .container {
-            max-width: 1500px;
-        }
-
-        .table-responsive {
-            max-height: 600px; /* Yüksekliği ayarlayın */
-            overflow-y: auto;
-        }
-        /* Table Styling */
-        .table-bordered {
-            border: 1px solid #dee2e6;
-        }
-
-            .table-bordered th, .table-bordered td {
-                border: 1px solid #dee2e6;
-            }
-
-        .table-striped tbody tr:nth-of-type(odd) {
-            background-color: #f7f7f7;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        .table th, .table td {
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        .table-light th {
-            background-color: #f8f9fa;
-            color: #495057;
-        }
-
-        /* Button Styling */
-        .btn-group .btn {
-            margin-right: 8px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            transition: transform 0.2s ease-in-out;
-        }
-
-        .btn-outline-warning {
-            border-color: #ffc107;
-            color: #ffc107;
-        }
-
-            .btn-outline-warning:hover {
-                background-color: #ffc107;
-                color: #fff;
-            }
-
-        .btn-outline-info {
-            border-color: #17a2b8;
-            color: #17a2b8;
-        }
-
-            .btn-outline-info:hover {
-                background-color: #17a2b8;
-                color: #fff;
-            }
-
-        .btn-outline-danger {
-            border-color: #dc3545;
-            color: #dc3545;
-        }
-
-            .btn-outline-danger:hover {
-                background-color: #dc3545;
-                color: #fff;
-            }
-
-        /* Header and Text Styles */
-        .text-primary {
-            color: #0d6efd !important;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            margin-bottom: 30px;
-        }
-
-        .shadow-sm {
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-
-
-
-
-        .btn-sm {
-            padding: 0.25rem 1rem;
-            font-size: 1rem;
-        }
-
-        .btn-outline-warning, .btn-outline-info, .btn-outline-danger {
-            padding: 0.25rem 1rem;
-            font-size: 1rem;
-        }
-
-        .btn-group .btn {
-            font-size: 1rem;
-        }
-
-        .btn-sm i {
-            font-size: 1rem;
-        }
-
-    </style>
-}

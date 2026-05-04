@@ -32,43 +32,55 @@ namespace ForQab.Presentation.Controllers
             _badgeExportService = badgeExportService;
         }
 
-        public async Task<IActionResult> Index(int? examBuildingId,int? year)
+        public async Task<IActionResult> Index(
+    int? examBuildingId,
+    int? year,
+    int page = 1,
+    int pageSize = 20)
         {
             if (!year.HasValue)
-            {
                 year = DateTime.Now.Year;
-            }
             else if (year == 0)
-            {
-                year = null; 
-            }
+                year = null;
+
             var sectionId = await GetCurrentSectionIdAsync();
-            var exams = await _examService.GetExamsBySectionIdAsync(sectionId, examBuildingId, year);
-            var examBuildings = await _context.ExamBuildings.ToListAsync(); 
+            var all = await _examService.GetExamsBySectionIdAsync(sectionId, examBuildingId, year);
+
+            var totalCount = all.Count();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            page = Math.Max(1, Math.Min(page, totalPages == 0 ? 1 : totalPages));
+
+            var paged = all.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var examBuildings = await _context.ExamBuildings.ToListAsync();
             var buildings = await _context.ExamBuildings
-                        .Where(b => b.SectionId == sectionId || sectionId == null)
-                        .OrderBy(b => b.Name)
-                        .Select(b => new { b.Id, b.Name })
-                        .ToListAsync(); 
+                .Where(b => b.SectionId == sectionId || sectionId == null)
+                .OrderBy(b => b.Name)
+                .Select(b => new { b.Id, b.Name })
+                .ToListAsync();
+
             var years = await _context.Exams
-        .Select(e => e.ExamDate.Year)
-        .Distinct()
-        .OrderByDescending(y => y)
-        .ToListAsync();
+                .Select(e => e.ExamDate.Year)
+                .Distinct()
+                .OrderByDescending(y => y)
+                .ToListAsync();
+
+            if (sectionId != null)
+                examBuildings = await _context.ExamBuildings
+                    .Where(eb => eb.SectionId == sectionId).ToListAsync();
 
             ViewBag.Years = years;
             ViewBag.SelectedYear = year;
-
             ViewBag.ExamBuilding = buildings;
             ViewBag.Section = sectionId;
-            if (sectionId != null)
-            {
-                examBuildings = await _context.ExamBuildings.Where(eb => eb.SectionId == sectionId).ToListAsync();
-            }
             ViewBag.ExamBuildings = new SelectList(examBuildings, "Id", "Name");
             ViewBag.SelectedExamBuildingId = examBuildingId;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalCount = totalCount;
 
-            return View(exams);
+            return View(paged);
         }
 
 

@@ -1,63 +1,43 @@
 ﻿@model ForQab.DataAccess.Models.Monitor
-
 @{
     ViewData["Title"] = "Könüllünü sil";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 
-<div class="container py-5">
+<div class="container qab-page">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg">
-                <div class="card-body">
-                    <h4 class="text-center text-danger">Bu könüllünü silməyə əminsiniz?</h4>
-
-                    <div class="mt-4">
-                        <h5>Detallar</h5>
-                        <hr />
-                        <dl class="row">
-                            <dt class="col-sm-4 font-weight-bold">Ad:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Name)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">Soyad:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Surname)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">Ata adı:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Fname)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">Cins:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.GenderNavigation.Name)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">VNum:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.VNum)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">Peşə:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Profession)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">İş yeri:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Workplace)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">Vəzifə:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Position)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">Ev telefonu:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.TelEv)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">İş telefonu:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.TelIs)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">FİN Kodu:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.FinCode)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">Seriya:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Serial)</dd>
-                        </dl>
+        <div class="col-md-6 col-lg-5">
+            <div class="qab-confirm">
+                <div class="qab-confirm__header">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <h3>Silinməni / Arxivlənməni təsdiqləyin</h3>
+                </div>
+                <div class="qab-confirm__body">
+                    <p class="qab-confirm__lead">Bu könüllünü silmək istədiyinizə <strong>əminsiniz?</strong></p>
+                    <dl class="qab-confirm__list">
+                        <div class="qab-confirm__row"><dt>Ad Soyad</dt><dd>@Model.Name @Model.Surname @Model.Fname</dd></div>
+                        <div class="qab-confirm__row"><dt>FİN Kod</dt><dd>@Model.FinCode</dd></div>
+                        <div class="qab-confirm__row"><dt>Rayon</dt><dd>@Model.DistrictNavigation?.Name</dd></div>
+                    </dl>
+                    <div style="margin-top:1.25rem;padding:1rem;background:var(--qab-warning-soft);border-radius:var(--qab-radius);border:1px solid rgba(217,119,6,.2);">
+                        <p style="font-size:.9rem;color:var(--qab-text);margin-bottom:.75rem;">
+                            <i class="bi bi-archive"></i> <strong>Arxivlə</strong> — geri qaytarıla bilər:
+                        </p>
+                        <form asp-action="ArchiveMonitor" method="post" style="display:flex;flex-direction:column;gap:.5rem;">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <textarea name="archiveReason" class="form-control" rows="2" placeholder="Arxivləmə səbəbi..."></textarea>
+                            <button type="submit" class="qab-btn qab-btn--outline-warning qab-btn--sm">
+                                <i class="bi bi-archive"></i> Arxivlə
+                            </button>
+                        </form>
                     </div>
-
-                    <div class="mt-4 text-center">
-                        <form asp-action="Delete">
+                    <div class="qab-confirm__footer">
+                        <a asp-action="Index" class="qab-btn qab-btn--outline qab-btn--lg"><i class="bi bi-x-circle"></i> İmtina et</a>
+                        <form asp-action="Delete" method="post" style="margin:0;">
+                            @Html.AntiForgeryToken()
                             <input type="hidden" asp-for="Id" />
-                            <button type="submit" class="btn btn-danger btn-lg px-4">Sil</button>
-                            <a asp-action="Index" class="btn btn-secondary btn-lg px-4 ml-3">Siyahıya Qayıt</a>
+                            <button type="submit" class="qab-btn qab-btn--danger qab-btn--lg"><i class="bi bi-trash"></i> Sil</button>
                         </form>
                     </div>
                 </div>

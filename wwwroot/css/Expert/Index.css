@@ -1,9 +1,5 @@
-/* =========================================================
-   Monitors — View-specific styles
-   Exam/Common.css-dəki qab-* class-larını istifadə edir
-   ========================================================= */
+/* Expert — View-specific styles (Exam/Common.css üzərindən) */
 
-/* Status badge — çağırıla bilməz */
 .qab-status--blocked {
     background: var(--qab-danger-soft);
     border-left: 3px solid var(--qab-danger);
@@ -27,11 +23,4 @@
 .qab-status-badge--ok {
     background: var(--qab-success-soft);
     color: var(--qab-success);
-}
-
-/* Import form inline */
-.qab-import-form {
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
 }

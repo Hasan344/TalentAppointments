@@ -1,118 +1,141 @@
 ﻿@model IEnumerable<ForQab.DataAccess.Models.Exam>
 
 @{
-    ViewData["Title"] = "Exams Index";
+    ViewData["Title"] = "İmtahanlar";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-5">
-    <h1 class="text-center mb-4 ">İmtahan idarəetməsi</h1>
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 
-    <div class="mb-4 d-flex justify-content-between">
-        <div>
-            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="District" asp-action="Index">
-                <i class="bi bi-geo-alt"></i> Rayonlar
-            </a>
-            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="SubProfession" asp-action="Index">
-                <i class="bi bi-briefcase"></i> İxtisaslar
-            </a>
-            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="ExamBuilding" asp-action="Index">
-                <i class="bi bi-building"></i> İmtahan binaları
-            </a>
-            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="Subject" asp-action="Index">
-                <i class="bi bi-book"></i> İmtahan fənləri
-            </a>
-            <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="Commission" asp-action="Index">
-                <i class="bi "></i> Komissiyalar
-            </a>@if (ViewBag.Section == 1 || @ViewBag.Section == 2 || @ViewBag.Section == 5)
-            {
-                <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="Federation" asp-action="Index">
-                    <i class="bi "></i>Müəssisələr
-                </a>
-            }
-            else
-            {
-                <a class="btn btn-sm btn-secondary shadow-sm" asp-controller="Federation" asp-action="Index">
-                    <i class="bi "></i>Təhsil səviyyələri
-                </a>
-            }
-            @if (ViewBag.Section == 2 || @ViewBag.Section == 5)
-            {
-                <a class="btn btn-sm btn-secondary shadow-sm" asp-action="Assesments">
-                    <i class="bi bi-pen"></i> Qiymətləndirmələr
-                </a>
-                <a class="btn btn-sm btn-secondary shadow-sm" asp-action="Appeals">
-                    <i class="bi bi-pen"></i> Apellyasiya
-                </a>
-            }
-            
-
-        </div>
-        <div class="card shadow-sm mb-4 border-0">
-            <div class="card-body p-3">
-                <form method="get" asp-action="Index" class="row g-3 align-items-end">
-                    <div class="col-md-5 col-lg-4">
-                        <label for="examBuildingId" class="form-label fw-semibold">
-                            <i class="bi bi-funnel-fill me-1 text-secondary"></i>İmtahan binasına görə filtrlə
-                        </label>
-                        <select class="form-select form-select-sm" id="examBuildingId" name="examBuildingId" onchange="this.form.submit()">
-                            <option value="">Hamısı</option>
-                            @foreach (var building in (SelectList)ViewBag.ExamBuildings)
-                            {
-                                var isSelected = ViewBag.SelectedExamBuildingId?.ToString() == building.Value;
-                                <option value="@building.Value" selected="@(isSelected ? "selected" : null)">
-                                    @building.Text
-                                </option>
-                            }
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label fw-semibold">
-                            <i class="bi bi-calendar"></i> İl üzrə
-                        </label>
-                        <select class="form-select form-select-sm"
-                                name="year"
-                                onchange="this.form.submit()">
-
-                            <option value="0">Hamısı</option>
-                            @foreach (var y in (List<int>)ViewBag.Years)
-                            {
-                                <option value="@y" selected="@(ViewBag.SelectedYear == y ? "selected" : null)">
-                                    @y
-                                </option>
-                            }
-                        </select>
-                    </div>
-                    <div class="col-md-auto mt-2">
-                        <a class="btn btn-outline-secondary btn-sm" href="@Url.Action("Index")">
-                            <i class="bi bi-x-circle"></i> Filtri təmizlə
-                        </a>
-                       
-                    </div>
-                </form>
+<div class="container qab-page">
+    <!-- Page Header -->
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-journal-text"></i></span>
+                    İmtahan idarəetməsi
+                </h1>
+                <p class="qab-page-header__subtitle">İmtahanları yarat, redaktə et və hesabatlar al</p>
             </div>
-        </div>
-
-        <div>
-            <a class="btn btn-sm btn-success shadow-sm" asp-action="Create">
-                <i class="bi bi-plus-circle"></i> Yeni imtahan yarat
+            <a class="qab-page-header__back" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-house"></i> Ana səhifə
             </a>
         </div>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped table-hover shadow-sm">
-            <thead class="table-light">
+    <!-- Toolbar (Subnav) -->
+    <div class="qab-toolbar">
+        <a class="qab-toolbar__btn" asp-controller="District" asp-action="Index">
+            <i class="bi bi-geo-alt"></i> Rayonlar
+        </a>
+        <a class="qab-toolbar__btn" asp-controller="SubProfession" asp-action="Index">
+            <i class="bi bi-briefcase"></i> İxtisaslar
+        </a>
+        <a class="qab-toolbar__btn" asp-controller="ExamBuilding" asp-action="Index">
+            <i class="bi bi-building"></i> İmtahan binaları
+        </a>
+        <a class="qab-toolbar__btn" asp-controller="Subject" asp-action="Index">
+            <i class="bi bi-book"></i> İmtahan fənləri
+        </a>
+        <a class="qab-toolbar__btn" asp-controller="Commission" asp-action="Index">
+            <i class="bi bi-people"></i> Komissiyalar
+        </a>
+        @if (ViewBag.Section == 1 || ViewBag.Section == 2 || ViewBag.Section == 5)
+        {
+            <a class="qab-toolbar__btn" asp-controller="Federation" asp-action="Index">
+                <i class="bi bi-bank"></i> Müəssisələr
+            </a>
+        }
+        else
+        {
+            <a class="qab-toolbar__btn" asp-controller="Federation" asp-action="Index">
+                <i class="bi bi-mortarboard"></i> Təhsil səviyyələri
+            </a>
+        }
+        @if (ViewBag.Section == 2 || ViewBag.Section == 5)
+        {
+            <a class="qab-toolbar__btn" asp-action="Assesments">
+                <i class="bi bi-pen"></i> Qiymətləndirmələr
+            </a>
+            <a class="qab-toolbar__btn" asp-action="Appeals">
+                <i class="bi bi-pen"></i> Apellyasiya
+            </a>
+        }
+    </div>
+
+    <!-- Filters Card -->
+    <div class="qab-card" style="margin-bottom: 1.25rem;">
+        <div class="qab-card__body qab-card__body--tight">
+            <form method="get" asp-action="Index" class="qab-filters">
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label" for="examBuildingId">
+                        <i class="bi bi-funnel"></i> İmtahan binası
+                    </label>
+                    <select class="form-select" id="examBuildingId" name="examBuildingId" onchange="this.form.submit()">
+                        <option value="">Hamısı</option>
+                        @foreach (var building in (SelectList)ViewBag.ExamBuildings)
+                        {
+                            var isSelected = ViewBag.SelectedExamBuildingId?.ToString() == building.Value;
+                            <option value="@building.Value" selected="@(isSelected ? "selected" : null)">
+                                @building.Text
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">
+                        <i class="bi bi-calendar"></i> İl üzrə
+                    </label>
+                    <select class="form-select" name="year" onchange="this.form.submit()">
+                        <option value="0">Hamısı</option>
+                        @foreach (var y in (List<int>)ViewBag.Years)
+                        {
+                            <option value="@y" selected="@(ViewBag.SelectedYear == y ? "selected" : null)">@y</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <a class="qab-btn qab-btn--ghost qab-btn--sm" href="@Url.Action("Index")">
+                        <i class="bi bi-x-circle"></i> Filtri təmizlə
+                    </a>
+                </div>
+                <input type="hidden" name="page" value="1" />
+                <input type="hidden" name="pageSize" value="@(ViewBag.PageSize != null ? (int)ViewBag.PageSize : 20)" />
+            </form>
+        </div>
+    </div>
+
+    <!-- Top action bar -->
+    <div class="qab-actionbar">
+        <a class="qab-btn qab-btn--primary" asp-action="Create">
+            <i class="bi bi-plus-circle"></i> Yeni imtahan yarat
+        </a>
+    </div>
+
+    <!-- Table -->
+    <div class="qab-table-wrap">
+        <table class="qab-table qab-table--compact">
+            <colgroup>
+                <col style="width:2.5rem">         <!-- # -->
+                <col style="width:auto">           <!-- Ad -->
+                <col style="width:6.5rem">         <!-- Tarix -->
+                <col style="width:3.5rem">         <!-- İştirakçı -->
+                <col style="width:9rem">           <!-- Vaxt -->
+                <col style="width:5rem">           <!-- Kom. -->
+                <col style="width:10rem">          <!-- Bina -->
+                <col style="width:7rem">           <!-- İstiqamət -->
+                <col style="width:7rem">           <!-- Əməliyyatlar -->
+            </colgroup>
+            <thead>
                 <tr>
                     <th>#</th>
-                    <th>ID</th>
                     <th>Adı</th>
                     <th>Tarix</th>
-                    <th>İştirakçı sayı</th>
-                    <th>Başlama vaxtı</th>
-                    <th>Bitmə vaxtı</th>
-                    <th>Komissiya</th>
-                    <th>İmtahan binası</th>
+                    <th title="İştirakçı sayı"><i class="bi bi-people"></i></th>
+                    <th>Vaxt</th>
+                    <th>Kom.</th>
+                    <th>Bina</th>
                     <th>İstiqamət</th>
                     <th>Əməliyyatlar</th>
                 </tr>
@@ -123,41 +146,57 @@
                 }
                 @foreach (var item in Model)
                 {
-                    <tr class="align-middle">
-                        <td>@rowNumber</td>
-                        <td>@Html.DisplayFor(modelItem => item.Id)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                        <td>@item.ExamDate.ToString("dd/MM/yyyy")</td>
-                        <td>@Html.DisplayFor(modelItem => item.StudentCount)</td>
-                        <td>@Html.DisplayFor(modelItem => item.StartTime)</td>
-                        <td>@Html.DisplayFor(modelItem => item.EndTime)</td>
+                    <tr>
+                        <td class="qab-col-num">@rowNumber</td>
                         <td>
-                            @if (item.ExamCommissions != null && item.ExamCommissions.Any())
+                            <div class="qab-col-name">
+                                <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
+                                <span class="qab-table__id">#@item.Id</span>
+                            </div>
+                        </td>
+                        <td class="qab-col-date">@item.ExamDate.ToString("dd.MM.yy")</td>
+                        <td>
+                            <span class="qab-badge qab-badge--neutral">@item.StudentCount</span>
+                        </td>
+                        <td class="qab-col-time">
+                            @if (item.StartTime.HasValue || item.EndTime.HasValue)
                             {
-                                <ul class="list-unstyled mb-0">
-                                    @foreach (var commission in item.ExamCommissions)
-                                    {
-                                        <li>@commission.Commission.CommissionNo</li>
-                                    }
-                                </ul>
+                                <span>@(item.StartTime?.ToString(@"hh\:mm") ?? "--")</span>
+                                <span class="qab-time-sep">→</span>
+                                <span>@(item.EndTime?.ToString(@"hh\:mm") ?? "--")</span>
                             }
                             else
                             {
-                                <span>---</span>
+                                <span class="text-muted">—</span>
                             }
                         </td>
-                        <td>@Html.DisplayFor(modelItem => item.ExamBuilding.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Section.Name)</td>
                         <td>
-                            <div class="btn-group" role="group">
-                                <a class="btn btn-outline-warning btn-sm p-1" asp-action="Edit" asp-route-id="@item.Id">
-                                    <i class="bi bi-pencil-square" style="font-size: 0.75rem;"></i> Redaktə
+                            @if (item.ExamCommissions != null && item.ExamCommissions.Any())
+                            {
+                                <span class="qab-badge qab-badge--primary">
+                                    @string.Join(", ", item.ExamCommissions.Select(c => c.Commission.CommissionNo))
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td class="qab-col-wrap">@item.ExamBuilding?.Name</td>
+                        <td class="qab-col-wrap">@item.Section?.Name</td>
+                        <td>
+                            <div class="qab-table__actions">
+                                <a class="qab-table__action-btn qab-table__action-btn--edit"
+                                   asp-action="Edit" asp-route-id="@item.Id" title="Redaktə">
+                                    <i class="bi bi-pencil-square"></i>
                                 </a>
-                                <a class="btn btn-outline-info btn-sm p-1" asp-action="Details" asp-route-id="@item.Id">
-                                    <i class="bi bi-eye" style="font-size: 0.75rem;"></i> Detallar
+                                <a class="qab-table__action-btn qab-table__action-btn--view"
+                                   asp-action="Details" asp-route-id="@item.Id" title="Detallar">
+                                    <i class="bi bi-eye"></i>
                                 </a>
-                                <a class="btn btn-outline-danger btn-sm p-1" asp-action="Delete" asp-route-id="@item.Id">
-                                    <i class="bi bi-trash" style="font-size: 0.75rem;"></i> Sil
+                                <a class="qab-table__action-btn qab-table__action-btn--delete"
+                                   asp-action="Delete" asp-route-id="@item.Id" title="Sil">
+                                    <i class="bi bi-trash"></i>
                                 </a>
                             </div>
                         </td>
@@ -167,58 +206,140 @@
             </tbody>
         </table>
     </div>
-    <div class="mb-4 text-end">
-        <button class="btn btn-sm btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#exportModal">
+
+    <!-- Pagination -->
+    @{
+        int currentPage = ViewBag.CurrentPage != null ? (int)ViewBag.CurrentPage : 1;
+        int totalPages  = ViewBag.TotalPages  != null ? (int)ViewBag.TotalPages  : 1;
+        int totalCount  = ViewBag.TotalCount  != null ? (int)ViewBag.TotalCount  : 0;
+        int pageSize    = ViewBag.PageSize    != null ? (int)ViewBag.PageSize    : 20;
+        int startItem   = totalCount == 0 ? 0 : (currentPage - 1) * pageSize + 1;
+        int endItem     = Math.Min(currentPage * pageSize, totalCount);
+
+        var routeVals = new Dictionary<string, string?> {
+            ["examBuildingId"] = ViewBag.SelectedExamBuildingId?.ToString(),
+            ["year"]           = ViewBag.SelectedYear?.ToString(),
+            ["pageSize"]       = pageSize.ToString()
+        };
+
+        int winStart = Math.Max(1, currentPage - 2);
+        int winEnd   = Math.Min(totalPages, currentPage + 2);
+    }
+
+    @if (totalCount > 0)
+    {
+        <div style="display:flex;align-items:center;justify-content:space-between;
+                    flex-wrap:wrap;gap:.75rem;margin-top:1rem;padding-top:.75rem;
+                    border-top:1px solid var(--qab-border);">
+
+            <span style="font-size:.85rem;color:var(--qab-text-muted);">
+                <strong>@startItem–@endItem</strong> / <strong>@totalCount</strong> imtahan
+            </span>
+
+            <div style="display:flex;align-items:center;gap:.4rem;">
+                <span style="font-size:.82rem;color:var(--qab-text-muted);">Səhifədə:</span>
+                @foreach (var ps in new[] { 10, 20, 50, 100 })
+                {
+                    var psRoute = new Dictionary<string, string?>(routeVals) { ["pageSize"] = ps.ToString(), ["page"] = "1" };
+                    <a href="@Url.Action("Index", psRoute)"
+                       class="qab-btn qab-btn--sm @(pageSize == ps ? "qab-btn--primary" : "qab-btn--ghost")"
+                       style="min-width:2.4rem;justify-content:center;">@ps</a>
+                }
+            </div>
+
+            @if (totalPages > 1)
+            {
+                <nav style="display:flex;align-items:center;gap:.25rem;">
+                    @if (currentPage > 1)
+                    {
+                        <a href="@Url.Action("Index", new Dictionary<string, string?>(routeVals){ ["page"]="1" })"
+                           class="qab-btn qab-btn--ghost qab-btn--sm" title="İlk">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                        <a href="@Url.Action("Index", new Dictionary<string, string?>(routeVals){ ["page"]=(currentPage-1).ToString() })"
+                           class="qab-btn qab-btn--ghost qab-btn--sm" title="Əvvəlki">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    }
+
+                    @if (winStart > 1)
+                    {
+                        <a href="@Url.Action("Index", new Dictionary<string, string?>(routeVals){ ["page"]="1" })"
+                           class="qab-btn qab-btn--ghost qab-btn--sm">1</a>
+                        @if (winStart > 2) { <span style="color:var(--qab-text-muted);padding:0 .2rem;">…</span> }
+                    }
+
+                    @for (int p = winStart; p <= winEnd; p++)
+                    {
+                        <a href="@Url.Action("Index", new Dictionary<string, string?>(routeVals){ ["page"]=p.ToString() })"
+                           class="qab-btn qab-btn--sm @(p == currentPage ? "qab-btn--primary" : "qab-btn--ghost")"
+                           style="min-width:2.4rem;justify-content:center;">@p</a>
+                    }
+
+                    @if (winEnd < totalPages)
+                    {
+                        @if (winEnd < totalPages - 1) { <span style="color:var(--qab-text-muted);padding:0 .2rem;">…</span> }
+                        <a href="@Url.Action("Index", new Dictionary<string, string?>(routeVals){ ["page"]=totalPages.ToString() })"
+                           class="qab-btn qab-btn--ghost qab-btn--sm">@totalPages</a>
+                    }
+
+                    @if (currentPage < totalPages)
+                    {
+                        <a href="@Url.Action("Index", new Dictionary<string, string?>(routeVals){ ["page"]=(currentPage+1).ToString() })"
+                           class="qab-btn qab-btn--ghost qab-btn--sm" title="Növbəti">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="@Url.Action("Index", new Dictionary<string, string?>(routeVals){ ["page"]=totalPages.ToString() })"
+                           class="qab-btn qab-btn--ghost qab-btn--sm" title="Son">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    }
+                </nav>
+            }
+        </div>
+    }
+
+    <!-- Bottom action bar (exports) -->
+    <div class="qab-actionbar">
+        <button class="qab-btn qab-btn--excel" data-bs-toggle="modal" data-bs-target="#exportModal">
             <i class="bi bi-table"></i> Maliyyə Exceli al
         </button>
-        <a class="btn btn-sm btn-success shadow-sm"
-           asp-action="ExportToExcel"
-           asp-route-year="@ViewBag.SelectedYear">
-            <i class="bi bi-download"></i> Excel-ə çıxarış
+        <a class="qab-btn qab-btn--excel" asp-action="ExportToExcel" asp-route-year="@ViewBag.SelectedYear">
+            <i class="bi bi-file-earmark-excel"></i> Excel-ə çıxarış
         </a>
-
-        <a class="btn btn-sm btn-primary shadow-sm"
-           asp-action="ExportToWord"
-           asp-route-year="@ViewBag.SelectedYear">
-            <i class="bi bi-download"></i> Word-ə çıxarış
+        <a class="qab-btn qab-btn--word" asp-action="ExportToWord" asp-route-year="@ViewBag.SelectedYear">
+            <i class="bi bi-file-earmark-word"></i> Word-ə çıxarış
         </a>
-
-        <a class="btn btn-sm btn-primary shadow-sm"
-           asp-action="ExportToWordCalendar"
-           asp-route-year="@ViewBag.SelectedYear">
-            <i class="bi bi-download"></i> Qabiliyyət təqvimi
+        <a class="qab-btn qab-btn--word" asp-action="ExportToWordCalendar" asp-route-year="@ViewBag.SelectedYear">
+            <i class="bi bi-calendar3"></i> Qabiliyyət təqvimi
         </a>
-
-        <a class="btn btn-sm btn-primary shadow-sm"
-           asp-action="ExportToWordForLetter"
-           asp-route-year="@ViewBag.SelectedYear">
-            <i class="bi bi-download"></i> Məktuba əlavə təqvim
+        <a class="qab-btn qab-btn--word" asp-action="ExportToWordForLetter" asp-route-year="@ViewBag.SelectedYear">
+            <i class="bi bi-envelope"></i> Məktuba əlavə təqvim
         </a>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportRangeModal">
-            Yemək və su üçün export
+        <button class="qab-btn qab-btn--outline-primary" data-bs-toggle="modal" data-bs-target="#exportRangeModal">
+            <i class="bi bi-cup-straw"></i> Maliyyə üçün yemək və su
         </button>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportFoodWaterWordModal">
-            <i class="bi bi-file-word"></i> Yemək və su (sadə Word)
+        <button class="qab-btn qab-btn--outline-primary" data-bs-toggle="modal" data-bs-target="#exportFoodWaterWordModal">
+            <i class="bi bi-file-word"></i> Yemək və su hesabatı(Word)
         </button>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportExcelModal">
-            Yemək və su üçün excel export
+        <button class="qab-btn qab-btn--outline-primary" data-bs-toggle="modal" data-bs-target="#exportExcelModal">
+            <i class="bi bi-file-spreadsheet"></i> Yemək və su hesabatı (Excel) 
         </button>
-        <a class="btn btn-secondary px-4 py-2 mx-2" border: none;" asp-controller="Home" asp-action="Index">
-            <i class="bi bi-home"></i> Ana səhifəyə qayıt
-        </a>
     </div>
-</div><!-- Yemək və su üçün sadə Word Export Modal -->
-<div class="modal fade" id="exportFoodWaterWordModal" tabindex="-1" aria-labelledby="exportFoodWaterWordModalLabel" aria-hidden="true">
+</div>
+
+<!-- Modals (functionality preserved as-is) -->
+<div class="modal fade" id="exportFoodWaterWordModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form asp-action="ExportExamsForFoodToWord" method="get">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exportFoodWaterWordModalLabel">Tarix aralığı və bina seçin (Sadə Word)</h5>
+                    <h5 class="modal-title">Tarix aralığı və bina seçin (Sadə Word)</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body qab-page">
                     <div class="mb-3">
-                        <label for="startDateWord" class="form-label">Başlangıç tarixi</label>
+                        <label for="startDateWord" class="form-label">Başlanğıc tarixi</label>
                         <input type="date" class="form-control" id="startDateWord" name="start" required />
                     </div>
                     <div class="mb-3">
@@ -227,38 +348,65 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
-                    <button type="submit" class="btn btn-primary">Word Export et</button>
+                    <button type="button" class="qab-btn qab-btn--ghost" data-bs-dismiss="modal">Bağla</button>
+                    <button type="submit" class="qab-btn qab-btn--primary">Word Export et</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-<!-- Modal -->
-<div class="modal fade" id="exportRangeModal" tabindex="-1" aria-labelledby="exportRangeModalLabel" aria-hidden="true">
+
+<div class="modal fade" id="exportExcelModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form asp-action="ExportFoodAndWaterRange" method="post">
+            <form asp-action="ExportExamDataForFoodAndWater" method="post">
                 @Html.AntiForgeryToken()
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exportRangeModalLabel">Tarix aralığı və bina seçin</h5>
+                    <h5 class="modal-title">Tarix aralığı seçin</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body qab-page">
                     <div class="mb-3">
-                        <label for="startDate" class="form-label">Başlangıç tarixi</label>
+                        <label for="startDate" class="form-label">Başlanğıc tarixi</label>
                         <input type="date" class="form-control" id="startDate" name="startDate" required />
                     </div>
                     <div class="mb-3">
                         <label for="endDate" class="form-label">Bitiş tarixi</label>
                         <input type="date" class="form-control" id="endDate" name="endDate" required />
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="qab-btn qab-btn--ghost" data-bs-dismiss="modal">Bağla</button>
+                    <button type="submit" class="qab-btn qab-btn--primary">Excel Export et</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
+<div class="modal fade" id="exportRangeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="ExportFoodAndWaterRange" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title">Tarix aralığı və bina seçin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body qab-page">
                     <div class="mb-3">
-                        <label for="examBuildingId" class="form-label">İmtahan binası (mütləq seçilməlidir)</label>
-                        <select class="form-select" id="examBuildingId" name="examBuildingId" required>
+                        <label for="startDateRange" class="form-label">Başlanğıc tarixi</label>
+                        <input type="date" class="form-control" id="startDateRange" name="startDate" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="endDateRange" class="form-label">Bitiş tarixi</label>
+                        <input type="date" class="form-control" id="endDateRange" name="endDate" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="examBuildingIdRange" class="form-label">İmtahan binası</label>
+                        <select class="form-select" id="examBuildingIdRange" name="examBuildingId" required>
                             <option value="" disabled selected>-- Binanı seçin --</option>
-                            @if (ViewBag.ExamBuildings != null)
+                            @if (ViewBag.ExamBuilding != null)
                             {
                                 foreach (var b in (IEnumerable<dynamic>)ViewBag.ExamBuilding)
                                 {
@@ -266,187 +414,38 @@
                                 }
                             }
                         </select>
-                        <div class="form-text">Bina seçmədən export edə bilməyəcəksiniz.</div>
                     </div>
-
-                    <div class="form-text">Seçilən tarixlər daxilində və seçilmiş binadakı imtahanlar üçün bir Word faylı yaradılacaq.</div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
-                    <button type="submit" class="btn btn-primary">Export et</button>
+                    <button type="button" class="qab-btn qab-btn--ghost" data-bs-dismiss="modal">Bağla</button>
+                    <button type="submit" class="qab-btn qab-btn--primary">Export et</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="exportExcelModal" tabindex="-1" aria-labelledby="exportExcelModalLabel" aria-hidden="true">
+<!-- exportModal (Maliyyə Exceli) -->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form asp-action="ExportExamDataForFoodAndWater" method="post">
+            <form asp-action="ExportExamData" method="post">
                 @Html.AntiForgeryToken()
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exportExcelModalLabel">Tarix aralığı və bina seçin</h5>
+                    <h5 class="modal-title">Tarix seçin</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body qab-page">
                     <div class="mb-3">
-                        <label for="startDate" class="form-label">Başlangıç tarixi</label>
-                        <input type="date" class="form-control" id="startDate" name="startDate" required />
+                        <label for="selectedDate" class="form-label">İmtahan tarixi</label>
+                        <input type="date" class="form-control" id="selectedDate" name="selectedDate" required />
                     </div>
-                    <div class="mb-3">
-                        <label for="endDate" class="form-label">Bitiş tarixi</label>
-                        <input type="date" class="form-control" id="endDate" name="endDate" required />
-                    </div>
-
-                    <div class="form-text">Seçilən tarixlər daxilində və seçilmiş binadakı imtahanlar üçün bir Excel faylı yaradılacaq.</div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
-                    <button type="submit" class="btn btn-primary">Export et</button>
+                    <button type="button" class="qab-btn qab-btn--ghost" data-bs-dismiss="modal">Bağla</button>
+                    <button type="submit" class="qab-btn qab-btn--primary">Export et</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
-<!-- Modal -->
-<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exportModalLabel">Tarix seçin</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="exportForm" asp-action="ExportExamData" method="post">
-                    <div class="mb-3">
-                        <label for="selectedDate" class="form-label">Tarix:</label>
-                        <input type="date" id="selectedDate" name="selectedDate" class="form-control" value="@DateTime.Now.ToString("dd-MM-yyyy")" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
-                <button type="submit" form="exportForm" class="btn btn-primary">Excelə çıxar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-@section Styles {
-    <style>
-        .container {
-            max-width: 1500px;
-        }
-
-        .table-responsive {
-            max-height: 600px; /* Yüksekliği ayarlayın */
-            overflow-y: auto;
-        }
-        /* Table Styling */
-        .table-bordered {
-            border: 1px solid #dee2e6;
-        }
-
-            .table-bordered th, .table-bordered td {
-                border: 1px solid #dee2e6;
-            }
-
-        .table-striped tbody tr:nth-of-type(odd) {
-            background-color: #f7f7f7;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        .table th, .table td {
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        .table-light th {
-            background-color: #f8f9fa;
-            color: #495057;
-        }
-
-        /* Button Styling */
-        .btn-group .btn {
-            margin-right: 8px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            transition: transform 0.2s ease-in-out;
-        }
-
-        .btn-outline-warning {
-            border-color: #ffc107;
-            color: #ffc107;
-        }
-
-            .btn-outline-warning:hover {
-                background-color: #ffc107;
-                color: #fff;
-            }
-
-        .btn-outline-info {
-            border-color: #17a2b8;
-            color: #17a2b8;
-        }
-
-            .btn-outline-info:hover {
-                background-color: #17a2b8;
-                color: #fff;
-            }
-
-        .btn-outline-danger {
-            border-color: #dc3545;
-            color: #dc3545;
-        }
-
-            .btn-outline-danger:hover {
-                background-color: #dc3545;
-                color: #fff;
-            }
-
-        /* Header and Text Styles */
-        .text-primary {
-            color: #0d6efd !important;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            margin-bottom: 30px;
-        }
-
-        .shadow-sm {
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-
-
-
-
-        .btn-sm {
-            padding: 0.25rem 1rem;
-            font-size: 1rem;
-        }
-
-        .btn-outline-warning, .btn-outline-info, .btn-outline-danger {
-            padding: 0.25rem 1rem;
-            font-size: 1rem;
-        }
-
-        .btn-group .btn {
-            font-size: 1rem;
-        }
-
-        .btn-sm i {
-            font-size: 1rem;
-        }
-
-    </style>
-}

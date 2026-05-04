@@ -1,43 +1,54 @@
 ﻿@model ForQab.DataAccess.Models.Exam
 
 @{
-    ViewData["Title"] = "Delete Exam";
+    ViewData["Title"] = "İmtahanı sil";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container py-5">
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
+
+<div class="container qab-page">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg">
-                <div class="card-header bg-danger text-white">
-                    <h3 class="mb-0">Silinməni təsdiqləyin</h3>
+        <div class="col-md-7 col-lg-6">
+            <div class="qab-confirm">
+                <div class="qab-confirm__header">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <h3>Silinməni təsdiqləyin</h3>
                 </div>
-                <div class="card-body">
-                    <h4 class="text-center text-danger">Silməyə əminsiniz?</h4>
+                <div class="qab-confirm__body">
+                    <p class="qab-confirm__lead">
+                        Bu imtahanı silmək istədiyinizə <strong>əminsiniz?</strong><br>
+                        <small class="text-muted">Bu əməliyyat geri qaytarıla bilməz.</small>
+                    </p>
 
-                    <div class="mt-4">
-                        <h5>İmtahan Detalları</h5>
-                        <hr />
-                        <dl class="row">
-                            <dt class="col-sm-4 font-weight-bold">İmtahan adı:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Name)</dd>
+                    <dl class="qab-confirm__list">
+                        <div class="qab-confirm__row">
+                            <dt>İmtahan adı</dt>
+                            <dd>@Model.Name</dd>
+                        </div>
+                        <div class="qab-confirm__row">
+                            <dt>İmtahan tarixi</dt>
+                            <dd>@Model.ExamDate.ToString("dd.MM.yyyy")</dd>
+                        </div>
+                        <div class="qab-confirm__row">
+                            <dt>İmtahan binası</dt>
+                            <dd>@(Model.ExamBuilding?.Name ?? "—")</dd>
+                        </div>
+                        <div class="qab-confirm__row">
+                            <dt>İstiqamət</dt>
+                            <dd>@(Model.Section?.Name ?? "—")</dd>
+                        </div>
+                    </dl>
 
-                            <dt class="col-sm-4 font-weight-bold">İmtahan Tarixi:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.ExamDate)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">İmtahan Binası:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.ExamBuilding.Name)</dd>
-
-                            <dt class="col-sm-4 font-weight-bold">İstiqamət:</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Section.Name)</dd>
-                        </dl>
-                    </div>
-
-                    <div class="mt-4 text-center">
-                        <form asp-action="Delete">
+                    <div class="qab-confirm__footer">
+                        <a asp-action="Index" class="qab-btn qab-btn--outline qab-btn--lg">
+                            <i class="bi bi-x-circle"></i> İmtina et
+                        </a>
+                        <form asp-action="Delete" method="post" style="margin:0;">
                             <input type="hidden" asp-for="Id" />
-                            <button type="submit" class="btn btn-danger btn-lg px-4">Təsdiqlə</button>
-                            <a asp-action="Index" class="btn btn-secondary btn-lg px-4 ml-3">İmtina</a>
+                            <button type="submit" class="qab-btn qab-btn--danger qab-btn--lg">
+                                <i class="bi bi-trash"></i> Bəli, sil
+                            </button>
                         </form>
                     </div>
                 </div>

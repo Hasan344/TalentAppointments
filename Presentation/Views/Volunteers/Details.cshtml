@@ -1,80 +1,135 @@
 ﻿@model ForQab.DataAccess.Models.Monitor
-
 @{
-    ViewData["Title"] = "Könüllü Detalları";
-    string primaryColor = "#0056b3";  /* Strong corporate blue */
-    string secondaryColor = "#f1f1f1";  /* Light gray */
-    string textColor = "#333333"; /* Dark text color for readability */
+    ViewData["Title"] = "Könüllü detalları";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Monitors/Index.css" asp-append-version="true" />
 
-<div class="container py-5" style="background-color: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); padding: 30px; max-width: 1000px; margin: auto;">
-    <h1 class="text-center mb-4" style="color: @primaryColor; font-family: 'Roboto', sans-serif; font-weight: 600;">Könüllü Detalları</h1>
-    <hr style="border-color: @primaryColor; border-width: 2px;" />
+<div class="container qab-page">
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-heart"></i></span>
+                    @Model.Surname @Model.Name @Model.Fname
+                </h1>
+                <p class="qab-page-header__subtitle">@Model.Section?.Name &middot; @Model.DistrictNavigation?.Name</p>
+            </div>
+            <a class="qab-page-header__back" asp-action="Index"><i class="bi bi-arrow-left"></i> Siyahıya qayıt</a>
+        </div>
+    </div>
 
-    <!-- Left column: Photo -->
-    <div class="col-lg-4 d-flex justify-content-center align-items-start">
-        <div class="card shadow-sm border-0 rounded-4" style="width: 100%; max-width: 320px;">
-            <div class="card-body text-center">
-                <div class="col-md-12 d-flex flex-column align-items-center mb-4">
-                    @if (Model.Photo != null)
+    <div class="qab-card" style="margin-bottom:1.5rem;">
+        <div class="qab-card__header">
+            <h2 class="qab-card__title"><i class="bi bi-person-circle"></i> Şəxsi məlumatlar</h2>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                <a class="qab-btn qab-btn--outline-warning qab-btn--sm" asp-action="Edit" asp-route-id="@Model.Id">
+                    <i class="bi bi-pencil-square"></i> Redaktə
+                </a>
+                <a class="qab-btn qab-btn--outline-danger qab-btn--sm" asp-action="Delete" asp-route-id="@Model.Id">
+                    <i class="bi bi-trash"></i> Sil
+                </a>
+            </div>
+        </div>
+        <div class="qab-card__body">
+            <div style="display:grid;grid-template-columns:auto 1fr;gap:2rem;align-items:start;">
+                <div style="text-align:center;min-width:270px;">
+                    @if (!string.IsNullOrEmpty(Model.Photo))
                     {
-                        <img src="@Model.Photo" class="w-48 h-48 object-cover rounded-full shadow-lg border border-gray-300" />
-
+                        <img src="@Model.Photo" class="rounded-circle"
+                             style="width:250px;height:250px;object-fit:cover;border:4px solid var(--qab-border);box-shadow:var(--qab-shadow-md);" />
                     }
                     else
                     {
-                        <div class="w-40 h-40 bg-gray-100 flex flex-col items-center justify-center rounded-full shadow-inner border border-gray-300">
-                            <i class="fas fa-user text-gray-400 text-5xl mb-2"></i>
-                            <span class="text-sm text-gray-500">Şəkil tapılmadı</span>
+                        <div style="width:250px;height:250px;border-radius:50%;background:var(--qab-primary-soft);
+                                    display:flex;align-items:center;justify-content:center;margin:0 auto;
+                                    border:4px solid var(--qab-border);box-shadow:var(--qab-shadow-md);">
+                            <i class="bi bi-person-fill" style="font-size:6rem;color:var(--qab-primary);"></i>
                         </div>
                     }
+                    <p style="margin:.6rem 0 0;font-size:.85rem;color:var(--qab-text-muted);">
+                        Ümumi: <strong>@Model.ComputedAssignmentCount</strong>
+                    </p>
                 </div>
-
-
-                <h4 class="mb-1">@Model.Name @Model.Surname</h4>
-                <p class="text-muted mb-0">@Model.Fname</p>
-                <small class="text-secondary">@Model.Section?.Name</small>
+                <div class="qab-details__grid">
+                    <div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Ad</dt><dd class="qab-details__value">@Model.Name @Model.Surname @Model.Fname</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Cins</dt><dd class="qab-details__value">@Model.GenderNavigation?.Name</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Doğum tarixi</dt><dd class="qab-details__value">@Model.BirthDate?.ToString("dd.MM.yyyy")</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Telefon</dt><dd class="qab-details__value">@Model.TelIs</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">FİN Kod</dt><dd class="qab-details__value">@Model.FinCode</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Seriya</dt><dd class="qab-details__value">@Model.SerialPrefix @Model.Serial</dd></div>
+                    </div>
+                    <div>
+                        <div class="qab-details__row"><dt class="qab-details__label">İstiqamət</dt><dd class="qab-details__value">@Model.Section?.Name</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Rayon</dt><dd class="qab-details__value">@Model.DistrictNavigation?.Name</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Peşə</dt><dd class="qab-details__value">@Model.Profession</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">İş yeri</dt><dd class="qab-details__value">@Model.Workplace</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Müqavilə</dt><dd class="qab-details__value">@Model.ContractNo — @Model.ContractDate?.ToString("dd.MM.yyyy")</dd></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Right column: Details -->
-    <div class="col-lg-8">
-        <div class="card shadow-sm border-0 rounded-4 p-4">
-            <h4 class="mb-4" style="color:@primaryColor;">Məlumatlar</h4>
-            <div class="row mb-3">
-                <div class="col-sm-5 fw-semibold text-secondary">Doğum tarixi:</div>
-                <div class="col-sm-7">@Model.BirthDate?.ToString("dd.MM.yyyy")</div>
+    <!-- İmtahanlar -->
+    <div class="qab-section-block">
+        <h3 class="qab-section-block__title"><i class="bi bi-journal-text"></i> İştirak etdiyi imtahanlar</h3>
+        @if (Model.ExamMonitors?.Any() == true)
+        {
+                var examYears = Model.ExamMonitors.Where(em => em.Exams != null)
+                    .Select(em => em.Exams.ExamDate.Year).Distinct().OrderByDescending(y => y).ToList();
+                var yearParam = Context.Request.Query["examYear"].ToString();
+                int selectedYear = string.IsNullOrEmpty(yearParam)
+                    ? (examYears.FirstOrDefault() == 0 ? DateTime.Now.Year : examYears.FirstOrDefault())
+                    : int.Parse(yearParam);
+                var filtered = Model.ExamMonitors.Where(em => em.Exams?.ExamDate.Year == selectedYear)
+                    .OrderByDescending(em => em.Exams?.ExamDate).ToList();
+           
+            <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;">
+                <span style="font-size:.85rem;color:var(--qab-text-muted);font-weight:600;">İl:</span>
+                @foreach (var y in examYears)
+                {
+                    <a href="?examYear=@y"
+                       class="qab-btn qab-btn--sm @(y == selectedYear ? "qab-btn--primary" : "qab-btn--ghost")"
+                       style="min-width:3.5rem;justify-content:center;">@y</a>
+                }
+                <span style="font-size:.82rem;color:var(--qab-text-muted);margin-left:.5rem;">— <strong>@filtered.Count</strong> imtahan</span>
             </div>
-            <div class="row mb-3">
-                <div class="col-sm-5 fw-semibold text-secondary">Fin Kodu:</div>
-                <div class="col-sm-7">@Model.FinCode</div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-sm-5 fw-semibold text-secondary">Seriya:</div>
-                <div class="col-sm-7">@Model.SerialPrefix</div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-sm-5 fw-semibold text-secondary">Seriya nömrəsi:</div>
-                <div class="col-sm-7">@Model.Serial</div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-sm-5 fw-semibold text-secondary">Telefon:</div>
-                <div class="col-sm-7">@Model.TelIs</div>
-            </div>
-
-
-                <div class="text-center mt-4">
-                    <a class="btn btn-outline-primary me-3" asp-action="Edit" asp-route-id="@Model.Id">
-                        <i class="bi bi-pencil-square me-1"></i> Düzəliş et
-                    </a>
-                    <a class="btn btn-outline-danger me-3" asp-action="Delete" asp-route-id="@Model.Id">
-                        <i class="bi bi me-1"></i> Sil və ya Arxivlə
-                    </a>
-                    <a class="btn btn-outline-secondary me-3" asp-action="Index">
-                        <i class="bi bi-list-ul me-1"></i> Siyahıya qayıt
-                    </a>
+            @if (filtered.Any())
+            {
+                <div class="qab-table-wrap">
+                    <table class="qab-table">
+                        <thead><tr><th>İmtahan</th><th>Tarix</th><th>Başlama</th><th>Bitmə</th><th>Detallar</th></tr></thead>
+                        <tbody>
+                            @foreach (var em in filtered)
+                            {
+                                <tr>
+                                    <td><span class="qab-table__id">#@em.Exams.Id</span></td>
+                                    <td class="qab-col-date">@em.Exams.ExamDate.ToShortDateString()</td>
+                                    <td class="qab-col-date">@em.Exams.StartTime</td>
+                                    <td class="qab-col-date">@em.Exams.EndTime</td>
+                                    <td>
+                                        <a class="qab-table__action-btn qab-table__action-btn--view"
+                                           asp-controller="Exam" asp-action="Details" asp-route-id="@em.Exams.Id">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
-        </div>
+            }
+            else
+            {
+                <div class="qab-empty-state">@selectedYear ilində bu könüllü heç bir imtahana təyin edilməyib.</div>
+            }
+        }
+        else
+        {
+            <div class="qab-empty-state">Bu könüllü heç bir imtahana təyin edilməyib.</div>
+        }
     </div>
 </div>

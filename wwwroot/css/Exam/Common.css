@@ -1,0 +1,1082 @@
+/* =========================================================
+   Qabiliyyət — Exam Views (Modern unified design)
+   Bütün Exam view-ları üçün vahid dizayn dili
+   ========================================================= */
+
+:root {
+    --qab-bg: #f7f8fc;
+    --qab-surface: #ffffff;
+    --qab-text: #0f172a;
+    --qab-text-muted: #64748b;
+    --qab-text-soft: #475569;
+    --qab-border: rgba(15, 23, 42, 0.08);
+    --qab-border-strong: rgba(15, 23, 42, 0.12);
+    --qab-input-bg: #ffffff;
+    --qab-input-bg-focus: #ffffff;
+    --qab-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06);
+    --qab-shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+    --qab-shadow-lg: 0 25px 50px -12px rgba(15, 23, 42, 0.18);
+    --qab-radius: 14px;
+    --qab-radius-lg: 18px;
+    --qab-radius-pill: 999px;
+    /* Brand colors */
+    --qab-primary: #6366f1;
+    --qab-primary-hover: #4f46e5;
+    --qab-primary-soft: rgba(99, 102, 241, 0.1);
+    --qab-primary-grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    /* Semantic */
+    --qab-success: #059669;
+    --qab-success-soft: rgba(5, 150, 105, 0.1);
+    --qab-warning: #d97706;
+    --qab-warning-soft: rgba(217, 119, 6, 0.1);
+    --qab-danger: #dc2626;
+    --qab-danger-soft: rgba(220, 38, 38, 0.1);
+    --qab-info: #0891b2;
+    --qab-info-soft: rgba(8, 145, 178, 0.1);
+    /* Subnav links (toolbar) */
+    --qab-toolbar-bg: #f1f5f9;
+}
+
+/* =========================================================
+   PAGE HEADER (hero strip)
+   ========================================================= */
+.qab-page {
+    padding-top: 1.5rem;
+    padding-bottom: 3rem;
+}
+
+.qab-page-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #312e81 100%);
+    color: #ffffff;
+    border-radius: var(--qab-radius-lg);
+    padding: 2rem 2.25rem;
+    margin-bottom: 1.75rem;
+    position: relative;
+    overflow: hidden;
+}
+
+    .qab-page-header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: radial-gradient(ellipse at top right, #000 30%, transparent 75%);
+        -webkit-mask-image: radial-gradient(ellipse at top right, #000 30%, transparent 75%);
+        pointer-events: none;
+    }
+
+.qab-page-header__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.qab-page-header__title {
+    font-size: 1.65rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.qab-page-header__title-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    font-size: 1.15rem;
+}
+
+.qab-page-header__subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+    margin: 0.25rem 0 0;
+}
+
+.qab-page-header__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: var(--qab-radius);
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+    .qab-page-header__back:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+/* =========================================================
+   TOOLBAR (subnav: Rayonlar, İxtisaslar, ...)
+   ========================================================= */
+.qab-toolbar {
+    background: var(--qab-surface);
+    border: 1px solid var(--qab-border);
+    border-radius: var(--qab-radius);
+    padding: 0.85rem;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--qab-shadow-sm);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.qab-toolbar__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.9rem;
+    background: var(--qab-toolbar-bg);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    color: var(--qab-text-soft);
+    font-size: 0.88rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+    .qab-toolbar__btn i {
+        font-size: 0.95rem;
+        opacity: 0.8;
+    }
+
+    .qab-toolbar__btn:hover {
+        background: var(--qab-primary-soft);
+        color: var(--qab-primary);
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+
+/* =========================================================
+   ACTION BAR (top: Yeni yarat / Excel / Word ...)
+   ========================================================= */
+.qab-actionbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.qab-actionbar__group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.qab-actionbar__spacer {
+    flex: 1;
+}
+
+/* =========================================================
+   BUTTONS (Modern, replaces Bootstrap colors)
+   ========================================================= */
+.qab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+    .qab-btn:hover {
+        transform: translateY(-1px);
+        text-decoration: none;
+    }
+
+    .qab-btn:active {
+        transform: translateY(0);
+    }
+
+    .qab-btn:focus-visible {
+        outline: 2px solid var(--qab-primary);
+        outline-offset: 2px;
+    }
+
+.qab-btn--sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.82rem;
+}
+
+.qab-btn--lg {
+    padding: 0.65rem 1.4rem;
+    font-size: 1rem;
+}
+
+.qab-btn--primary {
+    background: var(--qab-primary-grad);
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(99, 102, 241, 0.3);
+}
+
+    .qab-btn--primary:hover {
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+.qab-btn--success {
+    background: var(--qab-success);
+    color: #ffffff;
+}
+
+    .qab-btn--success:hover {
+        background: #047857;
+        color: #ffffff;
+    }
+
+.qab-btn--danger {
+    background: var(--qab-danger);
+    color: #ffffff;
+}
+
+    .qab-btn--danger:hover {
+        background: #b91c1c;
+        color: #ffffff;
+    }
+
+.qab-btn--outline {
+    background: var(--qab-surface);
+    color: var(--qab-text-soft);
+    border-color: var(--qab-border-strong);
+}
+
+    .qab-btn--outline:hover {
+        background: var(--qab-toolbar-bg);
+        color: var(--qab-text);
+        border-color: var(--qab-border-strong);
+    }
+
+.qab-btn--ghost {
+    background: transparent;
+    color: var(--qab-text-muted);
+}
+
+    .qab-btn--ghost:hover {
+        background: var(--qab-toolbar-bg);
+        color: var(--qab-text);
+    }
+
+/* Outline variants by accent */
+.qab-btn--outline-primary {
+    background: var(--qab-surface);
+    color: var(--qab-primary);
+    border-color: var(--qab-primary);
+}
+
+    .qab-btn--outline-primary:hover {
+        background: var(--qab-primary);
+        color: #ffffff;
+    }
+
+.qab-btn--outline-success {
+    background: var(--qab-surface);
+    color: var(--qab-success);
+    border-color: var(--qab-success);
+}
+
+    .qab-btn--outline-success:hover {
+        background: var(--qab-success);
+        color: #ffffff;
+    }
+
+.qab-btn--outline-warning {
+    background: var(--qab-surface);
+    color: var(--qab-warning);
+    border-color: var(--qab-warning);
+}
+
+    .qab-btn--outline-warning:hover {
+        background: var(--qab-warning);
+        color: #ffffff;
+    }
+
+.qab-btn--outline-danger {
+    background: var(--qab-surface);
+    color: var(--qab-danger);
+    border-color: var(--qab-danger);
+}
+
+    .qab-btn--outline-danger:hover {
+        background: var(--qab-danger);
+        color: #ffffff;
+    }
+
+.qab-btn--outline-info {
+    background: var(--qab-surface);
+    color: var(--qab-info);
+    border-color: var(--qab-info);
+}
+
+    .qab-btn--outline-info:hover {
+        background: var(--qab-info);
+        color: #ffffff;
+    }
+
+/* Excel/Word export style */
+.qab-btn--excel {
+    background: #16a34a;
+    color: #ffffff;
+}
+
+    .qab-btn--excel:hover {
+        background: #15803d;
+        color: #ffffff;
+    }
+
+.qab-btn--word {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+    .qab-btn--word:hover {
+        background: #1d4ed8;
+        color: #ffffff;
+    }
+
+/* =========================================================
+   CARD (used as section container)
+   ========================================================= */
+.qab-card {
+    background: var(--qab-surface);
+    border: 1px solid var(--qab-border);
+    border-radius: var(--qab-radius-lg);
+    box-shadow: var(--qab-shadow-sm);
+    overflow: hidden;
+}
+
+.qab-card__header {
+    padding: 1.1rem 1.5rem;
+    border-bottom: 1px solid var(--qab-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.qab-card__title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--qab-text);
+    letter-spacing: -0.01em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+    .qab-card__title i {
+        color: var(--qab-primary);
+    }
+
+.qab-card__body {
+    padding: 1.5rem;
+}
+
+.qab-card__body--tight {
+    padding: 1rem 1.25rem;
+}
+
+/* =========================================================
+   FILTERS (form inside card)
+   ========================================================= */
+.qab-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: end;
+}
+
+.qab-filters__field {
+    flex: 1 1 200px;
+    min-width: 160px;
+}
+
+.qab-filters__label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--qab-text-muted);
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* =========================================================
+   FORM INPUTS (overrides Bootstrap inside .qab-page)
+   ========================================================= */
+.qab-page .form-control,
+.qab-page .form-select {
+    background-color: var(--qab-input-bg);
+    border: 1px solid var(--qab-border-strong);
+    border-radius: 10px;
+    padding: 0.55rem 0.85rem;
+    color: var(--qab-text);
+    font-size: 0.92rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .qab-page .form-control:focus,
+    .qab-page .form-select:focus {
+        background-color: var(--qab-input-bg-focus);
+        border-color: var(--qab-primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        color: var(--qab-text);
+    }
+
+    .qab-page .form-control::placeholder {
+        color: #94a3b8;
+    }
+
+.qab-page select[multiple].form-select {
+    min-height: 130px;
+}
+
+.qab-page textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Floating labels in form (form-label) */
+.qab-page .form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--qab-text-soft);
+    margin-bottom: 0.35rem;
+    letter-spacing: 0.005em;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+.qab-table-wrap {
+    background: var(--qab-surface);
+    border: 1px solid var(--qab-border);
+    border-radius: var(--qab-radius-lg);
+    box-shadow: var(--qab-shadow-sm);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.qab-table-scroll {
+    max-height: 70vh;
+    overflow: auto;
+}
+
+.qab-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.92rem;
+}
+
+    .qab-table thead th {
+        background: var(--qab-toolbar-bg);
+        color: var(--qab-text-soft);
+        font-weight: 600;
+        font-size: 0.78rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 0.85rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--qab-border);
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        white-space: nowrap;
+    }
+
+    .qab-table tbody td {
+        padding: 0.85rem 1rem;
+        color: var(--qab-text);
+        border-bottom: 1px solid var(--qab-border);
+        vertical-align: middle;
+    }
+
+    .qab-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .qab-table tbody tr {
+        transition: background-color 0.15s ease;
+    }
+
+        .qab-table tbody tr:hover {
+            background-color: rgba(99, 102, 241, 0.04);
+        }
+
+    .qab-table tbody td ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+        .qab-table tbody td ul li {
+            padding: 0.1rem 0;
+            font-size: 0.88rem;
+        }
+
+.qab-table__id {
+    font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: 0.82rem;
+    color: var(--qab-text-muted);
+    background: var(--qab-toolbar-bg);
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+}
+
+/* Action btn-group */
+.qab-table__actions {
+    display: inline-flex;
+    gap: 0.35rem;
+    flex-wrap: nowrap;
+}
+
+.qab-table__action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--qab-border-strong);
+    color: var(--qab-text-muted);
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+
+    .qab-table__action-btn:hover {
+        transform: translateY(-1px);
+        text-decoration: none;
+    }
+
+.qab-table__action-btn--edit:hover {
+    background: var(--qab-warning);
+    color: #ffffff;
+    border-color: var(--qab-warning);
+}
+
+.qab-table__action-btn--view:hover {
+    background: var(--qab-info);
+    color: #ffffff;
+    border-color: var(--qab-info);
+}
+
+.qab-table__action-btn--delete:hover {
+    background: var(--qab-danger);
+    color: #ffffff;
+    border-color: var(--qab-danger);
+}
+
+/* =========================================================
+   BADGE
+   ========================================================= */
+.qab-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--qab-radius-pill);
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+.qab-badge--neutral {
+    background: var(--qab-toolbar-bg);
+    color: var(--qab-text-soft);
+}
+
+.qab-badge--primary {
+    background: var(--qab-primary-soft);
+    color: var(--qab-primary);
+}
+
+.qab-badge--success {
+    background: var(--qab-success-soft);
+    color: var(--qab-success);
+}
+
+.qab-badge--warning {
+    background: var(--qab-warning-soft);
+    color: var(--qab-warning);
+}
+
+.qab-badge--danger {
+    background: var(--qab-danger-soft);
+    color: var(--qab-danger);
+}
+
+/* =========================================================
+   FORM (Create/Edit)
+   ========================================================= */
+.qab-form {
+    background: var(--qab-surface);
+    border: 1px solid var(--qab-border);
+    border-radius: var(--qab-radius-lg);
+    box-shadow: var(--qab-shadow-sm);
+    padding: 2rem;
+}
+
+.qab-form__section {
+    margin-bottom: 1.5rem;
+}
+
+.qab-form__section-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--qab-text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--qab-border);
+}
+
+.qab-form__field {
+    margin-bottom: 1rem;
+}
+
+.qab-form__row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.qab-form__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--qab-border);
+}
+
+.qab-form__validation {
+    background: var(--qab-danger-soft);
+    color: var(--qab-danger);
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    font-size: 0.88rem;
+}
+
+    .qab-form__validation:empty {
+        display: none;
+    }
+
+/* =========================================================
+   DELETE CONFIRMATION
+   ========================================================= */
+.qab-confirm {
+    background: var(--qab-surface);
+    border: 1px solid var(--qab-border);
+    border-radius: var(--qab-radius-lg);
+    box-shadow: var(--qab-shadow-md);
+    overflow: hidden;
+}
+
+.qab-confirm__header {
+    padding: 1.25rem 1.75rem;
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+    .qab-confirm__header i {
+        font-size: 1.5rem;
+    }
+
+    .qab-confirm__header h3 {
+        margin: 0;
+        font-size: 1.15rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+    }
+
+.qab-confirm__body {
+    padding: 2rem;
+}
+
+.qab-confirm__lead {
+    text-align: center;
+    color: var(--qab-text);
+    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+}
+
+.qab-confirm__list {
+    background: var(--qab-toolbar-bg);
+    border-radius: var(--qab-radius);
+    padding: 1.25rem 1.5rem;
+}
+
+.qab-confirm__row {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.5rem 1.5rem;
+    padding: 0.45rem 0;
+}
+
+    .qab-confirm__row dt {
+        font-weight: 600;
+        color: var(--qab-text-muted);
+        font-size: 0.88rem;
+    }
+
+    .qab-confirm__row dd {
+        margin: 0;
+        color: var(--qab-text);
+        font-size: 0.92rem;
+    }
+
+.qab-confirm__footer {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    padding-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+/* =========================================================
+   DETAILS PAGE
+   ========================================================= */
+.qab-details__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0.75rem 2rem;
+}
+
+.qab-details__row {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.5rem 1.5rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px dashed var(--qab-border);
+}
+
+    .qab-details__row:last-child {
+        border-bottom: 0;
+    }
+
+.qab-details__label {
+    font-weight: 600;
+    color: var(--qab-text-muted);
+    font-size: 0.88rem;
+}
+
+.qab-details__value {
+    color: var(--qab-text);
+    font-size: 0.95rem;
+    word-break: break-word;
+}
+
+/* List of assigned monitors / experts (Details inner) */
+.qab-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.qab-list__item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--qab-border);
+    border-radius: 12px;
+    margin-bottom: 0.5rem;
+    background: var(--qab-surface);
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+    .qab-list__item:hover {
+        border-color: var(--qab-primary);
+        transform: translateY(-1px);
+    }
+
+.qab-list__check {
+    flex-shrink: 0;
+}
+
+.qab-list__main {
+    flex: 1;
+    min-width: 0;
+}
+
+.qab-list__name {
+    font-weight: 600;
+    color: var(--qab-text);
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.qab-list__meta {
+    color: var(--qab-text-muted);
+    font-size: 0.82rem;
+    margin-top: 0.15rem;
+}
+
+.qab-list__actions {
+    display: inline-flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.qab-section-block {
+    margin-top: 2rem;
+}
+
+.qab-section-block__title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--qab-text);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--qab-primary-soft);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+    .qab-section-block__title i {
+        color: var(--qab-primary);
+    }
+
+.qab-empty-state {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--qab-text-muted);
+    background: var(--qab-toolbar-bg);
+    border-radius: var(--qab-radius);
+    font-size: 0.92rem;
+}
+
+/* =========================================================
+   ASSIGN EXPERTS / MONITORS (dynamic forms)
+   ========================================================= */
+.qab-assign-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    align-items: end;
+    padding: 1.25rem;
+    background: var(--qab-toolbar-bg);
+    border: 1px solid var(--qab-border);
+    border-radius: var(--qab-radius);
+    margin-bottom: 0.75rem;
+}
+
+/* =========================================================
+   MODAL (Bootstrap modal restyle)
+   ========================================================= */
+.qab-page .modal-content {
+    border: 1px solid var(--qab-border);
+    border-radius: var(--qab-radius-lg);
+    box-shadow: var(--qab-shadow-lg);
+    overflow: hidden;
+}
+
+.qab-page .modal-header {
+    background: var(--qab-toolbar-bg);
+    border-bottom: 1px solid var(--qab-border);
+    padding: 1rem 1.5rem;
+}
+
+.qab-page .modal-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--qab-text);
+    letter-spacing: -0.01em;
+}
+
+.qab-page .modal-body {
+    padding: 1.5rem;
+}
+
+.qab-page .modal-footer {
+    background: var(--qab-toolbar-bg);
+    border-top: 1px solid var(--qab-border);
+    padding: 0.85rem 1.5rem;
+    gap: 0.5rem;
+}
+
+/* =========================================================
+   ALERTS
+   ========================================================= */
+.qab-alert {
+    padding: 0.85rem 1.1rem;
+    border-radius: var(--qab-radius);
+    margin-bottom: 1.25rem;
+    font-size: 0.92rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.qab-alert--success {
+    background: var(--qab-success-soft);
+    color: var(--qab-success);
+    border: 1px solid rgba(5, 150, 105, 0.2);
+}
+
+.qab-alert--danger {
+    background: var(--qab-danger-soft);
+    color: var(--qab-danger);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+/* =========================================================
+   COMPACT TABLE (Index səhifəsi üçün — scroll yoxdur)
+   ========================================================= */
+.qab-table--compact {
+    table-layout: fixed;
+    width: 100%;
+    font-size: 0.84rem;
+}
+
+    .qab-table--compact thead th {
+        font-size: 0.72rem;
+        padding: 0.7rem 0.6rem;
+        white-space: nowrap;
+    }
+
+    .qab-table--compact tbody td {
+        padding: 0.7rem 0.6rem;
+        vertical-align: middle;
+    }
+
+/* # sütunu — kiçik, mərkəzli */
+.qab-col-num {
+    text-align: center;
+    color: var(--qab-text-muted);
+    font-size: 0.78rem;
+}
+
+/* Ad + ID bir yerdə, iki sətir */
+.qab-col-name {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+    .qab-col-name strong {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: block;
+    }
+
+    .qab-col-name .qab-table__id {
+        align-self: flex-start;
+    }
+
+/* Tarix — nowrap, kiçik şrift */
+.qab-col-date {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.82rem;
+    color: var(--qab-text-soft);
+}
+
+/* Başlama → Bitmə bir sütunda */
+.qab-col-time {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    flex-wrap: nowrap;
+}
+
+.qab-time-sep {
+    color: var(--qab-text-muted);
+    font-size: 0.7rem;
+}
+
+/* Bina / İstiqamət — kiçik font, söz qırılması icazəli */
+.qab-col-wrap {
+    font-size: 0.82rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 768px) {
+    .qab-page-header {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .qab-page-header__title {
+        font-size: 1.35rem;
+    }
+
+    .qab-form {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .qab-form__row {
+        grid-template-columns: 1fr;
+    }
+
+    .qab-table {
+        font-size: 0.85rem;
+    }
+
+        .qab-table thead th, .qab-table tbody td {
+            padding: 0.7rem 0.6rem;
+        }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .qab-btn, .qab-toolbar__btn, .qab-table tbody tr,
+    .qab-list__item, .qab-table__action-btn {
+        transition: none;
+    }
+
+        .qab-btn:hover, .qab-toolbar__btn:hover,
+        .qab-list__item:hover, .qab-table__action-btn:hover {
+            transform: none;
+        }
+}

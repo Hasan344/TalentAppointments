@@ -1,0 +1,289 @@
+@model IEnumerable<ForQab.DataAccess.Models.Monitor>
+@{
+    ViewData["Title"] = "Nəzarətçilər";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/Monitors/Index.css" asp-append-version="true" />
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4 fw-bold text-primary">Nəzarətçilər İdarəetməsi</h1>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-circle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <a class="btn btn-success" asp-action="Create"><i class="bi bi-plus-circle"></i> Yeni Nəzarətçi</a>
+            <a class="btn btn-outline-primary" href="@Url.Action("ExportToExcel", "Monitors", new { searchName = ViewContext.HttpContext.Request.Query["searchName"], finCode = ViewContext.HttpContext.Request.Query["finCode"], serial = ViewContext.HttpContext.Request.Query["serial"], genderId = ViewContext.HttpContext.Request.Query["genderId"], district = ViewContext.HttpContext.Request.Query["district"] })">
+                <i class="bi bi-file-earmark-excel"></i> Excel'e çıxarış
+            </a>
+            <a class="btn btn-outline-secondary" asp-action="Archived"><i class="bi bi-archive"></i> Arxiv</a>
+            <a class="btn btn-outline-info" asp-action="MonitorLogs"><i class="bi bi-journal"></i> Xüsusi qeydlər</a>
+            {{!-- BULK ARCHIVE BUTTON --}}
+            <button type="button" class="btn btn-warning" id="bulkArchiveBtn"
+                    data-bs-toggle="modal" data-bs-target="#bulkArchiveModal"
+                    style="display:none;">
+                <i class="bi bi-archive-fill"></i> Seçilmişləri Arxivlə
+                <span class="badge bg-dark ms-1" id="bulkArchiveCount">0</span>
+            </button>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
+            <i class="bi bi-file-earmark-word"></i> Müqavilə Export
+        </button>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportModalLabel">Müqavilə Export</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" asp-action="ExportContracts">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="contractDate" class="form-label">Müqavilə Tarixi</label>
+                            <input type="date" id="contractDate" name="contractDate" class="form-control" required />
+                        </div>
+                        <p>Seçdiyiniz nəzarətçilərin müqavilələri export ediləcək:</p>
+                        <div class="table-responsive" style="max-height:200px; overflow:auto;">
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="selectAll" /></th>
+                                        <th>Ad</th>
+                                        <th>Soyad</th>
+                                        <th>FİN Kodu</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="monitorCheckboxList">
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" name="selectedMonitorIds" value="@item.Id" class="select-item" />
+                                            </td>
+                                            <td>@item.Name</td>
+                                            <td>@item.Surname</td>
+                                            <td>@item.FinCode</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
+                        <button type="submit" class="btn btn-primary">Export et</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+    <form method="get" class="d-flex flex-wrap gap-2 align-items-center mb-4">
+        <input type="text" name="searchName" value="@ViewContext.HttpContext.Request.Query["searchName"]" class="form-control" placeholder="Ad və soyad axtar..." style="max-width: 200px;" />
+        <input type="text" name="finCode" value="@ViewContext.HttpContext.Request.Query["finCode"]" class="form-control" placeholder="FİN Kod..." style="max-width: 150px;" />
+        <input type="text" name="serial" value="@ViewContext.HttpContext.Request.Query["serial"]" class="form-control" placeholder="Seriya..." style="max-width: 150px;" />
+        <select name="genderId" class="form-select" style="max-width: 150px;">
+            <option value="">Cins seçin</option>
+            @foreach (var gender in ViewBag.Genders)
+            {
+                <option value="@gender.Id" selected="@(gender.Id.ToString() == ViewContext.HttpContext.Request.Query["genderId"])">@gender.Name</option>
+            }
+        </select>
+        <select name="district" class="form-select" style="max-width: 150px;">
+            <option value="">Rayon seçin</option>
+            @foreach (var district in ViewBag.Districts)
+            {
+                <option value="@district.Id" selected="@(district.Id.ToString() == ViewContext.HttpContext.Request.Query["district"])">@district.Name</option>
+            }
+        </select>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Axtar</button>
+        <a href="@Url.Action("Index", "Monitors")" class="btn btn-outline-danger"><i class="bi bi-x-circle"></i> Sıfırla</a>
+    </form>
+
+    <!-- Main Table -->
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th style="width:42px;">
+                        <input type="checkbox" id="bulkSelectAll" title="Hamısını seç" />
+                    </th>
+                    <th>#</th>
+                    <th>Ad</th>
+                    <th>Soyad</th>
+                    <th>Ata adı</th>
+                    <th>Cins</th>
+                    <th>Doğum tarixi</th>
+                    <th>Peşə</th>
+                    <th>İş yeri</th>
+                    <th>Tel.</th>
+                    <th>FİN Kodu</th>
+                    <th>Seriya</th>
+                    <th>İstiqamət</th>
+                    <th>Rayon</th>
+                    <th>İştirak sayı</th>
+                    <th class="text-center">Əməliyyatlar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int rowNumber = 1;
+                }
+                @foreach (var item in Model)
+                {
+                    <tr class="align-middle @(item.Status == 1 ? "table-danger" : "")">
+                        <td>
+                            <input type="checkbox" class="bulk-select-cb" value="@item.Id" />
+                        </td>
+                        <td>@rowNumber</td>
+                        <td>@item.Name</td>
+                        <td>@item.Surname</td>
+                        <td>@item.Fname</td>
+                        <td>@item.GenderNavigation?.Name</td>
+                        <td>@item.BirthDate</td>
+                        <td>@item.Profession</td>
+                        <td>@item.Workplace</td>
+                        <td>@item.TelIs</td>
+                        <td>@item.FinCode</td>
+                        <td>@item.Serial</td>
+                        <td>@item.Section?.Name</td>
+                        <td>@item.DistrictNavigation?.Name</td>
+                        <td>@item.ComputedAssignmentCount</td>
+                        <td class="text-center">
+                            <div class="btn-group">
+                                <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a>
+                                <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@item.Id"><i class="bi bi-eye"></i></a>
+                                <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    rowNumber++;
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== BULK ARCHIVE MODAL ===== -->
+<div class="modal fade" id="bulkArchiveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">
+                    <i class="bi bi-archive-fill"></i> Toplu Arxivləmə
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-controller="Monitors" asp-action="BulkArchive" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <p id="bulkArchiveCountText" class="alert alert-info mb-3"></p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Arxivləmə səbəbi</label>
+                        <textarea name="archiveReason" class="form-control" rows="3"
+                                  placeholder="Arxivləmə səbəbini yazın..."></textarea>
+                    </div>
+                    <div id="bulkArchiveHiddenIds"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ləğv et</button>
+                    <button type="submit" class="btn btn-warning fw-bold">
+                        <i class="bi bi-archive-fill"></i> Arxivlə
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- ===== END BULK ARCHIVE MODAL ===== -->
+
+@section Scripts {
+    <script>
+        // ===== Export Modal - selectAll =====
+        document.getElementById('selectAll').addEventListener('change', function () {
+            document.querySelectorAll('.select-item').forEach(cb => cb.checked = this.checked);
+        });
+        document.getElementById('selectAllBtn')?.addEventListener('click', function () {
+            document.querySelectorAll('.select-item').forEach(cb => cb.checked = true);
+            document.getElementById('selectAll').checked = true;
+        });
+
+        // ===== BULK ARCHIVE =====
+        (function () {
+            const bulkBtn = document.getElementById('bulkArchiveBtn');
+            const bulkBadge = document.getElementById('bulkArchiveCount');
+            const bulkSelectAll = document.getElementById('bulkSelectAll');
+
+            function getChecked() {
+                return document.querySelectorAll('.bulk-select-cb:checked');
+            }
+
+            function updateBulkUI() {
+                const count = getChecked().length;
+                if (count > 0) {
+                    bulkBtn.style.display = 'inline-block';
+                    bulkBadge.textContent = count;
+                } else {
+                    bulkBtn.style.display = 'none';
+                    bulkBadge.textContent = '0';
+                }
+            }
+
+            document.addEventListener('change', function (e) {
+                if (!e.target.classList.contains('bulk-select-cb')) return;
+                updateBulkUI();
+                const all = document.querySelectorAll('.bulk-select-cb');
+                const checked = getChecked();
+                bulkSelectAll.indeterminate = checked.length > 0 && checked.length < all.length;
+                bulkSelectAll.checked = all.length > 0 && checked.length === all.length;
+            });
+
+            bulkSelectAll.addEventListener('change', function () {
+                document.querySelectorAll('.bulk-select-cb').forEach(cb => cb.checked = this.checked);
+                updateBulkUI();
+            });
+
+            document.getElementById('bulkArchiveModal').addEventListener('show.bs.modal', function () {
+                const checked = getChecked();
+                document.getElementById('bulkArchiveCountText').textContent =
+                    checked.length + ' nəzarətçi arxivə göndəriləcək.';
+
+                const container = document.getElementById('bulkArchiveHiddenIds');
+                container.innerHTML = '';
+                checked.forEach(cb => {
+                    const inp = document.createElement('input');
+                    inp.type = 'hidden';
+                    inp.name = 'selectedIds';
+                    inp.value = cb.value;
+                    container.appendChild(inp);
+                });
+            });
+        })();
+        // ===== END BULK ARCHIVE =====
+    </script>
+}

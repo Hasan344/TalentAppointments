@@ -1,178 +1,133 @@
 ﻿@model IEnumerable<ForQab.DataAccess.Models.Monitor>
-
 @{
     ViewData["Title"] = "Könüllülər";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-success">@TempData["Message"]</div>
-}
-<div class="container mt-5">
-    <h1 class="text-center mb-4 ">Könüllülər İdarəetməsi</h1>
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Monitors/Index.css" asp-append-version="true" />
 
-    <div class="mb-4 text-end">
-        <a class="btn btn-sm btn-success shadow-sm" asp-action="Create">
-            <i class="bi bi-plus-circle"></i> Yenisini yarat
-        </a> 
-        <a class="btn btn-sm btn-primary shadow-sm" asp-action="ExportToExcel">
-            <i class="bi bi-file-earmark-excel"></i> Excel'ə çıxarış
-        </a>
+<div class="container qab-page">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="qab-alert qab-alert--success"><i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]</div>
+    }
+
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-heart"></i></span>
+                    Könüllülər
+                </h1>
+            </div>
+            <div style="display:flex;gap:.5rem;">
+                <a class="qab-page-header__back" asp-action="Archived">
+                    <i class="bi bi-archive"></i> Arxiv
+                </a>
+                <a class="qab-page-header__back" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-house"></i> Ana səhifə
+                </a>
+            </div>
+        </div>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped table-hover shadow-sm">
-            <thead class="table-light">
+    <div class="qab-actionbar">
+        <a class="qab-btn qab-btn--primary" asp-action="Create">
+            <i class="bi bi-plus-circle"></i> Yeni könüllü
+        </a>
+        <a class="qab-btn qab-btn--excel" asp-action="ExportToExcel">
+            <i class="bi bi-file-earmark-excel"></i> Excel-ə çıxarış
+        </a>
+        <form asp-action="ImportFromExcel" enctype="multipart/form-data" method="post" style="margin:0;">
+            <label class="qab-btn qab-btn--outline qab-btn--sm" style="cursor:pointer;margin:0;">
+                <i class="bi bi-upload"></i> Excel idxal
+                <input type="file" name="excelFile" style="display:none;" onchange="this.form.submit()" />
+            </label>
+        </form>
+    </div>
+
+    <div class="qab-table-wrap">
+        <table class="qab-table qab-table--compact">
+            <colgroup>
+                <col style="width:2.5rem">
+                <col style="width:auto">
+                <col style="width:5rem">
+                <col style="width:7rem">
+                <col style="width:auto">
+                <col style="width:7.5rem">
+                <col style="width:8rem">
+                <col style="width:7rem">
+                <col style="width:4rem">
+                <col style="width:6.5rem">
+            </colgroup>
+            <thead>
                 <tr>
                     <th>#</th>
-                    <th>Ad</th>
-                    <th>Soyad</th>
-                    <th>Ata adı</th>
-                    <th>İmtahan binası</th>
+                    <th>Ad Soyad</th>
                     <th>Cins</th>
+                    <th>Doğum tarixi</th>
+                    <th>Peşə / İş yeri</th>
+                    <th>Telefon</th>
+                    <th>FİN / Seriya</th>
+                    <th>Rayon</th>
+                    <th>İştirak</th>
                     <th>Əməliyyatlar</th>
                 </tr>
             </thead>
             <tbody>
-                @{
-                    int rowNumber = 1;
-                }
+                @{ int i = 1; }
                 @foreach (var item in Model)
                 {
-                    <tr class="align-middle">
-                        <td>@rowNumber</td>
-                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Surname)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Fname)</td>
-                        <td>@Html.DisplayFor(modelItem => item.ExamBuilding.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.GenderNavigation.Name)</td>
+                    <tr class="@(item.Status == 1 ? "qab-status--blocked" : "")">
+                        <td class="qab-col-num">@i</td>
                         <td>
-                            <div class="btn-group" role="group">
-                                <a class="btn btn-outline-warning btn-sm p-1" asp-action="Edit" asp-route-id="@item.Id">
-                                    <i class="bi bi-pencil-square" style="font-size: 0.75rem;"></i> Redaktə
+                            <div class="qab-col-name">
+                                <strong>@item.Surname @item.Name @item.Fname</strong>
+                                @if (item.Status == 1)
+                                {
+                                    <span class="qab-status-badge qab-status-badge--blocked">
+                                        <i class="bi bi-x-circle-fill"></i> Çağırıla bilməz
+                                    </span>
+                                }
+                            </div>
+                        </td>
+                        <td>@item.GenderNavigation?.Name</td>
+                        <td class="qab-col-date">@item.BirthDate?.ToString("dd.MM.yyyy")</td>
+                        <td>
+                            <div style="font-size:.85rem;">
+                                @if (!string.IsNullOrEmpty(item.Profession)) { <div>@item.Profession</div> }
+                                @if (!string.IsNullOrEmpty(item.Workplace)) { <div class="text-muted">@item.Workplace</div> }
+                            </div>
+                        </td>
+                        <td class="qab-col-date">@item.TelIs</td>
+                        <td>
+                            <div style="font-size:.83rem;">
+                                <div>@item.FinCode</div>
+                                <div class="text-muted">@item.SerialPrefix @item.Serial</div>
+                            </div>
+                        </td>
+                        <td class="qab-col-wrap">@item.DistrictNavigation?.Name</td>
+                        <td><span class="qab-badge qab-badge--neutral">@item.ComputedAssignmentCount</span></td>
+                        <td>
+                            <div class="qab-table__actions">
+                                <a class="qab-table__action-btn qab-table__action-btn--view"
+                                   asp-action="Details" asp-route-id="@item.Id" title="Detallar">
+                                    <i class="bi bi-eye"></i>
                                 </a>
-                                <a class="btn btn-outline-info btn-sm p-1" asp-action="Details" asp-route-id="@item.Id">
-                                    <i class="bi bi-eye" style="font-size: 0.75rem;"></i> Detallar
+                                <a class="qab-table__action-btn qab-table__action-btn--edit"
+                                   asp-action="Edit" asp-route-id="@item.Id" title="Redaktə">
+                                    <i class="bi bi-pencil-square"></i>
                                 </a>
-                                <a class="btn btn-outline-danger btn-sm p-1" asp-action="Delete" asp-route-id="@item.Id">
-                                    <i class="bi bi-trash" style="font-size: 0.75rem;"></i> Sil
+                                <a class="qab-table__action-btn qab-table__action-btn--delete"
+                                   asp-action="Delete" asp-route-id="@item.Id" title="Sil">
+                                    <i class="bi bi-trash"></i>
                                 </a>
                             </div>
                         </td>
                     </tr>
-                    rowNumber++;
+                    i++;
                 }
             </tbody>
         </table>
     </div>
 </div>
-
-@section Styles {
-    <style>
-        .container {
-            max-width: 1200px;
-        }
-
-        /* Table Styling */
-        .table-bordered {
-            border: 1px solid #dee2e6;
-        }
-
-        .table-bordered th, .table-bordered td {
-            border: 1px solid #dee2e6;
-        }
-
-        .table-striped tbody tr:nth-of-type(odd) {
-            background-color: #f7f7f7;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        .table th, .table td {
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        .table-light th {
-            background-color: #f8f9fa;
-            color: #495057;
-        }
-
-        /* Button Styling */
-        .btn-group .btn {
-            margin-right: 8px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            transition: transform 0.2s ease-in-out;
-        }
-
-        .btn-outline-warning {
-            border-color: #ffc107;
-            color: #ffc107;
-        }
-
-        .btn-outline-warning:hover {
-            background-color: #ffc107;
-            color: #fff;
-        }
-
-        .btn-outline-info {
-            border-color: #17a2b8;
-            color: #17a2b8;
-        }
-
-        .btn-outline-info:hover {
-            background-color: #17a2b8;
-            color: #fff;
-        }
-
-        .btn-outline-danger {
-            border-color: #dc3545;
-            color: #dc3545;
-        }
-
-        .btn-outline-danger:hover {
-            background-color: #dc3545;
-            color: #fff;
-        }
-
-        /* Header and Text Styles */
-        .text-primary {
-            color: #0d6efd !important;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            margin-bottom: 30px;
-        }
-
-        .shadow-sm {
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-
-        .btn-sm {
-            padding: 0.25rem 1rem;
-            font-size: 1rem;
-        }
-
-        .btn-outline-warning, .btn-outline-info, .btn-outline-danger {
-            padding: 0.25rem 1rem;
-            font-size: 1rem;
-        }
-
-        .btn-group .btn {
-            font-size: 1rem;
-        }
-
-        .btn-sm i {
-            font-size: 1rem;
-        }
-
-        
-    </style>
-}

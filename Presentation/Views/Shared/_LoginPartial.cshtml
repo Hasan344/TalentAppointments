@@ -1,30 +1,51 @@
 ﻿@using ForQab.DataAccess.Models
 @using Microsoft.AspNetCore.Identity
 
-
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-<ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
     var user = await UserManager.GetUserAsync(User);
-    <li class="nav-item">
-            <a id="manage" class="nav-link text-light" title="Manage">  İstifadəçi: @(user?.FirstName ?? "Naməlum")!</a>    
-    </li>
-    <li class="nav-item">
-            <form id="logoutForm" class="form-inline" asp-controller="Account" asp-action="Logout">
-                <button id="logout" type="submit" class="nav-link btn btn-link text-light border-0">Logout</button>
-        </form>
+    var displayName = user?.FirstName ?? "İstifadəçi";
+    var initial = !string.IsNullOrEmpty(displayName) ? displayName.Substring(0, 1).ToUpper() : "?";
+
+    <li class="nav-item dropdown qab-nav__user">
+        <a class="qab-nav__user-trigger" href="#" id="qabUserMenu" role="button"
+           data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="qab-nav__avatar">@initial</span>
+            <span class="qab-nav__user-name">@displayName</span>
+            <i class="bi bi-chevron-down qab-nav__user-caret"></i>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end qab-nav__dropdown" aria-labelledby="qabUserMenu">
+            <li class="qab-nav__dropdown-header">
+                <div class="qab-nav__dropdown-name">@displayName</div>
+                <div class="qab-nav__dropdown-email">@(user?.Email ?? user?.UserName)</div>
+            </li>
+            <li><hr class="qab-nav__dropdown-divider" /></li>
+            <li>
+                <form id="logoutForm" class="qab-nav__logout-form" asp-controller="Account" asp-action="Logout" method="post">
+                    <button id="logout" type="submit" class="qab-nav__dropdown-item qab-nav__dropdown-item--danger">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Çıxış</span>
+                    </button>
+                </form>
+            </li>
+        </ul>
     </li>
 }
 else
 {
-    <li class="nav-item">   
-            <a class="nav-link text-light" id="register" asp-controller="Account" asp-action="Register">Register</a>
+    <li class="nav-item">
+        <a class="qab-nav__btn qab-nav__btn--ghost" id="register" asp-controller="Account" asp-action="Register">
+            <i class="bi bi-person-plus"></i>
+            <span>Qeydiyyat</span>
+        </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link text-light" id="login" asp-controller="Account" asp-action="Login">Login</a>
+        <a class="qab-nav__btn qab-nav__btn--primary" id="login" asp-controller="Account" asp-action="Login">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span>Giriş</span>
+        </a>
     </li>
 }
-</ul>

@@ -1,142 +1,151 @@
 ﻿@model IEnumerable<ForQab.DataAccess.Models.Monitor>
 
 @{
-    ViewData["Title"] = "İmtahan rəhbərləri";
+    ViewData["Title"] = "Arxivdəki imtahan rəhbərləri";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
+    var q = ViewContext.HttpContext.Request.Query;
 }
 
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 <link rel="stylesheet" href="~/css/Monitors/Index.css" asp-append-version="true" />
-<div class="container mt-5">
-    <!-- Səhifə Başlığı -->
-    <h1 class="text-center mb-4">Arxivlənmiş İmtahan Rəhbərləri</h1>
 
-    <!-- Yeni Monitor Yarat Düyməsi -->
-    <div class="mb-4 text-end">
-        <a class="btn btn-sm btn-success shadow-sm" asp-action="Create">
-            <i class="bi bi-plus-circle"></i> Yenisini yarat
-        </a>
-        <a class="btn btn-sm btn-primary shadow-sm" asp-action="ExportToExcel">
-            <i class="bi bi-file-earmark-excel"></i> Excel'ə çıxarış
-        </a>
-        <a class="btn btn-sm btn-primary shadow-sm" asp-action="Index">
-            <i class="bi bi-file-earmark"></i> Geri
-        </a>
-        <form method="get" class="d-flex align-items-center gap-2 flex-wrap">
-            <!-- Search by Name -->
-            <input type="text" name="searchName"
-                   value="@ViewContext.HttpContext.Request.Query["searchName"]"
-                   class="form-control"
-                   placeholder="Ad və ya soyad üzrə axtar..."
-                   style="max-width: 250px;" />
+<div class="container qab-page">
 
-            <!-- Gender Dropdown -->
-            <select name="genderId" class="form-control" style="max-width: 200px;">
-                <option value="">Cins seçin</option>
-                @foreach (var gender in ViewBag.Genders)
-                {
-                    if (gender.Id.ToString() == ViewContext.HttpContext.Request.Query["genderId"])
-                    {
-                        <option value="@gender.Id" selected>@gender.Name</option>
-                    }
-                    else
-                    {
-                        <option value="@gender.Id">@gender.Name</option>
-                    }
-                }
-                <!-- Search by FinCode -->
-                <input type="text" name="finCode"
-                       value="@ViewContext.HttpContext.Request.Query["finCode"]"
-                       class="form-control"
-                       placeholder="FİN Kod üzrə axtar..."
-                       style="max-width: 200px;" />
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="qab-alert qab-alert--success"><i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]</div>
+    }
 
-                <!-- Search by Serial -->
-                <input type="text" name="serial"
-                       value="@ViewContext.HttpContext.Request.Query["serial"]"
-                       class="form-control"
-                       placeholder="Seriya üzrə axtar..."
-                       style="max-width: 200px;" />
-            </select>
-            <!-- District Dropdown -->
-            <select name="district" class="form-control" style="max-width: 200px;">
-                <option value="">Rayon seçin</option>
-                @foreach (var district in ViewBag.Districts)
-                {
-                    if (district.Id.ToString() == ViewContext.HttpContext.Request.Query["district"])
-                    {
-                        <option value="@district.Id" selected>@district.Name</option>
-                    }
-                    else
-                    {
-                        <option value="@district.Id">@district.Name</option>
-                    }
-                }
-            </select>
-            <!-- Start Year -->
-            <input type="number" name="startYear" value="@ViewContext.HttpContext.Request.Query["startYear"]" class="form-control" style="max-width: 120px;" placeholder="Başlanğıc il" />
-
-            <!-- End Year -->
-            <input type="number" name="endYear" value="@ViewContext.HttpContext.Request.Query["endYear"]" class="form-control" style="max-width: 120px;" placeholder="Son il" />
-
-            <!-- Submit Button -->
-            <button type="submit" class="btn btn-outline-primary">Axtar</button>
-            <a href="@Url.Action("Index", "HeadMonitors")" class="btn btn-outline-secondary">Sıfırla</a>
-        </form>
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-archive"></i></span>
+                    Arxivdəki imtahan rəhbərləri
+                </h1>
+            </div>
+            <a class="qab-page-header__back" asp-action="Index">
+                <i class="bi bi-arrow-left"></i> Aktiv siyahıya qayıt
+            </a>
+        </div>
     </div>
 
-    <!-- Cədvəl ilə Müasir Dizayn -->
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped table-hover shadow-sm sticky-header">
-            <thead class="table-dark">
+    <!-- Filters -->
+    <div class="qab-card" style="margin-bottom:1.25rem;">
+        <div class="qab-card__body qab-card__body--tight">
+            <form method="get" asp-action="Archived" class="qab-filters">
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">Ad / Soyad</label>
+                    <input type="text" name="searchName" value="@q["searchName"]" class="form-control" placeholder="Ad..." />
+                </div>
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">FİN Kod</label>
+                    <input type="text" name="finCode" value="@q["finCode"]" class="form-control" placeholder="FİN..." />
+                </div>
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">Cins</label>
+                    <select name="genderId" class="form-select">
+                        <option value="">Hamısı</option>
+                        @foreach (var g in ViewBag.Genders)
+                        {
+                            <option value="@g.Id" selected="@(g.Id.ToString() == q["genderId"] ? "selected" : null)">@g.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">Rayon</label>
+                    <select name="district" class="form-select">
+                        <option value="">Hamısı</option>
+                        @foreach (var d in ViewBag.Districts)
+                        {
+                            <option value="@d.Id" selected="@(d.Id.ToString() == q["district"] ? "selected" : null)">@d.Name</option>
+                        }
+                    </select>
+                </div>
+                <div style="display:flex;gap:.4rem;align-items:end;">
+                    <button type="submit" class="qab-btn qab-btn--primary qab-btn--sm">
+                        <i class="bi bi-search"></i> Axtar
+                    </button>
+                    <a href="@Url.Action("Archived")" class="qab-btn qab-btn--ghost qab-btn--sm">
+                        <i class="bi bi-x-circle"></i> Sıfırla
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="qab-table-wrap">
+        <table class="qab-table qab-table--compact">
+            <colgroup>
+                <col style="width:2.5rem">
+                <col style="width:auto">
+                <col style="width:auto">
+                <col style="width:7.5rem">
+                <col style="width:8rem">
+                <col style="width:4rem">
+                <col style="width:7rem">
+            </colgroup>
+            <thead>
                 <tr>
-                    <th>Ad</th>
-                    <th>Soyad</th>
-                    <th>Ata adı</th>
-                    <th>Cins</th>
-                    <th>Doğum tarixi</th>
-                    <th>Peşə</th>
-                    <th>İş yeri</th>
-                    <th>Telefonu</th>
-                    <th>FİN Kodu</th>
-                    <th>Seriya</th>
-                    <th>İstiqamət</th>
-                    <th>Rayon</th>
+                    <th>#</th>
+                    <th>Ad Soyad</th>
+                    <th>Peşə / İş yeri</th>
+                    <th>Telefon</th>
+                    <th>FİN / Seriya</th>
+                    <th>İştirak</th>
                     <th>Əməliyyatlar</th>
                 </tr>
             </thead>
             <tbody>
+                @{ int rowNumber = 1; }
                 @foreach (var item in Model)
                 {
-                    <tr class="align-middle">
-                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Surname)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Fname)</td>
-                        <td>@Html.DisplayFor(modelItem => item.GenderNavigation.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.BirthDate)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Profession)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Workplace)</td>
-                        <td>@Html.DisplayFor(modelItem => item.TelIs)</td>
-                        <td>@Html.DisplayFor(modelItem => item.FinCode)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Serial)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Section.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.DistrictNavigation.Name)</td>
+                    <tr>
+                        <td class="qab-col-num">@rowNumber</td>
                         <td>
-                            <div class="btn-group" role="group">
-                                <a class="btn btn-outline-warning btn-sm p-1" asp-action="Edit" asp-route-id="@item.Id">
-                                    <i class="bi bi-pencil-square" style="font-size: 0.75rem;"></i> Redaktə et
+                            <div class="qab-col-name">
+                                <strong>@item.Surname @item.Name @item.Fname</strong>
+                                @if (!string.IsNullOrEmpty(item.ArchiveReason))
+                                {
+                                    <span class="qab-badge qab-badge--neutral" style="font-size:.72rem;">@item.ArchiveReason</span>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-size:.85rem;">
+                                @if (!string.IsNullOrEmpty(item.Profession)) { <div>@item.Profession</div> }
+                                @if (!string.IsNullOrEmpty(item.Workplace)) { <div class="text-muted">@item.Workplace</div> }
+                            </div>
+                        </td>
+                        <td class="qab-col-date">@item.TelIs</td>
+                        <td>
+                            <div style="font-size:.83rem;">
+                                <div>@item.FinCode</div>
+                                <div class="text-muted">@item.SerialPrefix @item.Serial</div>
+                            </div>
+                        </td>
+                        <td><span class="qab-badge qab-badge--neutral">@item.ComputedAssignmentCount</span></td>
+                        <td>
+                            <div class="qab-table__actions">
+                                <a class="qab-table__action-btn qab-table__action-btn--view"
+                                   asp-action="Details" asp-route-id="@item.Id">
+                                    <i class="bi bi-eye"></i>
                                 </a>
-                                <a class="btn btn-outline-info btn-sm p-1" asp-action="Details" asp-route-id="@item.Id">
-                                    <i class="bi bi-eye" style="font-size: 0.75rem;"></i> Detallar
+                                <a class="qab-table__action-btn qab-table__action-btn--edit"
+                                   asp-action="Edit" asp-route-id="@item.Id">
+                                    <i class="bi bi-pencil-square"></i>
                                 </a>
-                                <form asp-action="RestoreMonitor" method="post">
+                                <form asp-action="RestoreMonitor" method="post" style="margin:0;" title="Arxivdən çıxar">
                                     <input type="hidden" name="id" value="@item.Id" />
-                                    <button type="submit" class="btn btn-danger btn-sm p-1">
-                                        <i class="bi bi-arrow-counterclockwise"></i> Arxivdən çıxar
+                                    <button type="submit" class="qab-table__action-btn"
+                                            style="color:var(--qab-success);border-color:var(--qab-success);">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
                                     </button>
                                 </form>
                             </div>
                         </td>
                     </tr>
+                    rowNumber++;
                 }
             </tbody>
         </table>

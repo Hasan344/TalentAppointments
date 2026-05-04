@@ -31,19 +31,45 @@ namespace ForQab.Presentation.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? federationId, int? subProfessionId)
+        public async Task<IActionResult> Index(
+    string searchName,
+    int? genderId,
+    string? finCode,
+    string serial,
+    int? district,
+    int? startYear,
+    int? endYear,
+    int? federationId,
+    int? subProfessionId,
+    int page = 1,
+    int pageSize = 25)
         {
             var sectionId = await GetCurrentSectionIdAsync();
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
             var subProfessions = await _subProfessionService.GetAllSubProfessionsAsync(sectionId);
             var federations = _context.Professions.Where(f => f.SectionId == sectionId).ToList();
-            var experts = await _expertService.GetExpertsBySectionIdAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, federationId, subProfessionId);
+
+            var all = await _expertService.GetExpertsBySectionIdAsync(
+                sectionId, searchName, genderId, finCode, serial,
+                district, startYear, endYear, federationId, subProfessionId);
+
+            var totalCount = all.Count();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            page = Math.Max(1, Math.Min(page, totalPages == 0 ? 1 : totalPages));
+
+            var paged = all.Skip((page - 1) * pageSize).Take(pageSize);
+
             ViewBag.SubProfessions = subProfessions;
             ViewBag.Genders = genders;
             ViewBag.Federation = federations;
             ViewBag.Districts = districts;
-            return View(experts);
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalCount = totalCount;
+
+            return View(paged);
         }
         public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId)
         {
@@ -597,6 +623,20 @@ namespace ForQab.Presentation.Controllers
                 "Mugavileler.docx");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BulkArchive(List<int> selectedIds, string archiveReason)
+        {
+            if (selectedIds == null || !selectedIds.Any())
+            {
+                TempData["ErrorMessage"] = "Heç bir ekspert seçilməyib.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            await _expertService.BulkArchiveAsync(selectedIds, archiveReason ?? "");
+            TempData["SuccessMessage"] = $"{selectedIds.Count} ekspert arxivə göndərildi.";
+            return RedirectToAction(nameof(Index));
+        }
     }
 
 }

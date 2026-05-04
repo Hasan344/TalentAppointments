@@ -1,38 +1,71 @@
 ﻿@model IEnumerable<ForQab.DataAccess.Models.Profession>
+@{
+    ViewData["Title"] = "Müəssisələr / Təhsil səviyyələri";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 
-<h2>Müəssisələr - Təhsil səviyyələri</h2>
+<div class="container qab-page">
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-bank"></i></span>
+                    Müəssisələr / Təhsil səviyyələri
+                </h1>
+            </div>
+            <a class="qab-page-header__back" asp-controller="Exam" asp-action="Index">
+                <i class="bi bi-arrow-left"></i> İmtahanlara qayıt
+            </a>
+        </div>
+    </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Ad</th>
-            <th>İstiqamət</th>
-            <th>Əməliyyatlar</th>
-        </tr>
-    </thead>
-    <tbody>
-        @{
-            int rowNumber = 1;
-        }
-        @foreach (var item in Model)
-        {
-            <tr>
-                    <td>@rowNumber</td>
-                    <td>@item.Name</td>
-                    <td>@(item.Section != null ? item.Section.Name : "Məlumat yoxdur")</td> 
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Redaktə</a>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Sil</a>
-                    </td>
-            </tr>
-            rowNumber++;
-        }
-    </tbody>
-</table>
+    <div class="qab-actionbar">
+        <a class="qab-btn qab-btn--primary" asp-action="Create">
+            <i class="bi bi-plus-circle"></i> Yeni müəssisə
+        </a>
+    </div>
 
-<a asp-action="Create" class="btn btn-primary">Federasiya Yarat</a>
-
-<a class="btn btn-secondary px-4 py-2 mx-2" border: none;" asp-controller="Exam" asp-action="Index">
-    <i class="bi bi-home"></i> İmtahanlara qayıt
-</a>
+    <div class="qab-table-wrap">
+        <table class="qab-table qab-table--compact">
+            <colgroup>
+                <col style="width:2.5rem">
+                <col style="width:auto">
+                <col style="width:10rem">
+                <col style="width:8rem">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Ad</th>
+                    <th>İstiqamət</th>
+                    <th>Əməliyyatlar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ int i = 1; }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="qab-col-num">@i</td>
+                        <td><strong>@item.Name</strong></td>
+                        <td class="qab-col-wrap">@(item.Section != null ? item.Section.Name : "—")</td>
+                        <td>
+                            <div class="qab-table__actions">
+                                <a class="qab-table__action-btn qab-table__action-btn--edit"
+                                   asp-action="Edit" asp-route-id="@item.Id" title="Redaktə">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a class="qab-table__action-btn qab-table__action-btn--delete"
+                                   asp-action="Delete" asp-route-id="@item.Id" title="Sil">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    i++;
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

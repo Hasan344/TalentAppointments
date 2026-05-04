@@ -1,217 +1,409 @@
 ﻿@model IEnumerable<ForQab.DataAccess.Models.Monitor>
+
 @{
     ViewData["Title"] = "Nəzarətçilər";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
+    var q = ViewContext.HttpContext.Request.Query;
 }
 
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 <link rel="stylesheet" href="~/css/Monitors/Index.css" asp-append-version="true" />
 
-<div class="container mt-5">
-    <h1 class="text-center mb-4 fw-bold text-primary">Nəzarətçilər İdarəetməsi</h1>
+<div class="container qab-page">
 
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="qab-alert qab-alert--success"><i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]</div>
+    }
     @if (TempData["Message"] != null)
     {
-        <div class="alert alert-success">@TempData["Message"]</div>
+        <div class="qab-alert qab-alert--success"><i class="bi bi-info-circle-fill"></i> @TempData["Message"]</div>
     }
 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-            <a class="btn btn-success" asp-action="Create"><i class="bi bi-plus-circle"></i> Yeni Nəzarətçi</a>
-            <a class="btn btn-outline-primary" href="@Url.Action("ExportToExcel", "Monitors", new { searchName = ViewContext.HttpContext.Request.Query["searchName"], finCode = ViewContext.HttpContext.Request.Query["finCode"], serial = ViewContext.HttpContext.Request.Query["serial"], genderId = ViewContext.HttpContext.Request.Query["genderId"], district = ViewContext.HttpContext.Request.Query["district"] })">
-                <i class="bi bi-file-earmark-excel"></i> Excel'e çıxarış
-            </a>
-            <a class="btn btn-outline-secondary" asp-action="Archived"><i class="bi bi-archive"></i> Arxiv</a>
-            <a class="btn btn-outline-info" asp-action="MonitorLogs"><i class="bi bi-journal"></i> Xüsusi qeydlər</a>
-        </div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
-            <i class="bi bi-file-earmark-word"></i> Müqavilə Export
-        </button>
-    </div>
-
-    <!-- Export Modal -->
-    <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exportModalLabel">Müqavilə Export</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form method="post" asp-action="ExportContracts">
-                    <div class="modal-body">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="searchName" class="form-label">Ad və soyad</label>
-                                <input type="text" id="searchName" name="searchName" class="form-control" placeholder="Ad və soyad ilə axtar..." />
-                            </div>
-                            <div class="col-md-6">
-                                <label for="districtId" class="form-label">Rayon</label>
-                                <select id="districtId" name="districtId" class="form-select">
-                                    <option value="">Hamısı</option>
-                                    @foreach (var district in ViewBag.Districts)
-                                    {
-                                        <option value="@district.Id">@district.Name</option>
-                                    }
-                                </select>
-                            </div>
-                        </div><div class="text-end mb-3">
-                            <button type="button" class="btn btn-outline-primary" id="filterMonitorsBtn">
-                                <i class="bi bi-funnel"></i> Filtrlə
-                            </button>
-                        </div>
-                        <div class="mb-3">
-                            <label for="contractDate" class="form-label">Müqavilə Tarixi</label>
-                            <input type="date" id="contractDate" name="contractDate" class="form-control" required />
-                        </div>
-                        <p>Seçdiyiniz nəzarətçilərin müqavilələri export ediləcək:</p>
-                        <div class="table-responsive" style="max-height:200px; overflow:auto;">
-                            <table class="table table-sm table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th><input type="checkbox" id="selectAll" /></th>
-                                        <th>Ad</th>
-                                        <th>Soyad</th>
-                                        <th>FİN Kodu</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="monitorCheckboxList">
-                                    @foreach (var item in Model)
-                                    {
-                                        <tr>
-                                            <td>
-                                                <input type="checkbox" name="selectedMonitorIds" value="@item.Id" class="select-item" />
-                                            </td>
-                                            <td>@item.Name</td>
-                                            <td>@item.Surname</td>
-                                            <td>@item.FinCode</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
-                        <button type="submit" class="btn btn-primary">Export et</button>
-                    </div>
-                </form>
+    <!-- Page Header -->
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-shield-check"></i></span>
+                    Nəzarətçilər İdarəetməsi
+                </h1>
+            </div>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                <a class="qab-page-header__back" asp-action="Archived">
+                    <i class="bi bi-archive"></i> Arxiv
+                </a>
+                <a class="qab-page-header__back" asp-action="MonitorLogs">
+                    <i class="bi bi-journal"></i> Xüsusi qeydlər
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- Filter Form -->
-    <form method="get" class="d-flex flex-wrap gap-2 align-items-center mb-4">
-        <input type="text" name="searchName" value="@ViewContext.HttpContext.Request.Query["searchName"]" class="form-control" placeholder="Ad və soyad axtar..." style="max-width: 200px;" />
-        <input type="text" name="finCode" value="@ViewContext.HttpContext.Request.Query["finCode"]" class="form-control" placeholder="FİN Kod..." style="max-width: 150px;" />
-        <input type="text" name="serial" value="@ViewContext.HttpContext.Request.Query["serial"]" class="form-control" placeholder="Seriya..." style="max-width: 150px;" />
-        <select name="genderId" class="form-select" style="max-width: 150px;">
-            <option value="">Cins seçin</option>
-            @foreach (var gender in ViewBag.Genders)
-            {
-                <option value="@gender.Id" selected="@(gender.Id.ToString() == ViewContext.HttpContext.Request.Query["genderId"])">@gender.Name</option>
-            }
-        </select>
-        <select name="district" class="form-select" style="max-width: 150px;">
-            <option value="">Rayon seçin</option>
-            @foreach (var district in ViewBag.Districts)
-            {
-                <option value="@district.Id" selected="@(district.Id.ToString() == ViewContext.HttpContext.Request.Query["district"])">@district.Name</option>
-            }
-        </select>
-        <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Axtar</button>
-        <a href="@Url.Action("Index", "Monitors")" class="btn btn-outline-danger"><i class="bi bi-x-circle"></i> Sıfırla</a>
-    </form>
+    <!-- Action bar -->
+    <div class="qab-actionbar">
+        <a class="qab-btn qab-btn--primary" asp-action="Create">
+            <i class="bi bi-plus-circle"></i> Yeni nəzarətçi
+        </a>
+        <a class="qab-btn qab-btn--excel"
+           href="@Url.Action("ExportToExcel", "Monitors", new { searchName = q["searchName"], finCode = q["finCode"], serial = q["serial"], genderId = q["genderId"], district = q["district"] })">
+            <i class="bi bi-file-earmark-excel"></i> Excel-ə çıxarış
+        </a>
+        <button class="qab-btn qab-btn--word" data-bs-toggle="modal" data-bs-target="#exportContractModal">
+            <i class="bi bi-file-earmark-word"></i> Müqavilə export
+        </button>
+        <!-- Import -->
+        <form asp-controller="Monitors" asp-action="ImportFromExcel" enctype="multipart/form-data" method="post"
+              class="qab-import-form">
+            <label class="qab-btn qab-btn--outline qab-btn--sm" style="cursor:pointer;margin:0;">
+                <i class="bi bi-upload"></i> Excel idxal
+                <input type="file" name="excelFile" style="display:none;" onchange="this.form.submit()" />
+            </label>
+        </form>
+    </div>
 
-    <!-- Main Table (hidden under modal) -->
-    <div class="table-responsive">
-        <table class="table table-hover table-bordered align-middle shadow-sm">
-            <thead class="table-dark">
+    <!-- Filters -->
+    <div class="qab-card" style="margin-bottom:1.25rem;">
+        <div class="qab-card__body qab-card__body--tight">
+            <form method="get" asp-action="Index" class="qab-filters">
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">Ad / Soyad</label>
+                    <input type="text" name="searchName" value="@q["searchName"]"
+                           class="form-control" placeholder="Ad və ya soyad..." />
+                </div>
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">FİN Kod</label>
+                    <input type="text" name="finCode" value="@q["finCode"]"
+                           class="form-control" placeholder="FİN..." />
+                </div>
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">Seriya</label>
+                    <input type="text" name="serial" value="@q["serial"]"
+                           class="form-control" placeholder="Seriya..." />
+                </div>
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">Cins</label>
+                    <select name="genderId" class="form-select">
+                        <option value="">Hamısı</option>
+                        @foreach (var g in ViewBag.Genders)
+                        {
+                            <option value="@g.Id" selected="@(g.Id.ToString() == q["genderId"] ? "selected" : null)">@g.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">Rayon</label>
+                    <select name="district" class="form-select">
+                        <option value="">Hamısı</option>
+                        @foreach (var d in ViewBag.Districts)
+                        {
+                            <option value="@d.Id" selected="@(d.Id.ToString() == q["district"] ? "selected" : null)">@d.Name</option>
+                        }
+                    </select>
+                </div>
+                <input type="hidden" name="page" value="1" />
+                <input type="hidden" name="pageSize" value="@ViewBag.PageSize" />
+                <div style="display:flex;gap:.4rem;align-items:end;">
+                    <button type="submit" class="qab-btn qab-btn--primary qab-btn--sm">
+                        <i class="bi bi-search"></i> Axtar
+                    </button>
+                    <a href="@Url.Action("Index")" class="qab-btn qab-btn--ghost qab-btn--sm">
+                        <i class="bi bi-x-circle"></i> Sıfırla
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="qab-table-wrap">
+        <table class="qab-table qab-table--compact">
+            <colgroup>
+                <col style="width:2.5rem">      <!-- # -->
+                <col style="width:auto">        <!-- Ad Soyad -->
+                <col style="width:5rem">        <!-- Cins -->
+                <col style="width:7rem">        <!-- Doğum tarixi -->
+                <col style="width:auto">        <!-- Peşə / İş yeri -->
+                <col style="width:7.5rem">      <!-- Telefon -->
+                <col style="width:8rem">        <!-- FİN / Seriya -->
+                <col style="width:7rem">        <!-- İstiqamət -->
+                <col style="width:7rem">        <!-- Rayon -->
+                <col style="width:4rem">        <!-- İştirak -->
+                <col style="width:6.5rem">      <!-- Əməliyyatlar -->
+            </colgroup>
+            <thead>
                 <tr>
                     <th>#</th>
-                    <th>Ad</th>
-                    <th>Soyad</th>
-                    <th>Ata adı</th>
+                    <th>Ad Soyad</th>
                     <th>Cins</th>
                     <th>Doğum tarixi</th>
-                    <th>Peşə</th>
-                    <th>İş yeri</th>
-                    <th>Tel.</th>
-                    <th>FİN Kodu</th>
-                    <th>Seriya</th>
+                    <th>Peşə / İş yeri</th>
+                    <th>Telefon</th>
+                    <th>FİN / Seriya</th>
                     <th>İstiqamət</th>
                     <th>Rayon</th>
-                    <th>İştirak sayı</th>
-                    <th class="text-center">Əməliyyatlar</th>
+                    <th>İştirak</th>
+                    <th>Əməliyyatlar</th>
                 </tr>
             </thead>
-            <tbody>
-                @{
-                    int rowNumber = 1;
-                }
-                @foreach (var item in Model)
+                <tbody>
+                    @{ int rowNumber = 1; }
+                    @foreach (var item in Model)
+                    {
+                        <tr class="@(item.Status == 1 ? "qab-status--blocked" : "")">
+                            <td class="qab-col-num">@rowNumber</td>
+                            <td>
+                                <div class="qab-col-name">
+                                    <strong>@item.Surname @item.Name @item.Fname</strong>
+                                    @if (item.Status == 1)
+                                    {
+                                        <span class="qab-status-badge qab-status-badge--blocked">
+                                            <i class="bi bi-x-circle-fill"></i> Çağırıla bilməz
+                                        </span>
+                                    }
+                                </div>
+                            </td>
+                            <td>@item.GenderNavigation?.Name</td>
+                            <td class="qab-col-date">@item.BirthDate?.ToString("dd.MM.yyyy")</td>
+                            <td>
+                                <div style="font-size:.85rem;">
+                                    @if (!string.IsNullOrEmpty(item.Profession)) { <div>@item.Profession</div> }
+                                    @if (!string.IsNullOrEmpty(item.Workplace)) { <div class="text-muted">@item.Workplace</div> }
+                                </div>
+                            </td>
+                            <td class="qab-col-date">@item.TelIs</td>
+                            <td>
+                                <div style="font-size:.83rem;">
+                                    <div>@item.FinCode</div>
+                                    <div class="text-muted">@item.SerialPrefix @item.Serial</div>
+                                </div>
+                            </td>
+                            <td class="qab-col-wrap">@item.Section?.Name</td>
+                            <td class="qab-col-wrap">@item.DistrictNavigation?.Name</td>
+                            <td><span class="qab-badge qab-badge--neutral">@item.ComputedAssignmentCount</span></td>
+                            <td>
+                                <div class="qab-table__actions">
+                                    <a class="qab-table__action-btn qab-table__action-btn--view" title="Detallar"
+                                       asp-action="Details" asp-route-id="@item.Id">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a class="qab-table__action-btn qab-table__action-btn--edit" title="Redaktə"
+                                       asp-action="Edit" asp-route-id="@item.Id">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a class="qab-table__action-btn qab-table__action-btn--delete" title="Sil/Arxivlə"
+                                       asp-action="Delete" asp-route-id="@item.Id">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        rowNumber++;
+                    }
+                </tbody>
+            </table>
+    </div>
+
+    <!-- Pagination -->
+    @{
+        int currentPage = ViewBag.CurrentPage != null ? (int)ViewBag.CurrentPage : 1;
+        int totalPages  = ViewBag.TotalPages  != null ? (int)ViewBag.TotalPages  : 1;
+        int totalCount  = ViewBag.TotalCount  != null ? (int)ViewBag.TotalCount  : 0;
+        int pageSize    = ViewBag.PageSize    != null ? (int)ViewBag.PageSize    : 25;
+        int startItem   = totalCount == 0 ? 0 : (currentPage - 1) * pageSize + 1;
+        int endItem     = Math.Min(currentPage * pageSize, totalCount);
+
+        // Filter parametrlərini pagination link-lərə ötür
+        var routeVals = new Dictionary<string, string?> {
+            ["searchName"] = q["searchName"],
+            ["finCode"]    = q["finCode"],
+            ["serial"]     = q["serial"],
+            ["genderId"]   = q["genderId"],
+            ["district"]   = q["district"],
+            ["pageSize"]   = pageSize.ToString()
+        };
+
+        // Göstəriləcək səhifə nömrələri (window: cari ± 2)
+        int winStart = Math.Max(1, currentPage - 2);
+        int winEnd   = Math.Min(totalPages, currentPage + 2);
+    }
+
+    @if (totalPages > 1 || totalCount > 0)
+    {
+        <div style="display:flex;align-items:center;justify-content:space-between;
+                    flex-wrap:wrap;gap:.75rem;margin-top:1rem;padding-top:.75rem;
+                    border-top:1px solid var(--qab-border);">
+
+            <!-- Məlumat mətni -->
+            <span style="font-size:.85rem;color:var(--qab-text-muted);">
+                <strong>@startItem–@endItem</strong> / <strong>@totalCount</strong> nəzarətçi
+            </span>
+
+            <!-- Səhifə sayı seçici -->
+            <div style="display:flex;align-items:center;gap:.4rem;">
+                <span style="font-size:.82rem;color:var(--qab-text-muted);">Səhifədə:</span>
+                @foreach (var ps in new[] { 10, 25, 50, 100 })
                 {
-                    <tr class="align-middle @(item.Status == 1 ? "table-danger" : "")">
-                        <td>@rowNumber</td>
-                        <td>@Html.DisplayFor(m => item.Name)</td>
-                        <td>@Html.DisplayFor(m => item.Surname)</td>
-                        <td>@Html.DisplayFor(m => item.Fname)</td>
-                        <td>@Html.DisplayFor(m => item.GenderNavigation.Name)</td>
-                        <td>@Html.DisplayFor(m => item.BirthDate)</td>
-                        <td>@Html.DisplayFor(m => item.Profession)</td>
-                        <td>@Html.DisplayFor(m => item.Workplace)</td>
-                        <td>@Html.DisplayFor(m => item.TelIs)</td>
-                        <td>@Html.DisplayFor(m => item.FinCode)</td>
-                        <td>@Html.DisplayFor(m => item.Serial)</td>
-                        <td>@Html.DisplayFor(m => item.Section.Name)</td>
-                        <td>@Html.DisplayFor(m => item.DistrictNavigation.Name)</td>
-                        <td>@Html.DisplayFor(m => item.ComputedAssignmentCount)</td>
-                        <td class="text-center">
-                            <div class="btn-group">
-                                <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a>
-                                <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@item.Id"><i class="bi bi-eye"></i></a>
-                                <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash"></i></a>
-                            </div>
-                        </td>
-                    </tr>
-                    rowNumber++;
+                    var psRoute = new Dictionary<string, string?>(routeVals) { ["pageSize"] = ps.ToString(), ["page"] = "1" };
+                    <a href="@Url.Action("Index", psRoute)"
+                       class="qab-btn qab-btn--sm @(pageSize == ps ? "qab-btn--primary" : "qab-btn--ghost")"
+                       style="min-width:2.4rem;justify-content:center;">
+                        @ps
+                    </a>
                 }
-            </tbody>
-        </table>
+            </div>
+
+            <!-- Səhifə nömrələri -->
+            @if (totalPages > 1)
+            {
+                <nav style="display:flex;align-items:center;gap:.25rem;">
+                    @* İlk + Əvvəlki *@
+                    @if (currentPage > 1)
+                    {
+                        var r1 = new Dictionary<string, string?>(routeVals) { ["page"] = "1" };
+                        var r2 = new Dictionary<string, string?>(routeVals) { ["page"] = (currentPage - 1).ToString() };
+                        <a href="@Url.Action("Index", r1)" class="qab-btn qab-btn--ghost qab-btn--sm" title="İlk səhifə">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                        <a href="@Url.Action("Index", r2)" class="qab-btn qab-btn--ghost qab-btn--sm" title="Əvvəlki">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    }
+
+                    @* Sol ellipsis *@
+                    @if (winStart > 1)
+                    {
+                        var re = new Dictionary<string, string?>(routeVals) { ["page"] = "1" };
+                        <a href="@Url.Action("Index", re)" class="qab-btn qab-btn--ghost qab-btn--sm">1</a>
+                        @if (winStart > 2) { <span style="padding:0 .2rem;color:var(--qab-text-muted);">…</span> }
+                    }
+
+                    @* Nömrə pəncərəsi *@
+                    @for (int p = winStart; p <= winEnd; p++)
+                    {
+                        var rp = new Dictionary<string, string?>(routeVals) { ["page"] = p.ToString() };
+                        <a href="@Url.Action("Index", rp)"
+                           class="qab-btn qab-btn--sm @(p == currentPage ? "qab-btn--primary" : "qab-btn--ghost")"
+                           style="min-width:2.4rem;justify-content:center;">
+                            @p
+                        </a>
+                    }
+
+                    @* Sağ ellipsis *@
+                    @if (winEnd < totalPages)
+                    {
+                        @if (winEnd < totalPages - 1) { <span style="padding:0 .2rem;color:var(--qab-text-muted);">…</span> }
+                        var rl = new Dictionary<string, string?>(routeVals) { ["page"] = totalPages.ToString() };
+                        <a href="@Url.Action("Index", rl)" class="qab-btn qab-btn--ghost qab-btn--sm">@totalPages</a>
+                    }
+
+                    @* Növbəti + Son *@
+                    @if (currentPage < totalPages)
+                    {
+                        var rn = new Dictionary<string, string?>(routeVals) { ["page"] = (currentPage + 1).ToString() };
+                        var rl = new Dictionary<string, string?>(routeVals) { ["page"] = totalPages.ToString() };
+                        <a href="@Url.Action("Index", rn)" class="qab-btn qab-btn--ghost qab-btn--sm" title="Növbəti">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="@Url.Action("Index", rl)" class="qab-btn qab-btn--ghost qab-btn--sm" title="Son səhifə">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    }
+                </nav>
+            }
+        </div>
+    }
+</div>
+
+<!-- Müqavilə Export Modal -->
+<div class="modal fade" id="exportContractModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content qab-page">
+            <form method="post" asp-action="ExportContracts">
+                <div class="modal-header">
+                    <h5 class="modal-title">Müqavilə Export</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="qab-form__row" style="margin-bottom:1rem;">
+                        <div>
+                            <label class="form-label">Ad / Soyad ilə axtar</label>
+                            <input type="text" name="searchName" class="form-control" placeholder="Ad və ya soyad..." />
+                        </div>
+                        <div>
+                            <label class="form-label">Rayon</label>
+                            <select name="districtId" class="form-select">
+                                <option value="">Hamısı</option>
+                                @foreach (var d in ViewBag.Districts)
+                                {
+                                    <option value="@d.Id">@d.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div style="align-self:end;">
+                            <button type="button" class="qab-btn qab-btn--outline-primary qab-btn--sm" id="filterMonitorsBtn">
+                                <i class="bi bi-funnel"></i> Filtrlə
+                            </button>
+                        </div>
+                    </div>
+                    <div class="qab-form__field">
+                        <label class="form-label">Müqavilə tarixi</label>
+                        <input type="date" name="contractDate" class="form-control" required />
+                    </div>
+                    <div class="qab-table-wrap" style="max-height:200px;">
+                        <table class="qab-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selectAll" /></th>
+                                    <th>Ad</th>
+                                    <th>Soyad</th>
+                                    <th>FİN Kodu</th>
+                                </tr>
+                            </thead>
+                            <tbody id="monitorCheckboxList">
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td><input type="checkbox" name="selectedMonitorIds" value="@item.Id" class="select-item" /></td>
+                                        <td>@item.Name</td>
+                                        <td>@item.Surname</td>
+                                        <td>@item.FinCode</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="qab-btn qab-btn--ghost" data-bs-dismiss="modal">Bağla</button>
+                    <button type="submit" class="qab-btn qab-btn--primary">Export et</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        // Checkbox Select All
-        document.getElementById('selectAll').addEventListener('change', function () {
-            var checked = this.checked;
-            document.querySelectorAll('.select-item').forEach(cb => cb.checked = checked);
+        // Select All checkbox
+        document.getElementById('selectAll')?.addEventListener('change', function () {
+            document.querySelectorAll('.select-item').forEach(cb => cb.checked = this.checked);
         });
-        // Button Select All
-        document.getElementById('selectAllBtn').addEventListener('click', function () {
-            document.querySelectorAll('.select-item').forEach(cb => cb.checked = true);
-            document.getElementById('selectAll').checked = true;
-        });
-    </script>
-    <script>
-        document.getElementById("filterMonitorsBtn").addEventListener("click", function () {
-            const name = document.getElementById("searchName").value;
-            const districtId = document.getElementById("districtId").value;
 
-            const formData = new FormData();
-            formData.append("searchName", name);
-            formData.append("districtId", districtId);
+        // AJAX filter
+        document.getElementById('filterMonitorsBtn')?.addEventListener('click', function () {
+            const searchName = document.querySelector('#exportContractModal input[name="searchName"]').value;
+            const districtId = document.querySelector('#exportContractModal select[name="districtId"]').value;
 
-            fetch("@Url.Action("FilterMonitorsAjax", "Monitors")", {
-                method: "POST",
-                headers: {
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                },
-                body: formData
+            fetch('@Url.Action("FilterMonitorsAjax", "Monitors")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `searchName=${encodeURIComponent(searchName)}&districtId=${encodeURIComponent(districtId)}`
             })
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById("monitorCheckboxList").innerHTML = html;
-                });
+            .then(r => r.text())
+            .then(html => {
+                document.getElementById('monitorCheckboxList').innerHTML = html;
+            });
         });
     </script>
 }

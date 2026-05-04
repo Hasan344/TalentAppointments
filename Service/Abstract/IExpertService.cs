@@ -7,6 +7,7 @@ namespace ForQab.Service.Abstract
     public interface IExpertService
     {
         Task<IEnumerable<Expert>> GetAllExpertsAsync();
+        Task BulkArchiveAsync(List<int> ids, string archiveReason);
         Task<Expert?> GetExpertByIdAsync(int id);
         Task AddExpertAsync(ExpertViewModel expertViewModel);
         Task UpdateExpertAsync(ExpertEditViewModel expert);

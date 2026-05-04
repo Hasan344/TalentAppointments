@@ -1,1028 +1,703 @@
-﻿@model ForQab.Models.ViewModels.ExamDetailsViewModel
-
-
+@model ForQab.Models.ViewModels.ExamDetailsViewModel
 
 @{
-    ViewData["Title"] = "İmtahan Detalları";
-    string primaryColor = "#0056b3";
-    string secondaryColor = "#6c757d";
+    ViewData["Title"] = "İmtahan detalları";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container py-5" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-    <h1 class="text-center mb-4" style="color: @primaryColor; font-weight: bold;">İmtahan Detalları</h1>
-    <hr class="mb-4" />
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 
-    <div class="row">
-        <!-- Left Column -->
-        <div class="col-md-6 mb-3">
-            <dl class="row">
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Ad:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.Name</dd>
+<div class="container qab-page">
 
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İstiqamət:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.Section.Name</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Rayon:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.District.Name</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İmtahan Binasi:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.ExamBulding.Name</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İmtahan Tarixi:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.ExamDate.ToString("dd.MM.yyyy")</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İştirakçı sayı:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.StudentCount nəfər</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Müddət:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.Duration saat</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Komissiya:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">
-                    @if (Model.ExamCommissions != null && Model.ExamCommissions.Any())
-                    {
-                        @string.Join(", ", Model.ExamCommissions.Select(sp => sp.Commission.Name))
-                    }
-                    else
-                    {
-                        <span style="color: @secondaryColor;">---</span>
-                    }
-                </dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İşçi sayı:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@ViewBag.EmployeeCount</dd> 
-            </dl>
-        </div>
-
-        <div class="col-md-6">
-            <dl class="row">
-
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Su:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.Water ədəd</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Yemək:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.Food ədəd</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Buraxılış saatı:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.AdmissionTime</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Başlama saatı:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.StartTime</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Bitmə saatı:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.EndTime</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Qeydlər:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.Notes</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Nəqliyyat:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">@Model.InventoryTransport</dd>
-
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">Təhsil səviyyələri:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">
-                    @if (Model.ExamDegrees != null && Model.ExamDegrees.Any())
-                    {
-                        @string.Join(", ", Model.ExamDegrees.Select(sp => sp.Degree.Name))
-                    }
-                    else
-                    {
-                        <span style="color: @secondaryColor;">---</span>
-                    }
-                </dd>
-                <dt class="col-sm-4" style="font-weight: 600; color: @secondaryColor; padding-bottom: 12px;">İmtahan fənləri:</dt>
-                <dd class="col-sm-8" style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px;">
-                    @if (Model.ExamSubjects != null && Model.ExamSubjects.Any())
-                    {
-                        @string.Join(", ", Model.ExamSubjects.Select(sp => sp.Subject.Name))
-                    }
-                    else
-                    {
-                        <span style="color: @secondaryColor;">---</span>
-                    }
-                </dd>
-            </dl>
-        </div>
-    </div>
-    <!-- Assigned Experts Section -->
-    <div class="mt-4">
-        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Ekspertlər</h4>
-        @{
-            var experts = Model.Experts
-            .Where(m => m.Kons == false)
-            .OrderBy(e => e.ExamExpertSubProfessions.FirstOrDefault()?.Name)
-            .ThenBy(e => e.ExamExpertSubProfessions.FirstOrDefault()?.FederationName)
-            .ToList();
-            int counter = 1;
-        }
-
-        @if (experts.Any())
-        {
-            <!-- Tek Form -->
-            <form asp-action="ManageExperts" method="post" id="manageExpertsForm">
-                <input type="hidden" name="examId" value="@Model.Id" />
-                <div class="mb-3">
-                    <input type="checkbox" id="selectAllExperts" onchange="toggleCheckboxes('expertIds', this.checked)" />
-                    <label for="selectAllExperts" class="ml-2">Bütün Ekspertləri Seç</label>
-                </div>
-
-                <ul class="list-group list-group-flush">
-                    @for (int i = 0; i < experts.Count(); i++)
-                    {
-                        var expert = experts[i];
-                        var hasLog = Model.ExpertsWithLogs?.Contains(expert.Id) == true;
-                        <li class="list-group-item">
-                            <div class="row align-items-center">
-                                <div class="col-md-1">
-                                    <span>@counter)</span> <!-- Display counter -->
-                                    <input type="checkbox" name="expertIds" value="@expert.Id" />
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 class="mb-0">@expert.Name @expert.Surname @expert.Fname @expert.Tel</h6>
-                                    <small class="text-muted">FinCode: @expert.FinCode</small><br />
-                                    <small class="text-muted">
-                                        <strong>İxtisaslaşma:</strong>
-                                        @if (expert.ExamExpertSubProfessions.Any())
-                                        {
-                                            @string.Join(", ", expert.ExamExpertSubProfessions
-                                                     .Select(eesp => $"{eesp.Name} ({eesp.FederationName})({eesp.RoomName})"))
-                                        }
-                                        else
-                                        {
-                                            <span>--- (Təyin olunmayıb) ---</span>
-                                        }
-                                    </small>
-                                    @if (hasLog)
-                                    {
-                                        <span class="badge ml-2" style="background-color: #ffc107; color: black;">Qeydi var</span>
-                                    }
-                                </div>
-                                <div class="col-md-2 text-center">
-                                    <input type="hidden" name="updates[@i].ExpertId" value="@expert.Id" />
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               name="updates[@i].IsAttended"
-                                               value="1"
-                                               id="attend_@expert.Id"
-                                        @(expert.IsAttended.GetValueOrDefault() == 1 ? "checked" : "") />
-                                    </div>
-                                </div>
-                                <div class="col-md-3 text-md-right mt-2 mt-md-0">
-                                    <a class="btn btn-sm btn-outline-secondary mr-2" asp-action="ChangeExpert" asp-route-examId="@Model.Id" asp-route-expertId="@expert.Id">
-                                        <i class="bi bi-pencil"></i> Dəyişdir
-                                    </a>
-                                   @*  <button type="button" class="btn btn-sm btn-outline-danger"
-                                            onclick="changeExpert('@Model.Id', '@expert.Id')">
-                                        <i class="bi bi-arrow-repeat"></i> Dəyiş
-                                    </button> *@
-                                    <a class="btn btn-sm btn-outline-primary"
-                                       asp-action="WriteExpertLog"
-                                       asp-route-examId="@Model.Id"
-                                       asp-route-expertId="@expert.Id">
-                                        <i class="bi bi-chat"></i> Qeyd yaz
-                                    </a>
-                                    <a class="btn btn-sm btn-outline-info"
-                                       asp-action="ExpertDetails"
-                                       asp-route-id="@expert.Id">
-                                        <i class="bi bi-eye"></i> Detallara bax
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        counter++; // Increment counter
-                    }
-                </ul>
-
-                <div class="text-center mt-3">
-                    <!-- Silme Butonu -->
-                    <button type="button" name="action" value="delete"
-                            class="btn btn-sm btn-outline-danger"
-                            data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"
-                            data-form-id="manageExpertsForm">
-                        <i class="bi bi-trash"></i> Seçilmişləri Sil
-                    </button>
-                    <button type="submit" name="action" value="update"
-                            class="btn btn-outline-success px-4 py-2 mx-2">
-                        <i class="bi bi-check-circle"></i> Gələnləri Təsdiq Et
-                    </button>
-
-                    @if (ViewBag.SectionId != 3 && ViewBag.SectionId != 4 && ViewBag.SectionId != 6)
-                    {
-                        <a class="btn btn-success px-4 py-2 mx-2"
-                           style="background-color: @primaryColor; border: none;"
-                           asp-action="AssignExperts" asp-route-id="@Model.Id">
-                            <i class="bi bi-person-plus"></i> Ekspert Təyin Et
-                        </a>
-                    }
-                </div>
-            </form>
-        }
-        else
-        {
-            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir ekspert təyin edilməyib.</p>
-            @if (ViewBag.SectionId != 3 && ViewBag.SectionId != 4 && ViewBag.SectionId != 6)
-            {
-                <div class="text-center mt-3">
-                    <a class="btn btn-success px-4 py-2 mx-2"
-                       style="background-color: @primaryColor; border: none;"
-                       asp-action="AssignExperts" asp-route-id="@Model.Id">
-                        <i class="bi bi-person-plus"></i> Ekspert Təyin Et
-                    </a>
-                </div>
-            }
-        }
-    </div>
-
-    @if (ViewBag.SectionId == 3 || ViewBag.SectionId == 4 || ViewBag.SectionId == 6)
+    @if (TempData["SuccessMessage"] != null)
     {
-        <!-- Assigned Kons Section -->
-        <div class="mt-4">
-            <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Konsertmeysterlər</h4>
-            @{
-                var kons = Model.Experts.Where(m => m.Kons == true).ToList();
-                counter = 1; 
-            }
-            @if (kons.Any())
-            {
-                <form asp-action="DeleteExperts" method="post" id="deleteExpertsForm">
+        <div class="qab-alert qab-alert--success">
+            <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="qab-alert qab-alert--danger">
+            <i class="bi bi-exclamation-circle-fill"></i> @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- Page Header -->
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-journal-text"></i></span>
+                    @Model.Name
+                </h1>
+                <p class="qab-page-header__subtitle">
+                    @Model.ExamDate.ToString("dd MMMM yyyy") &middot; @Model.ExamBulding?.Name
+                </p>
+            </div>
+            <a class="qab-page-header__back" asp-action="Index">
+                <i class="bi bi-arrow-left"></i> Siyahıya qayıt
+            </a>
+        </div>
+    </div>
+
+    <!-- ─── İmtahan məlumatları ─── -->
+    <div class="qab-card" style="margin-bottom:1.5rem;">
+        <div class="qab-card__header">
+            <h2 class="qab-card__title"><i class="bi bi-info-circle"></i> İmtahan məlumatları</h2>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                <a class="qab-btn qab-btn--outline-warning qab-btn--sm" asp-action="Edit" asp-route-id="@Model.Id">
+                    <i class="bi bi-pencil-square"></i> Redaktə
+                </a>
+                <form asp-action="ExportBadges" method="post" style="margin:0;">
                     <input type="hidden" name="examId" value="@Model.Id" />
-                    <div class="mb-3">
-                        <input type="checkbox" id="selectAllExperts" onchange="toggleCheckboxes('expertIds', this.checked)" />
-                        <label for="selectAllExperts" class="ml-2">Bütün Ekspertləri Seç</label>
+                    <button type="submit" class="qab-btn qab-btn--word qab-btn--sm">
+                        <i class="bi bi-person-badge"></i> Badge yüklə
+                    </button>
+                </form>
+                <a class="qab-btn qab-btn--outline-danger qab-btn--sm" asp-action="Delete" asp-route-id="@Model.Id">
+                    <i class="bi bi-trash"></i> Sil
+                </a>
+            </div>
+        </div>
+        <div class="qab-card__body">
+            <div class="qab-details__grid">
+                <div>
+                    <div class="qab-details__row"><dt class="qab-details__label">Ad</dt><dd class="qab-details__value">@Model.Name</dd></div>
+                    <div class="qab-details__row"><dt class="qab-details__label">İstiqamət</dt><dd class="qab-details__value">@Model.Section?.Name</dd></div>
+                    <div class="qab-details__row"><dt class="qab-details__label">Rayon</dt><dd class="qab-details__value">@Model.District?.Name</dd></div>
+                    <div class="qab-details__row"><dt class="qab-details__label">İmtahan binası</dt><dd class="qab-details__value">@Model.ExamBulding?.Name</dd></div>
+                    <div class="qab-details__row"><dt class="qab-details__label">Tarix</dt><dd class="qab-details__value">@Model.ExamDate.ToString("dd.MM.yyyy")</dd></div>
+                    <div class="qab-details__row"><dt class="qab-details__label">İştirakçı sayı</dt><dd class="qab-details__value"><span class="qab-badge qab-badge--primary">@Model.StudentCount</span></dd></div>
+                    <div class="qab-details__row"><dt class="qab-details__label">Müddət</dt><dd class="qab-details__value">@Model.Duration saat</dd></div>
+                </div>
+                <div>
+                    <div class="qab-details__row"><dt class="qab-details__label">Buraxılış saatı</dt><dd class="qab-details__value">@Model.AdmissionTime</dd></div>
+                    <div class="qab-details__row"><dt class="qab-details__label">Başlama</dt><dd class="qab-details__value">@Model.StartTime</dd></div>
+                    <div class="qab-details__row"><dt class="qab-details__label">Bitmə</dt><dd class="qab-details__value">@Model.EndTime</dd></div>
+                    <div class="qab-details__row"><dt class="qab-details__label">Su</dt><dd class="qab-details__value">@Model.Water</dd></div>
+                    <div class="qab-details__row"><dt class="qab-details__label">Yemək</dt><dd class="qab-details__value">@Model.Food</dd></div>
+                    <div class="qab-details__row">
+                        <dt class="qab-details__label">Komissiyalar</dt>
+                        <dd class="qab-details__value">@(Model.ExamCommissions?.Any() == true ? string.Join(", ", Model.ExamCommissions.Select(c => c.Commission.Name)) : "—")</dd>
                     </div>
-                    <ul class="list-group list-group-flush">
-                        @foreach (var expert in kons)
+                    <div class="qab-details__row">
+                        <dt class="qab-details__label">Təhsil səviyyəsi</dt>
+                        <dd class="qab-details__value">@(Model.ExamDegrees?.Any() == true ? string.Join(", ", Model.ExamDegrees.Select(d => d.Degree.Name)) : "—")</dd>
+                    </div>
+                    <div class="qab-details__row">
+                        <dt class="qab-details__label">Fənlər</dt>
+                        <dd class="qab-details__value">@(Model.ExamSubjects?.Any() == true ? string.Join(", ", Model.ExamSubjects.Select(s => s.Subject.Name)) : "—")</dd>
+                    </div>
+                </div>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.Notes))
+            {
+                <div style="margin-top:1rem;padding:1rem;background:var(--qab-toolbar-bg);border-radius:10px;">
+                    <strong style="font-size:.78rem;color:var(--qab-text-muted);text-transform:uppercase;letter-spacing:.04em;">Qeydlər</strong>
+                    <p style="margin:.4rem 0 0;">@Model.Notes</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ─── EKSPERTLƏR (Section != 3,4,6) ─── -->
+    @if (ViewBag.SectionId != 3 && ViewBag.SectionId != 4 && ViewBag.SectionId != 6)
+    {
+            var experts = Model.Experts?.Where(m => m.Kons == false)
+                .OrderBy(e => e.ExamExpertSubProfessions.FirstOrDefault()?.Name)
+                .ThenBy(e => e.ExamExpertSubProfessions.FirstOrDefault()?.FederationName)
+                .ToList();
+        
+        <div class="qab-section-block">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem;">
+                <h3 class="qab-section-block__title" style="margin:0;"><i class="bi bi-mortarboard"></i> Ekspertlər</h3>
+                <a class="qab-btn qab-btn--primary qab-btn--sm" asp-action="AssignExperts" asp-route-id="@Model.Id">
+                    <i class="bi bi-person-plus"></i> Ekspert təyin et
+                </a>
+            </div>
+            @if (experts?.Any() == true)
+            {
+                <form asp-action="ManageExperts" method="post" id="manageExpertsForm">
+                    <input type="hidden" name="examId" value="@Model.Id" />
+                    <label style="font-size:.85rem;color:var(--qab-text-muted);display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem;">
+                        <input type="checkbox" id="selectAllExperts" onchange="document.querySelectorAll('[name=expertIds]').forEach(cb=>cb.checked=this.checked)" />
+                        Hamısını seç
+                    </label>
+                    <ul class="qab-list">
+                        @for (int i = 0; i < experts.Count; i++)
                         {
-                            var tel = expert.Tel;
-                            if (!string.IsNullOrEmpty(tel) && tel.Length == 10)
-                            {
-                                tel = $"{tel.Substring(0, 3)}-{tel.Substring(3, 3)}-{tel.Substring(6, 2)}-{tel.Substring(8, 2)}";
-                            }
-                            var hasLog = Model.ExpertsWithLogs != null && Model.ExpertsWithLogs.Contains(expert.Id);
-                            <li class="list-group-item">
-                                <div class="row align-items-center">
-                                    <div class="col-md-1">
-                                        <span>@counter)</span> <!-- Display counter -->
-                                        <input type="checkbox" name="expertIds" value="@expert.Id" />
-                                    </div>
-                                    <div class="col-md-7">
-                                        <h6 class="mb-0">
-                                            @expert.Name @expert.Surname @expert.Fname @tel
-                                        </h6>
-                                        <small class="text-muted">
-                                            FinCode: @expert.FinCode
-                                        </small>
-                                        <br />
-                                        <small class="text-muted">
-                                            <strong>İxtisaslaşma:</strong>
-                                            @if (expert.ExamExpertSubProfessions.Any())
-                                            {
-                                                @string.Join(", ", expert.ExamExpertSubProfessions
-                                                         .Select(eesp => $"{eesp.Name} ({eesp.FederationName})({eesp.RoomName})"))
-                                            }
-                                            else
-                                            {
-                                                <span>--- (Təyin olunmayıb) ---</span>
-                                            }
-                                        </small>
-                                        @if (hasLog)
+                            var expert = experts[i];
+                            var hasLog = Model.ExpertsWithLogs?.Contains(expert.Id) == true;
+                            <li class="qab-list__item">
+                                <div class="qab-list__check">
+                                    <input type="checkbox" name="expertIds" value="@expert.Id" style="width:16px;height:16px;" />
+                                </div>
+                                <div class="qab-list__main">
+                                    <p class="qab-list__name">
+                                        @(i+1). @expert.Name @expert.Surname @expert.Fname
+                                        @if (!string.IsNullOrEmpty(expert.Tel)) { <small class="text-muted">· @expert.Tel</small> }
+                                    </p>
+                                    <p class="qab-list__meta">
+                                        FİN: @expert.FinCode
+                                        @if (expert.ExamExpertSubProfessions?.Any() == true)
                                         {
-                                            <span class="badge ml-2" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;">Qeydi var</span>
+                                            <span> · @string.Join(", ", expert.ExamExpertSubProfessions.Select(eesp => $"{eesp.Name} ({eesp.FederationName}) ({eesp.RoomName})"))</span>
                                         }
+                                        @if (hasLog) { <span class="qab-badge qab-badge--warning ms-2"><i class="bi bi-exclamation-circle"></i> Qeydi var</span> }
+                                    </p>
+                                </div>
+                                <!-- IsAttended switch -->
+                                <div style="display:flex;flex-direction:column;align-items:center;gap:.2rem;min-width:60px;">
+                                    <input type="hidden" name="updates[@i].ExpertId" value="@expert.Id" />
+                                    <div class="form-check form-switch" style="margin:0;">
+                                        <input class="form-check-input" type="checkbox"
+                                               name="updates[@i].IsAttended" value="1"
+                                               id="exp_attend_@expert.Id"
+                                               @(expert.IsAttended.GetValueOrDefault() == 1 ? "checked" : "") />
+                                        <label class="form-check-label" for="exp_attend_@expert.Id" style="font-size:.78rem;">Gəlib</label>
                                     </div>
-                                    <div class="col-md-4 text-md-right mt-2 mt-md-0">
-                                        <a class="btn btn-sm btn-outline-secondary mr-2" asp-action="ChangeExpert" asp-route-examId="@Model.Id" asp-route-expertId="@expert.Id">
-                                            <i class="bi bi-pencil"></i> Dəyişdir
-                                        </a>
-                                        <a class="btn btn-sm btn-outline-primary" asp-action="WriteExpertLog" asp-route-examId="@Model.Id" asp-route-expertId="@expert.Id">
-                                            <i class="bi bi-chat"></i> Xüsusi qeyd yaz
-                                        </a>
-                                        <a class="btn btn-sm btn-outline-info" asp-action="ExpertDetails" asp-route-id="@expert.Id">
-                                            <i class="bi bi-eye"></i> Detallara Bax
-                                        </a>
-                                    </div>
+                                </div>
+                                <div class="qab-list__actions">
+                                    <a class="qab-table__action-btn" title="Dəyişdir"
+                                       asp-action="ChangeExpert" asp-route-examId="@Model.Id" asp-route-expertId="@expert.Id">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a class="qab-table__action-btn" title="Qeyd yaz"
+                                       asp-action="WriteExpertLog" asp-route-examId="@Model.Id" asp-route-expertId="@expert.Id">
+                                        <i class="bi bi-chat"></i>
+                                    </a>
+                                    <a class="qab-table__action-btn qab-table__action-btn--view" title="Detallar"
+                                       asp-action="ExpertDetails" asp-route-id="@expert.Id">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                 </div>
                             </li>
-                            counter++; // Increment counter
                         }
                     </ul>
-                    <div class="text-center mt-3">
-                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteExpertsForm">
-                            <i class="bi bi-trash"></i> Seçilmişləri Sil
+                    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem;">
+                        <button type="button" class="qab-btn qab-btn--outline-danger qab-btn--sm"
+                                data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"
+                                data-form-id="manageExpertsForm" data-action-name="delete">
+                            <i class="bi bi-trash"></i> Seçilmişləri sil
+                        </button>
+                        <button type="submit" name="action" value="update" class="qab-btn qab-btn--outline-success qab-btn--sm">
+                            <i class="bi bi-check-circle"></i> Gələnləri təsdiq et
                         </button>
                     </div>
                 </form>
             }
             else
             {
-                <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir ekspert təyin edilməyib.</p>
+                <div class="qab-empty-state"><i class="bi bi-person-x" style="font-size:1.5rem;display:block;margin-bottom:.5rem;"></i> Ekspert təyin edilməyib.</div>
             }
         </div>
     }
 
-    <!-- Assigned Monitors Section -->
-    <div class="mt-4">
-        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Nəzarətçilər</h4>
-        @{
-            var monitors = Model.Monitors.Where(m => m.Role == 2).OrderBy(m => m.RoomId).ToList();
-            counter = 1; // Initialize counter for monitors
-        }
-        @if (monitors.Any())
-        {
-            <form asp-action="ManageMonitors" method="post" id="manageMonitorsForm">
-                <input type="hidden" name="examId" value="@Model.Id" />
-                <div class="mb-3">
-                    <input type="checkbox" id="selectAllMonitors" onchange="toggleCheckboxes('monitorIds', this.checked)" />
-                    <label for="selectAllMonitors" class="ml-2">Bütün Nəzarətçiləri Seç</label>
-                </div>
-                <ul class="list-group list-group-flush">
-                    @for (int i = 0; i < monitors.Count(); i++)
-                    {
-                        var monitor = monitors[i];
-                        var hasLog = ViewBag.MonitorsWithLogs != null && ViewBag.MonitorsWithLogs.Contains(monitor.Id);
-                        <li class="list-group-item">
-                            <div class="row align-items-center">
-                                <div class="col-md-1">
-                                    <span>@counter)</span> <!-- Display counter -->
-                                    <input type="checkbox" name="monitorIds" value="@monitor.Id" />
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 class="mb-0">
-                                        @monitor.Name @monitor.Surname @monitor.Fname @monitor.Tel
-                                    </h6>
-                                    <small class="text-muted">
-                                        FinCode: @monitor.FinCode
-                                    </small>
-                                    <small class="text-muted">
-                                        <strong>Məntəqə:</strong>
-                                        @if (monitor.Rooms.Any())
-                                        {
-                                            @string.Join(", ", monitor.Rooms.Select(em => $"({em.RoomName})"))
-                                        }
-                                        else
-                                        {
-                                            <span>Ehtiyat Nəzarətçi</span>
-                                        }
-                                    </small>
-                                    @if (hasLog)
-                                    {
-                                        <span class="badge ml-2" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;">Qeydi var</span>
-                                    }
-                                </div>
-                                <div class="col-md-2 text-center">
-                                    <input type="hidden" name="updates[@i].MonitorId" value="@monitor.Id" />
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               name="updates[@i].IsAttended"
-                                               value="1"
-                                               id="attend_@monitor.Id"
-                                        @(monitor.IsAttended.GetValueOrDefault() == 1 ? "checked" : "") />
-                                    </div>
-                                </div>
-                                <div class="col-md-3 text-md-right mt-2 mt-md-0">
-                                    <a class="btn btn-sm btn-outline-secondary mr-2" asp-action="ChangeMonitor" asp-route-examId="@Model.Id" asp-route-monitorId="@monitor.Id">
-                                        <i class="bi bi-pencil"></i> Dəyişdir
-                                    </a>
-                                    <a class="btn btn-sm btn-outline-primary" asp-action="WriteMonitorLog" asp-route-examId="@Model.Id" asp-route-monitorId="@monitor.Id">
-                                        <i class="bi bi-chat"></i> Xüsusi qeyd yaz
-                                    </a>
-                                    <a class="btn btn-sm btn-outline-info" asp-action="MonitorDetails" asp-route-id="@monitor.Id">
-                                        <i class="bi bi-eye"></i> Detallara Bax
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        counter++; // Increment counter
-                    }
-                </ul>
-                <div class="text-center mt-3">
-                    <button type="button" name="action" value="delete"
-                            class="btn btn-sm btn-outline-danger"
-                            data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"
-                            data-form-id="manageMonitorsForm">
-                        <i class="bi bi-trash"></i> Seçilmişləri Sil
-                    </button>
-                    <button type="submit" name="action" value="update"
-                            class="btn btn-outline-success px-4 py-2 mx-2">
-                        <i class="bi bi-check-circle"></i> Gələnləri Təsdiq Et
-                    </button>
-                    <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMonitors" asp-route-id="@Model.Id">
-                        <i class="bi bi-person-plus"></i> Nəzarətçi Təyin Et
+    <!-- ─── KONSERTMEYSTERLƏR (Section 3,4,6) ─── -->
+    @if (ViewBag.SectionId == 3 || ViewBag.SectionId == 4 || ViewBag.SectionId == 6)
+    {
+            var kons = Model.Experts?.Where(m => m.Kons == true).ToList();
+        
+        <div class="qab-section-block">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem;">
+                <h3 class="qab-section-block__title" style="margin:0;"><i class="bi bi-music-note-beamed"></i> Konsertmeysterlər</h3>
+                <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                    <a class="qab-btn qab-btn--primary qab-btn--sm"
+                       asp-action="AssignExpertsForMX" asp-controller="Exam" asp-route-examId="@Model.Id">
+                        <i class="bi bi-person-plus"></i> Ekspert və Konsertmeyster Təyin Et
                     </a>
                 </div>
-            </form>
-        }
-        else
-        {
-            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nəzarətçi təyin edilməyib.</p>
-            <div class="text-center mt-3">
-                <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMonitors" asp-route-id="@Model.Id">
-                    <i class="bi bi-person-plus"></i> Nəzarətçi Təyin Et
-                </a>
             </div>
-        }
-    </div>
-
-    <!-- Assigned Head Monitors Section -->
-    <div class="mt-4">
-        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş İmtahan rəhbərləri</h4>
-        @{
-            var headMonitors = Model.Monitors.Where(m => m.Role == 1);
-        }
-        @if (headMonitors.Any())
-        {
-            <form asp-action="DeleteHeadMonitors" method="post" id="deleteHeadMonitorsForm">
-                <input type="hidden" name="examId" value="@Model.Id" />
-                <div class="mb-3">
-                    <input type="checkbox" id="selectAllHeadMonitors" onchange="toggleCheckboxes('headMonitorIds', this.checked)" />
-                    <label for="selectAllHeadMonitors" class="ml-2">Bütün İmtahan Rəhbərlərini Seç</label>
-                </div>
-                <ul class="list-group list-group-flush">
-                    @foreach (var monitor in headMonitors)
-                    {
-                        var hasLog = ViewBag.MonitorsWithLogs != null && ViewBag.MonitorsWithLogs.Contains(monitor.Id);
-                        <li class="list-group-item">
-                            <div class="row align-items-center">
-                                <div class="col-md-1">
-                                    <input type="checkbox" name="headMonitorIds" value="@monitor.Id" />
-                                </div>
-                                <div class="col-md-7">
-                                    <h6 class="mb-0">
-                                        @monitor.Name @monitor.Surname @monitor.Fname @monitor.Tel
-                                    </h6>
-                                    <small class="text-muted">
-                                        FinCode: @monitor.FinCode
-                                    </small>
-                                    @if (hasLog)
-                                    {
-                                        <span class="badge ml-2" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;">Qeydi var</span>
-                                    }
-                                </div>
-                                <div class="col-md-4 text-md-right mt-2 mt-md-0">
-                                    <a class="btn btn-sm btn-outline-secondary mr-2" asp-action="ChangeHeadMonitor" asp-route-examId="@Model.Id" asp-route-monitorId="@monitor.Id">
-                                        <i class="bi bi-pencil"></i> Dəyişdir
-                                    </a>
-                                    <a class="btn btn-sm btn-outline-primary" asp-action="WriteMonitorLog" asp-route-examId="@Model.Id" asp-route-monitorId="@monitor.Id">
-                                        <i class="bi bi-chat"></i> Xüsusi qeyd yaz
-                                    </a>
-                                    <a class="btn btn-sm btn-outline-info" asp-action="HeadMonitorDetails" asp-route-id="@monitor.Id">
-                                        <i class="bi bi-eye"></i> Detallara Bax
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                    }
-                </ul>
-                <div class="text-center mt-3">
-                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteHeadMonitorsForm">
-                        <i class="bi bi-trash"></i> Seçilmişləri Sil
-                    </button>
-                        <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
-                            <i class="bi bi-person-plus"></i> İmtahan rəhbəri Təyin Et
-                        </a>
-                </div>
-            </form>
-        }
-        else
-        {
-            <div class="text-center mt-3">
-                <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir İmtahan rəhbəri təyin edilməyib.</p>
-                    <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
-                        <i class="bi bi-person-plus"></i> İmtahan rəhbəri Təyin Et
-                </a>
-            </div>
-        }
-    </div>
-    @if(ViewBag.SectionId == 1)
-    {
-         <!-- Assigned Volunteers Section -->
-    <div class="mt-4">
-        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Könüllülər</h4>
-        @{
-            var volunteers = Model.Monitors.Where(m => m.Role == 4);
-        }
-        @if (volunteers.Any())
-        {
-            <p class="text-center fw-semibold" style="color: #198754; font-size: 1.2rem; letter-spacing: 0.5px;">
-                 <i class="fas fa-check-circle" style="color: #198754;"></i> Könüllülər təyin edilmişdir.
-            </p>
-
-        }
-        else
-        {
-            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir könüllü təyin edilməyib.</p>
-                <div class="text-center mt-4">
-                    <form asp-action="AssignVolunteers" asp-route-id="@Model.Id" method="post" style="display: inline;">
-                        <button type="submit" class="btn btn-success px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
-                        <i class="bi bi-person-plus"></i> Könüllü Təyin Et
-                    </button>
-                </form>
-                </div>
-        }
-        </div>
-    }
-    else
-    {
-        <div class="mt-4">
-            <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Könüllülər</h4>
-            @{
-                var volunteers = Model.Monitors.Where(m => m.Role == 4);
-            }
-            @if (volunteers.Any())
+            @if (kons?.Any() == true)
             {
-                @foreach(var monitor in volunteers)
-                {
-
-                    <li class="list-group-item">
-                        <div class="row align-items-center">
-                            <div class="col-md-1">
-                                <input type="checkbox" name="volunteerIds" value="@monitor.Id" />
-                            </div>
-                            <div class="col-md-7">
-                                <h6 class="mb-0">
-                                    @monitor.Name @monitor.Surname @monitor.Fname @monitor.Tel
-                                </h6>
-                                <small class="text-muted">
-                                    FinCode: @monitor.FinCode
-                                </small>
-                            </div>
-                        </div>
-                    </li>
-                }
-                <div class="text-center mt-4">
-                    <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignVolunteersForOthers" asp-route-examId="@Model.Id">
-                        <i class="bi bi-person-plus"></i> Könüllü Təyin Et
-                    </a>
-                </div>
-
+                <form asp-action="DeleteExperts" method="post" id="deleteKonsForm">
+                    <input type="hidden" name="examId" value="@Model.Id" />
+                    <ul class="qab-list">
+                        @{int konsCounter = 1;}
+                        @foreach (var k in kons)
+                        {
+                            var hasLog = Model.ExpertsWithLogs?.Contains(k.Id) == true;
+                            <li class="qab-list__item">
+                                <div class="qab-list__check">
+                                    <input type="checkbox" name="expertIds" value="@k.Id" style="width:16px;height:16px;" />
+                                </div>
+                                <div class="qab-list__main">
+                                    <p class="qab-list__name">@konsCounter. @k.Name @k.Surname @k.Fname</p>
+                                    <p class="qab-list__meta">
+                                        FİN: @k.FinCode
+                                        @if (hasLog) { <span class="qab-badge qab-badge--warning ms-2"><i class="bi bi-exclamation-circle"></i> Qeydi var</span> }
+                                    </p>
+                                </div>
+                                <div class="qab-list__actions">
+                                    <a class="qab-table__action-btn qab-table__action-btn--view" asp-action="ExpertDetails" asp-route-id="@k.Id"><i class="bi bi-eye"></i></a>
+                                </div>
+                            </li>
+                            konsCounter++;
+                        }
+                    </ul>
+                    <div style="margin-top:.75rem;">
+                        <button type="button" class="qab-btn qab-btn--outline-danger qab-btn--sm"
+                                data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"
+                                data-form-id="deleteKonsForm" data-action-name="delete">
+                            <i class="bi bi-trash"></i> Seçilmişləri sil
+                        </button>
+                    </div>
+                </form>
             }
             else
             {
-                <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir könüllü təyin edilməyib.</p>
-                <div class="text-center mt-4">
-                    <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignVolunteersForOthers" asp-route-examId="@Model.Id">
-                        <i class="bi bi-person-plus"></i> Könüllü Təyin Et
-                    </a>
-                </div>
+                <div class="qab-empty-state">Konsertmeyster təyin edilməyib.</div>
             }
         </div>
     }
 
-
-    <!-- Assigned Workers Section -->
-    <div class="mt-4">
-        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş İşçilər</h4>
-        @{
-            var workers = Model.Monitors.Where(m => m.Role == 5);
-        }
-        @if (workers.Any())
+    <!-- ─── NƏZARƏTÇİLƏR ─── -->
+    @{
+        var monitors = Model.Monitors?.Where(m => m.Role == 2).OrderBy(m => m.RoomId).ToList();
+    }
+    <div class="qab-section-block">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem;">
+            <h3 class="qab-section-block__title" style="margin:0;"><i class="bi bi-shield-check"></i> Nəzarətçilər</h3>
+            <a class="qab-btn qab-btn--primary qab-btn--sm" asp-action="AssignMonitors" asp-route-id="@Model.Id">
+                <i class="bi bi-person-plus"></i> Nəzarətçi təyin et
+            </a>
+        </div>
+        @if (monitors?.Any() == true)
         {
-                        <form asp-action="DeleteWorkers" method="post" id="deleteWorkersForm">
+            <form asp-action="ManageMonitors" method="post" id="manageMonitorsForm">
                 <input type="hidden" name="examId" value="@Model.Id" />
-                <div class="mb-3">
-                    <input type="checkbox" id="selectAllWorkers" onchange="toggleCheckboxes('workerIds', this.checked)" />
-                    <label for="selectAllWorkers" class="ml-2">Bütün işçiləri Seç</label>
-                </div>
-            <ul class="list-group list-group-flush">
-                @foreach (var worker in workers)
-                {
-                    var hasLog = ViewBag.MonitorsWithLogs != null && ViewBag.MonitorsWithLogs.Contains(worker.Id);
-                    <li class="list-group-item">
-                        <div class="row align-items-center">
-                                <div class="col-md-1">
-                                    <input type="checkbox" name="workerIds" value="@worker.Id" />
+                <label style="font-size:.85rem;color:var(--qab-text-muted);display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem;">
+                    <input type="checkbox" id="selectAllMonitors" onchange="document.querySelectorAll('[name=monitorIds]').forEach(cb=>cb.checked=this.checked)" />
+                    Hamısını seç
+                </label>
+                <ul class="qab-list">
+                    @for (int i = 0; i < monitors.Count; i++)
+                    {
+                        var monitor = monitors[i];
+                        var hasLog = Model.MonitorsWithLogs?.Contains(monitor.Id) == true;
+                        <li class="qab-list__item">
+                            <div class="qab-list__check">
+                                <input type="checkbox" name="monitorIds" value="@monitor.Id" style="width:16px;height:16px;" />
+                            </div>
+                            <div class="qab-list__main">
+                                <p class="qab-list__name">
+                                    @(i+1). @monitor.Name @monitor.Surname @monitor.Fname
+                                    @if (!string.IsNullOrEmpty(monitor.Tel)) { <small class="text-muted">· @monitor.Tel</small> }
+                                </p>
+                                <p class="qab-list__meta">
+                                    FİN: @monitor.FinCode
+                                    @if (monitor.Rooms?.Any() == true)
+                                    {
+                                        <span> · <strong>Məntəqə:</strong> @string.Join(", ", monitor.Rooms.Select(r => r.RoomName))</span>
+                                    }
+                                    else { <span class="text-muted"> · Ehtiyat</span> }
+                                    @if (hasLog) { <span class="qab-badge qab-badge--warning ms-2"><i class="bi bi-exclamation-circle"></i> Qeydi var</span> }
+                                </p>
+                            </div>
+                            <!-- IsAttended switch -->
+                            <div style="display:flex;flex-direction:column;align-items:center;gap:.2rem;min-width:60px;">
+                                <input type="hidden" name="updates[@i].MonitorId" value="@monitor.Id" />
+                                <div class="form-check form-switch" style="margin:0;">
+                                    <input class="form-check-input" type="checkbox"
+                                           name="updates[@i].IsAttended" value="1"
+                                           id="mon_attend_@monitor.Id"
+                                           @(monitor.IsAttended.GetValueOrDefault() == 1 ? "checked" : "") />
+                                    <label class="form-check-label" for="mon_attend_@monitor.Id" style="font-size:.78rem;">Gəlib</label>
                                 </div>
-                            <div class="col-md-7">
-                                <h6 class="mb-0">
-                                    @worker.Name @worker.Surname @worker.Fname -- @worker.WorkerType  
-                                </h6>
-                                <small class="text-muted">
-                                    FinCode: @worker.FinCode
-                                </small>
-                                @if (hasLog)
-                                {
-                                    <span class="badge ml-2" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px;">Qeydi var</span>
-                                }
                             </div>
-                            <div class="col-md-4 text-md-right mt-2 mt-md-0">
-                                <a class="btn btn-sm btn-outline-secondary mr-2"
-                                   asp-action="ChangeWorker"
-                                   asp-route-examId="@Model.Id"
-                                   asp-route-monitorId="@worker.Id">
-                                    <i class="bi bi-pencil"></i> Dəyişdir
+                            <div class="qab-list__actions">
+                                <a class="qab-table__action-btn" title="Dəyişdir"
+                                   asp-action="ChangeMonitor" asp-route-examId="@Model.Id" asp-route-monitorId="@monitor.Id">
+                                    <i class="bi bi-pencil"></i>
                                 </a>
-                                <a class="btn btn-sm btn-outline-info"
-                                   asp-action="WorkerDetails"
-                                   asp-route-id="@worker.Id">
-                                    <i class="bi bi-eye"></i> Detallara Bax
+                                <a class="qab-table__action-btn" title="Xüsusi qeyd yaz"
+                                   asp-action="WriteMonitorLog" asp-route-examId="@Model.Id" asp-route-monitorId="@monitor.Id">
+                                    <i class="bi bi-chat"></i>
                                 </a>
-
+                                <a class="qab-table__action-btn qab-table__action-btn--view" title="Detallar"
+                                   asp-action="MonitorDetails" asp-route-id="@monitor.Id">
+                                    <i class="bi bi-eye"></i>
+                                </a>
                             </div>
-                        </div>
-                    </li>
-                }
-            </ul>
-                <div class="text-center mt-4">
-                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteWorkersForm">
-                        <i class="bi bi-trash"></i> Seçilmişləri Sil
+                        </li>
+                    }
+                </ul>
+                <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem;">
+                    <button type="button" class="qab-btn qab-btn--outline-danger qab-btn--sm"
+                            data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"
+                            data-form-id="manageMonitorsForm" data-action-name="delete">
+                        <i class="bi bi-trash"></i> Seçilmişləri sil
+                    </button>
+                    <button type="submit" name="action" value="update" class="qab-btn qab-btn--outline-success qab-btn--sm">
+                        <i class="bi bi-check-circle"></i> Gələnləri təsdiq et
                     </button>
                 </div>
-            </form>
-            <form asp-action="AssignWorkers" asp-route-id="@Model.Id" method="post" style="display: inline;">
-                <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
-                    <i class="bi bi-person-plus"></i> İşçi Təyin Et
-                </button>
             </form>
         }
         else
         {
-            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir işçi təyin edilməyib.</p>
+            <div class="qab-empty-state">Nəzarətçi təyin edilməyib.</div>
+        }
+    </div>
 
-            <div class="text-center mt-4">
-                <form asp-action="AssignWorkers" asp-route-id="@Model.Id" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
-                        <i class="bi bi-person-plus"></i> İşçi Təyin Et
+    <!-- ─── İMTAHAN RƏHBƏRLƏRİ ─── -->
+    @{
+        var headMonitors = Model.Monitors?.Where(m => m.Role == 1).ToList();
+    }
+    <div class="qab-section-block">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem;">
+            <h3 class="qab-section-block__title" style="margin:0;"><i class="bi bi-person-badge"></i> İmtahan rəhbərləri</h3>
+            <a class="qab-btn qab-btn--primary qab-btn--sm" asp-action="AssignHeadMonitors" asp-route-id="@Model.Id">
+                <i class="bi bi-person-plus"></i> Rəhbər təyin et
+            </a>
+        </div>
+        @if (headMonitors?.Any() == true)
+        {
+            <form asp-action="DeleteHeadMonitors" method="post" id="deleteHeadMonitorsForm">
+                <input type="hidden" name="examId" value="@Model.Id" />
+                <label style="font-size:.85rem;color:var(--qab-text-muted);display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem;">
+                    <input type="checkbox" id="selectAllHeadMonitors" onchange="document.querySelectorAll('[name=headMonitorIds]').forEach(cb=>cb.checked=this.checked)" />
+                    Hamısını seç
+                </label>
+                <ul class="qab-list">
+                    @{int hmCounter=1;}
+                    @foreach (var hm in headMonitors)
+                    {
+                        var hasLog = Model.MonitorsWithLogs?.Contains(hm.Id) == true;
+                        <li class="qab-list__item">
+                            <div class="qab-list__check">
+                                <input type="checkbox" name="headMonitorIds" value="@hm.Id" style="width:16px;height:16px;" />
+                            </div>
+                            <div class="qab-list__main">
+                                <p class="qab-list__name">@hmCounter. @hm.Name @hm.Surname @hm.Fname
+                                    @if (!string.IsNullOrEmpty(hm.Tel)) { <small class="text-muted">· @hm.Tel</small> }
+                                </p>
+                                <p class="qab-list__meta">
+                                    FİN: @hm.FinCode
+                                    @if (hasLog) { <span class="qab-badge qab-badge--warning ms-2"><i class="bi bi-exclamation-circle"></i> Qeydi var</span> }
+                                </p>
+                            </div>
+                            <div class="qab-list__actions">
+                                <a class="qab-table__action-btn" title="Dəyişdir"
+                                   asp-action="ChangeHeadMonitor" asp-route-examId="@Model.Id" asp-route-monitorId="@hm.Id">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a class="qab-table__action-btn" title="Xüsusi qeyd yaz"
+                                   asp-action="WriteMonitorLog" asp-route-examId="@Model.Id" asp-route-monitorId="@hm.Id">
+                                    <i class="bi bi-chat"></i>
+                                </a>
+                                <a class="qab-table__action-btn qab-table__action-btn--view" title="Detallar"
+                                   asp-action="HeadMonitorDetails" asp-route-id="@hm.Id">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </div>
+                        </li>
+                        hmCounter++;
+                    }
+                </ul>
+                <div style="margin-top:.75rem;">
+                    <button type="button" class="qab-btn qab-btn--outline-danger qab-btn--sm"
+                            data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"
+                            data-form-id="deleteHeadMonitorsForm" data-action-name="delete">
+                        <i class="bi bi-trash"></i> Seçilmişləri sil
+                    </button>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="qab-empty-state">İmtahan rəhbəri təyin edilməyib.</div>
+        }
+    </div>
+
+    <!-- ─── KÖNÜLLÜlər (Section==1: form post; Digər: AssignVolunteersForOthers) ─── -->
+    @{
+        var volunteers = Model.Monitors?.Where(m => m.Role == 4).ToList();
+    }
+    <div class="qab-section-block">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem;">
+            <h3 class="qab-section-block__title" style="margin:0;"><i class="bi bi-heart"></i> Könüllülər</h3>
+            @if (ViewBag.SectionId == 1)
+            {
+                <form asp-action="AssignVolunteers" asp-route-id="@Model.Id" method="post" style="margin:0;">
+                    <button type="submit" class="qab-btn qab-btn--primary qab-btn--sm">
+                        <i class="bi bi-person-plus"></i> Könüllü Təyin Et
                     </button>
                 </form>
-            </div>
-        }
-    </div>
-    <!-- Assigned DİM Representatives Section -->
-    <div class="mt-4">
-        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş DİM Nümayəndələri</h4>
-        @{
-            var reps = Model.ExamRepresentatives.Where(er => er.Role == 1);
-        }
-        @if (reps.Any())
-        {   <form asp-action="DeleteRepresentatives" method="post" id="deleteRepresentativesForm">
-                <input type="hidden" name="examId" value="@Model.Id" />
-                <div class="mb-3">
-                    <input type="checkbox" id="selectAllWorkers" onchange="toggleCheckboxes('representativeIds', this.checked)" />
-                    <label for="selectAllRepresentatives" class="ml-2">Bütün işçiləri Seç</label>
-                </div>
-            <ul class="list-group list-group-flush">
-                @foreach (var rep in reps)
+            }
+            else
+            {
+                <a class="qab-btn qab-btn--primary qab-btn--sm"
+                   asp-action="AssignVolunteersForOthers" asp-route-examId="@Model.Id">
+                    <i class="bi bi-person-plus"></i> Könüllü Təyin Et
+                </a>
+            }
+        </div>
+        @if (volunteers?.Any() == true)
+        {
+            <ul class="qab-list">
+                @{int volCounter=1;}
+                @foreach (var v in volunteers)
                 {
-                    <li class="list-group-item">
-                        <div class="row align-items-center">
-                                <div class="col-md-1">
-                                    <input type="checkbox" name="representativeIds" value="@rep.Id" />
-                                </div>
-                            <div class="col-md-7">
-                                <h6 class="mb-0">
-                                    @rep.Name @rep.Surname @rep.FinCode
-                                </h6>
-                                <small class="text-muted">
-                                    FinCode: @rep.FinCode
-                                </small>
-                            </div>
-                            <div class="col-md-4 text-md-right mt-2 mt-md-0">
-                                <a class="btn btn-sm btn-outline-secondary mr-2"
-                                   asp-action="ChangeRepresentative"
-                                   asp-route-examId="@Model.Id"
-                                   asp-route-representativeId="@rep.Id">
-                                    <i class="bi bi-pencil"></i> Dəyişdir
-                                </a>
-                                <a class="btn btn-sm btn-outline-info"
-                                   asp-action="RepresentativeDetails"
-                                   asp-route-id="@rep.Id">
-                                    <i class="bi bi-eye"></i> Detallara Bax
-                                </a>
-                            </div>
+                    <li class="qab-list__item">
+                        <div class="qab-list__main">
+                            <p class="qab-list__name">@volCounter. @v.Name @v.Surname @v.Fname
+                                @if (!string.IsNullOrEmpty(v.Tel)) { <small class="text-muted">· @v.Tel</small> }
+                            </p>
+                            <p class="qab-list__meta">FİN: @v.FinCode</p>
+                        </div>
+                        <div class="qab-list__actions">
+                            <a class="qab-table__action-btn qab-table__action-btn--view" asp-action="MonitorDetails" asp-route-id="@v.Id"><i class="bi bi-eye"></i></a>
                         </div>
                     </li>
+                    volCounter++;
                 }
             </ul>
-
-            <div class="text-center mt-4">
-                
-                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-form-id="deleteRepresentativesForm">
-                        <i class="bi bi-trash"></i> Seçilmişləri Sil
-                    </button>
-                <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignRepresentatives" asp-route-examId="@Model.Id">
-                    <i class="bi bi-plus-circle"></i> DİM nümayəndəsi təyin et
-                </a>
-            </div>
-            </form>
         }
         else
         {
-            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nümayəndə təyin edilməyib.</p>
-
-            <div class="text-center mt-4">
-
-                <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignRepresentatives" asp-route-examId="@Model.Id">
-                    <i class="bi bi-plus-circle"></i> DİM nümayəndəsi təyin et
-                </a>
-            </div>
+            <div class="qab-empty-state">Könüllü təyin edilməyib.</div>
         }
     </div>
-    @if(ViewBag.SectionId == 1)
-    {
-    <!-- Assigned Ministry Representatives Section -->
-    <div class="mt-4">
-        <h4 class="text-center" style="color: @primaryColor; font-weight: bold;">Təyin Edilmiş Nazirlik Nümayəndələri</h4>
-        @{
-            var mreps = Model.ExamRepresentatives.Where(er => er.Role == 2);
-        }
-        @if (mreps.Any())
-        {
-            <ul class="list-group list-group-flush">
-                @foreach (var rep in mreps)
-                {
-                    <li class="list-group-item">
-                        <div class="row align-items-center">
-                            <div class="col-md-8">
-                                <h6 class="mb-0">
-                                    @rep.Name @rep.Surname @rep.FinCode
-                                </h6>
-                                <small class="text-muted">
-                                    FinCode: @rep.FinCode
-                                </small>
-                            </div>
-                            <div class="col-md-4 text-md-right mt-2 mt-md-0">
-                                <a class="btn btn-sm btn-outline-secondary mr-2"
-                                   asp-action="ChangeMinistryRepresentative"
-                                   asp-route-examId="@Model.Id"
-                                   asp-route-representativeId="@rep.Id">
-                                    <i class="bi bi-pencil"></i> Dəyişdir
-                                </a>
-                                <a class="btn btn-sm btn-outline-info"
-                                   asp-action="RepresentativeDetails"
-                                   asp-route-id="@rep.Id">
-                                    <i class="bi bi-eye"></i> Detallara Bax
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                }
-            </ul>
 
-            <div class="text-center mt-4">
-                <a class="btn btn-success px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMinistryRepresentatives" asp-route-examId="@Model.Id">
-                    <i class="bi bi-plus-circle"></i> Nazirlik nümayəndəsi təyin et
-                </a>
-            </div>
-        }
-        else
-        {
-            <p class="text-center" style="color: @secondaryColor;">Bu imtahana heç bir nümayəndə təyin edilməyib.</p>
-            <div class="text-center mt-4">
-                <a class="btn btn-success px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="AssignMinistryRepresentatives" asp-route-examId="@Model.Id">
-                    <i class="bi bi-plus-circle"></i> Nazirlik nümayəndəsi təyin et
-                </a>
-            </div>
-
-        }
-    </div>
+    <!-- ─── İŞÇİLƏR (Role==5) ─── -->
+    @{
+        var workers = Model.Monitors?.Where(m => m.Role == 5).ToList();
     }
-    <hr />
-
-    <div class="text-center mt-4">
-    
-            <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="Edit" asp-route-id="@Model.Id">
-                <i class="bi bi-pencil"></i> Redaktə Et
-            </a>
-            <a class="btn btn-secondary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="Index">
-                <i class="bi bi-arrow-left"></i> Siyahıya Qayıt
-        </a>
-    <hr />
-        <form asp-action="ExportBadges" method="post">
-            <input type="hidden" name="examId" value="@Model.Id" />
-            <button type="submit" class="btn btn-primary px-4 py-2 mx-2"
-                    style="background-color: @primaryColor; border: none;">
-                <i class="bi bi-download"></i> Badge yüklə
-            </button>
-        </form>
-            </div>
-    @if(ViewBag.SectionId == 3 || @ViewBag.SectionId == 4 || @ViewBag.SectionId == 6 )
-    {
-
-        <div class="text-center mt-4">
-            <a asp-action="AssignExpertsForMX"
-               asp-controller="Exam"
-               asp-route-examId="@Model.Id"
-               class="btn btn-primary px-4 py-2 mx-2">
-                <i class="bi bi-person-plus"></i>Ekspert və Konsertmeyster Təyin Et
-            </a>
-            <form asp-action="AssignWorkers" asp-route-id="@Model.Id" method="post" style="display: inline;">
-                <button type="submit" class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;">
+    <div class="qab-section-block">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem;">
+            <h3 class="qab-section-block__title" style="margin:0;"><i class="bi bi-people-fill"></i> İşçilər</h3>
+            <form asp-action="AssignWorkers" asp-route-id="@Model.Id" method="post" style="margin:0;">
+                <button type="submit" class="qab-btn qab-btn--primary qab-btn--sm">
                     <i class="bi bi-person-plus"></i> İşçi Təyin Et
                 </button>
             </form>
         </div>
+        @if (workers?.Any() == true)
+        {
+            <form asp-action="DeleteWorkers" method="post" id="deleteWorkersForm">
+                <input type="hidden" name="examId" value="@Model.Id" />
+                <label style="font-size:.85rem;color:var(--qab-text-muted);display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem;">
+                    <input type="checkbox" onchange="document.querySelectorAll('[name=workerIds]').forEach(cb=>cb.checked=this.checked)" />
+                    Hamısını seç
+                </label>
+                <ul class="qab-list">
+                    @{int wCounter=1;}
+                    @foreach (var w in workers)
+                    {
+                        var hasLog = Model.MonitorsWithLogs?.Contains(w.Id) == true;
+                        <li class="qab-list__item">
+                            <div class="qab-list__check">
+                                <input type="checkbox" name="workerIds" value="@w.Id" style="width:16px;height:16px;" />
+                            </div>
+                            <div class="qab-list__main">
+                                <p class="qab-list__name">@wCounter. @w.Name @w.Surname @w.Fname — @w.WorkerType</p>
+                                <p class="qab-list__meta">
+                                    FİN: @w.FinCode
+                                    @if (hasLog) { <span class="qab-badge qab-badge--warning ms-2"><i class="bi bi-exclamation-circle"></i> Qeydi var</span> }
+                                </p>
+                            </div>
+                            <div class="qab-list__actions">
+                                <a class="qab-table__action-btn" title="Dəyişdir"
+                                   asp-action="ChangeWorker" asp-route-examId="@Model.Id" asp-route-monitorId="@w.Id">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a class="qab-table__action-btn qab-table__action-btn--view" title="Detallar"
+                                   asp-action="WorkerDetails" asp-route-id="@w.Id">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </div>
+                        </li>
+                        wCounter++;
+                    }
+                </ul>
+                <div style="margin-top:.75rem;">
+                    <button type="button" class="qab-btn qab-btn--outline-danger qab-btn--sm"
+                            data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"
+                            data-form-id="deleteWorkersForm" data-action-name="delete">
+                        <i class="bi bi-trash"></i> Seçilmişləri sil
+                    </button>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="qab-empty-state">İşçi təyin edilməyib.</div>
+        }
+    </div>
+
+    <!-- ─── DİM NÜMAYƏNDƏLƏRİ (Role != 2) ─── -->
+    @{
+        var dimReps = Model.ExamRepresentatives?.Where(r => r.Role != 2).ToList();
     }
-    <div class="text-center mt-4">
-        <form asp-action="ExportContingentRegister" method="post">
+    <div class="qab-section-block">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem;">
+            <h3 class="qab-section-block__title" style="margin:0;"><i class="bi bi-people"></i> DİM nümayəndələri</h3>
+            <a class="qab-btn qab-btn--primary qab-btn--sm"
+               asp-action="AssignRepresentatives" asp-route-examId="@Model.Id">
+                <i class="bi bi-plus-circle"></i> DİM nümayəndəsi təyin et
+            </a>
+        </div>
+        @if (dimReps?.Any() == true)
+        {
+            <form asp-action="DeleteRepresentatives" method="post" id="deleteRepsForm">
+                <input type="hidden" name="examId" value="@Model.Id" />
+                <ul class="qab-list">
+                    @{int repCounter=1;}
+                    @foreach (var rep in dimReps)
+                    {
+                        <li class="qab-list__item">
+                            <div class="qab-list__main">
+                                <p class="qab-list__name">@repCounter. @rep.Name @rep.Surname @rep.Fname</p>
+                                <p class="qab-list__meta">FİN: @rep.FinCode</p>
+                            </div>
+                            <div class="qab-list__actions">
+                                <a class="qab-table__action-btn" title="Dəyişdir"
+                                   asp-action="ChangeRepresentative" asp-route-examId="@Model.Id" asp-route-representativeId="@rep.Id">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a class="qab-table__action-btn qab-table__action-btn--view" title="Detallar"
+                                   asp-action="RepresentativeDetails" asp-route-id="@rep.Id">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </div>
+                        </li>
+                        repCounter++;
+                    }
+                </ul>
+                <div style="margin-top:.75rem;">
+                    <button type="button" class="qab-btn qab-btn--outline-danger qab-btn--sm"
+                            data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"
+                            data-form-id="deleteRepsForm" data-action-name="delete">
+                        <i class="bi bi-trash"></i> Seçilmişləri sil
+                    </button>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="qab-empty-state">DİM nümayəndəsi təyin edilməyib.</div>
+        }
+    </div>
+
+    <!-- ─── NAZİRLİK NÜMAYƏNDƏLƏRİ (Section==1, Role==2) ─── -->
+    @if (ViewBag.SectionId == 1)
+    {
+       
+            var mreps = Model.ExamRepresentatives?.Where(er => er.Role == 2).ToList();
+        
+        <div class="qab-section-block">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem;">
+                <h3 class="qab-section-block__title" style="margin:0;"><i class="bi bi-building"></i> Nazirlik nümayəndələri</h3>
+                <a class="qab-btn qab-btn--primary qab-btn--sm"
+                   asp-action="AssignMinistryRepresentatives" asp-route-examId="@Model.Id">
+                    <i class="bi bi-plus-circle"></i> Nazirlik nümayəndəsi təyin et
+                </a>
+            </div>
+            @if (mreps?.Any() == true)
+            {
+                <ul class="qab-list">
+                    @{int mrCounter=1;}
+                    @foreach (var rep in mreps)
+                    {
+                        <li class="qab-list__item">
+                            <div class="qab-list__main">
+                                <p class="qab-list__name">@mrCounter. @rep.Name @rep.Surname @rep.Fname</p>
+                                <p class="qab-list__meta">FİN: @rep.FinCode</p>
+                            </div>
+                            <div class="qab-list__actions">
+                                <a class="qab-table__action-btn" title="Dəyişdir"
+                                   asp-action="ChangeMinistryRepresentative"
+                                   asp-route-examId="@Model.Id" asp-route-representativeId="@rep.Id">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a class="qab-table__action-btn qab-table__action-btn--view" title="Detallar"
+                                   asp-action="RepresentativeDetails" asp-route-id="@rep.Id">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </div>
+                        </li>
+                        mrCounter++;
+                    }
+                </ul>
+            }
+            else
+            {
+                <div class="qab-empty-state">Nazirlik nümayəndəsi təyin edilməyib.</div>
+            }
+        </div>
+    }
+
+    <!-- ─── EXPORT DÜYMƏLƏRI ─── -->
+    <div class="qab-actionbar" style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--qab-border);">
+        <form asp-action="ExportContingentRegister" method="post" style="margin:0;">
             <input type="hidden" name="examId" value="@Model.Id" />
-            <button type="submit" class="btn btn-primary px-4 py-2 mx-2"
-                    style="background-color: @primaryColor; border: none;">
-                <i class="bi bi-download"></i> Qeydiyyat Vərəqi
+            <button type="submit" class="qab-btn qab-btn--word qab-btn--sm">
+                <i class="bi bi-file-earmark-word"></i> Qeydiyyat vərəqi
             </button>
         </form>
-            <form asp-action="ExportVolunteerRegister" method="post">
-                <input type="hidden" name="examId" value="@Model.Id" />
-                <button type="submit" class="btn btn-primary px-4 py-2 mx-2"
-                        style="background-color: @primaryColor; border: none;">
-                    <i class="bi bi-download"></i> Könüllü Qeydiyyat Vərəqi
-                </button>
-            </form>
-        
-        @if(ViewBag.SectionId == 3 || ViewBag.SectionId == 4 || @ViewBag.SectionId == 6)
+        <form asp-action="ExportVolunteerRegister" method="post" style="margin:0;">
+            <input type="hidden" name="examId" value="@Model.Id" />
+            <button type="submit" class="qab-btn qab-btn--word qab-btn--sm">
+                <i class="bi bi-file-earmark-word"></i> Könüllü qeydiyyat vərəqi
+            </button>
+        </form>
+        @if (ViewBag.SectionId == 3 || ViewBag.SectionId == 4 || ViewBag.SectionId == 6)
         {
-            <form asp-action="ExportExpertRegister" method="post">
+            <form asp-action="ExportExpertRegister" method="post" style="margin:0;">
                 <input type="hidden" name="examId" value="@Model.Id" />
-                <button type="submit" class="btn btn-primary px-4 py-2 mx-2"
-                        style="background-color: @primaryColor; border: none;">
-                    <i class="bi bi-download"></i> Ekspert Qeydiyyat Vərəqi
+                <button type="submit" class="qab-btn qab-btn--word qab-btn--sm">
+                    <i class="bi bi-file-earmark-word"></i> Ekspert qeydiyyat vərəqi
                 </button>
             </form>
         }
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+<!-- Silmə təsdiq modalı -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteConfirmationModalLabel">Silməni Təsdiqləyin</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content qab-page">
+            <div class="modal-header" style="background:var(--qab-danger-soft);border-bottom-color:rgba(220,38,38,.15);">
+                <h5 class="modal-title" style="color:var(--qab-danger);">
+                    <i class="bi bi-exclamation-triangle"></i> Silinməni təsdiqləyin
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                Seçilmiş elementləri silmək istədiyinizə əminsiniz?
-            </div>
+            <div class="modal-body"><p style="color:var(--qab-text);">Seçilmiş elementləri silmək istədiyinizə əminsiniz?</p></div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ləğv Et</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Sil</button>
+                <button type="button" class="qab-btn qab-btn--ghost" data-bs-dismiss="modal">Ləğv et</button>
+                <button type="button" class="qab-btn qab-btn--danger" id="confirmDeleteBtn">
+                    <i class="bi bi-trash"></i> Bəli, sil
+                </button>
             </div>
         </div>
     </div>
 </div>
-
-
 
 @section Scripts {
     <script>
-        // Tümünü Seç fonksiyonu
-        function toggleCheckboxes(name, checked) {
-            var checkboxes = document.getElementsByName(name);
-            for (var i = 0; i < checkboxes.length; i++) {
-                checkboxes[i].checked = checked;
-            }
-        }
+        let targetFormId = null;
+        let targetActionName = null;
 
-        // Modal onay butonu işlevi
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-            var modal = document.getElementById('deleteConfirmationModal');
-            var button = modal.__triggerButton; // Modalı açan butonu al
-            if (!button) {
-                console.error('Tetikleyici buton bulunamadı!');
-                return;
-            }
-
-            var formId = button.getAttribute('data-form-id'); // Hangi formun submit edileceğini al
-            var form = document.getElementById(formId);
-
-            if (form) {
-                // action=delete parametresini manuel olarak ekle
-                var actionInput = document.createElement('input');
-                actionInput.type = 'hidden';
-                actionInput.name = 'action';
-                actionInput.value = 'delete';
-                form.appendChild(actionInput);
-
-                console.log('Form submit ediliyor:', formId);
-                console.log('Form verileri:', new FormData(form));
-                form.submit(); // Formu submit et
-            } else {
-                console.error('Form bulunamadı: ' + formId);
-            }
-
-            // Modal'ı kapat
-            try {
-                var bootstrapModal = bootstrap.Modal.getInstance(modal);
-                if (bootstrapModal) {
-                    bootstrapModal.hide();
-                } else {
-                    console.error('Bootstrap Modal nesnesi bulunamadı!');
-                }
-            } catch (e) {
-                console.error('Modal kapatma hatası:', e);
-            }
+        document.querySelectorAll('[data-bs-target="#deleteConfirmationModal"]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                targetFormId = this.getAttribute('data-form-id');
+                targetActionName = this.getAttribute('data-action-name');
+            });
         });
 
-        // Modal açıldığında tetikleyici butonu kaydet
-        document.getElementById('deleteConfirmationModal').addEventListener('show.bs.modal', function (event) {
-            console.log('Modal açılıyor, tetikleyici:', event.relatedTarget);
-            this.__triggerButton = event.relatedTarget; // Modal'ı açan butonu kaydet
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+            if (!targetFormId) return;
+            var form = document.getElementById(targetFormId);
+            if (targetActionName) {
+                var inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = 'action';
+                inp.value = targetActionName;
+                form.appendChild(inp);
+            }
+            form.submit();
         });
     </script>
 }
-
-    <script>
-        function changeExpert(examId, expertId) {
-        console.log('changeExpert çağırıldı:', examId, expertId);
-        const formData = new FormData();
-        formData.append('examId', examId);
-        formData.append('expertId', expertId);
-
-            fetch('/Exam/ChangeExpert', {
-                method: 'POST',
-                body: formData
-            })
-                .then(async response => {
-                    if (response.ok) {
-                        window.location.href = '/Exam/Details?id=' + examId;
-                    } else {
-                        const errorText = await response.text();
-                        console.error('Sunucudan hata:', errorText);
-                        alert("Hata baş verdi: " + errorText);
-                    }
-                })
-                .catch(error => {
-                    console.error('İstek hatası:', error);
-                    alert("Şəbəkə xətası: " + error.message);
-                });
-
-    }
-</script>
-<script>
-    function toggleAttendanceLabel(expertId) {
-        var checkbox = document.getElementById("attend_ " + expertId);
-        var label = document.getElementById("attendLabel_" + expertId);
-        if (checkbox.checked) {
-            label.innerText = "Gələcək";
-        } else {
-            label.innerText = "Gəlməyəcək";
-        }
-    }
-</script>
-
-
-    <script>
-        // Tümünü Seç fonksiyonu
-        function toggleCheckboxes(name, checked) {
-            var checkboxes = document.getElementsByName(name);
-            for (var i = 0; i < checkboxes.length; i++) {
-                checkboxes[i].checked = checked;
-            }
-        }
-
-        // Modal onay butonu işlevi
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-            var modal = document.getElementById('deleteConfirmationModal');
-            var button = modal.__triggerButton; // Modalı açan butonu al
-            if (!button) {
-                console.error('Tetikleyici buton bulunamadı!');
-                return;
-            }
-
-            var formId = button.getAttribute('data-form-id'); // Hangi formun submit edileceğini al
-            var form = document.getElementById(formId);
-
-            if (form) {
-                // action=delete parametresini manuel olarak ekle
-                var actionInput = document.createElement('input');
-                actionInput.type = 'hidden';
-                actionInput.name = 'action';
-                actionInput.value = 'delete';
-                form.appendChild(actionInput);
-
-                console.log('Form submit ediliyor:', formId);
-                console.log('Form verileri:', new FormData(form));
-                form.submit(); // Formu submit et
-            } else {
-                console.error('Form bulunamadı: ' + formId);
-            }
-
-            // Modal'ı kapat
-            try {
-                var bootstrapModal = bootstrap.Modal.getInstance(modal);
-                if (bootstrapModal) {
-                    bootstrapModal.hide();
-                } else {
-                    console.error('Bootstrap Modal nesnesi bulunamadı!');
-                }
-            } catch (e) {
-                console.error('Modal kapatma hatası:', e);
-            }
-        });
-
-        // Modal açıldığında tetikleyici butonu kaydet
-        document.getElementById('deleteConfirmationModal').addEventListener('show.bs.modal', function (event) {
-            console.log('Modal açılıyor, tetikleyici:', event.relatedTarget);
-            this.__triggerButton = event.relatedTarget; // Modal'ı açan butonu kaydet
-        });
-
-        // Katılım label'ını değiştirme (opsiyonel)
-        function toggleAttendanceLabel(monitorId) {
-            var checkbox = document.getElementById("attend_" + monitorId);
-            var label = document.getElementById("attendLabel_" + monitorId);
-            if (checkbox && label) {
-                label.innerText = checkbox.checked ? "Gələcək" : "Gəlməyəcək";
-            }
-        }
-    </script>

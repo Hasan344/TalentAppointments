@@ -1,70 +1,50 @@
 ﻿@using ForQab.DataAccess.Models
 @model DimRepresentative
-
 @{
-    ViewData["Title"] = "DİM Nümayəndəsi";
-    string primaryColor = "#0056b3"; 
-    string secondaryColor = "#6c757d";
+    ViewData["Title"] = "DİM nümayəndəsi detalları";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 
-<div class="container py-5" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-
-    <div class="row">
-        <div class="col-md-6">
-            <dl class="row">
-        <dt class="col-sm-3">ID:</dt>
-        <dd class="col-sm-9">@Model.Id</dd>
-
-        <dt class="col-sm-3">Ad:</dt>
-        <dd class="col-sm-9">@Model.Name</dd>
-
-        <dt class="col-sm-3">Soyad:</dt>
-        <dd class="col-sm-9">@Model.Surname</dd>
-
-        <dt class="col-sm-3">Ata Adı:</dt>
-        <dd class="col-sm-9">@Model.Fname</dd>
-
-        <dt class="col-sm-3">FİN Kodu:</dt>
-        <dd class="col-sm-9">@Model.FinCode</dd>
-    </dl>
-</div>
+<div class="container qab-page">
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-people"></i></span>
+                    @Model.Surname @Model.Name @Model.Fname
+                </h1>
+                <p class="qab-page-header__subtitle">DİM nümayəndəsi</p>
+            </div>
+            <a class="qab-page-header__back" asp-action="Index"><i class="bi bi-arrow-left"></i> Siyahıya qayıt</a>
+        </div>
     </div>
-</div>
-<div class="mt-4">
-    <h3 style="color: #0056b3; font-weight: bold;">DİM Nümayəndəsinin iştirak etdiyi imtahanlar</h3>
-    <table class="table table-bordered mt-3">
-        <thead>
-            <tr>
-                <th>İmtahan Id</th>
-                <th>İmtahan Tarixi</th>
-                <th>Başlama Saatı</th>
-                <th>Bitmə Saatı</th>
-                <th>İmtahan Detallarına Keçid</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var examRepresentatives in Model.ExamRepresentatives)
-            {
-                <tr>
-                    <td>@examRepresentatives.Exam.Id</td>
-                    <td>@examRepresentatives.Exam.ExamDate</td>
-                    <td>@examRepresentatives.Exam.StartTime</td>
-                    <td>@examRepresentatives.Exam.EndTime</td>
-                    <td>
-                        <a class="btn btn-info btn-sm" asp-controller="Exam" asp-action="Details" asp-route-id="@examRepresentatives.Exam.Id">
-                            İmtahan Detalları
-                        </a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
-<div class="text-center mt-4">
-    <a class="btn btn-primary px-4 py-2 mx-2" style="background-color: @primaryColor; border: none;" asp-action="Edit" asp-route-id="@Model?.Id">
-        <i class="bi bi-pencil"></i> Düzəliş et
-    </a>
-    <a class="btn btn-secondary px-4 py-2 mx-2" style="background-color: @secondaryColor; border: none;" asp-action="Index">
-        <i class="bi bi-arrow-left"></i> Siyahıya qayıt
-    </a>
+
+    <div class="qab-card">
+        <div class="qab-card__header">
+            <h2 class="qab-card__title"><i class="bi bi-person-circle"></i> Məlumatlar</h2>
+            <div style="display:flex;gap:.5rem;">
+                <a class="qab-btn qab-btn--outline-warning qab-btn--sm" asp-action="Edit" asp-route-id="@Model.Id">
+                    <i class="bi bi-pencil-square"></i> Redaktə
+                </a>
+                <a class="qab-btn qab-btn--outline-danger qab-btn--sm" asp-action="Delete" asp-route-id="@Model.Id">
+                    <i class="bi bi-trash"></i> Sil
+                </a>
+            </div>
+        </div>
+        <div class="qab-card__body">
+            <div class="qab-details__grid">
+                <div>
+                    <div class="qab-details__row"><dt class="qab-details__label">Ad</dt><dd class="qab-details__value">@Model.Name</dd></div>
+                    <div class="qab-details__row"><dt class="qab-details__label">Soyad</dt><dd class="qab-details__value">@Model.Surname</dd></div>
+                    <div class="qab-details__row"><dt class="qab-details__label">Ata adı</dt><dd class="qab-details__value">@Model.Fname</dd></div>
+                </div>
+                <div>
+                    <div class="qab-details__row"><dt class="qab-details__label">FİN Kod</dt><dd class="qab-details__value">@Model.FinCode</dd></div>
+                    <div class="qab-details__row"><dt class="qab-details__label">Seriya</dt><dd class="qab-details__value">@Model.SerialPrefix @Model.Serial</dd></div>
+                    <div class="qab-details__row"><dt class="qab-details__label">Telefon</dt><dd class="qab-details__value">@Model.Tel</dd></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
