@@ -87,11 +87,29 @@ namespace ForQab.Service
 
         public async Task<Monitor> GetByIdAsync(int id)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding", "ExamMonitors.Exams", "ExamMonitors.ExamRooms", "MonitorLogs", "Contracts", "ExamMonitors" };
+            var includes = new string[]
+            {
+        "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section",
+        "WorkerTypeNavigation", "ExamBuilding",
+        "ExamMonitors.Exams", "ExamMonitors.ExamRooms",
+        "MonitorLogs", "Contracts", "ExamMonitors"
+            };
 
-            var monitor = await _headMonitorRepository.GetByIdAsync(id, null, includes); 
+            var monitor = await _headMonitorRepository.GetByIdAsync(id, null, includes);
+            if (monitor == null) return null;
+
+            if (!string.IsNullOrEmpty(monitor.Photo))
+            {
+                return monitor;
+            }
+
             string photoPath = $@"\\teshkilat-db\Images\Talent\{monitor.FinCode}.jpg";
-            monitor.Photo = ConvertToBase64(photoPath);
+            var fromShare = ConvertToBase64(photoPath);
+            if (!string.IsNullOrEmpty(fromShare))
+            {
+                monitor.Photo = fromShare;
+            }
+
             return monitor;
         }
         private string ConvertToBase64(string imagePath, int width = 150, int height = 150)
@@ -715,5 +733,20 @@ namespace ForQab.Service
             return output.ToArray();
         }
 
+        public async Task BulkArchiveAsync(List<int> ids, string archiveReason)
+        {
+            var monitors = await _context.Monitors
+                .Where(e => ids.Contains(e.Id))
+                .ToListAsync();
+
+            foreach (var monitor in monitors)
+            {
+                monitor.Archive = 1;
+                monitor.ArchiveReason = archiveReason;
+                //expert.Photo = null;
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

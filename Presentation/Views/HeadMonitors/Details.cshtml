@@ -14,7 +14,13 @@
     {
         <div class="qab-alert qab-alert--success"><i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]</div>
     }
-
+    
+    @if (TempData["ErrorMessage"] != null)
+{
+    <div class="qab-alert qab-alert--danger">
+        <i class="bi bi-exclamation-circle-fill"></i> @TempData["ErrorMessage"]
+    </div>
+}
     <!-- Page Header -->
     <div class="qab-page-header">
         <div class="qab-page-header__inner">
@@ -48,6 +54,15 @@
                 <a class="qab-btn qab-btn--outline-info qab-btn--sm" asp-action="HeadMonitorLog" asp-route-monitorId="@Model.Id">
                     <i class="bi bi-journal-text"></i> Qeydlər
                 </a>
+                <form asp-controller="HeadMonitors" asp-action="FetchPhoto" method="post" style="margin:0;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="qab-btn qab-btn--sm"
+                            style="background:var(--qab-primary);color:#fff;"
+                            onclick="this.disabled=true; this.innerHTML='<i class=\'bi bi-hourglass-split\'></i> Yüklənir...'; this.form.submit();">
+                        <i class="bi bi-camera"></i> Şəkil çək (AMAS)
+                    </button>
+                </form>
                 <a class="qab-btn qab-btn--outline-danger qab-btn--sm" asp-action="Delete" asp-route-id="@Model.Id">
                     <i class="bi bi-trash"></i> Sil / Arxivlə
                 </a>

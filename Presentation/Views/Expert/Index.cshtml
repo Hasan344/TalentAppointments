@@ -132,16 +132,16 @@
     <div class="qab-table-wrap">
         <table class="qab-table qab-table--compact">
             <colgroup>
-                <col style="width:2.5rem">
-                <col style="width:auto">
+                <col style="width:1.5rem">
+                <col style="width:2rem">
+                <col style="width:16rem">
                 <col style="width:5rem">
-                <col style="width:7rem">
                 <col style="width:auto">
                 <col style="width:7rem">
                 <col style="width:7.5rem">
                 <col style="width:7rem">
-                <col style="width:4rem">
-                <col style="width:4rem">
+                <col style="width:3rem">
+                <col style="width:3rem">
                 <col style="width:6.5rem">
             </colgroup>
             <thead>
@@ -385,47 +385,27 @@
         </div>
     </div>
 </div>
+
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const selectAll = document.getElementById('selectAllExports');
-            if (selectAll) {
-                selectAll.addEventListener('change', function () {
-                    document.querySelectorAll('.exp-select').forEach(cb => cb.checked = this.checked);
+
+            // ===== Export Modal - selectAllExports =====
+            const selectAllExports = document.getElementById('selectAllExports');
+            if (selectAllExports) {
+                selectAllExports.addEventListener('change', function () {
+                    document.querySelectorAll('.exp-select')
+                        .forEach(cb => cb.checked = this.checked);
                 });
             }
-        });
-    </script>
-    <script>
-        // ===== Export Modal - selectAll =====
-        document.getElementById('selectAll').addEventListener('change', function () {
-            document.querySelectorAll('.select-item').forEach(cb => cb.checked = this.checked);
-        });
 
-        // ===== Federation → SubProfession lazy load =====
-        $(document).ready(function () {
-            $('#federationSelect').change(function () {
-                var federationId = $(this).val();
-                var subSelect = $('#subProfessionSelect');
-                if (federationId) {
-                    $.getJSON('/Expert/GetSubProfessionsByFederation', { federationId: federationId }, function (data) {
-                        subSelect.empty().append('<option value="">İxtisas seçin</option>');
-                        $.each(data, function (i, item) {
-                            subSelect.append(new Option(item.name, item.id));
-                        });
-                        subSelect.prop('disabled', false);
-                    });
-                } else {
-                    subSelect.empty().append('<option value="">İxtisas seçin</option>').prop('disabled', true);
-                }
-            });
-        });
-
-        // ===== BULK ARCHIVE =====
-        (function () {
+            // ===== BULK ARCHIVE =====
             const bulkBtn = document.getElementById('bulkArchiveBtn');
             const bulkBadge = document.getElementById('bulkArchiveCount');
             const bulkSelectAll = document.getElementById('bulkSelectAll');
+            const bulkModal = document.getElementById('bulkArchiveModal');
+
+            if (!bulkBtn || !bulkSelectAll || !bulkModal) return;
 
             function getChecked() {
                 return document.querySelectorAll('.bulk-select-cb:checked');
@@ -433,15 +413,11 @@
 
             function updateBulkUI() {
                 const count = getChecked().length;
-                if (count > 0) {
-                    bulkBtn.style.display = 'inline-block';
-                    bulkBadge.textContent = count;
-                } else {
-                    bulkBtn.style.display = 'none';
-                    bulkBadge.textContent = '0';
-                }
+                bulkBtn.style.display = count > 0 ? 'inline-block' : 'none';
+                bulkBadge.textContent = count;
             }
 
+            // Fərdi checkbox
             document.addEventListener('change', function (e) {
                 if (!e.target.classList.contains('bulk-select-cb')) return;
                 updateBulkUI();
@@ -451,12 +427,15 @@
                 bulkSelectAll.checked = all.length > 0 && checked.length === all.length;
             });
 
+            // Hamısını seç
             bulkSelectAll.addEventListener('change', function () {
-                document.querySelectorAll('.bulk-select-cb').forEach(cb => cb.checked = this.checked);
+                document.querySelectorAll('.bulk-select-cb')
+                    .forEach(cb => cb.checked = this.checked);
                 updateBulkUI();
             });
 
-            document.getElementById('bulkArchiveModal').addEventListener('show.bs.modal', function () {
+            // Modal açılanda hidden input-ları yaz
+            bulkModal.addEventListener('show.bs.modal', function () {
                 const checked = getChecked();
                 document.getElementById('bulkArchiveCountText').textContent =
                     checked.length + ' ekspert arxivə göndəriləcək.';
@@ -471,7 +450,7 @@
                     container.appendChild(inp);
                 });
             });
-        })();
-        // ===== END BULK ARCHIVE =====
+            // ===== END BULK ARCHIVE =====
+        });
     </script>
 }

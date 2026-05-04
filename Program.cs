@@ -51,7 +51,9 @@ builder.Services.AddScoped<IMinistryRepresentativeService, MinistryRepresentativ
 builder.Services.AddScoped<IMinistryRepresentativeRepository, MinistryRepresentativeRepository>();
 builder.Services.AddScoped<IBadgeExportService, BadgeExportService>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
-builder.Services.AddScoped<ISubjectService, SubjectService>();
+builder.Services.AddScoped<ISubjectService, SubjectService>(); 
+builder.Services.AddScoped<ForQab.Service.Abstract.IAmasPhotoService,
+                            ForQab.Service.Concrete.AmasPhotoService>();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireNonAlphanumeric = false;

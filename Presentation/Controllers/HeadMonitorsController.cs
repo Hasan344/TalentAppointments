@@ -21,12 +21,14 @@ namespace ForQab.Presentation.Controllers
         private readonly MyDbContext _context;
         private readonly IHeadMonitorService _headMonitorService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IAmasPhotoService _amasPhotoService;
 
-        public HeadMonitorsController(MyDbContext context, UserManager<ApplicationUser> userManager, IHeadMonitorService headMonitorService) : base(context, userManager)
+        public HeadMonitorsController(MyDbContext context, UserManager<ApplicationUser> userManager, IHeadMonitorService headMonitorService, IAmasPhotoService amasPhotoService) : base(context, userManager)
         {
             _context = context;
             _userManager = userManager;
             _headMonitorService = headMonitorService;
+            _amasPhotoService = amasPhotoService;
         }
 
         // GET: HeadMonitors
@@ -399,5 +401,49 @@ namespace ForQab.Presentation.Controllers
                 return RedirectToAction(nameof(Details), new { id = monitorId });
             }
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BulkArchive(List<int> selectedIds, string archiveReason)
+        {
+            if (selectedIds == null || !selectedIds.Any())
+            {
+                TempData["ErrorMessage"] = "Heç bir rəhbər seçilməyib.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            await _headMonitorService.BulkArchiveAsync(selectedIds, archiveReason ?? "");
+            TempData["SuccessMessage"] = $"{selectedIds.Count} rəhbər arxivə göndərildi.";
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> FetchPhoto(int id)
+        {
+            var monitor = await _headMonitorService.GetByIdAsync(id);
+            if (monitor == null) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(monitor.FinCode) ||
+                string.IsNullOrWhiteSpace(monitor.Serial))
+            {
+                TempData["ErrorMessage"] = "FİN Kod və ya Seriya nömrəsi boşdur. Şəkil çəkilə bilmədi.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var photo = await _amasPhotoService.FetchPhotoAsBase64Async(
+                monitor.FinCode, monitor.SerialPrefix ?? "", monitor.Serial);
+
+            if (photo == null)
+            {
+                TempData["ErrorMessage"] = "AMAS sistemindən şəkil tapılmadı.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            monitor.Photo = photo;
+            await _headMonitorService.UpdateAsync(monitor);
+
+            TempData["SuccessMessage"] = "Şəkil AMAS-dan uğurla yükləndi.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
     }
 }
