@@ -37,8 +37,17 @@ public class ExpertService : IExpertService
         if (expert == null)
             throw new Exception($"{id} Id-yə sahib expert yoxdur.");
 
+        if (!string.IsNullOrEmpty(expert.Photo))
+        {
+            return expert;
+        }
+
         string photoPath = $@"\\teshkilat-db\Images\Talent\{expert.FinCode}.jpg";
-        expert.Photo = ConvertToBase64(photoPath);
+        var fromShare = ConvertToBase64(photoPath);
+        if (!string.IsNullOrEmpty(fromShare))
+        {
+            expert.Photo = fromShare;
+        }
 
         return expert;
     }

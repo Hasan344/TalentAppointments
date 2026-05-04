@@ -14,6 +14,7 @@ using ForQab.Data_Access.ViewModel;
 using ForQab.Service;
 using ForQab.Migrations;
 using System.Threading;
+using ForQab.Service.Concrete;
 
 namespace ForQab.Presentation.Controllers
 {
@@ -22,11 +23,13 @@ namespace ForQab.Presentation.Controllers
     {
         private readonly IMonitorService _monitorService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IAmasPhotoService _amasPhotoService;
 
-        public MonitorsController(MyDbContext context, UserManager<ApplicationUser> userManager, IMonitorService monitorService) : base(context, userManager)
+        public MonitorsController(MyDbContext context, UserManager<ApplicationUser> userManager, IMonitorService monitorService, IAmasPhotoService amasPhotoService) : base(context, userManager)
         {
             _userManager = userManager;
             _monitorService = monitorService;
+            _amasPhotoService = amasPhotoService;
         }
 
         public async Task<IActionResult> Index(
@@ -424,6 +427,35 @@ namespace ForQab.Presentation.Controllers
                 TempData["Error"] = ex.Message;
                 return RedirectToAction(nameof(Details), new { id = monitorId });
             }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> FetchPhoto(int id)
+        {
+            var monitor = await _monitorService.GetByIdAsync(id);
+            if (monitor == null) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(monitor.FinCode) ||
+                string.IsNullOrWhiteSpace(monitor.Serial))
+            {
+                TempData["ErrorMessage"] = "FİN Kod və ya Seriya nömrəsi boşdur. Şəkil çəkilə bilmədi.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var photo = await _amasPhotoService.FetchPhotoAsBase64Async(
+                monitor.FinCode, monitor.SerialPrefix ?? "", monitor.Serial);
+
+            if (photo == null)
+            {
+                TempData["ErrorMessage"] = "AMAS sistemindən şəkil tapılmadı.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            monitor.Photo = photo;
+            await _monitorService.UpdateAsync(monitor);
+
+            TempData["SuccessMessage"] = "Şəkil AMAS-dan uğurla yükləndi.";
+            return RedirectToAction(nameof(Details), new { id });
         }
 
 

@@ -30,7 +30,12 @@
     <Folder Include="wwwroot\img\tesviri\" />
   </ItemGroup>
 
-
+	<ItemGroup>
+		<PackageReference Include="System.ServiceModel.Http" Version="8.0.*" />
+		<PackageReference Include="System.ServiceModel.Primitives" Version="8.0.*" />
+	</ItemGroup>
+	
+	
   <ItemGroup>
     <Content Update="Presentation\Views\Exam\Appeals.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

@@ -27,5 +27,6 @@ namespace ForQab.Service.Abstract
         Task<List<int>> FilterSelectedMonitorsAsync(
     List<int> selectedIds, string searchName, int? districtId);
         Task<byte[]> ExportContractToWordAsync(int monitorId);
+        Task BulkArchiveAsync(List<int> ids, string archiveReason);
     }
 }

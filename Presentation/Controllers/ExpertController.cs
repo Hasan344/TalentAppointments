@@ -23,12 +23,14 @@ namespace ForQab.Presentation.Controllers
         private readonly IExpertService _expertService;
         private readonly ISubProfessionService _subProfessionService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IAmasPhotoService _amasPhotoService;
 
-        public ExpertController(IExpertService expertService, ISubProfessionService subProfessionService, MyDbContext context, UserManager<ApplicationUser> userManager) : base(context, userManager)
+        public ExpertController(IExpertService expertService, ISubProfessionService subProfessionService, MyDbContext context, UserManager<ApplicationUser> userManager, IAmasPhotoService amasPhotoService) : base(context, userManager)
         {
             _expertService = expertService;
             _subProfessionService = subProfessionService;
             _userManager = userManager;
+            _amasPhotoService = amasPhotoService;
         }
 
         public async Task<IActionResult> Index(
@@ -636,6 +638,36 @@ namespace ForQab.Presentation.Controllers
             await _expertService.BulkArchiveAsync(selectedIds, archiveReason ?? "");
             TempData["SuccessMessage"] = $"{selectedIds.Count} ekspert arxivə göndərildi.";
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> FetchPhoto(int id)
+        {
+            var expert = await _expertService.GetExpertByIdAsync(id);
+            if (expert == null) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(expert.FinCode) ||
+                string.IsNullOrWhiteSpace(expert.Serial))
+            {
+                TempData["ErrorMessage"] = "FİN Kod və ya Seriya nömrəsi boşdur. Şəkil çəkilə bilmədi.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var photo = await _amasPhotoService.FetchPhotoAsBase64Async(
+                expert.FinCode, expert.SerialPrefix ?? "", expert.Serial);
+
+            if (photo == null)
+            {
+                TempData["ErrorMessage"] = "AMAS sistemindən şəkil tapılmadı.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            expert.Photo = photo;
+            await _expertService.UpdateExpertAsync(expert);
+
+            TempData["SuccessMessage"] = "Şəkil AMAS-dan uğurla yükləndi.";
+            return RedirectToAction(nameof(Details), new { id });
         }
     }
 

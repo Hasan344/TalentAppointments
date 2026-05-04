@@ -7,7 +7,6 @@ namespace ForQab.Service.Abstract
     public interface IExpertService
     {
         Task<IEnumerable<Expert>> GetAllExpertsAsync();
-        Task BulkArchiveAsync(List<int> ids, string archiveReason);
         Task<Expert?> GetExpertByIdAsync(int id);
         Task AddExpertAsync(ExpertViewModel expertViewModel);
         Task UpdateExpertAsync(ExpertEditViewModel expert);
@@ -29,5 +28,6 @@ namespace ForQab.Service.Abstract
         Task DeleteExpertLogs(int? id);
         Task<List<SubProfession>> GetSubProfessionsByFederationAsync(int federationId);
         Task<byte[]> ExportContractsToWordAsync(List<int> selectedExpertIds, DateTime contractDate);
+        Task BulkArchiveAsync(List<int> ids, string archiveReason);
     }
 }

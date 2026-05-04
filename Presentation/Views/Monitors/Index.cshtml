@@ -2,7 +2,9 @@
 
 @{
     ViewData["Title"] = "Nəzarətçilər";
+
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
+
     var q = ViewContext.HttpContext.Request.Query;
 }
 
@@ -12,10 +14,12 @@
 <div class="container qab-page">
 
     @if (TempData["SuccessMessage"] != null)
+
     {
         <div class="qab-alert qab-alert--success"><i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]</div>
     }
     @if (TempData["Message"] != null)
+
     {
         <div class="qab-alert qab-alert--success"><i class="bi bi-info-circle-fill"></i> @TempData["Message"]</div>
     }
@@ -52,7 +56,12 @@
         <button class="qab-btn qab-btn--word" data-bs-toggle="modal" data-bs-target="#exportContractModal">
             <i class="bi bi-file-earmark-word"></i> Müqavilə export
         </button>
-        <!-- Import -->
+        <button type="button" class="btn btn-warning" id="bulkArchiveBtn"
+                data-bs-toggle="modal" data-bs-target="#bulkArchiveModal"
+                style="display:none;">
+            <i class="bi bi-archive-fill"></i> Seçilmişləri Arxivlə
+            <span class="badge bg-dark ms-1" id="bulkArchiveCount">0</span>
+        </button>
         <form asp-controller="Monitors" asp-action="ImportFromExcel" enctype="multipart/form-data" method="post"
               class="qab-import-form">
             <label class="qab-btn qab-btn--outline qab-btn--sm" style="cursor:pointer;margin:0;">
@@ -68,24 +77,22 @@
             <form method="get" asp-action="Index" class="qab-filters">
                 <div class="qab-filters__field">
                     <label class="qab-filters__label">Ad / Soyad</label>
-                    <input type="text" name="searchName" value="@q["searchName"]"
-                           class="form-control" placeholder="Ad və ya soyad..." />
+                    <input type="text" name="searchName" value="@q["searchName"]" class="form-control" placeholder="Ad və ya soyad..." />
                 </div>
                 <div class="qab-filters__field">
                     <label class="qab-filters__label">FİN Kod</label>
-                    <input type="text" name="finCode" value="@q["finCode"]"
-                           class="form-control" placeholder="FİN..." />
+                    <input type="text" name="finCode" value="@q["finCode"]" class="form-control" placeholder="FİN..." />
                 </div>
                 <div class="qab-filters__field">
                     <label class="qab-filters__label">Seriya</label>
-                    <input type="text" name="serial" value="@q["serial"]"
-                           class="form-control" placeholder="Seriya..." />
+                    <input type="text" name="serial" value="@q["serial"]" class="form-control" placeholder="Seriya..." />
                 </div>
                 <div class="qab-filters__field">
                     <label class="qab-filters__label">Cins</label>
                     <select name="genderId" class="form-select">
                         <option value="">Hamısı</option>
                         @foreach (var g in ViewBag.Genders)
+
                         {
                             <option value="@g.Id" selected="@(g.Id.ToString() == q["genderId"] ? "selected" : null)">@g.Name</option>
                         }
@@ -96,6 +103,7 @@
                     <select name="district" class="form-select">
                         <option value="">Hamısı</option>
                         @foreach (var d in ViewBag.Districts)
+
                         {
                             <option value="@d.Id" selected="@(d.Id.ToString() == q["district"] ? "selected" : null)">@d.Name</option>
                         }
@@ -119,20 +127,23 @@
     <div class="qab-table-wrap">
         <table class="qab-table qab-table--compact">
             <colgroup>
-                <col style="width:2.5rem">      <!-- # -->
-                <col style="width:auto">        <!-- Ad Soyad -->
-                <col style="width:5rem">        <!-- Cins -->
-                <col style="width:7rem">        <!-- Doğum tarixi -->
-                <col style="width:auto">        <!-- Peşə / İş yeri -->
-                <col style="width:7.5rem">      <!-- Telefon -->
-                <col style="width:8rem">        <!-- FİN / Seriya -->
-                <col style="width:7rem">        <!-- İstiqamət -->
-                <col style="width:7rem">        <!-- Rayon -->
-                <col style="width:4rem">        <!-- İştirak -->
-                <col style="width:6.5rem">      <!-- Əməliyyatlar -->
+                <col style="width:1.5rem">
+                <col style="width:2rem">
+                <col style="width:auto">
+                <col style="width:5rem">
+                <col style="width:7rem">
+                <col style="width:auto">
+                <col style="width:7.5rem">
+                <col style="width:8rem">
+                <col style="width:7rem">
+                <col style="width:7rem">
+                <col style="width:4rem">
+                <col style="width:4rem">
+                <col style="width:6.5rem">
             </colgroup>
             <thead>
                 <tr>
+                    <th><input type="checkbox" id="bulkSelectAll" title="Hamısını seç" /></th>
                     <th>#</th>
                     <th>Ad Soyad</th>
                     <th>Cins</th>
@@ -142,172 +153,184 @@
                     <th>FİN / Seriya</th>
                     <th>İstiqamət</th>
                     <th>Rayon</th>
-                    <th>İştirak</th>
+                    <th title="Ümumi iştirak">İştirak</th>
+                    <th title="Bu il">Bu il</th>
                     <th>Əməliyyatlar</th>
                 </tr>
             </thead>
-                <tbody>
-                    @{ int rowNumber = 1; }
-                    @foreach (var item in Model)
-                    {
-                        <tr class="@(item.Status == 1 ? "qab-status--blocked" : "")">
-                            <td class="qab-col-num">@rowNumber</td>
-                            <td>
-                                <div class="qab-col-name">
-                                    <strong>@item.Surname @item.Name @item.Fname</strong>
-                                    @if (item.Status == 1)
-                                    {
-                                        <span class="qab-status-badge qab-status-badge--blocked">
-                                            <i class="bi bi-x-circle-fill"></i> Çağırıla bilməz
-                                        </span>
-                                    }
-                                </div>
-                            </td>
-                            <td>@item.GenderNavigation?.Name</td>
-                            <td class="qab-col-date">@item.BirthDate?.ToString("dd.MM.yyyy")</td>
-                            <td>
-                                <div style="font-size:.85rem;">
-                                    @if (!string.IsNullOrEmpty(item.Profession)) { <div>@item.Profession</div> }
-                                    @if (!string.IsNullOrEmpty(item.Workplace)) { <div class="text-muted">@item.Workplace</div> }
-                                </div>
-                            </td>
-                            <td class="qab-col-date">@item.TelIs</td>
-                            <td>
-                                <div style="font-size:.83rem;">
-                                    <div>@item.FinCode</div>
-                                    <div class="text-muted">@item.SerialPrefix @item.Serial</div>
-                                </div>
-                            </td>
-                            <td class="qab-col-wrap">@item.Section?.Name</td>
-                            <td class="qab-col-wrap">@item.DistrictNavigation?.Name</td>
-                            <td><span class="qab-badge qab-badge--neutral">@item.ComputedAssignmentCount</span></td>
-                            <td>
-                                <div class="qab-table__actions">
-                                    <a class="qab-table__action-btn qab-table__action-btn--view" title="Detallar"
-                                       asp-action="Details" asp-route-id="@item.Id">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a class="qab-table__action-btn qab-table__action-btn--edit" title="Redaktə"
-                                       asp-action="Edit" asp-route-id="@item.Id">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                    <a class="qab-table__action-btn qab-table__action-btn--delete" title="Sil/Arxivlə"
-                                       asp-action="Delete" asp-route-id="@item.Id">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        rowNumber++;
-                    }
-                </tbody>
-            </table>
+            <tbody>
+                @{
+                    int rowNumber = 1;
+                }
+                @foreach (var item in Model)
+
+                {
+                    <tr class="@(item.Status == 1 ? "qab-status--blocked" : "")">
+                        <td>
+                            <input type="checkbox" class="bulk-select-cb" value="@item.Id" />
+                        </td>
+                        <td class="qab-col-num">@rowNumber</td>
+                        <td>
+                            <div class="qab-col-name">
+                                <strong>@item.Surname @item.Name @item.Fname</strong>
+                                @if (item.Status == 1)
+
+                                {
+                                    <span class="qab-status-badge qab-status-badge--blocked">
+                                        <i class="bi bi-x-circle-fill"></i> Çağırıla bilməz
+                                    </span>
+                                }
+                            </div>
+                        </td>
+                        <td>@item.GenderNavigation?.Name</td>
+                        <td class="qab-col-date">@item.BirthDate?.ToString("dd.MM.yyyy")</td>
+                        <td>
+                            <div style="font-size:.83rem;">
+                                @if (!string.IsNullOrEmpty(item.Profession))
+                                {
+                                    <div>@item.Profession</div>
+                                }
+                                @if (!string.IsNullOrEmpty(item.Workplace))
+                                {
+                                    <div class="text-muted">@item.Workplace</div>
+                                }
+                            </div>
+                        </td>
+                        <td class="qab-col-date">@item.TelIs</td>
+                        <td>
+                            <div style="font-size:.83rem;">
+                                <div>@item.FinCode</div>
+                                <div class="text-muted">@item.SerialPrefix @item.Serial</div>
+                            </div>
+                        </td>
+                        <td class="qab-col-wrap">@item.Section?.Name</td>
+                        <td class="qab-col-wrap">@item.DistrictNavigation?.Name</td>
+                        <td><span class="qab-badge qab-badge--neutral">@item.ComputedAssignmentCount</span></td>
+                        <td><span class="qab-badge qab-badge--primary">@item.ThisYearAssignmentCount</span></td>
+                        <td>
+                            <div class="qab-table__actions">
+                                <a class="qab-table__action-btn qab-table__action-btn--view" title="Detallar"
+                                   asp-action="Details" asp-route-id="@item.Id">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a class="qab-table__action-btn qab-table__action-btn--edit" title="Redaktə"
+                                   asp-action="Edit" asp-route-id="@item.Id">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a class="qab-table__action-btn qab-table__action-btn--delete" title="Sil/Arxivlə"
+                                   asp-action="Delete" asp-route-id="@item.Id">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    rowNumber++;
+
+                }
+            </tbody>
+        </table>
     </div>
 
     <!-- Pagination -->
     @{
         int currentPage = ViewBag.CurrentPage != null ? (int)ViewBag.CurrentPage : 1;
-        int totalPages  = ViewBag.TotalPages  != null ? (int)ViewBag.TotalPages  : 1;
-        int totalCount  = ViewBag.TotalCount  != null ? (int)ViewBag.TotalCount  : 0;
-        int pageSize    = ViewBag.PageSize    != null ? (int)ViewBag.PageSize    : 25;
-        int startItem   = totalCount == 0 ? 0 : (currentPage - 1) * pageSize + 1;
-        int endItem     = Math.Min(currentPage * pageSize, totalCount);
 
-        // Filter parametrlərini pagination link-lərə ötür
-        var routeVals = new Dictionary<string, string?> {
-            ["searchName"] = q["searchName"],
-            ["finCode"]    = q["finCode"],
-            ["serial"]     = q["serial"],
-            ["genderId"]   = q["genderId"],
-            ["district"]   = q["district"],
-            ["pageSize"]   = pageSize.ToString()
-        };
+        int totalPages = ViewBag.TotalPages != null ? (int)ViewBag.TotalPages : 1;
 
-        // Göstəriləcək səhifə nömrələri (window: cari ± 2)
+        int totalCount = ViewBag.TotalCount != null ? (int)ViewBag.TotalCount : 0;
+
+        int pageSize = ViewBag.PageSize != null ? (int)ViewBag.PageSize : 25;
+
+        int startItem = totalCount == 0 ? 0 : (currentPage - 1) * pageSize + 1;
+
+        int endItem = Math.Min(currentPage * pageSize, totalCount);
+
+
+
+        var routeVals = new Dictionary<string, string?>
+            {
+
+                ["searchName"] = q["searchName"],
+
+                ["finCode"] = q["finCode"],
+
+                ["serial"] = q["serial"],
+
+                ["genderId"] = q["genderId"],
+
+                ["district"] = q["district"],
+
+                ["pageSize"] = pageSize.ToString()
+
+            };
+
+
+
         int winStart = Math.Max(1, currentPage - 2);
-        int winEnd   = Math.Min(totalPages, currentPage + 2);
+
+        int winEnd = Math.Min(totalPages, currentPage + 2);
     }
 
-    @if (totalPages > 1 || totalCount > 0)
-    {
-        <div style="display:flex;align-items:center;justify-content:space-between;
-                    flex-wrap:wrap;gap:.75rem;margin-top:1rem;padding-top:.75rem;
-                    border-top:1px solid var(--qab-border);">
+    @if (totalCount > 0)
 
-            <!-- Məlumat mətni -->
+    {
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;
+                    margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--qab-border);">
             <span style="font-size:.85rem;color:var(--qab-text-muted);">
                 <strong>@startItem–@endItem</strong> / <strong>@totalCount</strong> nəzarətçi
             </span>
-
-            <!-- Səhifə sayı seçici -->
             <div style="display:flex;align-items:center;gap:.4rem;">
                 <span style="font-size:.82rem;color:var(--qab-text-muted);">Səhifədə:</span>
                 @foreach (var ps in new[] { 10, 25, 50, 100 })
+
                 {
+
                     var psRoute = new Dictionary<string, string?>(routeVals) { ["pageSize"] = ps.ToString(), ["page"] = "1" };
                     <a href="@Url.Action("Index", psRoute)"
                        class="qab-btn qab-btn--sm @(pageSize == ps ? "qab-btn--primary" : "qab-btn--ghost")"
-                       style="min-width:2.4rem;justify-content:center;">
-                        @ps
-                    </a>
+                       style="min-width:2.4rem;justify-content:center;">@ps</a>
                 }
             </div>
-
-            <!-- Səhifə nömrələri -->
             @if (totalPages > 1)
+
             {
                 <nav style="display:flex;align-items:center;gap:.25rem;">
-                    @* İlk + Əvvəlki *@
                     @if (currentPage > 1)
-                    {
-                        var r1 = new Dictionary<string, string?>(routeVals) { ["page"] = "1" };
-                        var r2 = new Dictionary<string, string?>(routeVals) { ["page"] = (currentPage - 1).ToString() };
-                        <a href="@Url.Action("Index", r1)" class="qab-btn qab-btn--ghost qab-btn--sm" title="İlk səhifə">
-                            <i class="bi bi-chevron-double-left"></i>
-                        </a>
-                        <a href="@Url.Action("Index", r2)" class="qab-btn qab-btn--ghost qab-btn--sm" title="Əvvəlki">
-                            <i class="bi bi-chevron-left"></i>
-                        </a>
-                    }
 
-                    @* Sol ellipsis *@
+                    {
+                        <a href="@Url.Action("Index", new Dictionary<string,string?>(routeVals){["page"]="1"})" class="qab-btn qab-btn--ghost qab-btn--sm"><i class="bi bi-chevron-double-left"></i></a>
+                        <a href="@Url.Action("Index", new Dictionary<string,string?>(routeVals){["page"]=(currentPage-1).ToString()})" class="qab-btn qab-btn--ghost qab-btn--sm"><i class="bi bi-chevron-left"></i></a>
+                    }
                     @if (winStart > 1)
-                    {
-                        var re = new Dictionary<string, string?>(routeVals) { ["page"] = "1" };
-                        <a href="@Url.Action("Index", re)" class="qab-btn qab-btn--ghost qab-btn--sm">1</a>
-                        @if (winStart > 2) { <span style="padding:0 .2rem;color:var(--qab-text-muted);">…</span> }
-                    }
 
-                    @* Nömrə pəncərəsi *@
+                    {
+                        <a href="@Url.Action("Index", new Dictionary<string,string?>(routeVals){["page"]="1"})" class="qab-btn qab-btn--ghost qab-btn--sm">1</a>
+                        @if (winStart > 2)
+                        {
+                            <span style="color:var(--qab-text-muted);padding:0 .2rem;">…</span>
+                        }
+                    }
                     @for (int p = winStart; p <= winEnd; p++)
+
                     {
-                        var rp = new Dictionary<string, string?>(routeVals) { ["page"] = p.ToString() };
-                        <a href="@Url.Action("Index", rp)"
+                        <a href="@Url.Action("Index", new Dictionary<string,string?>(routeVals){["page"]=p.ToString()})"
                            class="qab-btn qab-btn--sm @(p == currentPage ? "qab-btn--primary" : "qab-btn--ghost")"
-                           style="min-width:2.4rem;justify-content:center;">
-                            @p
-                        </a>
+                           style="min-width:2.4rem;justify-content:center;">@p</a>
                     }
-
-                    @* Sağ ellipsis *@
                     @if (winEnd < totalPages)
-                    {
-                        @if (winEnd < totalPages - 1) { <span style="padding:0 .2rem;color:var(--qab-text-muted);">…</span> }
-                        var rl = new Dictionary<string, string?>(routeVals) { ["page"] = totalPages.ToString() };
-                        <a href="@Url.Action("Index", rl)" class="qab-btn qab-btn--ghost qab-btn--sm">@totalPages</a>
-                    }
 
-                    @* Növbəti + Son *@
-                    @if (currentPage < totalPages)
                     {
-                        var rn = new Dictionary<string, string?>(routeVals) { ["page"] = (currentPage + 1).ToString() };
-                        var rl = new Dictionary<string, string?>(routeVals) { ["page"] = totalPages.ToString() };
-                        <a href="@Url.Action("Index", rn)" class="qab-btn qab-btn--ghost qab-btn--sm" title="Növbəti">
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                        <a href="@Url.Action("Index", rl)" class="qab-btn qab-btn--ghost qab-btn--sm" title="Son səhifə">
-                            <i class="bi bi-chevron-double-right"></i>
-                        </a>
+                        @if (winEnd < totalPages - 1)
+                        {
+                            <span style="color:var(--qab-text-muted);padding:0 .2rem;">…</span>
+                        }
+                        <a href="@Url.Action("Index", new Dictionary<string,string?>(routeVals){["page"]=totalPages.ToString()})" class="qab-btn qab-btn--ghost qab-btn--sm">@totalPages</a>
+                    }
+                    @if (currentPage < totalPages)
+
+                    {
+                        <a href="@Url.Action("Index", new Dictionary<string,string?>(routeVals){["page"]=(currentPage+1).ToString()})" class="qab-btn qab-btn--ghost qab-btn--sm"><i class="bi bi-chevron-right"></i></a>
+                        <a href="@Url.Action("Index", new Dictionary<string,string?>(routeVals){["page"]=totalPages.ToString()})" class="qab-btn qab-btn--ghost qab-btn--sm"><i class="bi bi-chevron-double-right"></i></a>
                     }
                 </nav>
             }
@@ -335,6 +358,7 @@
                             <select name="districtId" class="form-select">
                                 <option value="">Hamısı</option>
                                 @foreach (var d in ViewBag.Districts)
+
                                 {
                                     <option value="@d.Id">@d.Name</option>
                                 }
@@ -362,6 +386,7 @@
                             </thead>
                             <tbody id="monitorCheckboxList">
                                 @foreach (var item in Model)
+
                                 {
                                     <tr>
                                         <td><input type="checkbox" name="selectedMonitorIds" value="@item.Id" class="select-item" /></td>
@@ -383,27 +408,110 @@
     </div>
 </div>
 
+<!-- ===== BULK ARCHIVE MODAL ===== -->
+<div class="modal fade" id="bulkArchiveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">
+                    <i class="bi bi-archive-fill"></i> Toplu Arxivləmə
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-controller="Monitors" asp-action="BulkArchive" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <p id="bulkArchiveCountText" class="alert alert-info mb-3"></p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Arxivləmə səbəbi</label>
+                        <textarea name="archiveReason" class="form-control" rows="3"
+                                  placeholder="Arxivləmə səbəbini yazın..."></textarea>
+                    </div>
+                    <div id="bulkArchiveHiddenIds"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ləğv et</button>
+                    <button type="submit" class="btn btn-warning fw-bold">
+                        <i class="bi bi-archive-fill"></i> Arxivlə
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- ===== END BULK ARCHIVE MODAL ===== -->
 @section Scripts {
     <script>
-        // Select All checkbox
-        document.getElementById('selectAll')?.addEventListener('change', function () {
-            document.querySelectorAll('.select-item').forEach(cb => cb.checked = this.checked);
-        });
+        document.addEventListener('DOMContentLoaded', function () {
 
-        // AJAX filter
-        document.getElementById('filterMonitorsBtn')?.addEventListener('click', function () {
-            const searchName = document.querySelector('#exportContractModal input[name="searchName"]').value;
-            const districtId = document.querySelector('#exportContractModal select[name="districtId"]').value;
+            // ===== Export Modal - selectAll =====
+            const selectAll = document.getElementById('selectAll');
+            if (selectAll) {
+                selectAll.addEventListener('change', function () {
+                    document.querySelectorAll('.select-item').forEach(cb => cb.checked = this.checked);
+                });
+            }
 
-            fetch('@Url.Action("FilterMonitorsAjax", "Monitors")', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `searchName=${encodeURIComponent(searchName)}&districtId=${encodeURIComponent(districtId)}`
-            })
-            .then(r => r.text())
-            .then(html => {
-                document.getElementById('monitorCheckboxList').innerHTML = html;
+            // ===== Export Modal - AJAX filter =====
+            document.getElementById('filterMonitorsBtn')?.addEventListener('click', function () {
+                const searchName = document.querySelector('#exportContractModal input[name="searchName"]').value;
+                const districtId = document.querySelector('#exportContractModal select[name="districtId"]').value;
+                fetch('@Url.Action("FilterMonitorsAjax", "Monitors")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `searchName=${encodeURIComponent(searchName)}&districtId=${encodeURIComponent(districtId)}`
+                })
+                    .then(r => r.text())
+                    .then(html => { document.getElementById('monitorCheckboxList').innerHTML = html; });
             });
+
+            // ===== BULK ARCHIVE =====
+            const bulkBtn = document.getElementById('bulkArchiveBtn');
+            const bulkBadge = document.getElementById('bulkArchiveCount');
+            const bulkSelectAll = document.getElementById('bulkSelectAll');
+            const bulkModal = document.getElementById('bulkArchiveModal');
+
+            if (!bulkBtn || !bulkSelectAll || !bulkModal) return;
+
+            function getChecked() {
+                return document.querySelectorAll('.bulk-select-cb:checked');
+            }
+
+            function updateBulkUI() {
+                const count = getChecked().length;
+                bulkBtn.style.display = count > 0 ? 'inline-block' : 'none';
+                bulkBadge.textContent = count;
+            }
+
+            document.addEventListener('change', function (e) {
+                if (!e.target.classList.contains('bulk-select-cb')) return;
+                updateBulkUI();
+                const all = document.querySelectorAll('.bulk-select-cb');
+                const checked = getChecked();
+                bulkSelectAll.indeterminate = checked.length > 0 && checked.length < all.length;
+                bulkSelectAll.checked = all.length > 0 && checked.length === all.length;
+            });
+
+            bulkSelectAll.addEventListener('change', function () {
+                document.querySelectorAll('.bulk-select-cb').forEach(cb => cb.checked = this.checked);
+                updateBulkUI();
+            });
+
+            bulkModal.addEventListener('show.bs.modal', function () {
+                const checked = getChecked();
+                document.getElementById('bulkArchiveCountText').textContent =
+                    checked.length + ' nəzarətçi arxivə göndəriləcək.';
+                const container = document.getElementById('bulkArchiveHiddenIds');
+                container.innerHTML = '';
+                checked.forEach(cb => {
+                    const inp = document.createElement('input');
+                    inp.type = 'hidden';
+                    inp.name = 'selectedIds';
+                    inp.value = cb.value;
+                    container.appendChild(inp);
+                });
+            });
+            // ===== END BULK ARCHIVE =====
         });
     </script>
 }
