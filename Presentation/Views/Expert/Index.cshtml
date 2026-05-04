@@ -48,6 +48,12 @@
         <button class="qab-btn qab-btn--word" data-bs-toggle="modal" data-bs-target="#exportContractModal">
             <i class="bi bi-file-earmark-word"></i> Müqavilə export
         </button>
+        <button type="button" class="btn btn-warning" id="bulkArchiveBtn"
+                data-bs-toggle="modal" data-bs-target="#bulkArchiveModal"
+                style="display:none;">
+            <i class="bi bi-archive-fill"></i> Seçilmişləri Arxivlə
+            <span class="badge bg-dark ms-1" id="bulkArchiveCount">0</span>
+        </button>
         <form asp-action="ImportFromExcel" enctype="multipart/form-data" method="post" style="margin:0;">
             <label class="qab-btn qab-btn--outline qab-btn--sm" style="cursor:pointer;margin:0;">
                 <i class="bi bi-upload"></i> Excel idxal
@@ -140,6 +146,9 @@
             </colgroup>
             <thead>
                 <tr>
+                    <th style="width:42px;">
+                        <input type="checkbox" id="bulkSelectAll" title="Hamısını seç" />
+                    </th>
                     <th>#</th>
                     <th>Ad Soyad</th>
                     <th>Cins</th>
@@ -158,6 +167,10 @@
                 @foreach (var item in Model)
                 {
                     <tr class="@(item.Status == 1 ? "qab-status--blocked" : "")">
+
+                        <td>
+                            <input type="checkbox" class="bulk-select-cb" value="@item.Id" />
+                        </td>
                         <td class="qab-col-num">@rowNumber</td>
                         <td>
                             <div class="qab-col-name">
@@ -341,7 +354,37 @@
         </div>
     </div>
 </div>
-
+<!-- ===== BULK ARCHIVE MODAL ===== -->
+<div class="modal fade" id="bulkArchiveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">
+                    <i class="bi bi-archive-fill"></i> Toplu Arxivləmə
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-controller="Expert" asp-action="BulkArchive" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <p id="bulkArchiveCountText" class="alert alert-info mb-3"></p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Arxivləmə səbəbi</label>
+                        <textarea name="archiveReason" class="form-control" rows="3"
+                                  placeholder="Arxivləmə səbəbini yazın..."></textarea>
+                    </div>
+                    <div id="bulkArchiveHiddenIds"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ləğv et</button>
+                    <button type="submit" class="btn btn-warning fw-bold">
+                        <i class="bi bi-archive-fill"></i> Arxivlə
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -352,5 +395,83 @@
                 });
             }
         });
+    </script>
+    <script>
+        // ===== Export Modal - selectAll =====
+        document.getElementById('selectAll').addEventListener('change', function () {
+            document.querySelectorAll('.select-item').forEach(cb => cb.checked = this.checked);
+        });
+
+        // ===== Federation → SubProfession lazy load =====
+        $(document).ready(function () {
+            $('#federationSelect').change(function () {
+                var federationId = $(this).val();
+                var subSelect = $('#subProfessionSelect');
+                if (federationId) {
+                    $.getJSON('/Expert/GetSubProfessionsByFederation', { federationId: federationId }, function (data) {
+                        subSelect.empty().append('<option value="">İxtisas seçin</option>');
+                        $.each(data, function (i, item) {
+                            subSelect.append(new Option(item.name, item.id));
+                        });
+                        subSelect.prop('disabled', false);
+                    });
+                } else {
+                    subSelect.empty().append('<option value="">İxtisas seçin</option>').prop('disabled', true);
+                }
+            });
+        });
+
+        // ===== BULK ARCHIVE =====
+        (function () {
+            const bulkBtn = document.getElementById('bulkArchiveBtn');
+            const bulkBadge = document.getElementById('bulkArchiveCount');
+            const bulkSelectAll = document.getElementById('bulkSelectAll');
+
+            function getChecked() {
+                return document.querySelectorAll('.bulk-select-cb:checked');
+            }
+
+            function updateBulkUI() {
+                const count = getChecked().length;
+                if (count > 0) {
+                    bulkBtn.style.display = 'inline-block';
+                    bulkBadge.textContent = count;
+                } else {
+                    bulkBtn.style.display = 'none';
+                    bulkBadge.textContent = '0';
+                }
+            }
+
+            document.addEventListener('change', function (e) {
+                if (!e.target.classList.contains('bulk-select-cb')) return;
+                updateBulkUI();
+                const all = document.querySelectorAll('.bulk-select-cb');
+                const checked = getChecked();
+                bulkSelectAll.indeterminate = checked.length > 0 && checked.length < all.length;
+                bulkSelectAll.checked = all.length > 0 && checked.length === all.length;
+            });
+
+            bulkSelectAll.addEventListener('change', function () {
+                document.querySelectorAll('.bulk-select-cb').forEach(cb => cb.checked = this.checked);
+                updateBulkUI();
+            });
+
+            document.getElementById('bulkArchiveModal').addEventListener('show.bs.modal', function () {
+                const checked = getChecked();
+                document.getElementById('bulkArchiveCountText').textContent =
+                    checked.length + ' ekspert arxivə göndəriləcək.';
+
+                const container = document.getElementById('bulkArchiveHiddenIds');
+                container.innerHTML = '';
+                checked.forEach(cb => {
+                    const inp = document.createElement('input');
+                    inp.type = 'hidden';
+                    inp.name = 'selectedIds';
+                    inp.value = cb.value;
+                    container.appendChild(inp);
+                });
+            });
+        })();
+        // ===== END BULK ARCHIVE =====
     </script>
 }

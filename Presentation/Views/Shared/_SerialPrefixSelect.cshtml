@@ -1,0 +1,32 @@
+﻿@model string
+
+@{
+    var options = new[] { "AA", "AB", "AZE", "MYİ", "DH", "SA" };
+
+    var current = Model;
+}
+
+<div class="qab-form__field">
+    <label for="SerialPrefix" class="form-label">Seriya</label>
+    <select name="SerialPrefix" id="SerialPrefix" class="form-select">
+        <option value="">Seriya Seçin</option>
+        @foreach (var opt in options)
+
+        {
+
+            if (opt == current)
+
+            {
+                <option value="@opt" selected>@opt</option>
+            }
+
+            else
+
+            {
+                <option value="@opt">@opt</option>
+            }
+
+        }
+    </select>
+    <span class="text-danger field-validation-valid" data-valmsg-for="SerialPrefix" data-valmsg-replace="true"></span>
+</div>

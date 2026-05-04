@@ -71,10 +71,7 @@
                     <label asp-for="FinCode" class="form-label">FİN Kod</label>
                     <input asp-for="FinCode" class="form-control" />
                 </div>
-                <div class="qab-form__field">
-                    <label asp-for="SerialPrefix" class="form-label">Seriya prefiksi</label>
-                    <input asp-for="SerialPrefix" class="form-control" />
-                </div>
+                <partial name="_SerialPrefixSelect" model="@Model.SerialPrefix" />
                 <div class="qab-form__field">
                     <label asp-for="Serial" class="form-label">Seriya nömrəsi</label>
                     <input asp-for="Serial" class="form-control" />

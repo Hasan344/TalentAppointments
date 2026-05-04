@@ -623,6 +623,20 @@ namespace ForQab.Presentation.Controllers
                 "Mugavileler.docx");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BulkArchive(List<int> selectedIds, string archiveReason)
+        {
+            if (selectedIds == null || !selectedIds.Any())
+            {
+                TempData["ErrorMessage"] = "Heç bir ekspert seçilməyib.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            await _expertService.BulkArchiveAsync(selectedIds, archiveReason ?? "");
+            TempData["SuccessMessage"] = $"{selectedIds.Count} ekspert arxivə göndərildi.";
+            return RedirectToAction(nameof(Index));
+        }
     }
 
 }

@@ -428,4 +428,19 @@ public class ExpertService : IExpertService
 
         return output.ToArray();
     }
+    public async Task BulkArchiveAsync(List<int> ids, string archiveReason)
+    {
+        var experts = await _context.Experts
+            .Where(e => ids.Contains(e.Id))
+            .ToListAsync();
+
+        foreach (var expert in experts)
+        {
+            expert.Archive = 1;
+            expert.ArchiveReason = archiveReason;
+            expert.Photo = null;
+        }
+
+        await _context.SaveChangesAsync();
+    }
 }
