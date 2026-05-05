@@ -71,7 +71,6 @@
         </form>
     </div>
 
-    <!-- Filters -->
     <div class="qab-card" style="margin-bottom:1.25rem;">
         <div class="qab-card__body qab-card__body--tight">
             <form method="get" asp-action="Index" class="qab-filters">
@@ -129,17 +128,16 @@
             <colgroup>
                 <col style="width:1.5rem">
                 <col style="width:2rem">
-                <col style="width:auto">
+                <col style="width:16rem">
                 <col style="width:5rem">
                 <col style="width:7rem">
-                <col style="width:auto">
                 <col style="width:7.5rem">
                 <col style="width:8rem">
                 <col style="width:7rem">
                 <col style="width:7rem">
                 <col style="width:4rem">
                 <col style="width:4rem">
-                <col style="width:6.5rem">
+                <col style="width:7rem">
             </colgroup>
             <thead>
                 <tr>
@@ -148,7 +146,6 @@
                     <th>Ad Soyad</th>
                     <th>Cins</th>
                     <th>Doğum tarixi</th>
-                    <th>Peşə / İş yeri</th>
                     <th>Telefon</th>
                     <th>FİN / Seriya</th>
                     <th>İstiqamət</th>
@@ -184,18 +181,6 @@
                         </td>
                         <td>@item.GenderNavigation?.Name</td>
                         <td class="qab-col-date">@item.BirthDate?.ToString("dd.MM.yyyy")</td>
-                        <td>
-                            <div style="font-size:.83rem;">
-                                @if (!string.IsNullOrEmpty(item.Profession))
-                                {
-                                    <div>@item.Profession</div>
-                                }
-                                @if (!string.IsNullOrEmpty(item.Workplace))
-                                {
-                                    <div class="text-muted">@item.Workplace</div>
-                                }
-                            </div>
-                        </td>
                         <td class="qab-col-date">@item.TelIs</td>
                         <td>
                             <div style="font-size:.83rem;">

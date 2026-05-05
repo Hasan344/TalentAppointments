@@ -41,7 +41,7 @@ namespace ForQab.Presentation.Controllers
         }
         public ActionResult Create()
         {
-            return View();
+            return View(new DimRepresentative());
         }
         [HttpPost]
         public async Task<IActionResult> Create(DimRepresentative dimRepresentative)
