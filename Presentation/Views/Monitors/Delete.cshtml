@@ -43,7 +43,7 @@
                         <p style="font-size:.9rem;color:var(--qab-text);margin-bottom:.75rem;">
                             <i class="bi bi-archive"></i> <strong>Arxivlə</strong> — nəzarətçini arxivə əlavə edin (geri qaytarıla bilər):
                         </p>
-                        <form asp-action="Archive" method="post" style="display:flex;flex-direction:column;gap:.5rem;">
+                        <form asp-action="ArchiveMonitor" method="post" style="display:flex;flex-direction:column;gap:.5rem;">
                             <input type="hidden" name="id" value="@Model.Id" />
                             <textarea name="archiveReason" class="form-control" rows="2"
                                       placeholder="Arxivləmə səbəbi..."></textarea>

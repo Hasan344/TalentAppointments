@@ -104,7 +104,7 @@ namespace ForQab.Presentation.Controllers
             ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
             ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name");
             ViewData["District"] = new SelectList(_context.Districts, "Id", "Name");
-            return View();
+            return View(new Monitor());
         }
 
         // POST: HeadMonitors/Create
@@ -143,13 +143,14 @@ namespace ForQab.Presentation.Controllers
         }
 
         // ViewData için tekrar tekrar kod yazmamak adına ayrı bir metot oluşturalım.
-        
+
 
 
         // GET: HeadMonitors/Edit/5
+        // GET: HeadMonitors/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
+            if (id == 0)
             {
                 return NotFound();
             }
@@ -163,8 +164,55 @@ namespace ForQab.Presentation.Controllers
             {
                 return Forbid();
             }
-            await LoadViewData(monitor);
-            return View(monitor);
+
+            // Section list-i hazırlayırıq
+            var sectionId = await GetCurrentSectionIdAsync();
+            var sections = await _headMonitorService.GetSectionsAsync(sectionId);
+
+            // Monitor entity-dən ViewModel-ə mapping
+            var vm = new HeadMonitorEditViewModel
+            {
+                Id = monitor.Id,
+                Name = monitor.Name,
+                Surname = monitor.Surname,
+                Fname = monitor.Fname,
+                Region = monitor.Region,
+                SectionId = monitor.SectionId ?? 0,
+                Gender = monitor.Gender,
+                BirthDate = monitor.BirthDate,
+                ContractNo = monitor.ContractNo,
+                ContractDate = monitor.ContractDate,
+                Uni = monitor.Uni,
+                Position = monitor.Position,
+                Profession = monitor.Profession,
+                SSN = monitor.SSN,
+                FinCode = monitor.FinCode,
+                SerialPrefix = monitor.SerialPrefix,
+                Serial = monitor.Serial,
+                Rekvizit = monitor.Rekvizit,
+                Voen = monitor.Voen,
+                TelIs = monitor.TelIs,
+                BankFilial = monitor.BankFilial,
+                BankFilialCode = monitor.BankFilialCode,
+                District = (byte)(monitor.District ?? 0),
+
+                // View bunları Model.Sections / Model.Districts kimi oxuyur
+                Sections = sections
+                    .Select(s => new SelectListItem
+                    {
+                        Value = s.Id.ToString(),
+                        Text = s.Name
+                    }).ToList(),
+
+                Districts = _context.Districts
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.Id.ToString(),
+                        Text = d.Name
+                    }).ToList()
+            };
+
+            return View(vm);
         }
 
         // POST: HeadMonitors/Edit/5

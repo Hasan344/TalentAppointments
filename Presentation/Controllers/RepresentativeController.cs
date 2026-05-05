@@ -42,7 +42,7 @@ namespace ForQab.Presentation.Controllers
         {
 
             ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
-            return View();
+            return View(new DimRepresentative());
         }
         [HttpPost]
         public async Task<IActionResult> Create(DimRepresentative dimRepresentative)
