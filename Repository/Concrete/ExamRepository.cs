@@ -438,26 +438,29 @@ namespace ForQab.Repository.Concrete
         public async Task<Exam?> GetByIdAsync(int id)
         {
             return await _context.Exams
+                .AsNoTracking()                                                 // ← YENİ
                 .Include(e => e.Section)
                 .Include(e => e.ExamBuilding)
                 .Include(e => e.ExamCommissions)
                     .ThenInclude(ec => ec.Commission)
                 .Include(e => e.Experts)
                     .ThenInclude(ex => ex.ExamExpertSubProfessions
-                        .Where(eesp => eesp.ExamId == id)) 
+                        .Where(eesp => eesp.ExamId == id))
                     .ThenInclude(eesp => eesp.SubProfession)
                 .Include(e => e.Experts)
                     .ThenInclude(ex => ex.ExamExpertSubProfessions
-                        .Where(eesp => eesp.ExamId == id)) 
+                        .Where(eesp => eesp.ExamId == id))
                     .ThenInclude(eesp => eesp.Federation)
                 .Include(e => e.Experts)
                     .ThenInclude(ex => ex.ExamExpertSubProfessions
-                        .Where(eesp => eesp.ExamId == id)) 
+                        .Where(eesp => eesp.ExamId == id))
                     .ThenInclude(eesp => eesp.ExamRoom)
                 .Include(e => e.Monitors)
                     .ThenInclude(e => e.ExamMonitors
-                                          .Where(em => em.ExamId == id))
-                        .ThenInclude(em => em.ExamRooms)
+                        .Where(em => em.ExamId == id))
+                    .ThenInclude(em => em.ExamRooms)
+                .Include(e => e.Monitors)
+                    .ThenInclude(m => m.WorkerTypeNavigation)                  // ← YENİ: N+1 fix üçün
                 .Include(e => e.ExamDegrees)
                     .ThenInclude(ed => ed.Degrees)
                 .Include(e => e.District)
@@ -468,17 +471,19 @@ namespace ForQab.Repository.Concrete
         }
 
 
-        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(int? sectionId, int type, int? year, int? examBuildingId = null)
+        public async Task<IEnumerable<Exam>> GetExamsBySectionIdAsync(
+    int? sectionId, int type, int? year, int? examBuildingId = null)
         {
             var query = _context.Exams
+                .AsNoTracking()                                                 // ← YENİ: tracking xərci azaldır
                 .Include(e => e.Section)
                 .Include(e => e.ExamBuilding)
                 .Include(e => e.ExamCommissions).ThenInclude(ec => ec.Commission)
-                .Include(e => e.Experts)
-                .Include(e => e.Monitors)
+                .Include(e => e.ExamExpertSubProfessions)                       // ← attendance dot üçün lazım
                 .Include(e => e.District)
-                .Where(e => e.Type == type )
-                .AsQueryable(); 
+                .Where(e => e.Type == type);
+            // Experts və Monitors silindi — Index-də göstərilmir,
+            // amma hər biri çox böyük JOIN yaradırdı
 
             if (sectionId.HasValue)
                 query = query.Where(e => e.SectionId == sectionId);
@@ -489,8 +494,9 @@ namespace ForQab.Repository.Concrete
             if (year.HasValue && year != 0)
                 query = query.Where(e => e.ExamDate.Year == year);
 
-            var exams = query.OrderByDescending(e => e.ExamDate).ToListAsync();
-            return await exams;
+            return await query
+                .OrderByDescending(e => e.ExamDate)
+                .ToListAsync();
         }
 
 

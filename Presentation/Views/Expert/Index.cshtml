@@ -4,6 +4,10 @@
     ViewData["Title"] = "Ekspertlər";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
     var q = ViewContext.HttpContext.Request.Query;
+    // Bu dəyişənlər həm filter HTML-ində, həm Scripts-də lazım olduğu üçün
+    // ən yuxarıda təyin edilir — bütün bloklarda görünür olur
+    var selectedFederationId    = q["federationId"].ToString();
+    var selectedSubProfessionId = q["subProfessionId"].ToString();
 }
 
 <link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
@@ -96,25 +100,27 @@
                 </div>
                 <div class="qab-filters__field">
                     <label class="qab-filters__label">Müəssisə</label>
-                    <select name="federationId" class="form-select">
+                    <select id="federationSelect" name="federationId" class="form-select">
                         <option value="">Hamısı</option>
-                        @foreach (var f in ViewBag.Federation)
+                        @foreach (var federation in ViewBag.Federation)
                         {
-                            <option value="@f.Id" selected="@(f.Id.ToString() == q["federationId"] ? "selected" : null)">@f.Name</option>
+                            <option value="@federation.Id"
+                                    selected="@(federation.Id.ToString() == selectedFederationId ? "selected" : null)">
+                                @federation.Name
+                            </option>
                         }
                     </select>
                 </div>
                 <div class="qab-filters__field">
                     <label class="qab-filters__label">İxtisas</label>
-                    <select name="subProfessionId" class="form-select">
-                        <option value="">Hamısı</option>
-                        @foreach (var sp in ViewBag.SubProfessions)
-                        {
-                            <option value="@sp.Id" selected="@(sp.Id.ToString() == q["subProfessionId"] ? "selected" : null)">@sp.Name</option>
-                        }
+                    <select id="subProfessionSelect" name="subProfessionId" class="form-select"
+                            @(string.IsNullOrEmpty(selectedFederationId) ? "disabled" : "")>
+                        <option value="">
+                            @(string.IsNullOrEmpty(selectedFederationId) ? "Əvvəl müəssisə seçin" : "Hamısı")
+                        </option>
                     </select>
                 </div>
-                <div style="display:flex;gap:.4rem;align-items:end;">
+                <div class="qab-filters__actions" style="display:flex;gap:.4rem;align-items:end;">
                     <button type="submit" class="qab-btn qab-btn--primary qab-btn--sm">
                         <i class="bi bi-search"></i> Axtar
                     </button>
@@ -167,7 +173,6 @@
                 @foreach (var item in Model)
                 {
                     <tr class="@(item.Status == 1 ? "qab-status--blocked" : "")">
-
                         <td>
                             <input type="checkbox" class="bulk-select-cb" value="@item.Id" />
                         </td>
@@ -354,6 +359,7 @@
         </div>
     </div>
 </div>
+
 <!-- ===== BULK ARCHIVE MODAL ===== -->
 <div class="modal fade" id="bulkArchiveModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -385,72 +391,89 @@
         </div>
     </div>
 </div>
+<!-- ===== END BULK ARCHIVE MODAL ===== -->
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        // ===== Export Modal - selectAll =====
+        document.getElementById('selectAllExports')?.addEventListener('change', function () {
+            document.querySelectorAll('.exp-select').forEach(cb => cb.checked = this.checked);
+        });
 
-            // ===== Export Modal - selectAllExports =====
-            const selectAllExports = document.getElementById('selectAllExports');
-            if (selectAllExports) {
-                selectAllExports.addEventListener('change', function () {
-                    document.querySelectorAll('.exp-select')
-                        .forEach(cb => cb.checked = this.checked);
+        // ===== BulkSelect =====
+        document.getElementById('bulkSelectAll')?.addEventListener('change', function () {
+            document.querySelectorAll('.bulk-select-cb').forEach(cb => cb.checked = this.checked);
+            updateBulkUI();
+        });
+        document.querySelectorAll('.bulk-select-cb').forEach(cb => {
+            cb.addEventListener('change', updateBulkUI);
+        });
+        function updateBulkUI() {
+            var checked = document.querySelectorAll('.bulk-select-cb:checked');
+            var btn = document.getElementById('bulkArchiveBtn');
+            var countBadge = document.getElementById('bulkArchiveCount');
+            var countText  = document.getElementById('bulkArchiveCountText');
+            var hiddenIds  = document.getElementById('bulkArchiveHiddenIds');
+            btn.style.display = checked.length > 0 ? '' : 'none';
+            if (countBadge) countBadge.textContent = checked.length;
+            if (countText)  countText.textContent  = checked.length + ' ekspert seçildi';
+            if (hiddenIds) {
+                hiddenIds.innerHTML = '';
+                checked.forEach(function(cb) {
+                    var inp = document.createElement('input');
+                    inp.type = 'hidden'; inp.name = 'expertIds'; inp.value = cb.value;
+                    hiddenIds.appendChild(inp);
                 });
             }
+        }
 
-            // ===== BULK ARCHIVE =====
-            const bulkBtn = document.getElementById('bulkArchiveBtn');
-            const bulkBadge = document.getElementById('bulkArchiveCount');
-            const bulkSelectAll = document.getElementById('bulkSelectAll');
-            const bulkModal = document.getElementById('bulkArchiveModal');
-
-            if (!bulkBtn || !bulkSelectAll || !bulkModal) return;
-
-            function getChecked() {
-                return document.querySelectorAll('.bulk-select-cb:checked');
+        // ===== Federation → SubProfession =====
+        function loadSubProfessions(federationId, preselectId) {
+            var subSelect = $('#subProfessionSelect');
+            if (!federationId) {
+                subSelect
+                    .empty()
+                    .append('<option value="">Əvvəl müəssisə seçin</option>')
+                    .prop('disabled', true);
+                return;
             }
+            subSelect
+                .empty()
+                .append('<option value="">Yüklənir...</option>')
+                .prop('disabled', true);
 
-            function updateBulkUI() {
-                const count = getChecked().length;
-                bulkBtn.style.display = count > 0 ? 'inline-block' : 'none';
-                bulkBadge.textContent = count;
+            $.getJSON('/Expert/GetSubProfessionsByFederation', { federationId: federationId }, function (data) {
+                subSelect.empty().append('<option value="">Hamısı</option>');
+                if (data.length > 0) {
+                    $.each(data, function (i, item) {
+                        var opt = new Option(item.name, item.id);
+                        if (preselectId && item.id.toString() === preselectId.toString()) {
+                            opt.selected = true;
+                        }
+                        subSelect.append(opt);
+                    });
+                    subSelect.prop('disabled', false);
+                } else {
+                    subSelect.append('<option value="" disabled>Bu müəssisə üçün ixtisas yoxdur</option>');
+                    subSelect.prop('disabled', true);
+                }
+            }).fail(function () {
+                subSelect.empty().append('<option value="">Xəta baş verdi</option>').prop('disabled', true);
+            });
+        }
+
+        $(document).ready(function () {
+            $('#federationSelect').on('change', function () {
+                loadSubProfessions($(this).val(), null);
+            });
+
+            // Səhifə yükləndikdə əvvəlki seçimləri bərpa et
+            var initFedId = '@selectedFederationId';
+            var initSubId = '@selectedSubProfessionId';
+            if (initFedId) {
+                loadSubProfessions(initFedId, initSubId);
             }
-
-            // Fərdi checkbox
-            document.addEventListener('change', function (e) {
-                if (!e.target.classList.contains('bulk-select-cb')) return;
-                updateBulkUI();
-                const all = document.querySelectorAll('.bulk-select-cb');
-                const checked = getChecked();
-                bulkSelectAll.indeterminate = checked.length > 0 && checked.length < all.length;
-                bulkSelectAll.checked = all.length > 0 && checked.length === all.length;
-            });
-
-            // Hamısını seç
-            bulkSelectAll.addEventListener('change', function () {
-                document.querySelectorAll('.bulk-select-cb')
-                    .forEach(cb => cb.checked = this.checked);
-                updateBulkUI();
-            });
-
-            // Modal açılanda hidden input-ları yaz
-            bulkModal.addEventListener('show.bs.modal', function () {
-                const checked = getChecked();
-                document.getElementById('bulkArchiveCountText').textContent =
-                    checked.length + ' ekspert arxivə göndəriləcək.';
-
-                const container = document.getElementById('bulkArchiveHiddenIds');
-                container.innerHTML = '';
-                checked.forEach(cb => {
-                    const inp = document.createElement('input');
-                    inp.type = 'hidden';
-                    inp.name = 'selectedIds';
-                    inp.value = cb.value;
-                    container.appendChild(inp);
-                });
-            });
-            // ===== END BULK ARCHIVE =====
         });
     </script>
 }
