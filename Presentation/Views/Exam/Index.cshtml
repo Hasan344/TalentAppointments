@@ -151,6 +151,27 @@
                         <td>
                             <div class="qab-col-name">
                                 <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
+
+                                @{
+                                    // Bu imtahanda IsAttended != 1 olan ən azı bir ekspert qeydi varmı?
+
+                                    // (yəni 0 və ya null — gələcəyini hələ təsdiqləməyib)
+
+                                    var hasUnconfirmedExperts = item.ExamExpertSubProfessions != null
+
+                                    && item.ExamExpertSubProfessions.Any(eesp => eesp.IsAttended != 1);
+                                }
+                                @if (hasUnconfirmedExperts)
+
+                                {
+                                    <span class="qab-attendance-dot"
+                                          data-bs-toggle="tooltip"
+                                          data-bs-placement="top"
+                                          title="İmtahanda gələcəyini təsdiqləməyənlər var"
+                                          aria-label="İmtahanda gələcəyini təsdiqləməyənlər var">
+                                    </span>
+                                }
+
                                 <span class="qab-table__id">#@item.Id</span>
                             </div>
                         </td>
@@ -172,12 +193,33 @@
                         </td>
                         <td>
                             @if (item.ExamCommissions != null && item.ExamCommissions.Any())
+
                             {
-                                <span class="qab-badge qab-badge--primary">
-                                    @string.Join(", ", item.ExamCommissions.Select(c => c.Commission.CommissionNo))
-                                </span>
+
+                                var commissions = item.ExamCommissions.ToList();
+
+                                var first = commissions.First();
+
+                                var remaining = commissions.Skip(1).ToList();
+
+                                <div class="qab-comm-preview">
+                                    <span class="qab-badge qab-badge--primary">@first.Commission.CommissionNo</span>
+                                    @if (remaining.Any())
+
+                                    {
+                                        <span class="qab-comm-more"
+                                              data-bs-toggle="tooltip"
+                                              data-bs-placement="top"
+                                              data-bs-html="true"
+                                              title="@string.Join("<br/>", commissions.Select(c => $"{c.Commission.CommissionNo} — {c.Commission.Name}"))">
+                                            +@remaining.Count
+                                        </span>
+                                    }
+                                </div>
                             }
+
                             else
+
                             {
                                 <span class="text-muted">—</span>
                             }
@@ -449,3 +491,79 @@
         </div>
     </div>
 </div>
+
+
+<style>
+    /* İştirak təsdiqi olmayan imtahanlar üçün xəbərdarlıq nöqtəsi */
+    .qab-attendance-dot {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        margin: 0 .35rem;
+        border-radius: 50%;
+        background-color: #f59e0b; /* amber/warning */
+        box-shadow: 0 0 0 2px rgba(245, 158, 11, .18);
+        cursor: help;
+        vertical-align: middle;
+        transition: transform .15s ease, box-shadow .15s ease;
+    }
+
+        .qab-attendance-dot:hover {
+            transform: scale(1.25);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, .28);
+        }
+</style>
+<style>
+    /* Komissiya önizləmə - kompakt görünüş */
+    .qab-comm-preview {
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+    }
+
+    .qab-comm-more {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 24px;
+        height: 20px;
+        padding: 0 .35rem;
+        font-size: .72rem;
+        font-weight: 600;
+        color: var(--qab-primary, #0d6efd);
+        background: rgba(13, 110, 253, .08);
+        border: 1px solid rgba(13, 110, 253, .2);
+        border-radius: 10px;
+        cursor: help;
+        transition: background .15s ease, transform .15s ease;
+    }
+
+        .qab-comm-more:hover {
+            background: rgba(13, 110, 253, .15);
+            transform: scale(1.08);
+        }
+</style>
+
+
+@section Scripts {
+    <script>
+        // Bütün attendance-dot tooltip-lərini initialize et
+        (function () {
+            var triggers = document.querySelectorAll('.qab-attendance-dot[data-bs-toggle="tooltip"]');
+            triggers.forEach(function (el) {
+                // Bootstrap 5 tooltip
+                new bootstrap.Tooltip(el);
+            });
+        })();
+    </script>
+    <script>
+        (function () {
+            // Bütün tooltip-ləri (attendance-dot + commission-more) initialize et
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+                new bootstrap.Tooltip(el, {
+                    html: el.hasAttribute('data-bs-html')   // yalnız data-bs-html="true" olanlar üçün HTML aktiv
+                });
+            });
+        })();
+    </script>
+}

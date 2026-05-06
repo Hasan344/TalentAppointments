@@ -1,4 +1,4 @@
-﻿@model ForQab.DataAccess.Models.Expert
+@model ForQab.DataAccess.Models.Expert
 
 @{
     ViewData["Title"] = "Eksperti sil";
@@ -46,15 +46,88 @@
                         <a asp-action="Index" class="qab-btn qab-btn--outline qab-btn--lg">
                             <i class="bi bi-x-circle"></i> İmtina et
                         </a>
-                        <form asp-action="Delete" method="post" asp-route-id="@Model.Id" style="margin:0;">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="qab-btn qab-btn--danger qab-btn--lg">
-                                <i class="bi bi-trash"></i> Sil
-                            </button>
-                        </form>
+                        <!-- Sil düyməsi - modal açır -->
+                        <button type="button" class="qab-btn qab-btn--danger qab-btn--lg"
+                                data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+                            <i class="bi bi-trash"></i> Sil
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- ===== TƏSDİQ MODALI: "sil" yazaraq təsdiqləmə ===== -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Silmə əməliyyatını təsdiqləyin
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Bağla"></button>
+            </div>
+            <form id="confirmDeleteForm" asp-action="Delete" method="post" asp-route-id="@Model.Id" style="margin:0;">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="alert alert-warning" role="alert">
+                        <i class="bi bi-info-circle-fill"></i>
+                        Bu əməliyyat <strong>geri qaytarıla bilməz</strong>.
+                        Ekspert <strong>@Model.Name @Model.Surname</strong> sistemdən tamamilə silinəcək.
+                    </div>
+                    <p class="mb-2">
+                        Davam etmək üçün aşağıdakı sahəyə kiçik hərflərlə <code><strong>sil</strong></code> sözünü yazın:
+                    </p>
+                    <input type="text" id="deleteConfirmInput" class="form-control"
+                           placeholder='Buraya "sil" yazın' autocomplete="off" />
+                    <small id="deleteConfirmHint" class="text-muted">
+                        Düymə yalnız siz <strong>"sil"</strong> yazdıqdan sonra aktiv olacaq.
+                    </small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="qab-btn qab-btn--outline" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> İmtina et
+                    </button>
+                    <button type="submit" id="confirmDeleteBtn" class="qab-btn qab-btn--danger" disabled>
+                        <i class="bi bi-trash"></i> Bəli, sil
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const input = document.getElementById('deleteConfirmInput');
+            const btn = document.getElementById('confirmDeleteBtn');
+            const modal = document.getElementById('confirmDeleteModal');
+
+            // Yalnız "sil" yazdıqda düyməni aktivləşdir
+            input.addEventListener('input', function () {
+                btn.disabled = input.value.trim().toLowerCase() !== 'sil';
+            });
+
+            // Modal bağlanan zaman input-u sıfırla
+            modal.addEventListener('hidden.bs.modal', function () {
+                input.value = '';
+                btn.disabled = true;
+            });
+
+            // Modal açılan zaman input-a fokus ver
+            modal.addEventListener('shown.bs.modal', function () {
+                input.focus();
+            });
+
+            // Form göndərilərkən son təsdiq
+            document.getElementById('confirmDeleteForm').addEventListener('submit', function (e) {
+                if (input.value.trim().toLowerCase() !== 'sil') {
+                    e.preventDefault();
+                    btn.disabled = true;
+                }
+            });
+        })();
+    </script>
+}

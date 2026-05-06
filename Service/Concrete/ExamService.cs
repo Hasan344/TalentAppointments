@@ -22,6 +22,7 @@ using Paragraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
 using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
 using Justification = DocumentFormat.OpenXml.Wordprocessing.Justification;
 using DocumentFormat.OpenXml.Bibliography;
+using ForQab.Extensions;
 
 namespace ForQab.Service
 {
@@ -1026,18 +1027,21 @@ namespace ForQab.Service
         public async Task<ExamDetailsViewModel> GetExamDetailsAsync(int examId)
         {
             var exam = await _examRepository.GetByIdAsync(examId);
-
-            if (exam == null)
-            {
-                return null;
-            }
+            if (exam == null) return null;
 
             var monitorIds = exam.Monitors.Select(m => m.Id).ToList();
             var expertIds = exam.Experts.Select(m => m.Id).ToList();
 
+            // Ardıcıl icra — EF Core parallel sorğuları dəstəkləmir
             var monitorLogs = await _examRepository.GetMonitorsWithLogsAsync(monitorIds);
-
             var expertLogs = await _examRepository.GetExpertsWithLogsAsync(expertIds);
+
+            // ExamMonitors-ı bir dəfə dict-ə çevir — hər monitor üçün
+            // ayrıca _context.ExamMonitors sorğusu əvəzinə O(1) lookup
+            var examMonitorDict = exam.Monitors
+                .SelectMany(m => m.ExamMonitors.Where(em => em.ExamId == examId))
+                .ToDictionary(em => em.MonitorId);
+
             var viewModel = new ExamDetailsViewModel
             {
                 Id = exam.Id,
@@ -1055,18 +1059,22 @@ namespace ForQab.Service
                 AdmissionTime = exam.AdmissionTime,
                 Notes = exam.Notes ?? string.Empty,
                 InventoryTransport = exam.InventoryTransport ?? string.Empty,
+
                 ExamCommissions = exam.ExamCommissions.Select(ec => new ExamCommissionViewModel
                 {
                     Commission = new CommissionViewModel { Name = ec.Commission.Name }
                 }).ToList(),
+
                 ExamDegrees = exam.ExamDegrees.Select(ec => new ExamDegreeViewModel
                 {
                     Degree = new DegreeViewModel { Name = ec.Degrees.Name }
                 }).ToList(),
+
                 ExamSubjects = exam.ExamSubjects.Select(ec => new ExamSubjectViewModel
                 {
                     Subject = new SubjectViewModel { Name = ec.Subjects.Name }
                 }).ToList(),
+
                 Experts = exam.Experts.Select(e => new ExpertViewModelForExam
                 {
                     Id = e.Id,
@@ -1077,15 +1085,16 @@ namespace ForQab.Service
                     Kons = e.Kons,
                     Tel = e.TelIs,
                     ExamExpertSubProfessions = e.ExamExpertSubProfessions
-                            .Select(eesp => new ExamExpertSubProfessionViewModelForExam
-                            {
-                                Name = eesp.SubProfession?.Name,
-                                FederationName = eesp.Federation?.Name,
-                                RoomName = eesp.ExamRoom?.Name,
-                                IsAttended = eesp.IsAttended
-                            }).ToList(),
+                        .Select(eesp => new ExamExpertSubProfessionViewModelForExam
+                        {
+                            Name = eesp.SubProfession?.Name,
+                            FederationName = eesp.Federation?.Name,
+                            RoomName = eesp.ExamRoom?.Name,
+                            IsAttended = eesp.IsAttended
+                        }).ToList(),
                     IsAttended = e.ExamExpertSubProfessions.Any(eesp => eesp.IsAttended == 1) ? 1 : 0
                 }).ToList(),
+
                 Monitors = exam.Monitors.Select(m => new MonitorViewModel
                 {
                     Id = m.Id,
@@ -1095,20 +1104,18 @@ namespace ForQab.Service
                     FinCode = m.FinCode,
                     Role = m.Role,
                     Tel = m.TelIs,
-                    WorkerType = _context.WorkerTypes
-                                            .Where(wt => wt.Id == m.WorkerType)
-                                            .Select(wt => wt.Name)
-                                            .FirstOrDefault(),
-
-                    Rooms = m.ExamMonitors.Where(em => em.ExamRooms != null).Select(em => new RoomViewModelForExam
-                    {
-                        RoomName = em.ExamRooms?.Name
-                    }).ToList(),
-                    IsAttended = _context.ExamMonitors
-                                    .Where(em => em.ExamId == exam.Id && em.MonitorId == m.Id)
-                                    .Select(em => em.IsAttended)
-                                    .FirstOrDefault() ?? 0
+                    // N+1 fix: WorkerTypeNavigation artıq GetByIdAsync-da include edilib
+                    WorkerType = m.WorkerTypeNavigation?.Name,
+                    Rooms = m.ExamMonitors
+                        .Where(em => em.ExamId == examId && em.ExamRooms != null)
+                        .Select(em => new RoomViewModelForExam { RoomName = em.ExamRooms?.Name })
+                        .ToList(),
+                    // N+1 fix: dict-dən oxunur, ayrıca DB sorğusu yoxdur
+                    IsAttended = examMonitorDict.TryGetValue(m.Id, out var emEntry)
+                        ? emEntry.IsAttended ?? 0
+                        : 0
                 }).ToList(),
+
                 ExamRepresentatives = exam.Representatives.Select(er => new RepresentativeViewModel
                 {
                     Id = er.Id,
@@ -1118,6 +1125,7 @@ namespace ForQab.Service
                     FinCode = er.FinCode,
                     Role = (byte?)er.Type,
                 }).ToList(),
+
                 ExpertsWithLogs = expertLogs ?? new List<int>(),
                 MonitorsWithLogs = monitorLogs ?? new List<int>(),
             };

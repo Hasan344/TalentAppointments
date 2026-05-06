@@ -44,36 +44,34 @@ namespace ForQab.Presentation.Controllers
                 year = null;
 
             var sectionId = await GetCurrentSectionIdAsync();
+
             var all = await _examService.GetExamsBySectionIdAsync(sectionId, examBuildingId, year);
 
-            var totalCount = all.Count();
-            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-            page = Math.Max(1, Math.Min(page, totalPages == 0 ? 1 : totalPages));
-
-            var paged = all.Skip((page - 1) * pageSize).Take(pageSize);
-
-            var examBuildings = await _context.ExamBuildings.ToListAsync();
             var buildings = await _context.ExamBuildings
-                .Where(b => b.SectionId == sectionId || sectionId == null)
+                .AsNoTracking()
+                .Where(b => sectionId == null || b.SectionId == sectionId)
                 .OrderBy(b => b.Name)
                 .Select(b => new { b.Id, b.Name })
                 .ToListAsync();
 
             var years = await _context.Exams
+                .AsNoTracking()
                 .Select(e => e.ExamDate.Year)
                 .Distinct()
                 .OrderByDescending(y => y)
                 .ToListAsync();
 
-            if (sectionId != null)
-                examBuildings = await _context.ExamBuildings
-                    .Where(eb => eb.SectionId == sectionId).ToListAsync();
+            // Pagination
+            var totalCount = all.Count();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            page = Math.Max(1, Math.Min(page, totalPages == 0 ? 1 : totalPages));
+            var paged = all.Skip((page - 1) * pageSize).Take(pageSize);
 
             ViewBag.Years = years;
             ViewBag.SelectedYear = year;
             ViewBag.ExamBuilding = buildings;
             ViewBag.Section = sectionId;
-            ViewBag.ExamBuildings = new SelectList(examBuildings, "Id", "Name");
+            ViewBag.ExamBuildings = new SelectList(buildings, "Id", "Name");
             ViewBag.SelectedExamBuildingId = examBuildingId;
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
