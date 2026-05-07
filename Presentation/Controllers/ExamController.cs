@@ -483,7 +483,6 @@ namespace ForQab.Presentation.Controllers
             return View(viewModel);
         }
 
-        // POST: Ekspertleri atama işlemi
         [HttpPost]
         public async Task<IActionResult> AssignExpertsForMX(AssignExpertForMXToExamViewModel viewModel)
         {
@@ -536,7 +535,6 @@ namespace ForQab.Presentation.Controllers
         }
 
 
-        // POST: Ekspertleri atama işlemi
         [HttpPost]
         public async Task<IActionResult> AssignMonitorsForMX(AssignMonitorForMXToExamViewModel viewModel)
         {
@@ -561,11 +559,11 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> AssignWorkersForMX(int examId)
         {
 
-            var workerTypes = await _context.WorkerTypes // WorkerType tablonuz varsa kullanın
+            var workerTypes = await _context.WorkerTypes 
                 .Select(w => new SelectListItem
                 {
                     Value = w.Id.ToString(),
-                    Text = w.Name // Eğer Name kolonu varsa
+                    Text = w.Name 
                 })
                 .ToListAsync();
 
@@ -615,7 +613,7 @@ namespace ForQab.Presentation.Controllers
         }
         public async Task<IActionResult> WriteMonitorLog(int examId, int monitorId, byte kind)
         {
-            var user = await _userManager.GetUserAsync(User); // Giriş yapan kullanıcıyı al
+            var user = await _userManager.GetUserAsync(User);
             var viewModel = new WriteMonitorLogViewModel
             {
                 ExamId = examId,

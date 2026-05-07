@@ -105,4 +105,10 @@ public partial class Exam
 
     [InverseProperty("Exam")]
     public virtual ICollection<ExpertLog> ExpertLogs { get; set; } = new List<ExpertLog>();
+    
+    [Column("bur_q")]
+    public int? burQ { get; set; }
+
+    [Column("bur_k")]
+    public int? burK { get; set; }
 }

@@ -24,12 +24,16 @@ namespace ForQab.Presentation.Controllers
         private readonly IMonitorService _monitorService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IAmasPhotoService _amasPhotoService;
+        private readonly MonitorValidator _monitorValidator;
+        private readonly MonitorEditValidator _monitorEditValidator;
 
-        public MonitorsController(MyDbContext context, UserManager<ApplicationUser> userManager, IMonitorService monitorService, IAmasPhotoService amasPhotoService) : base(context, userManager)
+        public MonitorsController(MyDbContext context, UserManager<ApplicationUser> userManager, IMonitorService monitorService, IAmasPhotoService amasPhotoService, MonitorEditValidator monitorEditValidator, MonitorValidator monitorValidator) : base(context, userManager)
         {
             _userManager = userManager;
             _monitorService = monitorService;
             _amasPhotoService = amasPhotoService;
+            _monitorEditValidator = monitorEditValidator;
+            _monitorValidator = monitorValidator;
         }
 
         public async Task<IActionResult> Index(
@@ -112,12 +116,13 @@ namespace ForQab.Presentation.Controllers
             ViewData["District"] = new SelectList(_context.Districts, "Id", "Name");
             return View(viewModel);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(MonitorViewModel monitor)
         {
-            var validator = new MonitorValidator();
-            var result = validator.Validate(monitor);
+            // FluentValidation async olduğu üçün ValidateAsync çağırırıq
+            var result = await _monitorValidator.ValidateAsync(monitor);
 
             if (!result.IsValid)
             {
@@ -126,19 +131,34 @@ namespace ForQab.Presentation.Controllers
                     ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                 }
 
+                // Konkret xəta mesajı ilə user-i məlumatlandırırıq ki, sadəcə yenilənmə təəssüratı yaranmasın
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
+
                 await LoadViewData(monitor);
                 return View(monitor);
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
+                await LoadViewData(monitor);
+                return View(monitor);
+            }
+
+            try
             {
                 await _monitorService.AddAsync(monitor);
                 TempData["SuccessMessage"] = "Nəzarətçi uğurla əlavə edildi.";
                 return RedirectToAction(nameof(Index));
             }
-
-            await LoadViewData(monitor);
-            return View(monitor);
+            catch (Exception ex)
+            {
+                // Database-tərəfli gözlənilməz xətaları (məs. concurrent insert ilə yaranan FinCode duplicate) tutaq
+                ModelState.AddModelError(string.Empty, $"Yaddaşa yazma zamanı xəta baş verdi: {ex.Message}");
+                TempData["ErrorMessage"] = "Yaddaşa yazma zamanı xəta baş verdi.";
+                await LoadViewData(monitor);
+                return View(monitor);
+            }
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -167,20 +187,40 @@ namespace ForQab.Presentation.Controllers
                 return NotFound();
             }
 
+            // FluentValidation ilə yoxlama (FinCode unikallığı daxil)
+            var result = await _monitorEditValidator.ValidateAsync(monitor);
+            if (!result.IsValid)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
+                return View(monitor);
+            }
 
             if (!ModelState.IsValid)
             {
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
                 return View(monitor);
             }
 
             try
             {
                 await _monitorService.UpdateAsync(monitor);
+                TempData["SuccessMessage"] = "Nəzarətçi məlumatları yeniləndi.";
                 return RedirectToAction("Index");
             }
             catch (KeyNotFoundException ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
+                TempData["ErrorMessage"] = ex.Message;
+                return View(monitor);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"Yeniləmə zamanı xəta: {ex.Message}");
+                TempData["ErrorMessage"] = "Yeniləmə zamanı xəta baş verdi.";
                 return View(monitor);
             }
         }

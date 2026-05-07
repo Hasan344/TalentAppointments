@@ -1,10 +1,11 @@
-﻿@using ForQab.DataAccess.Models
+@using ForQab.DataAccess.Models
 @model DimRepresentative
 @{
     ViewData["Title"] = "Nazirlik nümayəndəsi əlavə et";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 <link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Shared/QabValidation.css" asp-append-version="true" />
 
 <div class="container qab-page">
     <div class="qab-page-header">
@@ -19,10 +20,12 @@
         </div>
     </div>
 
+    <partial name="_QabFormAlerts" />
+
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-7">
             <form asp-controller="MinistryRepresentative" asp-action="Create" method="post" class="qab-form">
-                <div asp-validation-summary="ModelOnly" class="qab-form__validation"></div>
+                <div asp-validation-summary="All" class="qab-form__validation"></div>
                 <input type="hidden" asp-for="Type" value="2" />
 
                 <div class="qab-form__section">
@@ -39,8 +42,9 @@
                             <span asp-validation-for="Surname" class="text-danger"></span>
                         </div>
                         <div class="qab-form__field">
-                            <label asp-for="Fname" class="form-label">Ata adı</label>
+                            <label asp-for="Fname" class="form-label">Ata adı <span class="text-danger">*</span></label>
                             <input asp-for="Fname" class="form-control" />
+                            <span asp-validation-for="Fname" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -73,10 +77,14 @@
 
                 <div class="qab-form__footer">
                     <a asp-action="Index" class="qab-btn qab-btn--outline"><i class="bi bi-arrow-left"></i> Ləğv et</a>
-                    <button type="submit" class="qab-btn qab-btn--primary qab-btn--lg"><i class="bi bi-check-circle"></i> Yarat</button>
+                    <button type="submit" class="qab-btn qab-btn--primary qab-btn--lg"><i class="bi bi-check-circle"></i> Yadda saxla</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src="~/js/Shared/qab-validation.js" asp-append-version="true"></script>
+}

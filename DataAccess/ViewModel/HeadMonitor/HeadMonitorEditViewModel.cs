@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace ForQab.DataAccess.ViewModel.HeadMonitor
@@ -13,12 +13,15 @@ namespace ForQab.DataAccess.ViewModel.HeadMonitor
         [Required(ErrorMessage = "Soyad boş ola bilməz")]
         public string Surname { get; set; }
 
+        [Required(ErrorMessage = "Ata adı boş ola bilməz")]
         public string? Fname { get; set; }
+
         public string? Region { get; set; }
 
         [Required(ErrorMessage = "İstiqamət seçilməlidir")]
         public int SectionId { get; set; }
         public List<SelectListItem>? Sections { get; set; }
+
         public byte? Gender { get; set; }
         public DateOnly? BirthDate { get; set; }
         public string? ContractNo { get; set; }
@@ -27,9 +30,17 @@ namespace ForQab.DataAccess.ViewModel.HeadMonitor
         public string? Position { get; set; }
         public string? Profession { get; set; }
         public string? SSN { get; set; }
+
+        [Required(ErrorMessage = "FİN kod boş ola bilməz")]
+        [StringLength(10, MinimumLength = 6, ErrorMessage = "FİN kod 6-10 simvol arasında olmalıdır")]
         public string? FinCode { get; set; }
+
+        [Required(ErrorMessage = "Seriya prefiksi boş ola bilməz")]
         public string? SerialPrefix { get; set; }
+
+        [Required(ErrorMessage = "Seriya nömrəsi boş ola bilməz")]
         public string? Serial { get; set; }
+
         public string? Rekvizit { get; set; }
         public string? Voen { get; set; }
         public string? TelIs { get; set; }

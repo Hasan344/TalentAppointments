@@ -39,6 +39,8 @@ namespace ForQab.Presentation.ViewModels
 
         [StringLength(2000)]
         public string? Notes { get; set; }
+        public int? burQ { get; set; }
+        public int? burK { get; set; }
 
         [StringLength(4000)]
         public string? InventoryTransport { get; set; }

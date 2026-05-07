@@ -16,6 +16,8 @@ namespace ForQab.Models.ViewModels
         public double? Water { get; set; }
         public int? Food { get; set; }
         public int? StudentCount { get; set; }
+        public int? burQ { get; set; }
+        public int? burK { get; set; }
         public TimeSpan? StartTime { get; set; }
         public TimeSpan? EndTime { get; set; }
         public TimeSpan? AdmissionTime { get; set; }

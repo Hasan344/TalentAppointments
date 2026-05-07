@@ -22,13 +22,17 @@ namespace ForQab.Presentation.Controllers
         private readonly IHeadMonitorService _headMonitorService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IAmasPhotoService _amasPhotoService;
+        private readonly HeadMonitorValidator _headMonitorValidator;
+        private readonly HeadMonitorEditValidator _headMonitorEditValidator;
 
-        public HeadMonitorsController(MyDbContext context, UserManager<ApplicationUser> userManager, IHeadMonitorService headMonitorService, IAmasPhotoService amasPhotoService) : base(context, userManager)
+        public HeadMonitorsController(MyDbContext context, UserManager<ApplicationUser> userManager, IHeadMonitorService headMonitorService, IAmasPhotoService amasPhotoService, HeadMonitorEditValidator headMonitorEditValidator, HeadMonitorValidator headMonitorValidator) : base(context, userManager)
         {
             _context = context;
             _userManager = userManager;
             _headMonitorService = headMonitorService;
             _amasPhotoService = amasPhotoService;
+            _headMonitorEditValidator = headMonitorEditValidator;
+            _headMonitorValidator = headMonitorValidator;
         }
 
         // GET: HeadMonitors
@@ -114,40 +118,45 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Monitor monitor)
         {
-            var validator = new HeadMonitorValidator();
-            var result = validator.Validate(monitor);
+            // Yeni rekord olduğu üçün Role və default-lar burada təyin olunur
+            monitor.Role = 1;     // HeadMonitor
+            monitor.Status = 0;
+            monitor.Archive = 0;
 
+            // FluentValidation async (FinCode unique yoxlaması üçün)
+            var result = await _headMonitorValidator.ValidateAsync(monitor);
             if (!result.IsValid)
             {
-                // FluentValidation hatalarını ModelState’e ekleyelim ki View içinde gösterilebilsin.
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                 }
-
-                // Hatalarla birlikte tekrar View’a döneceğiz.
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
                 await LoadViewData(monitor);
                 return View(monitor);
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
+                await LoadViewData(monitor);
+                return View(monitor);
+            }
+
+            try
             {
                 await _headMonitorService.AddAsync(monitor);
                 TempData["SuccessMessage"] = "İmtahan rəhbəri uğurla əlavə edildi.";
                 return RedirectToAction(nameof(Index));
             }
-
-            // Model geçersizse, sayfayı tekrar doldur ve hata mesajlarını göster.
-            await LoadViewData(monitor);
-            return View(monitor);
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"Yaddaşa yazma zamanı xəta: {ex.Message}");
+                TempData["ErrorMessage"] = "Yaddaşa yazma zamanı xəta baş verdi.";
+                await LoadViewData(monitor);
+                return View(monitor);
+            }
         }
-
-        // ViewData için tekrar tekrar kod yazmamak adına ayrı bir metot oluşturalım.
-
-
-
-        // GET: HeadMonitors/Edit/5
-        // GET: HeadMonitors/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             if (id == 0)
@@ -225,21 +234,64 @@ namespace ForQab.Presentation.Controllers
                 return NotFound();
             }
 
+            var result = await _headMonitorEditValidator.ValidateAsync(headMonitor);
+            if (!result.IsValid)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
+                await ReloadEditViewBags(headMonitor);
+                return View(headMonitor);
+            }
+
             if (!ModelState.IsValid)
             {
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
+                await ReloadEditViewBags(headMonitor);
                 return View(headMonitor);
             }
 
             try
             {
                 await _headMonitorService.UpdateModelAsync(headMonitor);
+                TempData["SuccessMessage"] = "İmtahan rəhbəri məlumatları yeniləndi.";
                 return RedirectToAction("Index");
             }
             catch (KeyNotFoundException ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
+                TempData["ErrorMessage"] = ex.Message;
+                await ReloadEditViewBags(headMonitor);
                 return View(headMonitor);
             }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"Yeniləmə zamanı xəta: {ex.Message}");
+                TempData["ErrorMessage"] = "Yeniləmə zamanı xəta baş verdi.";
+                await ReloadEditViewBags(headMonitor);
+                return View(headMonitor);
+            }
+        }
+
+        // ⭐ YENİ köməkçi: Edit səhifəsi xətalı qayıtdıqda dropdown-ları yenidən doldurur
+        private async Task ReloadEditViewBags(HeadMonitorEditViewModel vm)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var sections = await _headMonitorService.GetSectionsAsync(sectionId);
+
+            vm.Sections = sections.Select(s => new SelectListItem
+            {
+                Value = s.Id.ToString(),
+                Text = s.Name
+            }).ToList();
+
+            vm.Districts = _context.Districts.Select(d => new SelectListItem
+            {
+                Value = d.Id.ToString(),
+                Text = d.Name
+            }).ToList();
         }
 
         // GET: HeadMonitors/Delete/5

@@ -4,6 +4,7 @@ using ForQab.Data_Access.ViewModel;
 using ForQab.Data_Access.ViewModel.Expert;
 using ForQab.DataAccess.Models;
 using ForQab.Models;
+using ForQab.Presentation.Validators;
 using ForQab.Service;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Authorization;
@@ -24,13 +25,18 @@ namespace ForQab.Presentation.Controllers
         private readonly ISubProfessionService _subProfessionService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IAmasPhotoService _amasPhotoService;
+        private readonly ExpertValidator _expertValidator;
+        private readonly ExpertEditValidator _expertEditValidator;
 
-        public ExpertController(IExpertService expertService, ISubProfessionService subProfessionService, MyDbContext context, UserManager<ApplicationUser> userManager, IAmasPhotoService amasPhotoService) : base(context, userManager)
+
+        public ExpertController(IExpertService expertService, ISubProfessionService subProfessionService, MyDbContext context, UserManager<ApplicationUser> userManager, IAmasPhotoService amasPhotoService, ExpertValidator expertValidator, ExpertEditValidator expertEditValidator) : base(context, userManager)
         {
             _expertService = expertService;
             _subProfessionService = subProfessionService;
             _userManager = userManager;
             _amasPhotoService = amasPhotoService;
+            _expertValidator = expertValidator;
+            _expertEditValidator = expertEditValidator;
         }
 
         public async Task<IActionResult> Index(
@@ -111,32 +117,43 @@ namespace ForQab.Presentation.Controllers
             ViewBag.FederationList = new SelectList(federations, "Id", "Name");
             return View(viewModel);
         }
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ExpertViewModel expertViewModel)
         {
-            if (ModelState.IsValid)
+            var result = await _expertValidator.ValidateAsync(expertViewModel);
+            if (!result.IsValid)
             {
-                await _expertService.AddExpertAsync(expertViewModel);
-                return RedirectToAction(nameof(Index));
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
+                await ReloadCreateViewBags(expertViewModel);
+                return View(expertViewModel);
             }
 
-            var sectionId = await GetCurrentSectionIdAsync();
-            ViewBag.Section = sectionId;
-            var sections = await _expertService.GetSectionsAsync(sectionId);
-            var subProfessions = await _expertService.GetSubProfessionsAsync(sectionId);
-            var federations = await _expertService.GetFederationsAsync(sectionId);
-
-
-            ViewBag.SectionList = new SelectList(sections, "Id", "Name");
-            ViewBag.GenderList = new SelectList(_context.Genders.ToList(), "Id", "Name");
-            ViewBag.FederationList = new SelectList(federations, "Id", "Name");
-            expertViewModel.SubProfessions = subProfessions.Select(sp => new SelectListItem
+            if (!ModelState.IsValid)
             {
-                Text = sp.Name,
-                Value = sp.Id.ToString()
-            }).ToList();
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
+                await ReloadCreateViewBags(expertViewModel);
+                return View(expertViewModel);
+            }
 
-            return View(expertViewModel);
+            try
+            {
+                await _expertService.AddExpertAsync(expertViewModel);
+                TempData["SuccessMessage"] = "Ekspert uğurla əlavə edildi.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"Yaddaşa yazma zamanı xəta: {ex.Message}");
+                TempData["ErrorMessage"] = "Yaddaşa yazma zamanı xəta baş verdi.";
+                await ReloadCreateViewBags(expertViewModel);
+                return View(expertViewModel);
+            }
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -216,35 +233,43 @@ namespace ForQab.Presentation.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            var result = await _expertEditValidator.ValidateAsync(expert);
+            if (!result.IsValid)
             {
-                try
+                foreach (var error in result.Errors)
                 {
-                    await _expertService.UpdateExpertAsync(expert);
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ExpertExists(expert.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
+                await ReloadEditViewBags(expert);
+                return View(expert);
             }
 
-            var sectionId = await GetCurrentSectionIdAsync();
-            ViewBag.Section = sectionId;
-            var sections = await _expertService.GetSectionsAsync(sectionId);
-            var federations = await _expertService.GetFederationsAsync(sectionId);
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
+                await ReloadEditViewBags(expert);
+                return View(expert);
+            }
 
-            ViewData["SectionId"] = new SelectList(sections, "Id", "Name");
-            ViewBag.GenderList = new SelectList(_context.Genders.ToList(), "Id", "Name");
-            ViewBag.FederationList = new SelectList(federations, "Id", "Name");
-            return View(expert);
+            try
+            {
+                await _expertService.UpdateExpertAsync(expert);
+                TempData["SuccessMessage"] = "Ekspert məlumatları yeniləndi.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ExpertExists(expert.Id)) return NotFound();
+                throw;
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"Yeniləmə zamanı xəta: {ex.Message}");
+                TempData["ErrorMessage"] = "Yeniləmə zamanı xəta baş verdi.";
+                await ReloadEditViewBags(expert);
+                return View(expert);
+            }
         }
         [HttpGet]
         public async Task<IActionResult> Details(int id)
@@ -668,6 +693,36 @@ namespace ForQab.Presentation.Controllers
 
             TempData["SuccessMessage"] = "Şəkil AMAS-dan uğurla yükləndi.";
             return RedirectToAction(nameof(Details), new { id });
+        }
+        private async Task ReloadCreateViewBags(ExpertViewModel vm)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            ViewBag.Section = sectionId;
+            var sections = await _expertService.GetSectionsAsync(sectionId);
+            var subProfessions = await _expertService.GetSubProfessionsAsync(sectionId);
+            var federations = await _expertService.GetFederationsAsync(sectionId);
+
+            vm.SubProfessions = subProfessions.Select(sp => new SelectListItem
+            {
+                Text = sp.Name,
+                Value = sp.Id.ToString()
+            }).ToList();
+
+            ViewBag.SectionList = new SelectList(sections, "Id", "Name");
+            ViewBag.GenderList = new SelectList(_context.Genders.ToList(), "Id", "Name");
+            ViewBag.FederationList = new SelectList(federations, "Id", "Name");
+        }
+
+        private async Task ReloadEditViewBags(ExpertEditViewModel vm)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            ViewBag.Section = sectionId;
+            var sections = await _expertService.GetSectionsAsync(sectionId);
+            var federations = await _expertService.GetFederationsAsync(sectionId);
+
+            ViewData["SectionId"] = new SelectList(sections, "Id", "Name");
+            ViewBag.GenderList = new SelectList(_context.Genders.ToList(), "Id", "Name");
+            ViewBag.FederationList = new SelectList(federations, "Id", "Name");
         }
     }
 

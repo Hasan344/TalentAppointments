@@ -19,10 +19,14 @@ namespace ForQab.Presentation.Controllers
     {
         private readonly IWorkerService _workerService;
         private readonly UserManager<ApplicationUser> _userManager;
-        public WorkerController(MyDbContext context, UserManager<ApplicationUser> userManager, IWorkerService workerService) : base(context, userManager)
+        private readonly HeadMonitorValidator _headMonitorValidator;
+        private readonly HeadMonitorEditValidator _headMonitorEditValidator;
+        public WorkerController(MyDbContext context, UserManager<ApplicationUser> userManager, IWorkerService workerService, HeadMonitorValidator headMonitorValidator, HeadMonitorEditValidator headMonitorEditValidator) : base(context, userManager)
         {
             _userManager = userManager;
             _workerService = workerService;
+            _headMonitorValidator = headMonitorValidator;
+            _headMonitorEditValidator = headMonitorEditValidator;
         }
 
         public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
@@ -93,8 +97,7 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Monitor monitor)
         {
-            var validator = new HeadMonitorValidator();
-            var result = validator.Validate(monitor);
+            var result = _headMonitorValidator.Validate(monitor);
 
             if (!result.IsValid)
             {

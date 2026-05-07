@@ -1,0 +1,27 @@
+@*
+    Bu partial bütün Create/Edit səhifələrində TempData mesajlarını
+    eyni cür göstərmək üçündür. İstifadə:
+        <partial name="_QabFormAlerts" />
+*@
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="qab-alert qab-alert--danger">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>@TempData["ErrorMessage"]</span>
+    </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="qab-alert qab-alert--success">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>@TempData["SuccessMessage"]</span>
+    </div>
+}
+@if (TempData["WarningMessage"] != null)
+{
+    <div class="qab-alert qab-alert--warning">
+        <i class="bi bi-info-circle-fill"></i>
+        <span>@TempData["WarningMessage"]</span>
+    </div>
+}

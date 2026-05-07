@@ -1,5 +1,10 @@
-﻿using ClosedXML.Excel;
+// =====================================================================
+// MinistryRepresentativeController.cs faylı — TAM DƏYİŞİKLİK
+// =====================================================================
+
+using ClosedXML.Excel;
 using ForQab.DataAccess.Models;
+using ForQab.Presentation.Validators;
 using ForQab.Service.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,12 +20,19 @@ namespace ForQab.Presentation.Controllers
         private readonly IMinistryRepresentativeService _representativeService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly MyDbContext _context;
+        private readonly DimRepresentativeValidator _validator;
 
-        public MinistryRepresentativeController(UserManager<ApplicationUser> userManager, IMinistryRepresentativeService representativeService, MyDbContext context) : base(context, userManager)
+        public MinistryRepresentativeController(
+            UserManager<ApplicationUser> userManager,
+            IMinistryRepresentativeService representativeService,
+            MyDbContext context,
+            DimRepresentativeValidator validator)
+            : base(context, userManager)
         {
             _userManager = userManager;
             _representativeService = representativeService;
             _context = context;
+            _validator = validator;
         }
 
         public async Task<IActionResult> Index()
@@ -28,6 +40,7 @@ namespace ForQab.Presentation.Controllers
             var commissions = await _representativeService.GetAllRepresentativesAsync();
             return View(commissions);
         }
+
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -36,22 +49,49 @@ namespace ForQab.Presentation.Controllers
             {
                 return NotFound();
             }
-
             return View(representative);
         }
+
         public ActionResult Create()
         {
-            return View(new DimRepresentative());
+            // Type = 2 → Nazirlik nümayəndəsi
+            return View(new DimRepresentative { Type = 2 });
         }
+
         [HttpPost]
         public async Task<IActionResult> Create(DimRepresentative dimRepresentative)
         {
-            if (ModelState.IsValid)
+            if (dimRepresentative.Type == 0) dimRepresentative.Type = 2;
+
+            var result = await _validator.ValidateAsync(dimRepresentative);
+            if (!result.IsValid)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
+                return View(dimRepresentative);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
+                return View(dimRepresentative);
+            }
+
+            try
             {
                 await _representativeService.AddRepresentativeAsync(dimRepresentative);
+                TempData["SuccessMessage"] = "Nazirlik nümayəndəsi uğurla əlavə edildi.";
                 return RedirectToAction(nameof(Index));
             }
-            return View(dimRepresentative);
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"Yaddaşa yazma zamanı xəta: {ex.Message}");
+                TempData["ErrorMessage"] = "Yaddaşa yazma zamanı xəta baş verdi.";
+                return View(dimRepresentative);
+            }
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -73,26 +113,40 @@ namespace ForQab.Presentation.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            var result = await _validator.ValidateAsync(representative);
+            if (!result.IsValid)
             {
-                try
+                foreach (var error in result.Errors)
                 {
-                    await _representativeService.UpdateRepresentativeAsync(representative);
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CommissionExists(representative.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
+                return View(representative);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Formada xətalar var. Qırmızı ilə işarələnmiş sahələri yoxlayın.";
+                return View(representative);
+            }
+
+            try
+            {
+                await _representativeService.UpdateRepresentativeAsync(representative);
+                TempData["SuccessMessage"] = "Nümayəndə məlumatları yeniləndi.";
                 return RedirectToAction(nameof(Index));
             }
-            return View(representative);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CommissionExists(representative.Id)) return NotFound();
+                throw;
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"Yeniləmə zamanı xəta: {ex.Message}");
+                TempData["ErrorMessage"] = "Yeniləmə zamanı xəta baş verdi.";
+                return View(representative);
+            }
         }
 
         public async Task<IActionResult> Delete(int id)
@@ -106,7 +160,6 @@ namespace ForQab.Presentation.Controllers
             {
                 return NotFound();
             }
-
             return View(commission);
         }
 
@@ -124,51 +177,6 @@ namespace ForQab.Presentation.Controllers
                 await _representativeService.DeleteRepresentativeAsync(id);
             }
             return RedirectToAction(nameof(Index));
-        }
-
-        public async Task<IActionResult> ExportToExcel()
-        {
-            var representatives = await _representativeService.GetAllRepresentativesAsync();
-
-            var dt = new DataTable("MinistryRepresentatives");
-            dt.Columns.AddRange(new DataColumn[]
-            {
-                new DataColumn("Ad"),
-                new DataColumn("Soyad"),
-                new DataColumn("Ata adı"),
-                new DataColumn("Fin Kod"),
-                new DataColumn("Telefon"),
-                new DataColumn("Seriya prefiksi"),
-                new DataColumn("Seriya nömrəsi"),
-            });
-
-            foreach (var rep in representatives)
-            {
-                dt.Rows.Add(
-                    rep.Name,
-                    rep.Surname,
-                    rep.Fname,
-                    rep.FinCode,
-                    rep.Tel,
-                    rep.SerialPrefix ?? "",
-                    rep.Serial
-                );
-            }
-
-            using (var workbook = new XLWorkbook())
-            {
-                workbook.Worksheets.Add(dt, "Nazirlik Nümayəndələri");
-                using (var stream = new MemoryStream())
-                {
-                    workbook.SaveAs(stream);
-                    var content = stream.ToArray();
-                    return File(
-                        content,
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        "Nazirlik nümayəndələri.xlsx"
-                    );
-                }
-            }
         }
 
         private bool CommissionExists(int id)
