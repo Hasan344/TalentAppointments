@@ -17,10 +17,14 @@ namespace ForQab.Presentation.Controllers
     {
         private readonly INaturaService _naturaService;
         private readonly UserManager<ApplicationUser> _userManager;
-        public NaturaController(MyDbContext context, UserManager<ApplicationUser> userManager, INaturaService naturaService) : base(context, userManager)
+        private readonly HeadMonitorValidator _headMonitorValidator;
+        private readonly HeadMonitorEditValidator _headMonitorEditValidator;
+        public NaturaController(MyDbContext context, UserManager<ApplicationUser> userManager, INaturaService naturaService, HeadMonitorValidator headMonitorValidator, HeadMonitorEditValidator headMonitorEditValidator) : base(context, userManager)
         {
             _userManager = userManager;
             _naturaService = naturaService;
+            _headMonitorValidator = headMonitorValidator;
+            _headMonitorEditValidator = headMonitorEditValidator;
         }
 
         public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
@@ -75,8 +79,7 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Monitor monitor)
         {
-            var validator = new HeadMonitorValidator();
-            var result = validator.Validate(monitor);
+            var result = _headMonitorValidator.Validate(monitor);
 
             if (!result.IsValid)
             {

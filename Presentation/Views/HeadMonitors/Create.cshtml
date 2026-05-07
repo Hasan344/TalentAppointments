@@ -1,4 +1,4 @@
-﻿@model ForQab.DataAccess.Models.Monitor
+@model ForQab.DataAccess.Models.Monitor
 
 @{
     ViewData["Title"] = "Yeni imtahan rəhbəri";
@@ -6,6 +6,8 @@
 }
 
 <link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
+@* ⭐ YENİ: Validation styles *@
+<link rel="stylesheet" href="~/css/Shared/QabValidation.css" asp-append-version="true" />
 
 <div class="container qab-page">
     <div class="qab-page-header">
@@ -20,8 +22,12 @@
         </div>
     </div>
 
+    @* ⭐ YENİ: TempData mesajları *@
+    <partial name="_QabFormAlerts" />
+
     <form asp-action="Create" method="post" class="qab-form">
-        <div asp-validation-summary="ModelOnly" class="qab-form__validation"></div>
+        @* ⭐ DƏYİŞDİ: ModelOnly → All *@
+        <div asp-validation-summary="All" class="qab-form__validation"></div>
         <input type="hidden" asp-for="Role" value="1" />
         <input type="hidden" asp-for="Status" value="0" />
         <input type="hidden" asp-for="Archive" value="0" />
@@ -41,8 +47,10 @@
                     <span asp-validation-for="Surname" class="text-danger"></span>
                 </div>
                 <div class="qab-form__field">
-                    <label asp-for="Fname" class="form-label">Ata adı</label>
+                    @* ⭐ DƏYİŞDİ: Fname required işarəsi əlavə olundu *@
+                    <label asp-for="Fname" class="form-label">Ata adı <span class="text-danger">*</span></label>
                     <input asp-for="Fname" class="form-control" />
+                    <span asp-validation-for="Fname" class="text-danger"></span>
                 </div>
             </div>
             <div class="qab-form__row">
@@ -51,14 +59,18 @@
                     <select asp-for="Gender" class="form-select" asp-items="@(ViewData["Gender"] as SelectList)">
                         <option value="">Seçin</option>
                     </select>
+                    <span asp-validation-for="Gender" class="text-danger"></span>
                 </div>
                 <div class="qab-form__field">
-                    <label asp-for="BirthDate" class="form-label">Doğum tarixi</label>
+                    @* ⭐ DƏYİŞDİ: BirthDate required *@
+                    <label asp-for="BirthDate" class="form-label">Doğum tarixi <span class="text-danger">*</span></label>
                     <input asp-for="BirthDate" type="date" class="form-control" />
+                    <span asp-validation-for="BirthDate" class="text-danger"></span>
                 </div>
                 <div class="qab-form__field">
                     <label asp-for="TelIs" class="form-label">Telefon</label>
                     <input asp-for="TelIs" class="form-control" />
+                    <span asp-validation-for="TelIs" class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -68,17 +80,22 @@
             <div class="qab-form__section-title">Sənəd məlumatları</div>
             <div class="qab-form__row">
                 <div class="qab-form__field">
-                    <label asp-for="FinCode" class="form-label">FİN Kod</label>
+                    @* ⭐ DƏYİŞDİ: FinCode required *@
+                    <label asp-for="FinCode" class="form-label">FİN Kod <span class="text-danger">*</span></label>
                     <input asp-for="FinCode" class="form-control" />
+                    <span asp-validation-for="FinCode" class="text-danger"></span>
                 </div>
                 <partial name="_SerialPrefixSelect" model="@Model.SerialPrefix" />
                 <div class="qab-form__field">
-                    <label asp-for="Serial" class="form-label">Seriya nömrəsi</label>
+                    @* ⭐ DƏYİŞDİ: Serial required *@
+                    <label asp-for="Serial" class="form-label">Seriya nömrəsi <span class="text-danger">*</span></label>
                     <input asp-for="Serial" class="form-control" />
+                    <span asp-validation-for="Serial" class="text-danger"></span>
                 </div>
                 <div class="qab-form__field">
                     <label asp-for="VNum" class="form-label">Vəsiqə nömrəsi</label>
                     <input asp-for="VNum" class="form-control" />
+                    <span asp-validation-for="VNum" class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -90,18 +107,22 @@
                 <div class="qab-form__field">
                     <label asp-for="Profession" class="form-label">Peşə / İxtisas</label>
                     <input asp-for="Profession" class="form-control" />
+                    <span asp-validation-for="Profession" class="text-danger"></span>
                 </div>
                 <div class="qab-form__field">
                     <label asp-for="Workplace" class="form-label">İş yeri</label>
                     <input asp-for="Workplace" class="form-control" />
+                    <span asp-validation-for="Workplace" class="text-danger"></span>
                 </div>
                 <div class="qab-form__field">
                     <label asp-for="Position" class="form-label">Vəzifə</label>
                     <input asp-for="Position" class="form-control" />
+                    <span asp-validation-for="Position" class="text-danger"></span>
                 </div>
                 <div class="qab-form__field">
                     <label asp-for="Uni" class="form-label">Uni</label>
                     <input asp-for="Uni" class="form-control" />
+                    <span asp-validation-for="Uni" class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -127,6 +148,7 @@
                 <div class="qab-form__field">
                     <label asp-for="Region" class="form-label">Region</label>
                     <input asp-for="Region" class="form-control" />
+                    <span asp-validation-for="Region" class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -136,28 +158,34 @@
             <div class="qab-form__section-title">Maliyyə məlumatları</div>
             <div class="qab-form__row">
                 <div class="qab-form__field">
-                    <label asp-for="SSN" class="form-label">SSN</label>
+                    <label asp-for="SSN" class="form-label">SSN <span class="text-danger">*</span></label>
                     <input asp-for="SSN" class="form-control" />
+                    <span asp-validation-for="SSN" class="text-danger"></span>
                 </div>
                 <div class="qab-form__field">
-                    <label asp-for="Rekvizit" class="form-label">Rekvizit</label>
+                    <label asp-for="Rekvizit" class="form-label">Rekvizit <span class="text-danger">*</span></label>
                     <input asp-for="Rekvizit" class="form-control" />
+                    <span asp-validation-for="Rekvizit" class="text-danger"></span>
                 </div>
                 <div class="qab-form__field">
                     <label asp-for="HesablashmaH" class="form-label">Hesablaşma hesabı</label>
                     <input asp-for="HesablashmaH" class="form-control" />
+                    <span asp-validation-for="HesablashmaH" class="text-danger"></span>
                 </div>
                 <div class="qab-form__field">
                     <label asp-for="Voen" class="form-label">VÖEN</label>
                     <input asp-for="Voen" class="form-control" />
+                    <span asp-validation-for="Voen" class="text-danger"></span>
                 </div>
                 <div class="qab-form__field">
-                    <label asp-for="BankFilial" class="form-label">Bank filialı</label>
+                    <label asp-for="BankFilial" class="form-label">Bank filialı <span class="text-danger">*</span></label>
                     <input asp-for="BankFilial" class="form-control" />
+                    <span asp-validation-for="BankFilial" class="text-danger"></span>
                 </div>
                 <div class="qab-form__field">
-                    <label asp-for="BankFilialCode" class="form-label">Bank filial kodu</label>
+                    <label asp-for="BankFilialCode" class="form-label">Bank filial kodu <span class="text-danger">*</span></label>
                     <input asp-for="BankFilialCode" class="form-control" />
+                    <span asp-validation-for="BankFilialCode" class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -169,10 +197,12 @@
                 <div class="qab-form__field">
                     <label asp-for="ContractNo" class="form-label">Müqavilə nömrəsi</label>
                     <input asp-for="ContractNo" class="form-control" />
+                    <span asp-validation-for="ContractNo" class="text-danger"></span>
                 </div>
                 <div class="qab-form__field">
                     <label asp-for="ContractDate" class="form-label">Müqavilə tarixi</label>
                     <input asp-for="ContractDate" type="date" class="form-control" />
+                    <span asp-validation-for="ContractDate" class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -190,4 +220,6 @@
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    @* ⭐ YENİ: Validation JS *@
+    <script src="~/js/Shared/qab-validation.js" asp-append-version="true"></script>
 }

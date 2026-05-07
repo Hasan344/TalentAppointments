@@ -94,6 +94,8 @@ namespace ForQab.Service
                 Duration = exam.Duration,
                 Water = exam.Water,
                 Food = exam.Food,
+                burQ = exam.burQ,
+                burK = exam.burK,
                 StudentCount = exam.StudentCount,
                 Notes = exam.Notes,
                 InventoryTransport = exam.InventoryTransport,
@@ -1053,6 +1055,8 @@ namespace ForQab.Service
                 Duration = exam.Duration,
                 Water = exam.Water,
                 Food = exam.Food,
+                burK = exam.burK,
+                burQ = exam.burQ,
                 StudentCount = exam.StudentCount,
                 StartTime = exam.StartTime,
                 EndTime = exam.EndTime,
@@ -2076,7 +2080,7 @@ namespace ForQab.Service
                 using (var document = DocX.Create(stream))
                 {
                     // Başlık ekle
-                    document.InsertParagraph("Sınav Raporu")
+                    document.InsertParagraph("İmtahan hesabatı")
                             .FontSize(20)
                             .Bold()
                             .Alignment = Alignment.center;
@@ -2091,10 +2095,10 @@ namespace ForQab.Service
 
                     // Başlık satırı
                     table.Rows[0].Cells[0].Paragraphs[0].Append("№").Bold();
-                    table.Rows[0].Cells[1].Paragraphs[0].Append("Exam building").Bold();
-                    table.Rows[0].Cells[2].Paragraphs[0].Append("Exam date").Bold();
-                    table.Rows[0].Cells[3].Paragraphs[0].Append("Food provided").Bold();
-                    table.Rows[0].Cells[4].Paragraphs[0].Append("Water bottles").Bold();
+                    table.Rows[0].Cells[1].Paragraphs[0].Append("İmtahan binası").Bold();
+                    table.Rows[0].Cells[2].Paragraphs[0].Append("İmtahan tarixi").Bold();
+                    table.Rows[0].Cells[3].Paragraphs[0].Append("Verilən yemək").Bold();
+                    table.Rows[0].Cells[4].Paragraphs[0].Append("Verilən su").Bold();
 
                     // Veri satırları
                     int rowIndex = 1;
@@ -2147,7 +2151,7 @@ namespace ForQab.Service
                     new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
                     new Run(
                         new RunProperties(new Bold(), new FontSize { Val = "36" }),
-                        new Text("İmtahan - Yiyecek/Su Raporu")
+                        new Text("İmtahan - Yemək/su hesabatı")
                     )
                 );
                 body.AppendChild(titleParagraph);
@@ -2157,7 +2161,7 @@ namespace ForQab.Service
                     new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
                     new Run(
                         new RunProperties(new FontSize { Val = "24" }),
-                        new Text($"Tarih: {start} - {end}")
+                        new Text($"Tarix: {start} - {end}")
                     )
                 );
                 body.AppendChild(dateParagraph);
@@ -2182,7 +2186,7 @@ namespace ForQab.Service
 
                 // Başlık satırı
                 var headerRow = new TableRow();
-                var headers = new[] { "№", "Exam building", "Exam date", "Food provided", "Water bottles" };
+                var headers = new[] { "№", "İmtahan binası", "İmtahan tarixi", "Verilən yemək", "Verilən su" };
 
                 foreach (var header in headers)
                 {

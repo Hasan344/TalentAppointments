@@ -43,6 +43,8 @@ namespace ForQab.Repository.Concrete
                 Shift = entity.Shift,
                 AdmissionTime = entity.AdmissionTime,
                 DistrictId = entity.DistrictId,
+                burK = entity.burK,
+                burQ = entity.burQ,
             };
 
             if (entity.SelectedCommissions != null)
@@ -559,6 +561,8 @@ namespace ForQab.Repository.Concrete
             existingExam.AdmissionTime = exam.AdmissionTime;
             existingExam.DistrictId = exam.DistrictId;
             existingExam.ExamDate = exam.ExamDate;
+            existingExam.burQ = exam.burQ;
+            existingExam.burK = exam.burK;
 
             if (existingExam.ExamCommissions != null)
             {

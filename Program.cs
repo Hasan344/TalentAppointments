@@ -7,6 +7,7 @@ using ForQab.Repository.Abstract;
 using ForQab.Repository.Concrete;
 using ForQab.Service.Abstract;
 using ForQab.Service.Concrete;
+using ForQab.Presentation.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +55,16 @@ builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<ISubjectService, SubjectService>(); 
 builder.Services.AddScoped<ForQab.Service.Abstract.IAmasPhotoService,
                             ForQab.Service.Concrete.AmasPhotoService>();
+builder.Services.AddScoped<IFinCodeUniquenessChecker, FinCodeUniquenessChecker>();
+
+builder.Services.AddScoped<MonitorValidator>();
+builder.Services.AddScoped<MonitorEditValidator>();
+builder.Services.AddScoped<ExpertValidator>();
+builder.Services.AddScoped<ExpertEditValidator>();
+builder.Services.AddScoped<DimRepresentativeValidator>();
+builder.Services.AddScoped<HeadMonitorValidator>();
+builder.Services.AddScoped<HeadMonitorEditValidator>();
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireNonAlphanumeric = false;

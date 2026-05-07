@@ -1,10 +1,11 @@
-﻿@using ForQab.DataAccess.Models
+@using ForQab.DataAccess.Models
 @model DimRepresentative
 @{
     ViewData["Title"] = "DİM nümayəndəsini redaktə et";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 <link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Shared/QabValidation.css" asp-append-version="true" />
 
 <div class="container qab-page">
     <div class="qab-page-header">
@@ -20,10 +21,12 @@
         </div>
     </div>
 
+    <partial name="_QabFormAlerts" />
+
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-7">
             <form asp-controller="Representative" asp-action="Edit" method="post" class="qab-form">
-                <div asp-validation-summary="ModelOnly" class="qab-form__validation"></div>
+                <div asp-validation-summary="All" class="qab-form__validation"></div>
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="Type" value="1" />
 
@@ -41,8 +44,9 @@
                             <span asp-validation-for="Surname" class="text-danger"></span>
                         </div>
                         <div class="qab-form__field">
-                            <label asp-for="Fname" class="form-label">Ata adı</label>
+                            <label asp-for="Fname" class="form-label">Ata adı <span class="text-danger">*</span></label>
                             <input asp-for="Fname" class="form-control" />
+                            <span asp-validation-for="Fname" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -51,13 +55,15 @@
                     <div class="qab-form__section-title">Sənəd məlumatları</div>
                     <div class="qab-form__row">
                         <div class="qab-form__field">
-                            <label asp-for="FinCode" class="form-label">FİN Kod</label>
+                            <label asp-for="FinCode" class="form-label">FİN Kod <span class="text-danger">*</span></label>
                             <input asp-for="FinCode" class="form-control" />
+                            <span asp-validation-for="FinCode" class="text-danger"></span>
                         </div>
                         <partial name="_SerialPrefixSelect" model="@Model.SerialPrefix" />
                         <div class="qab-form__field">
-                            <label asp-for="Serial" class="form-label">Seriya nömrəsi</label>
+                            <label asp-for="Serial" class="form-label">Seriya nömrəsi <span class="text-danger">*</span></label>
                             <input asp-for="Serial" class="form-control" />
+                            <span asp-validation-for="Serial" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -65,8 +71,9 @@
                 <div class="qab-form__section">
                     <div class="qab-form__section-title">Əlaqə</div>
                     <div class="qab-form__field">
-                        <label asp-for="Tel" class="form-label">Telefon</label>
+                        <label asp-for="Tel" class="form-label">Telefon <span class="text-danger">*</span></label>
                         <input asp-for="Tel" class="form-control" />
+                        <span asp-validation-for="Tel" class="text-danger"></span>
                     </div>
                 </div>
 
@@ -78,4 +85,8 @@
         </div>
     </div>
 </div>
-@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src="~/js/Shared/qab-validation.js" asp-append-version="true"></script>
+}
