@@ -83,11 +83,29 @@ namespace ForQab.Service
 
         public async Task<Monitor> GetByIdAsync(int id)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding", "ExamMonitors.Exams", "ExamMonitors.ExamRooms", "Contracts", "ExamMonitors" };
+            var includes = new string[]
+            {
+        "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section",
+        "WorkerTypeNavigation", "ExamBuilding",
+        "ExamMonitors.Exams", "ExamMonitors.ExamRooms",
+        "Contracts", "ExamMonitors"
+            };
+
             var worker = await _workerRepository.GetByIdAsync(id, null, includes);
+            if (worker == null) return null;
+
+            // AMAS-dan DB-yə yazılmış şəkil varsa onu saxla — share-dən over-write etmə.
+            if (!string.IsNullOrEmpty(worker.Photo))
+            {
+                return worker;
+            }
 
             string photoPath = $@"\\teshkilat-db\Images\Talent\{worker.FinCode}.jpg";
-            worker.Photo = ConvertToBase64(photoPath);
+            var fromShare = ConvertToBase64(photoPath);
+            if (!string.IsNullOrEmpty(fromShare))
+            {
+                worker.Photo = fromShare;
+            }
 
             return worker;
         }

@@ -1,4 +1,4 @@
-﻿@model ForQab.DataAccess.Models.Monitor
+@model ForQab.DataAccess.Models.Monitor
 @{
     ViewData["Title"] = "İşçi detalları";
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
@@ -22,15 +22,14 @@
         </div>
     </div>
 
+    @* ─── AMAS / status mesajları ─── *@
     @if (TempData["SuccessMessage"] != null)
-
     {
         <div class="qab-alert qab-alert--success" style="margin-bottom:1rem;">
             <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
         </div>
     }
     @if (TempData["ErrorMessage"] != null)
-
     {
         <div class="qab-alert qab-alert--danger" style="margin-bottom:1rem;">
             <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
@@ -44,6 +43,8 @@
                 <a class="qab-btn qab-btn--outline-warning qab-btn--sm" asp-action="Edit" asp-route-id="@Model.Id">
                     <i class="bi bi-pencil-square"></i> Redaktə
                 </a>
+
+                @* ─── YENİ: AMAS-dan şəkil çək ─── *@
                 <form asp-controller="Worker" asp-action="FetchPhoto" method="post" style="margin:0;">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="id" value="@Model.Id" />
@@ -53,6 +54,7 @@
                         <i class="bi bi-camera"></i> Şəkil çək (AMAS)
                     </button>
                 </form>
+
                 <a class="qab-btn qab-btn--outline-danger qab-btn--sm" asp-action="Delete" asp-route-id="@Model.Id">
                     <i class="bi bi-trash"></i> Sil
                 </a>
@@ -88,80 +90,15 @@
                         <div class="qab-details__row"><dt class="qab-details__label">Seriya</dt><dd class="qab-details__value">@Model.SerialPrefix @Model.Serial</dd></div>
                     </div>
                     <div>
-                        <div class="qab-details__row"><dt class="qab-details__label">İşçi tipi</dt><dd class="qab-details__value"><span class="qab-badge qab-badge--primary">@Model.WorkerTypeNavigation?.Name</span></dd></div>
-                        <div class="qab-details__row"><dt class="qab-details__label">İmtahan binası</dt><dd class="qab-details__value">@Model.ExamBuilding?.Name</dd></div>
                         <div class="qab-details__row"><dt class="qab-details__label">İstiqamət</dt><dd class="qab-details__value">@Model.Section?.Name</dd></div>
                         <div class="qab-details__row"><dt class="qab-details__label">Rayon</dt><dd class="qab-details__value">@Model.DistrictNavigation?.Name</dd></div>
-                        @if (!string.IsNullOrEmpty(Model.ArchiveReason))
-                        {
-                            <div class="qab-details__row">
-                                <dt class="qab-details__label">Arxivləmə səbəbi</dt>
-                                <dd class="qab-details__value">@Model.ArchiveReason</dd>
-                            </div>
-                        }
+                        <div class="qab-details__row"><dt class="qab-details__label">İşçi tipi</dt><dd class="qab-details__value">@Model.WorkerTypeNavigation?.Name</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">İmtahan binası</dt><dd class="qab-details__value">@Model.ExamBuilding?.Name</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Region</dt><dd class="qab-details__value">@Model.Region</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Müqavilə</dt><dd class="qab-details__value">@Model.ContractNo — @Model.ContractDate?.ToString("dd.MM.yyyy")</dd></div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- İmtahanlar -->
-    <div class="qab-section-block">
-        <h3 class="qab-section-block__title"><i class="bi bi-journal-text"></i> İştirak etdiyi imtahanlar</h3>
-        @if (Model.ExamMonitors?.Any() == true)
-        {
-                var examYears = Model.ExamMonitors.Where(em => em.Exams != null)
-                    .Select(em => em.Exams.ExamDate.Year).Distinct().OrderByDescending(y => y).ToList();
-                var yearParam = Context.Request.Query["examYear"].ToString();
-                int selectedYear = string.IsNullOrEmpty(yearParam)
-                    ? (examYears.FirstOrDefault() == 0 ? DateTime.Now.Year : examYears.FirstOrDefault())
-                    : int.Parse(yearParam);
-                var filtered = Model.ExamMonitors.Where(em => em.Exams?.ExamDate.Year == selectedYear)
-                    .OrderByDescending(em => em.Exams?.ExamDate).ToList();
-            
-            <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;">
-                <span style="font-size:.85rem;color:var(--qab-text-muted);font-weight:600;">İl:</span>
-                @foreach (var y in examYears)
-                {
-                    <a href="?examYear=@y"
-                       class="qab-btn qab-btn--sm @(y == selectedYear ? "qab-btn--primary" : "qab-btn--ghost")"
-                       style="min-width:3.5rem;justify-content:center;">@y</a>
-                }
-                <span style="font-size:.82rem;color:var(--qab-text-muted);margin-left:.5rem;">— <strong>@filtered.Count</strong> imtahan</span>
-            </div>
-            @if (filtered.Any())
-            {
-                <div class="qab-table-wrap">
-                    <table class="qab-table">
-                        <thead><tr><th>İmtahan</th><th>Tarix</th><th>Başlama</th><th>Bitmə</th><th>Detallar</th></tr></thead>
-                        <tbody>
-                            @foreach (var em in filtered)
-                            {
-                                <tr>
-                                    <td><span class="qab-table__id">#@em.Exams.Id</span></td>
-                                    <td class="qab-col-date">@em.Exams.ExamDate.ToShortDateString()</td>
-                                    <td class="qab-col-date">@em.Exams.StartTime</td>
-                                    <td class="qab-col-date">@em.Exams.EndTime</td>
-                                    <td>
-                                        <a class="qab-table__action-btn qab-table__action-btn--view"
-                                           asp-controller="Exam" asp-action="Details" asp-route-id="@em.Exams.Id">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="qab-empty-state">@selectedYear ilində bu işçi heç bir imtahana təyin edilməyib.</div>
-            }
-        }
-        else
-        {
-            <div class="qab-empty-state">Bu işçi heç bir imtahana təyin edilməyib.</div>
-        }
     </div>
 </div>

@@ -46,8 +46,8 @@ namespace ForQab.Service.Concrete
 
             if (isNewGeneration)
             {
-                seriya = "";
-                number = serialPrefix + serial;
+                seriya = "AA";                     
+                number = serialPrefix + serial;    
             }
             else
             {

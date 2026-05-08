@@ -53,4 +53,8 @@ public partial class DimRepresentative
     [StringLength(10)]
     public string? SerialPrefix { get; set; }
 
+    [Column("photo")]
+    [StringLength(4000)]
+    public string? Photo { get; set; }
+
 }
