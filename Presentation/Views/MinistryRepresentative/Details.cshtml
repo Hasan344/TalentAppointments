@@ -2,6 +2,7 @@
 @model DimRepresentative
 @{
     ViewData["Title"] = "Nazirlik nümayəndəsi detalları";
+
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 <link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
@@ -20,29 +21,73 @@
         </div>
     </div>
 
+    @if (TempData["SuccessMessage"] != null)
+
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
     <div class="qab-card">
         <div class="qab-card__header">
             <h2 class="qab-card__title"><i class="bi bi-person-circle"></i> Məlumatlar</h2>
-            <div style="display:flex;gap:.5rem;">
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
                 <a class="qab-btn qab-btn--outline-warning qab-btn--sm" asp-action="Edit" asp-route-id="@Model.Id">
                     <i class="bi bi-pencil-square"></i> Redaktə
                 </a>
+                <form asp-controller="MinistryRepresentative" asp-action="FetchPhoto" method="post" style="margin:0;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="qab-btn qab-btn--sm"
+                            style="background:var(--qab-primary);color:#fff;"
+                            onclick="this.disabled=true; this.innerHTML='<i class=\'bi bi-hourglass-split\'></i> Yüklənir...'; this.form.submit();">
+                        <i class="bi bi-camera"></i> Şəkil çək (AMAS)
+                    </button>
+                </form>
                 <a class="qab-btn qab-btn--outline-danger qab-btn--sm" asp-action="Delete" asp-route-id="@Model.Id">
                     <i class="bi bi-trash"></i> Sil
                 </a>
             </div>
         </div>
         <div class="qab-card__body">
-            <div class="qab-details__grid">
-                <div>
-                    <div class="qab-details__row"><dt class="qab-details__label">Ad</dt><dd class="qab-details__value">@Model.Name</dd></div>
-                    <div class="qab-details__row"><dt class="qab-details__label">Soyad</dt><dd class="qab-details__value">@Model.Surname</dd></div>
-                    <div class="qab-details__row"><dt class="qab-details__label">Ata adı</dt><dd class="qab-details__value">@Model.Fname</dd></div>
+            <!-- Photo + details layout -->
+            <div style="display:grid;grid-template-columns:auto 1fr;gap:2rem;align-items:start;flex-wrap:wrap;">
+                <!-- Avatar -->
+                <div style="text-align:center;min-width:270px;">
+                    @if (!string.IsNullOrEmpty(Model.Photo))
+
+                    {
+                        <img src="@Model.Photo" class="rounded-circle"
+                             style="width:250px;height:250px;object-fit:cover;border:4px solid var(--qab-border);box-shadow:var(--qab-shadow-md);" />
+                    }
+
+                    else
+
+                    {
+                        <div style="width:250px;height:250px;border-radius:50%;background:var(--qab-primary-soft);
+                                    display:flex;align-items:center;justify-content:center;margin:0 auto;
+                                    border:4px solid var(--qab-border);box-shadow:var(--qab-shadow-md);">
+                            <i class="bi bi-person-fill" style="font-size:6rem;color:var(--qab-primary);"></i>
+                        </div>
+                    }
                 </div>
-                <div>
-                    <div class="qab-details__row"><dt class="qab-details__label">FİN Kod</dt><dd class="qab-details__value">@Model.FinCode</dd></div>
-                    <div class="qab-details__row"><dt class="qab-details__label">Seriya</dt><dd class="qab-details__value">@Model.SerialPrefix @Model.Serial</dd></div>
-                    <div class="qab-details__row"><dt class="qab-details__label">Telefon</dt><dd class="qab-details__value">@Model.Tel</dd></div>
+
+                <!-- Details grid -->
+                <div class="qab-details__grid">
+                    <div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Ad</dt><dd class="qab-details__value">@Model.Name</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Soyad</dt><dd class="qab-details__value">@Model.Surname</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Ata adı</dt><dd class="qab-details__value">@Model.Fname</dd></div>
+                    </div>
+                    <div>
+                        <div class="qab-details__row"><dt class="qab-details__label">FİN Kod</dt><dd class="qab-details__value">@Model.FinCode</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Seriya</dt><dd class="qab-details__value">@Model.SerialPrefix @Model.Serial</dd></div>
+                        <div class="qab-details__row"><dt class="qab-details__label">Telefon</dt><dd class="qab-details__value">@Model.Tel</dd></div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,5 +1,5 @@
 // =====================================================================
-// RepresentativeController.cs faylı — TAM DƏYİŞİKLİK
+// RepresentativeController.cs faylı — TAM DƏYİŞİKLİK (FetchPhoto əlavə edildi)
 // =====================================================================
 
 using ForQab.DataAccess.Models;
@@ -20,18 +20,21 @@ namespace ForQab.Presentation.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly MyDbContext _context;
         private readonly DimRepresentativeValidator _validator;
+        private readonly IAmasPhotoService _amasPhotoService;
 
         public RepresentativeController(
             UserManager<ApplicationUser> userManager,
             IRepresentativeService representativeService,
             MyDbContext context,
-            DimRepresentativeValidator validator)
+            DimRepresentativeValidator validator,
+            IAmasPhotoService amasPhotoService)
             : base(context, userManager)
         {
             _userManager = userManager;
             _representativeService = representativeService;
             _context = context;
             _validator = validator;
+            _amasPhotoService = amasPhotoService;
         }
 
         public async Task<IActionResult> Index()
@@ -185,6 +188,39 @@ namespace ForQab.Presentation.Controllers
                 await _representativeService.DeleteRepresentativeAsync(id);
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        // ─────────────────────────────────────────────────────────────────
+        // AMAS-dan şəkil çəkmək üçün endpoint
+        // ─────────────────────────────────────────────────────────────────
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> FetchPhoto(int id)
+        {
+            var representative = await _representativeService.GetRepresentativeByIdAsync(id);
+            if (representative == null) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(representative.FinCode) ||
+                string.IsNullOrWhiteSpace(representative.Serial))
+            {
+                TempData["ErrorMessage"] = "FİN Kod və ya Seriya nömrəsi boşdur. Şəkil çəkilə bilmədi.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var photo = await _amasPhotoService.FetchPhotoAsBase64Async(
+                representative.FinCode, representative.SerialPrefix ?? "", representative.Serial);
+
+            if (photo == null)
+            {
+                TempData["ErrorMessage"] = "AMAS sistemindən şəkil tapılmadı.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            representative.Photo = photo;
+            await _representativeService.UpdateRepresentativeAsync(representative);
+
+            TempData["SuccessMessage"] = "Şəkil AMAS-dan uğurla yükləndi.";
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         private bool CommissionExists(int id)

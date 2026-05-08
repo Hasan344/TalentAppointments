@@ -21,12 +21,14 @@ namespace ForQab.Presentation.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly HeadMonitorValidator _headMonitorValidator;
         private readonly HeadMonitorEditValidator _headMonitorEditValidator;
-        public WorkerController(MyDbContext context, UserManager<ApplicationUser> userManager, IWorkerService workerService, HeadMonitorValidator headMonitorValidator, HeadMonitorEditValidator headMonitorEditValidator) : base(context, userManager)
+        private readonly IAmasPhotoService _amasPhotoService;
+        public WorkerController(MyDbContext context, UserManager<ApplicationUser> userManager, IWorkerService workerService, HeadMonitorValidator headMonitorValidator, HeadMonitorEditValidator headMonitorEditValidator, IAmasPhotoService amasPhotoService) : base(context, userManager)
         {
             _userManager = userManager;
             _workerService = workerService;
             _headMonitorValidator = headMonitorValidator;
             _headMonitorEditValidator = headMonitorEditValidator;
+            _amasPhotoService = amasPhotoService;
         }
 
         public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
@@ -407,6 +409,34 @@ namespace ForQab.Presentation.Controllers
         //        return RedirectToAction(nameof(Details), new { id = monitorId });
         //    }
         //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> FetchPhoto(int id)
+        {
+            var worker = await _workerService.GetByIdAsync(id);
+            if (worker == null) return NotFound();
 
+            if (string.IsNullOrWhiteSpace(worker.FinCode) ||
+                string.IsNullOrWhiteSpace(worker.Serial))
+            {
+                TempData["ErrorMessage"] = "FİN Kod və ya Seriya nömrəsi boşdur. Şəkil çəkilə bilmədi.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var photo = await _amasPhotoService.FetchPhotoAsBase64Async(
+                worker.FinCode, worker.SerialPrefix ?? "", worker.Serial);
+
+            if (photo == null)
+            {
+                TempData["ErrorMessage"] = "AMAS sistemindən şəkil tapılmadı.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            worker.Photo = photo;
+            await _workerService.UpdateAsync(worker);
+
+            TempData["SuccessMessage"] = "Şəkil AMAS-dan uğurla yükləndi.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
     }
 }

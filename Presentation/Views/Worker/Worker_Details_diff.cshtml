@@ -1,0 +1,79 @@
+{{-- =====================================================================
+     Worker/Details.cshtml — DİFF ŞƏKLINDƏ DƏYİŞİKLİKLƏR
+     ===================================================================== --}}
+
+{{-- Mövcud Worker/Details.cshtml-də sadəcə 2 yer dəyişir.
+     Bütün faylı yenidən yazmağa ehtiyac yoxdur — aşağıdakı 2 əlavəni edin.
+     Tam fayl variantı isə Worker_Details.cshtml-də verilib (referans üçün).
+--}}
+
+
+{{-- ─────────────────────────────────────────────────────────────────────
+     ƏLAVƏ #1: Səhifə başlığından sonra, qab-card-dan əvvəl TempData
+     alert blokunu əlavə edin.
+     ───────────────────────────────────────────────────────────────────── --}}
+
+{{-- Mövcud:
+     ...
+     </div>   <-- qab-page-header bağlanır
+     </div>
+
+     <div class="qab-card" style="margin-bottom:1.5rem;">
+       ...
+--}}
+
+{{-- Bu hissəyə əlavə edin (qab-page-header bağlandıqdan sonra,
+     <div class="qab-card"-dan əvvəl): --}}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="qab-alert qab-alert--success" style="margin-bottom:1rem;">
+        <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="qab-alert qab-alert--danger" style="margin-bottom:1rem;">
+        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
+    </div>
+}
+
+
+{{-- ─────────────────────────────────────────────────────────────────────
+     ƏLAVƏ #2: qab-card__header-dakı action düymələrinin arasında
+     "Şəkil çək (AMAS)" form düyməsini Redaktə ilə Sil arasına yerləşdirin.
+     ───────────────────────────────────────────────────────────────────── --}}
+
+{{-- Mövcud:
+     <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+         <a class="qab-btn qab-btn--outline-warning qab-btn--sm" asp-action="Edit" asp-route-id="@Model.Id">
+             <i class="bi bi-pencil-square"></i> Redaktə
+         </a>
+         <a class="qab-btn qab-btn--outline-danger qab-btn--sm" asp-action="Delete" asp-route-id="@Model.Id">
+             <i class="bi bi-trash"></i> Sil
+         </a>
+     </div>
+--}}
+
+{{-- Yeni (iki <a>-nin arasına form əlavə edilib): --}}
+
+<div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+    <a class="qab-btn qab-btn--outline-warning qab-btn--sm" asp-action="Edit" asp-route-id="@Model.Id">
+        <i class="bi bi-pencil-square"></i> Redaktə
+    </a>
+
+    @* ─── YENİ: AMAS-dan şəkil çək ─── *@
+    <form asp-controller="Worker" asp-action="FetchPhoto" method="post" style="margin:0;">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="qab-btn qab-btn--sm"
+                style="background:var(--qab-primary);color:#fff;"
+                onclick="this.disabled=true; this.innerHTML='<i class=\'bi bi-hourglass-split\'></i> Yüklənir...'; this.form.submit();">
+            <i class="bi bi-camera"></i> Şəkil çək (AMAS)
+        </button>
+    </form>
+
+    <a class="qab-btn qab-btn--outline-danger qab-btn--sm" asp-action="Delete" asp-route-id="@Model.Id">
+        <i class="bi bi-trash"></i> Sil
+    </a>
+</div>

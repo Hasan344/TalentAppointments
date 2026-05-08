@@ -138,7 +138,6 @@
 
         <!-- Section: Logistika -->
         <div class="qab-form__section">
-            <div class="qab-form__section-title">Logistika</div>
 
             <div class="qab-form__row">
                 <div class="qab-form__field">
@@ -157,6 +156,16 @@
                     <label asp-for="Food" class="form-label">Yemək sayı</label>
                     <input asp-for="Food" type="number" class="form-control" />
                     <span asp-validation-for="Food" class="text-danger"></span>
+                </div>
+                <div class="qab-form__field">
+                    <label asp-for="burK" class="form-label">Kişi buraxılış əməkdaşı sayı</label>
+                    <input asp-for="burK" type="number" class="form-control" />
+                    <span asp-validation-for="burK" class="text-danger"></span>
+                </div>
+                <div class="qab-form__field">
+                    <label asp-for="burQ" class="form-label">Qadın buraxılış əməkdaşı sayı</label>
+                    <input asp-for="burQ" type="number" class="form-control" />
+                    <span asp-validation-for="burQ" class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -177,18 +186,6 @@
                 <textarea asp-for="InventoryTransport" class="form-control" rows="3"
                           placeholder="Daşınmalı inventar haqqında məlumat..."></textarea>
                 <span asp-validation-for="InventoryTransport" class="text-danger"></span>
-            </div>
-            <div class="qab-form__field">
-                <label asp-for="burK" class="form-label">Kişi buraxılış əməkdaşı sayı</label>
-                <textarea asp-for="burK" class="form-control" rows="3"
-                          placeholder="Sayı qeyd edin..."></textarea>
-                <span asp-validation-for="burK" class="text-danger"></span>
-            </div>
-            <div class="qab-form__field">
-                <label asp-for="burQ" class="form-label">Qadın buraxılış əməkdaşı sayı</label>
-                <textarea asp-for="burQ" class="form-control" rows="3"
-                          placeholder="Sayı qeyd edin..."></textarea>
-                <span asp-validation-for="burQ" class="text-danger"></span>
             </div>
         </div>
 
