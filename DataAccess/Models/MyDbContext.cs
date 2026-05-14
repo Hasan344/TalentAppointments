@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using ForQab.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -129,6 +127,7 @@ public partial class MyDbContext : DbContext
     {
         CapitalizeMonitorNames();
         CapitalizeExpertNames();
+        NormalizeAllFinCodes();
     }
 
     // MONITORS
@@ -166,7 +165,32 @@ public partial class MyDbContext : DbContext
 
         return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(text.ToLower());
     }
+    private void NormalizeAllFinCodes()
+    {
+        // Monitor  (həm rəhbər, həm baş rəhbər, həm işçi eyni cədvəldədir)
+        foreach (var entry in ChangeTracker.Entries<Monitor>()
+                     .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified))
+        {
+            if (entry.Entity.FinCode != null)
+                entry.Entity.FinCode = entry.Entity.FinCode.ToUpperInvariant();
+        }
 
+        // Expert  (konsertmeyster də Expert cədvəlindədir)
+        foreach (var entry in ChangeTracker.Entries<Expert>()
+                     .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified))
+        {
+            if (entry.Entity.FinCode != null)
+                entry.Entity.FinCode = entry.Entity.FinCode.ToUpperInvariant();
+        }
+
+        // DimRepresentative  (həm DİM nümayəndəsi, həm nazirlik nümayəndəsi)
+        foreach (var entry in ChangeTracker.Entries<DimRepresentative>()
+                     .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified))
+        {
+            if (entry.Entity.FinCode != null)
+                entry.Entity.FinCode = entry.Entity.FinCode.ToUpperInvariant();
+        }
+    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AspNetRole>(entity =>

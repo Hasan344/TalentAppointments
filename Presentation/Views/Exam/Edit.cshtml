@@ -93,7 +93,8 @@
             <div class="qab-form__row">
                 <div class="qab-form__field">
                     <label asp-for="ExamDate" class="form-label">İmtahan tarixi</label>
-                    <input asp-for="ExamDate" type="date" class="form-control" />
+                    <input asp-for="ExamDate" type="date" class="form-control"
+                           min="@DateTime.Today.ToString("yyyy-MM-dd")" />
                     <span asp-validation-for="ExamDate" class="text-danger"></span>
                 </div>
 

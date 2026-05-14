@@ -261,10 +261,21 @@ namespace ForQab.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateExamViewModel exam)
         {
+            // İmtahan tarixi keçmiş tarix ola bilməz
+            if (exam.ExamDate < DateOnly.FromDateTime(DateTime.Today))
+            {
+                ModelState.AddModelError(nameof(exam.ExamDate),
+                    "İmtahan tarixi keçmiş tarix ola bilməz. Yalnız bugünkü və ya gələcək tarixə imtahan yaradıla bilər.");
+            }
+
             if (!ModelState.IsValid)
             {
                 var sectionId = await GetCurrentSectionIdAsync();
-                exam = await _examService.PrepareCreateExamViewModelAsync(sectionId);
+                var prepared = await _examService.PrepareCreateExamViewModelAsync(sectionId);
+                // Kullanıcının doldurduğu alanları koru, sadece dropdown listelerini doldur
+                exam.Commissions = prepared.Commissions;
+                exam.Degrees = prepared.Degrees;
+                exam.Subjects = prepared.Subjects;
                 await _examService.PopulateViewBagsAsync(sectionId, ViewBag);
                 return View(exam);
             }
@@ -282,6 +293,12 @@ namespace ForQab.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateForAssesment(CreateExamViewModelForAssesment exam)
         {
+            if (exam.ExamDate < DateOnly.FromDateTime(DateTime.Today))
+            {
+                ModelState.AddModelError(nameof(exam.ExamDate),
+                    "İmtahan tarixi keçmiş tarix ola bilməz. Yalnız bugünkü və ya gələcək tarixə imtahan yaradıla bilər.");
+            }
+
             if (!ModelState.IsValid)
             {
                 var sectionId = await GetCurrentSectionIdAsync();
@@ -302,6 +319,12 @@ namespace ForQab.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateForAppeal(CreateExamViewModelForAssesment exam)
         {
+            if (exam.ExamDate < DateOnly.FromDateTime(DateTime.Today))
+            {
+                ModelState.AddModelError(nameof(exam.ExamDate),
+                    "İmtahan tarixi keçmiş tarix ola bilməz. Yalnız bugünkü və ya gələcək tarixə imtahan yaradıla bilər.");
+            }
+
             if (!ModelState.IsValid)
             {
                 var sectionId = await GetCurrentSectionIdAsync();
@@ -1053,11 +1076,17 @@ namespace ForQab.Presentation.Controllers
             return RedirectToAction("Details", new { id = model.ExamId });
         }
         [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> DeleteExperts(int examId, List<int> expertIds)
         {
             try
             {
                 await _examService.RemoveExpertsFromExamAsync(examId, expertIds);
+                return RedirectToAction("Details", new { id = examId });
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
                 return RedirectToAction("Details", new { id = examId });
             }
             catch (Exception ex)
@@ -1129,6 +1158,11 @@ namespace ForQab.Presentation.Controllers
                 await _examService.RemoveMonitorsFromExamAsync(examId, headMonitorIds);
                 return RedirectToAction("Details", new { id = examId });
             }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return RedirectToAction("Details", new { id = examId });
+            }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -1142,6 +1176,11 @@ namespace ForQab.Presentation.Controllers
                 await _examService.RemoveMonitorsFromExamAsync(examId, workerIds);
                 return RedirectToAction("Details", new { id = examId });
             }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return RedirectToAction("Details", new { id = examId });
+            }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -1153,6 +1192,11 @@ namespace ForQab.Presentation.Controllers
             try
             {
                 await _examService.RemoveRepresentativesFromExamAsync(examId, representativeIds);
+                return RedirectToAction("Details", new { id = examId });
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
                 return RedirectToAction("Details", new { id = examId });
             }
             catch (Exception ex)

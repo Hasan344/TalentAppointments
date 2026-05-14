@@ -1146,6 +1146,11 @@ namespace ForQab.Service
             var exam = await _examRepository.GetByIdAsync(examId);
             if (exam == null) throw new ArgumentException("İmtahan tapılmadı");
 
+            // İmtahan günü keçibsə silmə əməliyyatına icazə verilmir
+            if (exam.ExamDate < DateOnly.FromDateTime(DateTime.Today))
+                throw new InvalidOperationException(
+                    "İmtahan günü keçdiyi üçün ekspert silmək mümkün deyil.");
+
             var examExpertSubProfessions = await _examExpertSubProfessionRepository
                         .GetAllAsync(x => x.ExamId == examId && expertIds.Contains(x.ExpertId));
 
@@ -1164,6 +1169,12 @@ namespace ForQab.Service
             var exam = await _examRepository.GetByIdAsync(examId);
             if (exam == null) throw new ArgumentException("İmtahan tapılmadı");
 
+            // İmtahan günü keçibsə silmə əməliyyatına icazə verilmir
+            // (Bu metod həm Monitor, həm HeadMonitor, həm də Worker silmə üçün istifadə olunur)
+            if (exam.ExamDate < DateOnly.FromDateTime(DateTime.Today))
+                throw new InvalidOperationException(
+                    "İmtahan günü keçdiyi üçün rəhbər/baş rəhbər/işçi silmək mümkün deyil.");
+
             var monitorsToRemove = exam.Monitors.Where(m => monitorIds.Contains(m.Id)).ToList();
             foreach (var monitor in monitorsToRemove)
             {
@@ -1177,6 +1188,10 @@ namespace ForQab.Service
         {
             var exam = await _examRepository.GetByIdAsync(examId);
             if (exam == null) throw new ArgumentException("İmtahan tapılmadı");
+
+            if (exam.ExamDate < DateOnly.FromDateTime(DateTime.Today))
+                throw new InvalidOperationException(
+                    "İmtahan günü keçdiyi üçün nümayəndə silmək mümkün deyil.");
 
             var representativesToRemove = exam.Representatives.Where(m => representativeIds.Contains(m.Id)).ToList();
             foreach (var representative in representativesToRemove)
