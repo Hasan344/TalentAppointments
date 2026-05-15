@@ -158,7 +158,9 @@ namespace ForQab.Repository.Concrete
                 Kons = true,
                 TelIs = entity.TelIs,
                 TelEl = entity.TelEl,
-                Status = (byte?)entity.Status
+                Status = (byte?)entity.Status,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
             };
 
             if (entity.SelectedSubProfessions != null)

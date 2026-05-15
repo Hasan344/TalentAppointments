@@ -36,6 +36,8 @@ namespace ForQab.Presentation.Controllers
     int? startYear,
     int? endYear,
     int? subProfessionId,
+    DateTime? createdStartDate,
+    DateTime? createdEndDate,
     int page = 1,
     int pageSize = 25)
         {
@@ -46,7 +48,7 @@ namespace ForQab.Presentation.Controllers
 
             var all = await _konsService.GetAllAsync(
                 sectionId, searchName, genderId, finCode, serial,
-                district, startYear, endYear, subProfessionId);
+                district, startYear, endYear, subProfessionId,createdStartDate, createdEndDate);
 
             var totalCount = all.Count();
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
@@ -403,6 +405,8 @@ namespace ForQab.Presentation.Controllers
                             Kons = true,
                             SectionId = sectionId,
                             Status = 0,
+                            CreatedAt = DateTime.Now,
+                            UpdatedAt = DateTime.Now
                         };
                         var subProfessionNames = row.Cell(10).GetString().Split(',').Select(x => x.Trim()).ToList();
                         foreach (var subProfessionName in subProfessionNames)

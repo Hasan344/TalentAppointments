@@ -28,6 +28,8 @@ namespace ForQab.Service
 
         public async Task AddAsync(Monitor entity)
         {
+            entity.CreatedAt = DateTime.Now;
+            entity.UpdatedAt = DateTime.Now;
             await _naturaRepository.AddAsync(entity);
         }
 
@@ -43,7 +45,7 @@ namespace ForQab.Service
             return await _naturaRepository.GetAllAsync(sectionId, 3, null, includes);
         }
 
-        public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, DateTime? createdStartDate = null, DateTime? createdEndDate = null)
         {
 
             var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts", "NaturaTypeNavigation" };
@@ -80,6 +82,16 @@ namespace ForQab.Service
             if (endYear.HasValue)
                 query = query.Where(m => m.BirthDate.Value.Year <= endYear.Value).ToList();
 
+            if (createdStartDate.HasValue)
+            {
+                query = query.Where(m => m.CreatedAt.HasValue
+                                      && m.CreatedAt.Value.Date >= createdStartDate.Value.Date).ToList();
+            }
+            if (createdEndDate.HasValue)
+            {
+                query = query.Where(m => m.CreatedAt.HasValue
+                                      && m.CreatedAt.Value.Date <= createdEndDate.Value.Date).ToList();
+            }
             return query.Where(m => m.Archive == 0).ToList();
         }
 
@@ -200,6 +212,8 @@ namespace ForQab.Service
                             SSN = row.Cell(19).GetString(),
                             BankFilial = row.Cell(20).GetString(),
                             BankFilialCode = row.Cell(21).GetString(),
+                            CreatedAt = DateTime.Now,
+                            UpdatedAt = DateTime.Now
                         };
 
                         monitors.Add(monitor);
@@ -211,7 +225,7 @@ namespace ForQab.Service
 
             return "Naturalar uğurla idxal edildi.";
         }
-        public async Task<byte[]> ExportToExcelAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        public async Task<byte[]> ExportToExcelAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, DateTime? createdStartDate = null, DateTime? createdEndDate = null)
         {
             var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts", "NaturaTypeNavigation" };
 
@@ -241,6 +255,16 @@ namespace ForQab.Service
             if (endYear.HasValue)
                 monitors = monitors.Where(m => m.BirthDate.HasValue && m.BirthDate.Value.Year <= endYear.Value).ToList();
 
+            if (createdStartDate.HasValue)
+            {
+                monitors = monitors.Where(m => m.CreatedAt.HasValue
+                                      && m.CreatedAt.Value.Date >= createdStartDate.Value.Date).ToList();
+            }
+            if (createdEndDate.HasValue)
+            {
+                monitors = monitors.Where(m => m.CreatedAt.HasValue
+                                      && m.CreatedAt.Value.Date <= createdEndDate.Value.Date).ToList();
+            }
             var dt = new DataTable("Naturaçılar");
             dt.Columns.AddRange(new DataColumn[]
             {
@@ -307,7 +331,7 @@ namespace ForQab.Service
             }
         }
 
-        public async Task<IEnumerable<Monitor>> GetAllArchivedAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        public async Task<IEnumerable<Monitor>> GetAllArchivedAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, DateTime? createdStartDate = null, DateTime? createdEndDate = null)
         {
             var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts", "NaturaTypeNavigation" };
             var query = await _naturaRepository.GetAllAsync(sectionId, 3, null, includes);
@@ -343,6 +367,16 @@ namespace ForQab.Service
             if (endYear.HasValue)
                 query = query.Where(m => m.BirthDate.Value.Year <= endYear.Value).ToList();
 
+            if (createdStartDate.HasValue)
+            {
+                query = query.Where(m => m.CreatedAt.HasValue
+                                      && m.CreatedAt.Value.Date >= createdStartDate.Value.Date).ToList();
+            }
+            if (createdEndDate.HasValue)
+            {
+                query = query.Where(m => m.CreatedAt.HasValue
+                                      && m.CreatedAt.Value.Date <= createdEndDate.Value.Date).ToList();
+            }
             return query.Where(m => m.Archive == 1).ToList();
         }
         public async Task<IEnumerable<Monitor>> GetMonitorLogsAsync(int? sectionId)

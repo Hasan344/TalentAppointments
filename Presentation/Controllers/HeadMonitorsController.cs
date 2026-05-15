@@ -44,12 +44,14 @@ namespace ForQab.Presentation.Controllers
     int? district,
     int? startYear,
     int? endYear,
+    DateTime? createdStartDate,
+    DateTime? createdEndDate,
     int page = 1,
     int pageSize = 25)
         {
             var sectionId = await GetCurrentSectionIdAsync();
             var all = await _headMonitorService.GetAllAsync(
-                sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
+                sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, createdStartDate, createdEndDate);
 
             var totalCount = all.Count();
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
@@ -66,10 +68,12 @@ namespace ForQab.Presentation.Controllers
 
             return View(paged);
         }
-        public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear,
+    DateTime? createdStartDate,
+    DateTime? createdEndDate)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var model = await _headMonitorService.GetAllArchivedAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
+            var model = await _headMonitorService.GetAllArchivedAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, createdStartDate, createdEndDate);
 
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
@@ -432,10 +436,10 @@ namespace ForQab.Presentation.Controllers
             var user = await _userManager.GetUserAsync(User);
             return user?.SectionId != null ? user.SectionId : null;
         }
-        public async Task<IActionResult> ExportToExcel(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        public async Task<IActionResult> ExportToExcel(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, DateTime? createdStartDate, DateTime? createdEndDate)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var fileContent = await _headMonitorService.ExportToExcelAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
+            var fileContent = await _headMonitorService.ExportToExcelAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, createdStartDate, createdEndDate);
             return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "İmtahan rəhbərləri.xlsx");
         }
         [HttpPost]

@@ -31,12 +31,12 @@ namespace ForQab.Presentation.Controllers
             _amasPhotoService = amasPhotoService;
         }
 
-        public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, DateTime? createdStartDate, DateTime? createdEndDate)
         {
             var currentUserSection = await GetCurrentSectionIdAsync();
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
-            var model = await _workerService.GetAllAsync(currentUserSection, searchName, genderId, finCode, serial, district, startYear, endYear);
+            var model = await _workerService.GetAllAsync(currentUserSection, searchName, genderId, finCode, serial, district, startYear, endYear, createdStartDate, createdEndDate);
             ViewBag.Genders = genders;
             ViewBag.Districts = districts;
             ViewBag.WorkerTypes = await _context.WorkerTypes
@@ -51,10 +51,10 @@ namespace ForQab.Presentation.Controllers
 
             return View(model);
         }
-        public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, DateTime? createdStartDate, DateTime? createdEndDate)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var model = await _workerService.GetAllArchivedAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
+            var model = await _workerService.GetAllArchivedAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, createdStartDate, createdEndDate);
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
 
@@ -345,10 +345,12 @@ namespace ForQab.Presentation.Controllers
             var user = await _userManager.GetUserAsync(User);
             return user?.SectionId != null ? user.SectionId : null;
         }
-        public async Task<IActionResult> ExportToExcel(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        public async Task<IActionResult> ExportToExcel(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear,
+    DateTime? createdStartDate,
+    DateTime? createdEndDate)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var fileContent = await _workerService.ExportToExcelAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
+            var fileContent = await _workerService.ExportToExcelAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, createdStartDate, createdEndDate);
             return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Digər işçilər.xlsx");
         }
         [HttpPost]

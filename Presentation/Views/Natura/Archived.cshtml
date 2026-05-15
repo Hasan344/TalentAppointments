@@ -80,7 +80,19 @@
 
                 <!-- End Year -->
                 <input type="number" name="endYear" value="@ViewContext.HttpContext.Request.Query["endYear"]" class="form-control" style="max-width: 120px;" placeholder="Son il" />
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">Yaradılma tarixi (başlanğıc)</label>
+                    <input type="date" name="createdStartDate"
+                           value="@Context.Request.Query["createdStartDate"]"
+                           class="form-control" />
+                </div>
 
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">Yaradılma tarixi (son)</label>
+                    <input type="date" name="createdEndDate"
+                           value="@Context.Request.Query["createdEndDate"]"
+                           class="form-control" />
+                </div>
                 <!-- Submit Button -->
                 <button type="submit" class="btn btn-outline-primary">Axtar</button>
                 <a href="@Url.Action("Index", "HeadMonitors")" class="btn btn-outline-secondary">Sıfırla</a>

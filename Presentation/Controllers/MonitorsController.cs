@@ -44,6 +44,8 @@ namespace ForQab.Presentation.Controllers
     int? district,
     int? startYear,
     int? endYear,
+    DateTime? createdStartDate,    
+    DateTime? createdEndDate,
     int page = 1,
     int pageSize = 25)
         {
@@ -52,7 +54,7 @@ namespace ForQab.Presentation.Controllers
             var districts = _context.Districts.ToList();
 
             var all = await _monitorService.GetAllAsync(
-                currentUserSection, searchName, genderId, finCode, serial, district, startYear, endYear);
+                currentUserSection, searchName, genderId, finCode, serial, district, startYear, endYear, createdStartDate, createdEndDate);
 
             var totalCount = all.Count();
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
@@ -69,10 +71,12 @@ namespace ForQab.Presentation.Controllers
 
             return View(paged);
         }
-        public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear,
+    DateTime? createdStartDate,
+    DateTime? createdEndDate)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var model = await _monitorService.GetAllArchivedAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
+            var model = await _monitorService.GetAllArchivedAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, createdStartDate, createdEndDate);
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
 
@@ -187,7 +191,6 @@ namespace ForQab.Presentation.Controllers
                 return NotFound();
             }
 
-            // FluentValidation ilə yoxlama (FinCode unikallığı daxil)
             var result = await _monitorEditValidator.ValidateAsync(monitor);
             if (!result.IsValid)
             {
@@ -353,10 +356,10 @@ namespace ForQab.Presentation.Controllers
             var user = await _userManager.GetUserAsync(User);
             return user?.SectionId != null ? user.SectionId : null;
         }
-        public async Task<IActionResult> ExportToExcel(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        public async Task<IActionResult> ExportToExcel(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, DateTime? createdStartDate, DateTime? createdEndDate)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var fileContent = await _monitorService.ExportToExcelAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
+            var fileContent = await _monitorService.ExportToExcelAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, createdStartDate, createdEndDate);
 
             return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Nəzarətçilər.xlsx");
         }

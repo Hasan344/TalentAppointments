@@ -27,20 +27,24 @@ namespace ForQab.Presentation.Controllers
             _headMonitorEditValidator = headMonitorEditValidator;
         }
 
-        public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear,
+    DateTime? createdStartDate,
+    DateTime? createdEndDate)
         {
             var currentUserSection = await GetCurrentSectionIdAsync();
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
-            var model = await _naturaService.GetAllAsync(currentUserSection, searchName, genderId, finCode, serial, district, startYear, endYear);
+            var model = await _naturaService.GetAllAsync(currentUserSection, searchName, genderId, finCode, serial, district, startYear, endYear,createdStartDate, createdEndDate);
             ViewBag.Genders = genders;
             ViewBag.Districts = districts;
             return View(model);
         }
-        public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear)
+        public async Task<IActionResult> Archived(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear,
+    DateTime? createdStartDate,
+    DateTime? createdEndDate)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var model = await _naturaService.GetAllArchivedAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear);
+            var model = await _naturaService.GetAllArchivedAsync(sectionId, searchName, genderId, finCode, serial, district, startYear, endYear, createdStartDate, createdEndDate);
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
 

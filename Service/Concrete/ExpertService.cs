@@ -151,7 +151,7 @@ public class ExpertService : IExpertService
         var includes = new string[] { "DistrictNavigation", "ExpertsProfessions.SubProfession", "Section", "GenderNavigation", "FederationNavigation", "Contracts", "ExamExpertSubProfessions", "ExamExpertSubProfessions.Exam" };
         return await _expertRepository.GetAllAsync(sectionId,null,includes);
     }
-    public async Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? federationId, int? subProfessionId)
+    public async Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? federationId, int? subProfessionId, DateTime? createdStartDate = null, DateTime? createdEndDate = null)
     {
         var includes = new string[] { "DistrictNavigation", "ExpertsProfessions.SubProfession", "Section", "GenderNavigation", "FederationNavigation", "Contracts", "ExamExpertSubProfessions" };
 
@@ -197,10 +197,20 @@ public class ExpertService : IExpertService
         {
             query = query.Where(m => m.ExpertsProfessions.Any(sp => sp.SubProfessionId == subProfessionId.Value)).ToList();
         }
+        if (createdStartDate.HasValue)
+        {
+            query = query.Where(m => m.CreatedAt.HasValue
+                                  && m.CreatedAt.Value.Date >= createdStartDate.Value.Date).ToList();
+        }
+        if (createdEndDate.HasValue)
+        {
+            query = query.Where(m => m.CreatedAt.HasValue
+                                  && m.CreatedAt.Value.Date <= createdEndDate.Value.Date).ToList();
+        }
 
         return query;
     }
-    public async Task<IEnumerable<Expert>> GetArchivedExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId)
+    public async Task<IEnumerable<Expert>> GetArchivedExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId, DateTime? createdStartDate = null, DateTime? createdEndDate = null)
     {
         var includes = new string[] { "DistrictNavigation", "ExpertsProfessions", "Section", "GenderNavigation", "FederationNavigation", "Contracts", "ExamExpertSubProfessions" };
 
@@ -239,6 +249,16 @@ public class ExpertService : IExpertService
             query = query.Where(m => m.ExpertsProfessions.Any(sp => sp.SubProfessionId == subProfessionId.Value)).ToList();
         }
 
+        if (createdStartDate.HasValue)
+        {
+            query = query.Where(m => m.CreatedAt.HasValue
+                                  && m.CreatedAt.Value.Date >= createdStartDate.Value.Date).ToList();
+        }
+        if (createdEndDate.HasValue)
+        {
+            query = query.Where(m => m.CreatedAt.HasValue
+                                  && m.CreatedAt.Value.Date <= createdEndDate.Value.Date).ToList();
+        }
         return query;
     }
     public async Task BulkAddAsync(IEnumerable<Expert> experts)

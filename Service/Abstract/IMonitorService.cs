@@ -7,8 +7,10 @@ namespace ForQab.Service.Abstract
     {
         Task<Monitor> GetByIdAsync(int id);
         Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId);
-        Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear);
-        Task<IEnumerable<Monitor>> GetAllArchivedAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear);
+        Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear,
+    DateTime? createdStartDate = null, DateTime? createdEndDate = null);
+        Task<IEnumerable<Monitor>> GetAllArchivedAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, 
+    DateTime? createdStartDate = null, DateTime? createdEndDate = null);
         Task AddAsync(MonitorViewModel entity);
         Task UpdateAsync(MonitorEditViewModel entity);
         Task UpdateAsync(Monitor entity);
@@ -16,7 +18,7 @@ namespace ForQab.Service.Abstract
         Task<IEnumerable<Section>> GetSectionsAsync(int? sectionId);
         Task BulkAddAsync(IEnumerable<Monitor> monitors);
         Task<string> ImportFromExcelAsync(IFormFile excelFile);
-        Task<byte[]> ExportToExcelAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear);
+        Task<byte[]> ExportToExcelAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, DateTime? createdStartDate = null, DateTime? createdEndDate = null);
         Task<IEnumerable<Monitor>> GetMonitorLogsAsync(int? sectionId);
         Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId);
         Task DeleteMonitorLogs(int? id);

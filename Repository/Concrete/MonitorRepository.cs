@@ -101,6 +101,7 @@ namespace ForQab.Repository.Concrete
             monitor.ContractDate = model.ContractDate;
             monitor.Profession = model.Profession;
             monitor.Position = model.Position;
+            monitor.UpdatedAt = DateTime.Now;
 
             _dbContext.Monitors.Update(monitor);
             await _dbContext.SaveChangesAsync();

@@ -5,6 +5,7 @@ using ForQab.DataAccess.Models;
 using ForQab.Repository.Abstract;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Threading;
 
 namespace ForQab.Repository.Concrete
 {
@@ -74,7 +75,9 @@ namespace ForQab.Repository.Concrete
                 Serial = expertViewModel.Serial,
                 Kons = false,
                 Status = 0,
-                Archive = 0
+                Archive = 0,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
             };
 
             // Link selected SubProfessions
@@ -130,6 +133,7 @@ namespace ForQab.Repository.Concrete
                 existingExpert.TelEl = expert.TelEl;
                 existingExpert.SerialPrefix = expert.SerialPrefix;
                 existingExpert.Serial = expert.Serial;
+                existingExpert.UpdatedAt = DateTime.Now;
 
                 // SubProfessions yeniləməsi
                 if (existingExpert.ExpertsProfessions != null)
