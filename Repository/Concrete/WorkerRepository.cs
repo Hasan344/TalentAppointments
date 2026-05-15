@@ -81,6 +81,7 @@ namespace ForQab.Repository.Concrete
             monitor.FinCode = model.FinCode;
             monitor.SerialPrefix = model.SerialPrefix; 
             monitor.Serial = model.Serial;
+            monitor.UpdatedAt = DateTime.Now;
 
             _dbContext.Monitors.Update(monitor);
             await _dbContext.SaveChangesAsync();

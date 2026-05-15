@@ -28,7 +28,7 @@ namespace ForQab.Service.Concrete
             return await _context.Monitors
                 .AsNoTracking()
                 .AnyAsync(m => m.FinCode == normalized
-                            && (excludeId == null || m.Id != excludeId.Value));
+                            && (excludeId == null || m.Id != excludeId.Value) && (m.SectionId != 3 || m.SectionId != 4));
         }
 
         public async Task<bool> IsExpertFinCodeTakenAsync(string? finCode, int? excludeId = null)
@@ -41,7 +41,7 @@ namespace ForQab.Service.Concrete
             return await _context.Experts
                 .AsNoTracking()
                 .AnyAsync(e => e.FinCode == normalized
-                            && (excludeId == null || e.Id != excludeId.Value));
+                            && (excludeId == null || e.Id != excludeId.Value) && (e.SectionId != 3 || e.SectionId != 4));
         }
 
         public async Task<bool> IsRepresentativeFinCodeTakenAsync(string? finCode, int? type = null, int? excludeId = null)

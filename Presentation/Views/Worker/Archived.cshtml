@@ -67,6 +67,19 @@
                         }
                     </select>
                 </div>
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">Yaradılma tarixi (başlanğıc)</label>
+                    <input type="date" name="createdStartDate"
+                           value="@Context.Request.Query["createdStartDate"]"
+                           class="form-control" />
+                </div>
+
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">Yaradılma tarixi (son)</label>
+                    <input type="date" name="createdEndDate"
+                           value="@Context.Request.Query["createdEndDate"]"
+                           class="form-control" />
+                </div>
                 <div style="display:flex;gap:.4rem;align-items:end;">
                     <button type="submit" class="qab-btn qab-btn--primary qab-btn--sm">
                         <i class="bi bi-search"></i> Axtar

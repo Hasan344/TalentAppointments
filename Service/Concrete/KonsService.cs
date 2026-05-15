@@ -44,7 +44,7 @@ namespace ForQab.Service
         {
             return _konsRepository.GetSubProfessionsAsync(sectionId);
         }
-        public async Task<IEnumerable<Expert>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId)
+        public async Task<IEnumerable<Expert>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? subProfessionId, DateTime? createdStartDate = null, DateTime? createdEndDate = null)
         {
             //var includes = new string[] { "DistrictNavigation", "SubProfessions", "Section", "GenderNavigation" };
 
@@ -83,6 +83,16 @@ namespace ForQab.Service
             if (subProfessionId.HasValue && subProfessionId > 0)
             {
                 query = query.Where(m => m.ExpertsProfessions.Any(sp => sp.SubProfessionId == subProfessionId.Value)).ToList();
+            }
+            if (createdStartDate.HasValue)
+            {
+                query = query.Where(m => m.CreatedAt.HasValue
+                                      && m.CreatedAt.Value.Date >= createdStartDate.Value.Date).ToList();
+            }
+            if (createdEndDate.HasValue)
+            {
+                query = query.Where(m => m.CreatedAt.HasValue
+                                      && m.CreatedAt.Value.Date <= createdEndDate.Value.Date).ToList();
             }
             return query;
         }

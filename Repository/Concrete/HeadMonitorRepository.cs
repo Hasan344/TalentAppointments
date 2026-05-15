@@ -106,6 +106,7 @@ namespace ForQab.Repository.Concrete
             monitor.SerialPrefix = model.SerialPrefix;
             monitor.Serial = model.Serial;
             monitor.TelIs = model.TelIs;
+            monitor.UpdatedAt = DateTime.Now;
 
             _dbContext.Monitors.Update(monitor);
             await _dbContext.SaveChangesAsync();

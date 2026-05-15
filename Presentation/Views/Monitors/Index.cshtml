@@ -108,6 +108,19 @@
                         }
                     </select>
                 </div>
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">Yaradılma tarixi (başlanğıc)</label>
+                    <input type="date" name="createdStartDate"
+                           value="@Context.Request.Query["createdStartDate"]"
+                           class="form-control" />
+                </div>
+
+                <div class="qab-filters__field">
+                    <label class="qab-filters__label">Yaradılma tarixi (son)</label>
+                    <input type="date" name="createdEndDate"
+                           value="@Context.Request.Query["createdEndDate"]"
+                           class="form-control" />
+                </div>
                 <input type="hidden" name="page" value="1" />
                 <input type="hidden" name="pageSize" value="@ViewBag.PageSize" />
                 <div style="display:flex;gap:.4rem;align-items:end;">
