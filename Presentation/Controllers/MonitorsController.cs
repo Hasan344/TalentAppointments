@@ -56,11 +56,14 @@ namespace ForQab.Presentation.Controllers
             var all = await _monitorService.GetAllAsync(
                 currentUserSection, searchName, genderId, finCode, serial, district, startYear, endYear, createdStartDate, createdEndDate);
 
-            var totalCount = all.Count();
+            
+            var (paged, totalCount) = await _monitorService.GetPagedAsync(
+    currentUserSection, searchName, genderId, finCode, serial, district,
+    startYear, endYear, createdStartDate, createdEndDate, page, pageSize);
+
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
             page = Math.Max(1, Math.Min(page, totalPages == 0 ? 1 : totalPages));
 
-            var paged = all.Skip((page - 1) * pageSize).Take(pageSize);
 
             ViewBag.Genders = genders;
             ViewBag.Districts = districts;

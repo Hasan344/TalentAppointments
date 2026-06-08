@@ -715,7 +715,7 @@ namespace ForQab.Service
                 headerRow.Append(CreateTableCell(roomHeader, true, 1500));
                 headerRow.Append(CreateTableCell("Vəzifə", true, 3000));
                 headerRow.Append(CreateTableCell("Soyadı, adı, ata adı", true, 6000));
-                headerRow.Append(CreateTableCell("İmza", true, 2000));
+                AppendSignatureHeader(headerRow, exam.Shift, exam.SectionId);        
                 table.Append(headerRow);
 
                 int rowIndex = 1;
@@ -726,14 +726,13 @@ namespace ForQab.Service
                         var row = new TableRow();
                         row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
                         row.Append(CreateTableCell(expert.ExamRoom?.Name, false, 1500));
-                        row.Append(CreateTableCell($"Ekspert-{expert.SubProfession?.Name} ", false, 3000));
+                        row.Append(CreateTableCell($"Ekspert-{NormalizeSubProfessionName(expert.SubProfession?.Name)} ", false, 3000));
                         row.Append(CreateTableCell(expert.Expert.Surname + " " + expert.Expert.Name + " " + expert.Expert.Fname, false, 6000));
-                        row.Append(CreateTableCell("", false, 2000));
+                        AppendSignatureCells(row, exam.Shift, exam.SectionId);          
                         table.Append(row);
                         rowIndex++;
                     }
                 }
-
 
                 foreach (var monitor in exam.ExamMonitors.Where(em => em.Monitors.Role == 2))
                 {
@@ -742,10 +741,11 @@ namespace ForQab.Service
                     row.Append(CreateTableCell(monitor.ExamRooms?.Name, false, 1500));
                     row.Append(CreateTableCell("Nəzarətçi ", false, 3000));
                     row.Append(CreateTableCell(monitor.Monitors.Surname + " " + monitor.Monitors.Name + " " + monitor.Monitors.Fname, false, 6000));
-                    row.Append(CreateTableCell("", false, 2000));
+                    AppendSignatureCells(row, exam.Shift, exam.SectionId);
                     table.Append(row);
                     rowIndex++;
                 }
+
                 foreach (var monitor in exam.ExamMonitors.Where(em => em.Monitors.Role == 5))
                 {
                     var row = new TableRow();
@@ -753,10 +753,11 @@ namespace ForQab.Service
                     row.Append(CreateTableCell("", false, 1500));
                     row.Append(CreateTableCell(monitor.Monitors.WorkerTypeNavigation?.Name, false, 3000));
                     row.Append(CreateTableCell(monitor.Monitors.Surname + " " + monitor.Monitors.Name + " " + monitor.Monitors.Fname, false, 6000));
-                    row.Append(CreateTableCell("", false, 2000));
+                    AppendSignatureCells(row, exam.Shift, exam.SectionId);
                     table.Append(row);
                     rowIndex++;
                 }
+
                 foreach (var representative in exam.Representatives.Where(dr => dr.Type == 1))
                 {
                     var row = new TableRow();
@@ -764,10 +765,11 @@ namespace ForQab.Service
                     row.Append(CreateTableCell(" ", false, 1500));
                     row.Append(CreateTableCell("DİM Nümayəndəsi", false, 3000));
                     row.Append(CreateTableCell(representative.Surname + " " + representative.Name + " " + representative.Fname, false, 6000));
-                    row.Append(CreateTableCell("", false, 2000));
+                    AppendSignatureCells(row, exam.Shift, exam.SectionId);
                     table.Append(row);
                     rowIndex++;
                 }
+
                 foreach (var representative in exam.Representatives.Where(dr => dr.Type == 2))
                 {
                     var row = new TableRow();
@@ -775,10 +777,11 @@ namespace ForQab.Service
                     row.Append(CreateTableCell(" ", false, 1500));
                     row.Append(CreateTableCell("Nazirlik Nümayəndəsi", false, 3000));
                     row.Append(CreateTableCell(representative.Surname + " " + representative.Name + " " + representative.Fname, false, 6000));
-                    row.Append(CreateTableCell("", false, 2000));
+                    AppendSignatureCells(row, exam.Shift, exam.SectionId);
                     table.Append(row);
                     rowIndex++;
                 }
+
                 foreach (var monitor in exam.ExamMonitors.Where(em => em.Monitors.Role == 1))
                 {
                     var row = new TableRow();
@@ -786,7 +789,7 @@ namespace ForQab.Service
                     row.Append(CreateTableCell("", false, 1500));
                     row.Append(CreateTableCell("İmtahan rəhbəri ", false, 3000));
                     row.Append(CreateTableCell(monitor.Monitors.Surname + " " + monitor.Monitors.Name + " " + monitor.Monitors.Fname, false, 6000));
-                    row.Append(CreateTableCell("", false, 2000));
+                    AppendSignatureCells(row, exam.Shift, exam.SectionId);
                     table.Append(row);
                     rowIndex++;
                 }
@@ -858,7 +861,7 @@ namespace ForQab.Service
                 headerRow.Append(CreateTableCell("Zal (Məntəqə kodu)", true, 1500));
                 headerRow.Append(CreateTableCell("Vəzifə", true, 3000));
                 headerRow.Append(CreateTableCell("Soyadı, adı, ata adı", true, 6000));
-                headerRow.Append(CreateTableCell("İmza", true, 2000));
+                AppendSignatureHeader(headerRow, exam.Shift, exam.SectionId);          // <-- İmza başlığı
                 table.Append(headerRow);
 
                 int rowIndex = 1;
@@ -870,7 +873,7 @@ namespace ForQab.Service
                     var vez = expert.Expert.Kons == false ? "Ekspert" : "Konsertmeyster";
                     row.Append(CreateTableCell($"{vez}-{expert.SubProfession?.Name} ", false, 3000));
                     row.Append(CreateTableCell(expert.Expert.Name + " " + expert.Expert.Surname + " " + expert.Expert.Fname, false, 6000));
-                    row.Append(CreateTableCell("", false, 2000));
+                    AppendSignatureCells(row, exam.Shift, exam.SectionId);              // <-- İmza xanası/xanaları
                     table.Append(row);
                     rowIndex++;
                 }
@@ -924,19 +927,17 @@ namespace ForQab.Service
                 headerRow.Append(CreateTableCell("S/s", true, 1000));
                 headerRow.Append(CreateTableCell("Vəzifə", true, 3000));
                 headerRow.Append(CreateTableCell("Soyadı, adı, ata adı", true, 6000));
-                headerRow.Append(CreateTableCell("İmza", true, 2000));
+                AppendSignatureHeader(headerRow, exam.Shift, exam.SectionId);          // <-- İmza başlığı
                 table.Append(headerRow);
 
                 int rowIndex = 1;
-
-
                 foreach (var monitor in exam.ExamMonitors.Where(em => em.Monitors.Role == 4))
                 {
                     var row = new TableRow();
                     row.Append(CreateTableCell(rowIndex.ToString(), false, 1000));
                     row.Append(CreateTableCell("Könüllü ", false, 3000));
                     row.Append(CreateTableCell(monitor.Monitors.Surname + " " + monitor.Monitors.Name + " " + monitor.Monitors.Fname, false, 6000));
-                    row.Append(CreateTableCell("", false, 2000));
+                    AppendSignatureCells(row, exam.Shift, exam.SectionId);              // <-- İmza xanası/xanaları
                     table.Append(row);
                     rowIndex++;
                 }
@@ -1143,7 +1144,7 @@ namespace ForQab.Service
         }
         public async Task RemoveExpertsFromExamAsync(int examId, List<int> expertIds)
         {
-            var exam = await _examRepository.GetByIdAsync(examId);
+            var exam = await _examRepository.GetTrackedByIdAsync(examId);
             if (exam == null) throw new ArgumentException("İmtahan tapılmadı");
 
             // İmtahan günü keçibsə silmə əməliyyatına icazə verilmir
@@ -1166,7 +1167,7 @@ namespace ForQab.Service
 
         public async Task RemoveMonitorsFromExamAsync(int examId, List<int> monitorIds)
         {
-            var exam = await _examRepository.GetByIdAsync(examId);
+            var exam = await _examRepository.GetTrackedByIdAsync(examId);
             if (exam == null) throw new ArgumentException("İmtahan tapılmadı");
 
             // İmtahan günü keçibsə silmə əməliyyatına icazə verilmir
@@ -1186,7 +1187,7 @@ namespace ForQab.Service
 
         public async Task RemoveRepresentativesFromExamAsync(int examId, List<int> representativeIds)
         {
-            var exam = await _examRepository.GetByIdAsync(examId);
+            var exam = await _examRepository.GetTrackedByIdAsync(examId);
             if (exam == null) throw new ArgumentException("İmtahan tapılmadı");
 
             if (exam.ExamDate < DateOnly.FromDateTime(DateTime.Today))
@@ -2251,7 +2252,37 @@ namespace ForQab.Service
 
             return stream.ToArray();
         }
-        
+        private static void AppendSignatureHeader(TableRow headerRow, byte? shift, int? sectionId)
+        {
+            if (shift == 2 && sectionId != 2)
+            {
+                headerRow.Append(CreateTableCell("İmza / I növbə", true, 2000));
+                headerRow.Append(CreateTableCell("İmza / II növbə", true, 2000));
+            }
+            else
+            {
+                headerRow.Append(CreateTableCell("İmza", true, 2000));
+            }
+        }
+
+        private static void AppendSignatureCells(TableRow row, byte? shift, int? sectionId)
+        {
+            row.Append(CreateTableCell("", false, 2000));
+            if (shift == 2 && sectionId != 2)
+            {
+                row.Append(CreateTableCell("", false, 2000));
+            }
+        }
+        private static string NormalizeSubProfessionName(string? name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return "";
+
+            if (name.StartsWith("Sekundomer", StringComparison.OrdinalIgnoreCase))
+                return "Sekundomer";
+
+            return name;
+        }
 
     }
 }

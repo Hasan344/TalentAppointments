@@ -9,6 +9,7 @@ namespace ForQab.Repository.Abstract
     public interface IExamRepository : IRepository<Exam>
     {
         public Task AddAsync(CreateExamViewModel examViewModel); 
+        Task<Exam?> GetTrackedByIdAsync(int examId);
         public Task AddAsyncForAssesment(CreateExamViewModelForAssesment examViewModel);
        // public Task AddAsyncForAppeal(CreateExamViewModelForAssesment examViewModel);
         Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId, int? roomId);

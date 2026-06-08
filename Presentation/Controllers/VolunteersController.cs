@@ -83,7 +83,7 @@ namespace ForQab.Presentation.Controllers
             if (sectionId == 1)
             {
                 var validator = new VolunteerValidator();
-                result = validator.Validate(monitor);
+                result = await validator.ValidateAsync(monitor);
                 if (!result.IsValid)
                 {
                     foreach (var error in result.Errors)

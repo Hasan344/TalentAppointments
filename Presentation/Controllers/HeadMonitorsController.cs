@@ -506,6 +506,36 @@ namespace ForQab.Presentation.Controllers
             }
         }
         [HttpPost]
+        public async Task<IActionResult> FilterHeadMonitorsAjax(string searchName, int? districtId)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var monitors = _context.Monitors.Where(m => m.SectionId == sectionId && m.Role == 1).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchName))
+            {
+                var keyword = searchName.Trim().ToLower();
+                monitors = monitors.Where(m =>
+                    (m.Name + " " + m.Surname).ToLower().Contains(keyword) ||
+                    (m.Surname + " " + m.Name).ToLower().Contains(keyword));
+            }
+
+            if (districtId.HasValue)
+                monitors = monitors.Where(m => m.District == districtId);
+
+            var list = await monitors
+                .OrderBy(m => m.Name)
+                .Select(m => new
+                {
+                    m.Id,
+                    m.Name,
+                    m.Surname,
+                    m.FinCode
+                }).ToListAsync();
+
+            return PartialView("_HeadMonitorCheckboxListPartial", list);
+        }
+
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> BulkArchive(List<int> selectedIds, string archiveReason)
         {

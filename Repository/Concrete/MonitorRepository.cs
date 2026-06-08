@@ -177,5 +177,40 @@ namespace ForQab.Repository.Concrete
             }
             return _dbContext.SubProfessions.Where(e => e.SectionId == sectionId).ToList();
         }
+        public async Task<(List<Monitor> Items, int TotalCount)> GetPagedAsync(int? sectionId, string? searchName, int? genderId, string? finCode,
+                                                                               string? serial, int? district, int? startYear, int? endYear,
+                                                                               DateTime? createdStartDate, DateTime? createdEndDate,
+                                                                               int page, int pageSize)
+        {
+            var query = _dbContext.Monitors
+                .AsNoTracking()
+                .Where(m => m.Role == 2 && m.Archive == 0);
+
+            if (sectionId.HasValue) query = query.Where(m => m.SectionId == sectionId.Value);
+            if (genderId.HasValue && genderId > 0) query = query.Where(m => m.Gender == genderId.Value);
+            if (!string.IsNullOrEmpty(searchName))
+                query = query.Where(m => EF.Functions.Like(m.Name, $"%{searchName}%")
+                                      || EF.Functions.Like(m.Surname, $"%{searchName}%"));
+            if (!string.IsNullOrEmpty(finCode)) query = query.Where(m => EF.Functions.Like(m.FinCode, $"%{finCode}%"));
+            if (!string.IsNullOrEmpty(serial)) query = query.Where(m => EF.Functions.Like(m.Serial, $"%{serial}%"));
+            if (district.HasValue && district > 0) query = query.Where(m => m.District == district.Value);
+            if (startYear.HasValue) query = query.Where(m => m.BirthDate.HasValue && m.BirthDate.Value.Year >= startYear.Value);
+            if (endYear.HasValue) query = query.Where(m => m.BirthDate.HasValue && m.BirthDate.Value.Year <= endYear.Value);
+            if (createdStartDate.HasValue) query = query.Where(m => m.CreatedAt.HasValue && m.CreatedAt.Value.Date >= createdStartDate.Value.Date);
+            if (createdEndDate.HasValue) query = query.Where(m => m.CreatedAt.HasValue && m.CreatedAt.Value.Date <= createdEndDate.Value.Date);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(m => m.Name).ThenBy(m => m.Surname)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Include(m => m.DistrictNavigation)
+                .Include(m => m.GenderNavigation)
+                .Include(m => m.Section)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
     }
 }
