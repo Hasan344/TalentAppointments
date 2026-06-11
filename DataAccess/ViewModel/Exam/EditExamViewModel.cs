@@ -53,5 +53,6 @@ namespace ForQab.DataAccess.ViewModel.Exam
         public int[]? SelectedSubjects { get; set; }
         public int? burQ { get; set; }
         public int? burK { get; set; }
+        public int? Stekan { get; set; }
     }
 }

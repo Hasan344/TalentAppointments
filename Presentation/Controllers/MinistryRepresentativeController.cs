@@ -223,5 +223,64 @@ namespace ForQab.Presentation.Controllers
             }
             return true;
         }
+        public async Task<IActionResult> Archived()
+        {
+            var archived = await _representativeService.GetAllArchivedAsync();
+            return View(archived);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ArchiveRepresentative(int id, string archiveReason)
+        {
+            var representative = await _representativeService.GetRepresentativeByIdAsync(id);
+            if (representative == null)
+            {
+                return NotFound();
+            }
+
+            representative.Archive = 1;
+            representative.ArchiveReason = archiveReason;
+            representative.Photo = null;
+            await _representativeService.UpdateRepresentativeAsync(representative);
+
+            TempData["SuccessMessage"] = "Nümayəndə arxivə göndərildi.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RestoreRepresentative(int id)
+        {
+            var representative = await _representativeService.GetRepresentativeByIdAsync(id);
+            if (representative == null)
+            {
+                return NotFound();
+            }
+
+            representative.Archive = 0;
+            representative.ArchiveReason = null;
+            representative.Photo = null;
+            await _representativeService.UpdateRepresentativeAsync(representative);
+
+            TempData["SuccessMessage"] = "Nümayəndə arxivdən çıxarıldı.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BulkArchive(List<int> selectedIds, string archiveReason)
+        {
+            if (selectedIds == null || selectedIds.Count == 0)
+            {
+                TempData["ErrorMessage"] = "Heç bir nümayəndə seçilməyib.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            await _representativeService.BulkArchiveAsync(selectedIds, archiveReason);
+            TempData["SuccessMessage"] = $"{selectedIds.Count} nümayəndə arxivə göndərildi.";
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }

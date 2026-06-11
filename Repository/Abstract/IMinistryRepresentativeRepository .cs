@@ -6,5 +6,7 @@ namespace ForQab.Repository.Abstract
     {
         Task<IEnumerable<DimRepresentative>> GetAllAsync();
         Task<List<DimRepresentative>> GetAvailableRepresentativeAsync(List<int> selectedRepresentativeList);
+        Task<IEnumerable<DimRepresentative>> GetAllArchivedAsync();
+        Task BulkArchiveAsync(List<int> ids, string archiveReason);
     }
 }

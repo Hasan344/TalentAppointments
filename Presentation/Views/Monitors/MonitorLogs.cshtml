@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Xüsusi qeydlər";
+
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 
@@ -28,57 +29,113 @@
                     <tr>
                         <th>#</th>
                         <th>Nəzarətçi</th>
-                        <th>Qeydlər</th>
+                        <th>Qeyd</th>
+                        <th>İmtahan</th>
+                        <th>Daxil edən</th>
                         <th>Əməliyyatlar</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @{ int rowNumber = 1; }
+                    @{
+                        int rowNumber = 1;
+                    }
                     @foreach (var item in Model)
+
                     {
                         @if (item.MonitorLogs?.Any() == true)
+
                         {
-                            <tr>
-                                <td class="qab-col-num">@rowNumber</td>
-                                <td>
-                                    <div class="qab-col-name">
-                                        <strong>@item.Surname @item.Name @item.Fname</strong>
-                                        <span class="text-muted" style="font-size:.82rem;">@item.FinCode</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="display:flex;flex-direction:column;gap:.35rem;">
-                                        @foreach (var log in item.MonitorLogs)
-                                        {
-                                            <div style="display:flex;align-items:center;gap:.5rem;">
-                                                @if (log.Kind == 0)
-                                                {
-                                                    <span class="qab-badge qab-badge--danger"><i class="bi bi-x-circle"></i> Gəlmədi</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="qab-badge qab-badge--warning"><i class="bi bi-exclamation-circle"></i> Qeyd</span>
-                                                }
-                                                <span style="font-size:.85rem;">@log.Note</span>
-                                                <span class="text-muted" style="font-size:.78rem;">— @log.Time?.ToString("dd.MM.yyyy HH:mm")</span>
-                                                <form asp-action="DeleteLogs" method="post" style="margin:0;">
-                                                    <input type="hidden" name="id" value="@log.Id" />
-                                                    <button type="submit" class="qab-table__action-btn qab-table__action-btn--delete" title="Sil" style="width:26px;height:26px;">
-                                                        <i class="bi bi-trash" style="font-size:.75rem;"></i>
-                                                    </button>
-                                                </form>
+                            var logs = item.MonitorLogs.ToList();
+                            var first = true;
+
+                            foreach (var log in logs)
+                            {
+                                <tr>
+                                    @if (first)
+                                    {
+                                        <td class="qab-col-num" rowspan="@logs.Count" style="vertical-align:top;">@rowNumber</td>
+                                        <td rowspan="@logs.Count" style="vertical-align:top;">
+                                            <div class="qab-col-name">
+                                                <strong>@item.Surname @item.Name @item.Fname</strong>
+                                                <span class="text-muted" style="font-size:.82rem;">@item.FinCode</span>
                                             </div>
+                                        </td>
+                                    }
+
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+                                            @if (log.Kind == 0)
+
+                                            {
+                                                <span class="qab-badge qab-badge--danger"><i class="bi bi-x-circle"></i> Gəlmədi</span>
+                                            }
+
+                                            else
+
+                                            {
+                                                <span class="qab-badge qab-badge--warning"><i class="bi bi-exclamation-circle"></i> Qeyd</span>
+                                            }
+                                            <span style="font-size:.85rem;">@log.Note</span>
+                                        </div>
+                                        <div class="text-muted" style="font-size:.75rem;margin-top:.15rem;">
+                                            @log.Time?.ToString("dd.MM.yyyy HH:mm")
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        @if (log.Exam != null)
+
+                                        {
+                                            <span style="font-size:.85rem;">@log.Exam.Name</span>
                                         }
-                                    </div>
-                                </td>
-                                <td>
-                                    <a class="qab-table__action-btn qab-table__action-btn--view"
-                                       asp-action="Details" asp-route-id="@item.Id">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                </td>
-                            </tr>
+
+                                        else
+
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(log.UserName))
+
+                                        {
+                                            <span style="font-size:.85rem;"><i class="bi bi-person"></i> @log.UserName</span>
+                                        }
+
+                                        else
+
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <div style="display:flex;gap:.35rem;align-items:center;">
+                                            @if (first)
+
+                                            {
+                                                <a class="qab-table__action-btn qab-table__action-btn--view"
+                                                   asp-action="Details" asp-route-id="@item.Id" title="Bax">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            }
+                                            <form asp-action="DeleteLogs" method="post" style="margin:0;">
+                                                <input type="hidden" name="id" value="@log.Id" />
+                                                <button type="submit" class="qab-table__action-btn qab-table__action-btn--delete"
+                                                        title="Sil" style="width:26px;height:26px;">
+                                                    <i class="bi bi-trash" style="font-size:.75rem;"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                first = false;
+                            }
+
                             rowNumber++;
+
                         }
                     }
                 </tbody>

@@ -77,11 +77,13 @@ namespace ForQab.Service.Abstract
         Task<byte[]> ExportExamToWordAsyncForV(int examId);
         Task<byte[]> GetExamDataForExport(DateOnly selectedDate, int sectionId);
         Task<byte[]> ExportFoodAndWaterRangeAsync(DateOnly start, DateOnly end, int? sectionId, int examBuildingId);
-        Task<byte[]> GetExamDataForFoodAndWater(DateOnly startDate, DateOnly endDate,  int sectionId);
+        Task<byte[]> GetExamDataForFoodAndWater(DateOnly startDate, DateOnly endDate,  int? sectionId);
 
         Task<byte[]> GenerateExamWordReportAsync();
         Task<IEnumerable<ExamExportForFoodViewModel>> GetExamsForExportAsync();
-        Task<byte[]> ExportFoodWaterSimpleReportAsync(DateOnly start, DateOnly end);
-        
+        Task<byte[]> ExportFoodWaterSimpleReportAsync(DateOnly start, DateOnly end); 
+        Task<byte[]> ExportFoodWaterToExcelAsync(DateOnly start, DateOnly end);
+        Task<MemoryStream> ExportExamCalendar(int? year);
+
     }
 }

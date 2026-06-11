@@ -9,5 +9,7 @@ namespace ForQab.Service.Abstract
         Task AddRepresentativeAsync(DimRepresentative entity);
         Task UpdateRepresentativeAsync(DimRepresentative entity);
         Task DeleteRepresentativeAsync(int id);
+        Task<IEnumerable<DimRepresentative>> GetAllArchivedAsync();
+        Task BulkArchiveAsync(List<int> ids, string archiveReason);
     }
 }

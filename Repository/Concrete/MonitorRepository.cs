@@ -47,6 +47,7 @@ namespace ForQab.Repository.Concrete
         {
             var query = _dbContext.Monitors
                                   .Include(m => m.MonitorLogs)
+                                      .ThenInclude(ml => ml.Exam)   // ← əlavə olundu
                                   .Where(m => m.Role == 2 && m.MonitorLogs.Any());
 
             if (sectionId != null)

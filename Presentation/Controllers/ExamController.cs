@@ -712,6 +712,13 @@ namespace ForQab.Presentation.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> ExportForCalendar(int? year)
+        {
+            var memoryStream = await _examService.ExportExamCalendar(year);
+            return File(memoryStream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Təqvim qabiliyyət.docx");
+        }
+
+        [HttpGet]
         public async Task<IActionResult> ExportToWordForLetter(int? year)
         {
             var memoryStream = await _examService.ExportExamScheduleToWordForLetter(year);
@@ -1267,7 +1274,7 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> ExportExamDataForFoodAndWater(DateOnly startDate, DateOnly endDate)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var fileContent = await _examService.GetExamDataForFoodAndWater(startDate, endDate, (int)sectionId);
+            var fileContent = await _examService.GetExamDataForFoodAndWater(startDate, endDate, sectionId);
             return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Yemək üçün {startDate}-{endDate}.xlsx");
         }
 
@@ -1366,7 +1373,30 @@ namespace ForQab.Presentation.Controllers
                 return File(
                     wordDocument,
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    $"Yemek_Su_Raporu_{DateTime.Now:yyyyMMdd_HHmmss}.docx"
+                    $"Yemek_Su_{DateTime.Now:yyyyMMdd_HHmmss}.docx"
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Rapor oluşturulurken hata: {ex.Message}");
+            }
+        }
+
+        [HttpGet("export-excel")]
+        public async Task<IActionResult> ExportExamsForFoodToExcel(
+    [FromQuery] DateTime start,
+    [FromQuery] DateTime end)
+        {
+            try
+            {
+                var excelDocument = await _examService.ExportFoodWaterToExcelAsync(
+                    DateOnly.FromDateTime(start),
+                    DateOnly.FromDateTime(end));
+
+                return File(
+                    excelDocument,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    $"Yemek_Su_Stekan_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
                 );
             }
             catch (Exception ex)

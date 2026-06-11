@@ -111,4 +111,6 @@ public partial class Exam
 
     [Column("bur_k")]
     public int? burK { get; set; }
+    [Column("stekan")]
+    public int? Stekan { get; set; }
 }

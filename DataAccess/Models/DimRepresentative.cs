@@ -56,5 +56,11 @@ public partial class DimRepresentative
     [Column("photo")]
     [StringLength(4000)]
     public string? Photo { get; set; }
+    [Column("archive")]
+    public byte Archive { get; set; }
+
+    [Column("archive_reason")]
+    [StringLength(2000)]
+    public string? ArchiveReason { get; set; }
 
 }

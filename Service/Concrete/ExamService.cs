@@ -96,6 +96,7 @@ namespace ForQab.Service
                 Food = exam.Food,
                 burQ = exam.burQ,
                 burK = exam.burK,
+                Stekan = exam.Stekan,
                 StudentCount = exam.StudentCount,
                 Notes = exam.Notes,
                 InventoryTransport = exam.InventoryTransport,
@@ -629,6 +630,10 @@ namespace ForQab.Service
         {
             return _examRepository.ExportExamCalendarToWord(year);
         }
+        public Task<MemoryStream> ExportExamCalendar(int? year)
+        {
+            return _examRepository.ExportExamCalendar(year);
+        }
         public Task<MemoryStream> ExportExamScheduleToWordForLetter(int? year)
         {
             return _examRepository.ExportExamScheduleToWordForLetter(year);
@@ -1058,6 +1063,7 @@ namespace ForQab.Service
                 Food = exam.Food,
                 burK = exam.burK,
                 burQ = exam.burQ,
+                Stekan = exam.Stekan,
                 StudentCount = exam.StudentCount,
                 StartTime = exam.StartTime,
                 EndTime = exam.EndTime,
@@ -1496,23 +1502,27 @@ namespace ForQab.Service
             workbook.SaveAs(stream);
             return stream.ToArray();
         }
-        public async Task<byte[]> GetExamDataForFoodAndWater(DateOnly startDate, DateOnly endDate, int sectionId)
+        public async Task<byte[]> GetExamDataForFoodAndWater(DateOnly startDate, DateOnly endDate, int? sectionId)
         {
-            var exams = _context.Exams
-                .Include(e => e.Monitors)
-                    .ThenInclude(em => em.WorkerTypeNavigation)
-                .Include(e => e.Monitors)
-                    .ThenInclude(em => em.Contracts)
-                .Include(e => e.Monitors)
-                    .ThenInclude(em => em.MonitorLogs)
-                .Include(e => e.Experts)
-                    .ThenInclude(em => em.Contracts)
-                .Include(e => e.ExamDegrees)
-                .Include(e => e.Section)
-                .Include(e => e.ExamBuilding)
-                .Include(e => e.Representatives)
-                .Where(e => e.ExamDate >= startDate && e.ExamDate <= endDate && e.SectionId == sectionId)
-                .ToList();
+            var query = _context.Exams
+                        .Include(e => e.Monitors)
+                            .ThenInclude(em => em.WorkerTypeNavigation)
+                        .Include(e => e.Monitors)
+                            .ThenInclude(em => em.Contracts)
+                        .Include(e => e.Monitors)
+                            .ThenInclude(em => em.MonitorLogs)
+                        .Include(e => e.Experts)
+                            .ThenInclude(em => em.Contracts)
+                        .Include(e => e.ExamDegrees)
+                        .Include(e => e.Section)
+                        .Include(e => e.ExamBuilding)
+                        .Include(e => e.Representatives)
+                        .Where(e => e.ExamDate >= startDate && e.ExamDate <= endDate);
+
+            if (sectionId.HasValue)
+                query = query.Where(e => e.SectionId == sectionId.Value);
+
+            var exams = query.ToList();
 
             using var workbook = new XLWorkbook();
             var worksheet = workbook.Worksheets.Add("Exam Data");
@@ -2252,6 +2262,103 @@ namespace ForQab.Service
 
             return stream.ToArray();
         }
+
+        public async Task<byte[]> ExportFoodWaterToExcelAsync(DateOnly start, DateOnly end)
+        {
+            var exams = await _context.Exams
+                .Include(e => e.ExamBuilding)
+                .Where(e => e.ExamDate >= start && e.ExamDate <= end
+                            && ((e.Food ?? 0) > 0 || (e.Water ?? 0) > 0 || (e.Stekan ?? 0) > 0))
+                .OrderBy(e => e.ExamDate)
+                .ThenBy(e => e.Id)
+                .ToListAsync();
+
+            using var workbook = new XLWorkbook();
+            var ws = workbook.Worksheets.Add("Sheet1");
+
+            // Başlıq (A1:F1 birləşdirilmiş)
+            ws.Range("A1:F1").Merge();
+            ws.Cell("A1").Value = "Xüsusi qabiliyyət imtahanlarının keçirilməsi ilə əlaqədar";
+            ws.Cell("A1").Style.Font.Bold = true;
+            ws.Cell("A1").Style.Font.FontSize = 12;
+            ws.Cell("A1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+            // Sütun başlıqları (2-ci sətir)
+            var headers = new[] { "№", "Müəssisə", "Tarix", "Su", "Stəkan", "Yemək" };
+            for (int c = 0; c < headers.Length; c++)
+            {
+                var cell = ws.Cell(2, c + 1);
+                cell.Value = headers[c];
+                cell.Style.Font.Bold = true;
+                cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#D9D9D9");
+            }
+
+            // Məlumat sətirləri
+            int row = 3;
+            int counter = 1;
+            foreach (var exam in exams)
+            {
+                ws.Cell(row, 1).Value = counter;
+                ws.Cell(row, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                ws.Cell(row, 2).Value = exam.ExamBuilding?.Name ?? "Bilinmeyen Bina";
+
+                var dateCell = ws.Cell(row, 3);
+                dateCell.Value = exam.ExamDate.ToDateTime(TimeOnly.MinValue);
+                dateCell.Style.DateFormat.Format = "dd.MM.yyyy";
+                dateCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                SetNumberOrDash(ws.Cell(row, 4), exam.Water);   // Su
+                SetNumberOrDash(ws.Cell(row, 5), exam.Stekan);  // Stəkan
+                SetNumberOrDash(ws.Cell(row, 6), exam.Food);    // Yemək
+
+                row++;
+                counter++;
+            }
+            if (exams.Count > 0)
+            {
+                int totalRow = row;
+
+                ws.Cell(totalRow, 2).Value = "Cəm:";
+                ws.Cell(totalRow, 2).Style.Font.Bold = true;
+                ws.Cell(totalRow, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+
+                var sumColumns = new[] { (col: 4, letter: "D"), (5, "E"), (6, "F") };
+                foreach (var (col, letter) in sumColumns)
+                {
+                    var sumCell = ws.Cell(totalRow, col);
+                    sumCell.FormulaA1 = $"=SUM({letter}3:{letter}{totalRow - 1})";
+                    sumCell.Style.Font.Bold = true;
+                    sumCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    sumCell.Style.Fill.BackgroundColor = XLColor.FromHtml("#F2F2F2");
+                }
+
+                row++; // border-in toplam sətrini də əhatə etməsi üçün
+            }
+
+            // Bütün cədvələ sərhəd (border)
+            var tableRange = ws.Range(2, 1, row - 1, 6);
+            tableRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            tableRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+            ws.Columns().AdjustToContents();
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            return stream.ToArray();
+
+            // Dəyər 0 və ya null-dursa "-" yaz, əks halda rəqəmi yaz
+            static void SetNumberOrDash(IXLCell cell, int? value)
+            {
+                if (value.HasValue && value.Value > 0)
+                    cell.Value = value.Value;
+                else
+                    cell.Value = "-";
+                cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            }
+        }
+
         private static void AppendSignatureHeader(TableRow headerRow, byte? shift, int? sectionId)
         {
             if (shift == 2 && sectionId != 2)

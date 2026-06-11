@@ -25,5 +25,26 @@ namespace ForQab.Repository.Concrete
                 .Where(dr => dr.Type == 2)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<DimRepresentative>> GetAllArchivedAsync()
+        {
+            return await _context.DimRepresentatives
+                .Where(dr => dr.Type == 1 && dr.Archive == 1)
+                .ToListAsync();
+        }
+
+        public async Task BulkArchiveAsync(List<int> ids, string archiveReason)
+        {
+            var representatives = await _context.DimRepresentatives
+                .Where(dr => ids.Contains(dr.Id) && dr.Type == 1)
+                .ToListAsync();
+
+            foreach (var rep in representatives)
+            {
+                rep.Archive = 1;
+                rep.ArchiveReason = archiveReason;
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

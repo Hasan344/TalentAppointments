@@ -45,6 +45,7 @@ namespace ForQab.Repository.Concrete
                 DistrictId = entity.DistrictId,
                 burK = entity.burK,
                 burQ = entity.burQ,
+                Stekan = entity.Stekan,
             };
 
             if (entity.SelectedCommissions != null)
@@ -293,16 +294,11 @@ namespace ForQab.Repository.Concrete
                 }
             }
 
-            // Section 2 / 5: rayona görə filtrə
-            if (exam.SectionId == 2 || exam.SectionId == 5)
-            {
                 availableMonitors = availableMonitors
                     .Where(e => e.District == exam.DistrictId)
                     .OrderBy(e => e.ThisYearAssignmentCount)
                     .ToList();
-            }
 
-            // Eyni gündə başqa imtahana təyin olunmamış nəzarətçiləri seç
             var selectedMonitors = new List<Monitor>();
 
             foreach (var monitor in availableMonitors)
@@ -416,7 +412,7 @@ namespace ForQab.Repository.Concrete
 
             var allMonitors = await _context.Monitors
                 .Include(e => e.ExamMonitors)
-                    .ThenInclude(em => em.Exams)          // ← ThisYearAssignmentCount üçün lazımdır
+                    .ThenInclude(em => em.Exams)        
                 .Where(e => e.SectionId == exam.SectionId)
                 .Where(e => e.Role == 1)
                 .Where(e => e.Status == 0)
@@ -477,7 +473,7 @@ namespace ForQab.Repository.Concrete
         public async Task<Exam?> GetByIdAsync(int id)
         {
             return await _context.Exams
-                .AsNoTracking()                                                 // ← YENİ
+                .AsNoTracking()                                                
                 .Include(e => e.Section)
                 .Include(e => e.ExamBuilding)
                 .Include(e => e.ExamCommissions)
@@ -499,7 +495,7 @@ namespace ForQab.Repository.Concrete
                         .Where(em => em.ExamId == id))
                     .ThenInclude(em => em.ExamRooms)
                 .Include(e => e.Monitors)
-                    .ThenInclude(m => m.WorkerTypeNavigation)                  // ← YENİ: N+1 fix üçün
+                    .ThenInclude(m => m.WorkerTypeNavigation)              
                 .Include(e => e.ExamDegrees)
                     .ThenInclude(ed => ed.Degrees)
                 .Include(e => e.District)
@@ -514,11 +510,11 @@ namespace ForQab.Repository.Concrete
     int? sectionId, int type, int? year, int? examBuildingId = null)
         {
             var query = _context.Exams
-                .AsNoTracking()                                                 // ← YENİ: tracking xərci azaldır
+                .AsNoTracking()                                            
                 .Include(e => e.Section)
                 .Include(e => e.ExamBuilding)
                 .Include(e => e.ExamCommissions).ThenInclude(ec => ec.Commission)
-                .Include(e => e.ExamExpertSubProfessions)                       // ← attendance dot üçün lazım
+                .Include(e => e.ExamExpertSubProfessions)                       
                 .Include(e => e.District)
                 .Where(e => e.Type == type);
             // Experts və Monitors silindi — Index-də göstərilmir,
@@ -599,7 +595,8 @@ namespace ForQab.Repository.Concrete
             existingExam.DistrictId = exam.DistrictId;
             existingExam.ExamDate = exam.ExamDate;
             existingExam.burQ = exam.burQ;
-            existingExam.burK = exam.burK;
+            existingExam.burK = exam.burK; 
+            existingExam.Stekan = exam.Stekan;
 
             if (existingExam.ExamCommissions != null)
             {
@@ -850,10 +847,6 @@ namespace ForQab.Repository.Concrete
                 Body body = new Body();
                 mainPart.Document.Append(body);
 
-                // Başlık ekleme
-                // Paragraph title = new Paragraph(new Run(new Text("Sınav Takvimi")));
-                //title.ParagraphProperties = new ParagraphProperties(new Justification() { Val = JustificationValues.Center });
-                //body.Append(title);
 
                 Table table = new Table();
                 TableProperties tblProp = new TableProperties(
@@ -1169,7 +1162,7 @@ namespace ForQab.Repository.Concrete
                 Body body = new Body();
                 mainPart.Document.Append(body);
 
-                string[] headers = { "İmtahan Tarixi", "İstiqamət", "Təhsil səviyyəsi", "Komissiya", "İmtahan fənləri", "İmtahan keçirilən şəhər(rayon)", "İmtahan mərkəzinin adı və ünvanı", "İştirakçı Sayı", "Buraxılışın başlanması", "İmtahan başlanması", "İmtahanın bitməsi", "Qeyd" };
+                string[] headers = { "İmtahan Tarixi", "İstiqamət", "Təhsil səviyyəsi", "Komissiya", "İmtahan fənləri", "İmtahan keçirilən şəhər(rayon)", "İmtahan mərkəzinin adı və ünvanı"};
 
                 // Hər section üçün ayrı başlıq + ayrı cədvəl
                 var sectionGroups = exams.GroupBy(e => e.SectionId);
@@ -1247,15 +1240,9 @@ namespace ForQab.Repository.Concrete
                         row.Append(CreateColoredCell(string.Join(", ", exam.ExamSubjects?.Select(c => c.Subjects.Name) ?? new List<string>()), bgColor));
                         row.Append(CreateColoredCell(exam.District?.Name ?? "", bgColor));
                         row.Append(CreateColoredCell($"{exam.ExamBuilding?.Name ?? ""}, {exam.ExamBuilding?.Address ?? ""}", bgColor));
-                        row.Append(CreateColoredCell(exam.StudentCount?.ToString() ?? "", bgColor));
-                        row.Append(CreateColoredCell(exam.AdmissionTime?.ToString(@"hh\:mm") ?? "", bgColor));
-                        row.Append(CreateColoredCell(exam.StartTime?.ToString(@"hh\:mm") ?? "", bgColor));
-                        row.Append(CreateColoredCell(exam.EndTime?.ToString(@"hh\:mm") ?? "", bgColor));
-                        row.Append(CreateColoredCell("", bgColor));
 
                         table.Append(row);
                     }
-
                     body.Append(table);
                 }
 
@@ -1294,12 +1281,11 @@ namespace ForQab.Repository.Concrete
                 footerPart.Footer.Save();
 
                 var sectionProps = new SectionProperties(
-                    new PageSize() { Width = 16838, Height = 11906, Orient = PageOrientationValues.Landscape },
-                    new PageMargin() { Top = 720, Right = 720, Bottom = 720, Left = 720 },
-                    new FooterReference() { Type = HeaderFooterValues.Default, Id = footerPartId }
-                );
+                                            new FooterReference() { Type = HeaderFooterValues.Default, Id = footerPartId },
+                                            new PageSize() { Width = 11906U, Height = 16838U, Orient = PageOrientationValues.Portrait },
+                                            new PageMargin() { Top = 720, Right = 720U, Bottom = 720, Left = 720U }
+                                        );
 
-                // SectionProperties body-nin SON elementi olmalıdır
                 body.Append(sectionProps);
                 mainPart.Document.Save();
             }
@@ -1340,10 +1326,6 @@ namespace ForQab.Repository.Concrete
                 Body body = new Body();
                 mainPart.Document.Append(body);
 
-                // Başlık ekleme
-                // Paragraph title = new Paragraph(new Run(new Text("Sınav Takvimi")));
-                //title.ParagraphProperties = new ParagraphProperties(new Justification() { Val = JustificationValues.Center });
-                //body.Append(title);
 
                 Table table = new Table();
                 TableProperties tblProp = new TableProperties(
@@ -1506,7 +1488,7 @@ namespace ForQab.Repository.Concrete
 
             var selectedRepresentatives = await _context.DimRepresentatives
                 .Where(r => selectedRepresentativeIds.Contains(r.Id))
-                .Where(dr => dr.Type == 2)
+                .Where(dr => dr.Type == 2 && dr.Archive == 0)
                 .ToListAsync();
 
             if (selectedRepresentatives.Count != selectedRepresentativeIds.Count)
@@ -2013,6 +1995,174 @@ namespace ForQab.Repository.Concrete
             return await query
                 .OrderByDescending(e => e.ExamDate)
                 .ToListAsync();
+        }
+        public async Task<MemoryStream> ExportExamCalendar(int? year)
+        {
+            var query = _context.Exams
+                        .Include(e => e.ExamDegrees)
+                            .ThenInclude(d => d.Degrees)
+                        .Include(e => e.ExamCommissions)
+                            .ThenInclude(c => c.Commission)
+                        .Include(e => e.ExamExpertSubProfessions)
+                            .ThenInclude(s => s.SubProfession)
+                        .Include(e => e.ExamBuilding)
+                        .Include(e => e.District)
+                        .Include(e => e.Section)
+                        .Include(e => e.ExamSubjects)
+                            .ThenInclude(e => e.Subjects)
+                        .Where(e => e.Type == 1);
+
+            if (year.HasValue && year.Value != 0)
+            {
+                query = query.Where(e => e.ExamDate.Year == year.Value);
+            }
+
+            var exams = await query.OrderBy(e => e.ExamDate)
+                                   .ThenBy(e => e.SectionId)
+                                   .ToListAsync();
+
+            MemoryStream memoryStream = new MemoryStream();
+            using (WordprocessingDocument wordDocument = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document, true))
+            {
+                MainDocumentPart mainPart = wordDocument.AddMainDocumentPart();
+                mainPart.Document = new Document();
+                Body body = new Body();
+                mainPart.Document.Append(body);
+
+                // Başlık ekleme
+                // Paragraph title = new Paragraph(new Run(new Text("Sınav Takvimi")));
+                //title.ParagraphProperties = new ParagraphProperties(new Justification() { Val = JustificationValues.Center });
+                //body.Append(title);
+
+                Table table = new Table();
+                TableProperties tblProp = new TableProperties(
+                    new TableWidth() { Width = "100%", Type = TableWidthUnitValues.Pct },
+                    new TableBorders(
+                        new TopBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new BottomBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new LeftBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new RightBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new InsideHorizontalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                        new InsideVerticalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 }
+                    )
+                );
+                table.AppendChild(tblProp);
+
+                TableRow headerRow = new TableRow(new TableRowProperties(
+                                                      new TableHeader()
+                                                  ));
+                string[] headers = { "İmtahan Tarixi", "İstiqamət", "Təhsil səviyyəsi", "Komissiya", "İmtahan fənləri", "İmtahan keçirilən şəhər(rayon)", "İmtahan mərkəzinin adı və ünvanı" };
+                foreach (var header in headers)
+                {
+                    TableCell cell = new TableCell(new Paragraph(new Run(new Text(header))));
+                    cell.Append(new TableCellProperties(new TableCellWidth { Type = TableWidthUnitValues.Auto }));
+                    headerRow.Append(cell);
+                }
+                table.Append(headerRow);
+
+                foreach (var exam in exams)
+                {
+                    TableRow row = new TableRow(
+                                            new TableRowProperties(
+                                                new CantSplit()
+                                            )
+                                        );
+
+                    var sectionId = _context.Exams.Where(e => e.Id == exam.Id).Select(e => e.SectionId).FirstOrDefault();
+                    string bgColor = "aae4e8";
+                    if (sectionId == 1)
+                    {
+                        bgColor = "94e3a9";
+                    }
+                    else if (sectionId == 2)
+                    {
+                        bgColor = "edf2b3";
+                    }
+                    else if (sectionId == 3)
+                    {
+                        bgColor = "cdd4f7";
+                    }
+                    else if (sectionId == 4)
+                    {
+                        bgColor = "cde8f7";
+                    }
+                    else if (sectionId == 5)
+                    {
+                        bgColor = "edcacd";
+                    }
+                    else if (sectionId == 6)
+                    {
+                        bgColor = "ddf5d7";
+                    }
+
+
+
+                    TableCellProperties cellProperties = new TableCellProperties(
+                        new Shading() { Val = ShadingPatternValues.Clear, Fill = bgColor }
+                    );
+
+                    row.Append(CreateColoredCell(exam.ExamDate.ToString("dd.MM.yyyy"), bgColor));
+                    row.Append(CreateColoredCell(exam.Section?.Name ?? "", bgColor));
+                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamDegrees?.Select(c => c.Degrees.Name) ?? new List<string>()), bgColor));
+                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamCommissions?
+                                                        .Select(c => $"{c.Commission.CommissionNo} - {c.Commission.Name}")
+                                                        ?? new List<string>()),
+                                                    bgColor));
+                    row.Append(CreateColoredCell(string.Join(", ", exam.ExamSubjects?.Select(c => c.Subjects.Name) ?? new List<string>()), bgColor));
+                    row.Append(CreateColoredCell(exam.District?.Name ?? "", bgColor));
+                    row.Append(CreateColoredCell($"{exam.ExamBuilding?.Name ?? ""}, {exam.ExamBuilding?.Address ?? ""}", bgColor));
+
+                    table.Append(row);
+                }
+
+                TableCell CreateColoredCell(string text, string bgColor)
+                {
+                    TableCell cell = new TableCell(new Paragraph(new Run(new Text(text))));
+                    TableCellProperties cellProperties = new TableCellProperties(
+                        new Shading() { Val = ShadingPatternValues.Clear, Fill = bgColor }
+                    );
+                    cell.Append(cellProperties);
+                    return cell;
+                }
+
+                FooterPart footerPart = mainPart.AddNewPart<FooterPart>();
+                string footerPartId = mainPart.GetIdOfPart(footerPart);
+
+                var paragraph = new Paragraph();
+                paragraph.Append(new ParagraphProperties(new Justification() { Val = JustificationValues.Center }));
+                paragraph.Append(new Run(
+                    new RunProperties(new NoProof()),
+                    new FieldChar() { FieldCharType = FieldCharValues.Begin }
+                ));
+                paragraph.Append(new Run(
+                    new FieldCode(" PAGE ") { Space = SpaceProcessingModeValues.Preserve }
+                ));
+                paragraph.Append(new Run(
+                    new FieldChar() { FieldCharType = FieldCharValues.Separate }
+                ));
+                paragraph.Append(new Run(new Text("1"))); // Placeholder
+                paragraph.Append(new Run(
+                    new FieldChar() { FieldCharType = FieldCharValues.End }
+                ));
+
+                Footer footer = new Footer(paragraph);
+                footerPart.Footer = footer;
+                footerPart.Footer.Save();
+
+                var sectionProps = new SectionProperties(
+                    new PageSize() { Width = 11906, Height = 16838, Orient = PageOrientationValues.Portrait },
+                    new PageMargin() { Top = 720, Right = 720, Bottom = 720, Left = 720 },
+                    new FooterReference() { Type = HeaderFooterValues.Default, Id = footerPartId }
+                );
+
+                body.Append(sectionProps);
+                body.Append(table);
+                mainPart.Document.Save();
+            }
+
+            memoryStream.Position = 0;
+            return memoryStream;
+
         }
     }
 }

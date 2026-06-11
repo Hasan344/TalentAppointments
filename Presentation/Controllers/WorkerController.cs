@@ -86,18 +86,20 @@ namespace ForQab.Presentation.Controllers
         {
             var sectionId = await GetCurrentSectionIdAsync();
             var sections = await _workerService.GetSectionsAsync(sectionId);
+
             ViewBag.SectionList = new SelectList(sections, "Id", "Name");
             ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
-            ViewBag.WorkerType = new SelectList(_context.WorkerTypes, "Id", "Name");
+            ViewBag.WorkerTypes = new SelectList(_context.WorkerTypes, "Id", "Name"); 
             ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name");
             ViewData["District"] = new SelectList(_context.Districts, "Id", "Name");
+
             if (sectionId == null)
-            {
-                ViewBag.Building = new SelectList(_context.ExamBuildings, "Id", "Name");
-            }
+                ViewBag.ExamBuilding = new SelectList(_context.ExamBuildings, "Id", "Name"); 
             else
-                ViewBag.Building = new SelectList(_context.ExamBuildings.Where(eb => eb.SectionId == sectionId), "Id", "Name");
-            return View();
+                ViewBag.ExamBuilding = new SelectList(
+                    _context.ExamBuildings.Where(eb => eb.SectionId == sectionId), "Id", "Name");
+
+            return View(new Monitor());  
         }
 
         [HttpPost]

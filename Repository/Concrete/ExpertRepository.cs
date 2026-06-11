@@ -303,8 +303,10 @@ namespace ForQab.Repository.Concrete
         {
             var query = await _context.Experts
                        .Include(xl => xl.ExpertLogs)
+                           .ThenInclude(el => el.Exam)   // ← əlavə olundu
                        .Where(xl => xl.ExpertLogs.Any() && xl.Kons == false)
                        .ToListAsync();
+
             if (sectionId != null)
             {
                 query = query.Where(xl => xl.SectionId == sectionId).ToList();
@@ -336,8 +338,8 @@ namespace ForQab.Repository.Concrete
         {
             return await _context.Experts
                 .Where(e => e.SectionId == sectionId)
-                .Where(e => e.ExpertsProfessions.Any(sp => sp.SubProfessionId == subProfessionId)) // Match the correct SubProfession
-                .Where(e => !excludedExpertIds.Contains(e.Id)) // Exclude already selected experts
+                .Where(e => e.ExpertsProfessions.Any(sp => sp.SubProfessionId == subProfessionId) && e.Status == 0 && e.Archive == 0) 
+                .Where(e => !excludedExpertIds.Contains(e.Id)) 
                 .ToListAsync();
         }
         public async Task<List<Expert>> GetExpertsByIdsAsync(List<int> expertIds)

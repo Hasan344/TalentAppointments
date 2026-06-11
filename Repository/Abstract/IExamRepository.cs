@@ -60,5 +60,6 @@ namespace ForQab.Repository.Abstract
     int? examBuildingId,
     int? year
 );
+        Task<MemoryStream> ExportExamCalendar(int? year);
     }
 }
