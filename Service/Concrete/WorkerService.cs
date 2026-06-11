@@ -43,7 +43,7 @@ namespace ForQab.Service
             return await _workerRepository.GetAllAsync(sectionId, 5, null, includes);
         }
 
-        public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, DateTime? createdStartDate = null, DateTime? createdEndDate = null)
+        public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, DateTime? createdStartDate = null, DateTime? createdEndDate = null, int? workerTypeId = null)
         {
 
             var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "WorkerTypeNavigation", "ExamBuilding", "Contracts", "ExamMonitors" };
@@ -89,6 +89,10 @@ namespace ForQab.Service
             {
                 query = query.Where(m => m.CreatedAt.HasValue
                                       && m.CreatedAt.Value.Date <= createdEndDate.Value.Date).ToList();
+            }
+            if (workerTypeId.HasValue && workerTypeId > 0)
+            {
+                query = query.Where(m => m.WorkerType == workerTypeId.Value).ToList();
             }
             return query.Where(m => m.Archive == 0).ToList();
         }

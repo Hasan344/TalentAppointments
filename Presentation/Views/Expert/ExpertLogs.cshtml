@@ -28,6 +28,8 @@
                         <th>#</th>
                         <th>Ekspert</th>
                         <th>Qeydlər</th>
+                        <th>İmtahan</th>
+                        <th>Daxil edən</th>
                         <th>Əməliyyatlar</th>
                     </tr>
                 </thead>
@@ -59,6 +61,22 @@
                                                     <span class="qab-badge qab-badge--warning"><i class="bi bi-exclamation-circle"></i> Qeyd</span>
                                                 }
                                                 <span style="font-size:.85rem;">@log.Note</span>
+
+                                                @if (log.Exam != null)
+
+                                                {
+                                                    <span class="qab-badge qab-badge--neutral" style="font-size:.75rem;">
+                                                        <i class="bi bi-card-checklist"></i> @log.Exam.Name
+                                                    </span>
+                                                }
+
+                                                @if (!string.IsNullOrWhiteSpace(log.UserName))
+
+                                                {
+                                                    <span class="text-muted" style="font-size:.78rem;">
+                                                        <i class="bi bi-person"></i> @log.UserName
+                                                    </span>
+                                                }
                                                 <span class="text-muted" style="font-size:.78rem;">— @log.Time?.ToString("dd.MM.yyyy HH:mm")</span>
                                                 <form asp-action="DeleteLogs" method="post" style="margin:0;">
                                                     <input type="hidden" name="id" value="@log.Id" />

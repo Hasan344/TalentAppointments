@@ -352,8 +352,11 @@
         <a class="qab-btn qab-btn--word" asp-action="ExportToWord" asp-route-year="@ViewBag.SelectedYear">
             <i class="bi bi-file-earmark-word"></i> Word-ə çıxarış
         </a>
-        <a class="qab-btn qab-btn--word" asp-action="ExportToWordCalendar" asp-route-year="@ViewBag.SelectedYear">
+        <a class="qab-btn qab-btn--word" asp-action="ExportForCalendar" asp-route-year="@ViewBag.SelectedYear">
             <i class="bi bi-calendar3"></i> Qabiliyyət təqvimi
+        </a>
+        <a class="qab-btn qab-btn--word" asp-action="ExportToWordCalendar" asp-route-year="@ViewBag.SelectedYear">
+            <i class="bi bi-calendar3"></i> Qabiliyyət təqvimi sayt üçün
         </a>
         <a class="qab-btn qab-btn--word" asp-action="ExportToWordForLetter" asp-route-year="@ViewBag.SelectedYear">
             <i class="bi bi-envelope"></i> Məktuba əlavə təqvim
@@ -363,6 +366,9 @@
         </button>
         <button class="qab-btn qab-btn--outline-primary" data-bs-toggle="modal" data-bs-target="#exportFoodWaterWordModal">
             <i class="bi bi-file-word"></i> Yemək və su hesabatı(Word)
+        </button>
+        <button class="qab-btn qab-btn--outline-primary" data-bs-toggle="modal" data-bs-target="#exportFoodWaterExcelModal">
+            <i class="bi bi-file-earmark-excel"></i> Yemək/Su/Stəkan hesabatı (Excel)
         </button>
         <button class="qab-btn qab-btn--outline-primary" data-bs-toggle="modal" data-bs-target="#exportExcelModal">
             <i class="bi bi-file-spreadsheet"></i> Yemək və su hesabatı (Excel) 
@@ -466,6 +472,34 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="exportFoodWaterExcelModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="ExportExamsForFoodToExcel" method="get">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tarix aralığı seçin (Yemək/Su/Stəkan Excel)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body qab-page">
+                    <div class="mb-3">
+                        <label for="startDateFWExcel" class="form-label">Başlanğıc tarixi</label>
+                        <input type="date" class="form-control" id="startDateFWExcel" name="start" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="endDateFWExcel" class="form-label">Bitiş tarixi</label>
+                        <input type="date" class="form-control" id="endDateFWExcel" name="end" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="qab-btn qab-btn--ghost" data-bs-dismiss="modal">Bağla</button>
+                    <button type="submit" class="qab-btn qab-btn--primary">Excel Export et</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 <!-- exportModal (Maliyyə Exceli) -->
 <div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">

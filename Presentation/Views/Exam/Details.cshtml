@@ -101,7 +101,7 @@
     </div>
 
     <!-- ─── EKSPERTLƏR (Section != 3,4,6) ─── -->
-    @if (ViewBag.SectionId != 3 && ViewBag.SectionId != 4 && ViewBag.SectionId != 6)
+    @if (ViewBag.SectionId != null)
     {
             var experts = Model.Experts?.Where(m => m.Kons == false)
                 .OrderBy(e => e.ExamExpertSubProfessions.FirstOrDefault()?.Name)

@@ -83,7 +83,7 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Monitor monitor)
         {
-            var result = _headMonitorValidator.Validate(monitor);
+            var result = await _headMonitorValidator.ValidateAsync(monitor);
 
             if (!result.IsValid)
             {

@@ -16,6 +16,8 @@
             </div>
             <a class="qab-page-header__back" asp-controller="Home" asp-action="Index">
                 <i class="bi bi-house"></i> Ana səhifə
+            </a><a class="qab-page-header__back" asp-action="Archived">
+                <i class="bi bi-archive"></i> Arxiv
             </a>
         </div>
     </div>
@@ -27,6 +29,11 @@
         <a class="qab-btn qab-btn--excel" asp-action="ExportToExcel">
             <i class="bi bi-file-earmark-excel"></i> Excel-ə çıxarış
         </a>
+        <button type="button" class="btn btn-warning" id="bulkArchiveBtn"
+                    data-bs-toggle="modal" data-bs-target="#bulkArchiveModal" style="display:none;">
+            <i class="bi bi-archive-fill"></i> Seçilmişləri Arxivlə
+            <span class="badge bg-dark ms-1" id="bulkArchiveCount">0</span>
+        </button>
     </div>
 
     <div class="qab-table-wrap">
@@ -43,6 +50,7 @@
             </colgroup>
             <thead>
                 <tr>
+                    <th style="width:2.5rem;"><input type="checkbox" id="bulkSelectAll" /></th>
                     <th>#</th>
                     <th>Ad</th>
                     <th>Soyad</th>
@@ -58,6 +66,7 @@
                 @foreach (var item in Model)
                 {
                     <tr>
+                        <td><input type="checkbox" class="bulk-select-cb" value="@item.Id" /></td>
                         <td class="qab-col-num">@i</td>
                         <td><strong>@item.Name</strong></td>
                         <td>@item.Surname</td>
@@ -79,6 +88,14 @@
                                    asp-action="Delete" asp-route-id="@item.Id" title="Sil">
                                     <i class="bi bi-trash"></i>
                                 </a>
+                                <button type="button" class="qab-table__action-btn"
+                                            style="color:var(--qab-warning);border-color:var(--qab-warning);"
+                                            title="Arxivlə"
+                                            data-bs-toggle="modal" data-bs-target="#archiveOneModal"
+                                            data-id="@item.Id"
+                                            data-name="@item.Name @item.Surname">
+                                    <i class="bi bi-archive"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -87,4 +104,123 @@
             </tbody>
         </table>
     </div>
+    <!-- ===== TEK ARXİV MODAL ===== -->
+    <div class="modal fade" id="archiveOneModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title"><i class="bi bi-archive-fill"></i> Arxivlə</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form asp-controller="Representative" asp-action="ArchiveRepresentative" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body">
+                        <p id="archiveOneText" class="alert alert-info mb-3"></p>
+                        <input type="hidden" name="id" id="archiveOneId" />
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Arxivləmə səbəbi</label>
+                            <textarea name="archiveReason" class="form-control" rows="3"
+                                      placeholder="Arxivləmə səbəbini yazın..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ləğv et</button>
+                        <button type="submit" class="btn btn-warning fw-bold">
+                            <i class="bi bi-archive-fill"></i> Arxivlə
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TOPLU ARXİV MODAL ===== -->
+    <div class="modal fade" id="bulkArchiveModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title"><i class="bi bi-archive-fill"></i> Toplu Arxivləmə</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form asp-controller="Representative" asp-action="BulkArchive" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body">
+                        <p id="bulkArchiveCountText" class="alert alert-info mb-3"></p>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Arxivləmə səbəbi</label>
+                            <textarea name="archiveReason" class="form-control" rows="3"
+                                      placeholder="Arxivləmə səbəbini yazın..."></textarea>
+                        </div>
+                        <div id="bulkArchiveHiddenIds"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ləğv et</button>
+                        <button type="submit" class="btn btn-warning fw-bold">
+                            <i class="bi bi-archive-fill"></i> Arxivlə
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+
+                // ===== TEK ARXİV =====
+                const archiveOneModal = document.getElementById('archiveOneModal');
+                archiveOneModal?.addEventListener('show.bs.modal', function (e) {
+                    const btn = e.relatedTarget;
+                    document.getElementById('archiveOneId').value = btn.getAttribute('data-id');
+                    document.getElementById('archiveOneText').textContent =
+                        btn.getAttribute('data-name') + ' arxivə göndəriləcək.';
+                });
+
+                // ===== TOPLU ARXİV =====
+                const bulkBtn = document.getElementById('bulkArchiveBtn');
+                const bulkBadge = document.getElementById('bulkArchiveCount');
+                const bulkSelectAll = document.getElementById('bulkSelectAll');
+                const bulkModal = document.getElementById('bulkArchiveModal');
+                if (!bulkBtn || !bulkSelectAll || !bulkModal) return;
+
+                function getChecked() { return document.querySelectorAll('.bulk-select-cb:checked'); }
+
+                function updateBulkUI() {
+                    const count = getChecked().length;
+                    bulkBtn.style.display = count > 0 ? 'inline-block' : 'none';
+                    bulkBadge.textContent = count;
+                }
+
+                document.addEventListener('change', function (e) {
+                    if (!e.target.classList.contains('bulk-select-cb')) return;
+                    updateBulkUI();
+                    const all = document.querySelectorAll('.bulk-select-cb');
+                    const checked = getChecked();
+                    bulkSelectAll.indeterminate = checked.length > 0 && checked.length < all.length;
+                    bulkSelectAll.checked = all.length > 0 && checked.length === all.length;
+                });
+
+                bulkSelectAll.addEventListener('change', function () {
+                    document.querySelectorAll('.bulk-select-cb').forEach(cb => cb.checked = this.checked);
+                    updateBulkUI();
+                });
+
+                bulkModal.addEventListener('show.bs.modal', function () {
+                    const checked = getChecked();
+                    document.getElementById('bulkArchiveCountText').textContent =
+                        checked.length + ' nümayəndə arxivə göndəriləcək.';
+                    const container = document.getElementById('bulkArchiveHiddenIds');
+                    container.innerHTML = '';
+                    checked.forEach(cb => {
+                        const inp = document.createElement('input');
+                        inp.type = 'hidden';
+                        inp.name = 'selectedIds';
+                        inp.value = cb.value;
+                        container.appendChild(inp);
+                    });
+                });
+            });
+        </script>
+    }
 </div>

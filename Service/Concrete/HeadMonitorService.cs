@@ -212,8 +212,8 @@ namespace ForQab.Service
                             Status = 0,
                             AssignmentCount = 0,
                             Gender = row.Cell(7).GetValue<byte>(),
-                            Serial = row.Cell(8).IsEmpty() ? null : row.Cell(8).GetString(),
-                            SerialPrefix = row.Cell(9).IsEmpty() ? null : row.Cell(9).GetString(),
+                            SerialPrefix = row.Cell(8).IsEmpty() ? null : row.Cell(9).GetString(),
+                            Serial = row.Cell(9).IsEmpty() ? null : row.Cell(8).GetString(),
                             TelIs = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString(),
                             FinCode = finCode,
                             BirthDate = row.Cell(12).IsEmpty() ? null

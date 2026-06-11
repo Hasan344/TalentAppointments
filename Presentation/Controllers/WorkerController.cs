@@ -31,12 +31,17 @@ namespace ForQab.Presentation.Controllers
             _amasPhotoService = amasPhotoService;
         }
 
-        public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, DateTime? createdStartDate, DateTime? createdEndDate)
+        public async Task<IActionResult> Index(string searchName, int? genderId, string? finCode,
+                         string serial, int? district, int? startYear, int? endYear,
+                         DateTime? createdStartDate, DateTime? createdEndDate, int? workerTypeId)
         {
             var currentUserSection = await GetCurrentSectionIdAsync();
             var genders = _context.Genders.ToList();
             var districts = _context.Districts.ToList();
-            var model = await _workerService.GetAllAsync(currentUserSection, searchName, genderId, finCode, serial, district, startYear, endYear, createdStartDate, createdEndDate);
+
+            var model = await _workerService.GetAllAsync(currentUserSection, searchName, genderId,
+                finCode, serial, district, startYear, endYear, createdStartDate, createdEndDate, workerTypeId);
+
             ViewBag.Genders = genders;
             ViewBag.Districts = districts;
             ViewBag.WorkerTypes = await _context.WorkerTypes
@@ -81,25 +86,27 @@ namespace ForQab.Presentation.Controllers
         {
             var sectionId = await GetCurrentSectionIdAsync();
             var sections = await _workerService.GetSectionsAsync(sectionId);
+
             ViewBag.SectionList = new SelectList(sections, "Id", "Name");
             ViewData["Gender"] = new SelectList(_context.Genders, "Id", "Name");
-            ViewBag.WorkerType = new SelectList(_context.WorkerTypes, "Id", "Name");
+            ViewBag.WorkerTypes = new SelectList(_context.WorkerTypes, "Id", "Name"); 
             ViewData["Role"] = new SelectList(_context.Roles, "Id", "Name");
             ViewData["District"] = new SelectList(_context.Districts, "Id", "Name");
+
             if (sectionId == null)
-            {
-                ViewBag.Building = new SelectList(_context.ExamBuildings, "Id", "Name");
-            }
+                ViewBag.ExamBuilding = new SelectList(_context.ExamBuildings, "Id", "Name"); 
             else
-                ViewBag.Building = new SelectList(_context.ExamBuildings.Where(eb => eb.SectionId == sectionId), "Id", "Name");
-            return View();
+                ViewBag.ExamBuilding = new SelectList(
+                    _context.ExamBuildings.Where(eb => eb.SectionId == sectionId), "Id", "Name");
+
+            return View(new Monitor());  
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Monitor monitor)
         {
-            var result = _headMonitorValidator.Validate(monitor);
+            var result = await _headMonitorValidator.ValidateAsync(monitor);
 
             if (!result.IsValid)
             {

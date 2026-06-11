@@ -45,8 +45,7 @@
             {
                 var fullName = $"{em.Surname}   {em.Name} {em.Fname}".Trim();
                 var roleName = GetMonitorRoleName((int)em.Role);
-                string photoPath = $@"\\teshkilat-db\Images\Talent\{em.FinCode}.jpg";
-                byte[]? photoBytes = File.Exists(photoPath) ? File.ReadAllBytes(photoPath) : null;
+                byte[]? photoBytes = GetPhotoBytes(em.Photo, em.FinCode);
 
                 var examMonitor = exam.ExamMonitors.FirstOrDefault(x => x.MonitorId == em.Id);
                 var roomName = examMonitor?.ExamRooms?.Name;
@@ -68,8 +67,7 @@
                 var expert = eep.Expert;
                 var fullName = $"{expert.Surname} {expert.Name} {expert.Fname}".Trim();
                 var roleName = (bool)expert.Kons ? "Konsertmeyster" : "Ekspert";
-                string photoPath = $@"\\teshkilat-db\Images\Talent\{expert.FinCode}.jpg";
-                byte[]? photoBytes = File.Exists(photoPath) ? File.ReadAllBytes(photoPath) : null;
+                byte[]? photoBytes = GetPhotoBytes(expert.Photo, expert.FinCode);
 
                 badges.Add(new BadgeModel
                 {
@@ -88,8 +86,7 @@
                 var representative = eep.Representative;
                 var fullName = $"{representative.Surname} {representative.Name} {representative.Fname}".Trim();
                 var roleName = representative.Type == 1 ? "DİM nümayəndəsi" : "Nazirlik nümayəndəsi";
-                string photoPath = $@"\\teshkilat-db\Images\Talent\{representative.FinCode}.jpg";
-                byte[]? photoBytes = File.Exists(photoPath) ? File.ReadAllBytes(photoPath) : null;
+                byte[]? photoBytes = GetPhotoBytes(representative.Photo, representative.FinCode);
 
                 badges.Add(new BadgeModel
                 {
@@ -471,7 +468,32 @@
 
             return innerTable;
         }
+        private static byte[]? GetPhotoBytes(string? photo, string? finCode)
+        {
+            // 1) Əvvəlcə bazadakı base64 data-URI-dan oxumağa çalış
+            if (!string.IsNullOrWhiteSpace(photo))
+            {
+                try
+                {
+                    var commaIndex = photo.IndexOf(',');
+                    var base64 = commaIndex >= 0 ? photo[(commaIndex + 1)..] : photo;
+                    return Convert.FromBase64String(base64);
+                }
+                catch
+                {
+                    // base64 düzgün deyilsə, fallback-a düş
+                }
+            }
 
+            if (!string.IsNullOrWhiteSpace(finCode))
+            {
+                string photoPath = $@"\\teshkilat-db\Images\Talent\{finCode}.jpg";
+                if (File.Exists(photoPath))
+                    return File.ReadAllBytes(photoPath);
+            }
+
+            return null;
+        }
 
     }
 

@@ -37,5 +37,14 @@ namespace ForQab.Service
         {
             await _repository.UpdateAsync(entity);
         }
+        public async Task<IEnumerable<DimRepresentative>> GetAllArchivedAsync()
+        {
+            return await _repository.GetAllArchivedAsync();
+        }
+
+        public async Task BulkArchiveAsync(List<int> ids, string archiveReason)
+        {
+            await _repository.BulkArchiveAsync(ids, archiveReason);
+        }
     }
 }

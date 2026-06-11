@@ -54,5 +54,6 @@ namespace ForQab.Presentation.ViewModels
         public TimeSpan? StartTime { get; set; }
         public TimeSpan? EndTime { get; set; }
         public TimeSpan? AdmissionTime { get; set; }
+        public int? Stekan { get; set; }
     }
 }

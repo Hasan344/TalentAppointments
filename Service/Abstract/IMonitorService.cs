@@ -30,5 +30,9 @@ namespace ForQab.Service.Abstract
     List<int> selectedIds, string searchName, int? districtId);
         Task<byte[]> ExportContractToWordAsync(int monitorId);
         Task BulkArchiveAsync(List<int> ids, string archiveReason);
+        Task<(List<Monitor> Items, int TotalCount)> GetPagedAsync(
+    int? sectionId, string? searchName, int? genderId, string? finCode,
+    string? serial, int? district, int? startYear, int? endYear,
+    DateTime? createdStartDate, DateTime? createdEndDate, int page, int pageSize);
     }
 }

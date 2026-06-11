@@ -655,7 +655,35 @@ namespace ForQab.Presentation.Controllers
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 "Mugavileler.docx");
         }
+        [HttpPost]
+        public async Task<IActionResult> FilterExpertsAjax(string searchName, int? districtId)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var experts = _context.Experts.Where(e => e.SectionId == sectionId && e.Archive == 0 && e.Status == 0).AsQueryable();
 
+            if (!string.IsNullOrWhiteSpace(searchName))
+            {
+                var keyword = searchName.Trim().ToLower();
+                experts = experts.Where(e =>
+                    (e.Name + " " + e.Surname).ToLower().Contains(keyword) ||
+                    (e.Surname + " " + e.Name).ToLower().Contains(keyword));
+            }
+
+            if (districtId.HasValue)
+                experts = experts.Where(e => e.District == districtId);
+
+            var list = await experts
+                .OrderBy(e => e.Name)
+                .Select(e => new
+                {
+                    e.Id,
+                    e.Name,
+                    e.Surname,
+                    e.FinCode
+                }).ToListAsync();
+
+            return PartialView("_ExpertCheckboxListPartial", list);
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> BulkArchive(List<int> selectedIds, string archiveReason)
