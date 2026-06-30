@@ -3,6 +3,7 @@ using ForQab.DataAccess.Models;
 using ForQab.DataAccess.ViewModel.Exam;
 using ForQab.Models.ViewModels;
 using ForQab.Presentation.ViewModels;
+using static ForQab.Repository.Concrete.ExamRepository;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 
 namespace ForQab.Service.Abstract
@@ -84,6 +85,9 @@ namespace ForQab.Service.Abstract
         Task<byte[]> ExportFoodWaterSimpleReportAsync(DateOnly start, DateOnly end); 
         Task<byte[]> ExportFoodWaterToExcelAsync(DateOnly start, DateOnly end);
         Task<MemoryStream> ExportExamCalendar(int? year);
+        Task<byte[]> ExportExamNotesToWordAsync(int examId);
+        Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId, int? roomId, int[] seed, string? userName = null);
+        public Task<SeedVerifyResult> VerifyAssignmentAsync(int examId, byte assignmentType, int[] seed);
 
     }
 }

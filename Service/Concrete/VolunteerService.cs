@@ -92,70 +92,133 @@ namespace ForQab.Service
         {
             if (excelFile == null || excelFile.Length == 0)
             {
-                return "Excel faylı yüklənməmişdir.";
+                return "XƏTA: Excel faylı yüklənməmişdir.";
             }
 
-            using (var stream = new MemoryStream())
+            int currentRow = 0; // xəta mesajında satırı göstermek üçün
+            try
             {
-                await excelFile.CopyToAsync(stream);
-                using (var workbook = new XLWorkbook(stream))
+                using (var stream = new MemoryStream())
                 {
-                    var worksheet = workbook.Worksheets.FirstOrDefault();
-                    if (worksheet == null)
+                    await excelFile.CopyToAsync(stream);
+                    using (var workbook = new XLWorkbook(stream))
                     {
-                        return "Excel faylı düzgün deyil.";
-                    }
-
-                    var monitors = new List<Monitor>();
-
-                    var districts = await _context.Districts.ToListAsync();
-                    var genders = await _context.Genders.ToListAsync();
-
-                    foreach (var row in worksheet.RowsUsed().Skip(1)) 
-                    {
-                        string finCode = row.Cell(9).IsEmpty() ? null : row.Cell(9).GetString();
-                         
-                        if (!string.IsNullOrEmpty(finCode))
+                        var worksheet = workbook.Worksheets.FirstOrDefault();
+                        if (worksheet == null)
                         {
-                            bool exists = await _context.Monitors.AnyAsync(m => m.FinCode == finCode);
-                            if (exists)
-                            {
-                                return $"'{finCode}' FinCode-a sahib istifadəçi artıq mövcuddur. İdxala icazə verilmir.";
-                            }
+                            return "XƏTA: Excel faylı düzgün deyil (vərəq tapılmadı).";
                         }
-                        string districtName = row.Cell(1).GetString();
-                        int? districtId = districts.FirstOrDefault(d => d.Name == districtName)?.Id;
 
-                        var monitor = new Monitor
+                        var districts = await _context.Districts.ToListAsync();
+                        var genders = await _context.Genders.ToListAsync();
+                        var sections = await _context.Sections.ToListAsync();
+
+                        var existingFinCodes = (await _context.Monitors
+                                .Where(m => m.FinCode != null)
+                                .Select(m => m.FinCode)
+                                .ToListAsync())
+                            .ToHashSet();
+
+                        byte ResolveGender(string raw)
                         {
+                            if (string.IsNullOrWhiteSpace(raw)) return 0;
+                            raw = raw.Trim();
+                            var g = genders.FirstOrDefault(x =>
+                                string.Equals(x.Name, raw, StringComparison.OrdinalIgnoreCase));
+                            if (g != null) return Convert.ToByte(g.Id);
+                            return byte.TryParse(raw, out var b) ? b : (byte)0;
+                        }
 
-                            District = districtId,
-                            Surname = row.Cell(2).GetString(),
-                            Name = row.Cell(3).GetString(),
-                            Fname = row.Cell(4).GetString(),
-                            Gender = row.Cell(5).GetValue<byte>(),
-                            SerialPrefix = row.Cell(6).IsEmpty() ? null : row.Cell(6).GetString(),
-                            Serial = row.Cell(7).IsEmpty() ? null : row.Cell(7).GetString(),
-                            TelIs = row.Cell(8).IsEmpty() ? null : row.Cell(8).GetString(),
-                            FinCode = finCode,
-                            BirthDate = row.Cell(10).IsEmpty() ? null
-                                : DateOnly.ParseExact(row.Cell(11).GetString(), "dd/MM/yyyy", CultureInfo.InvariantCulture),
-                            Uni = row.Cell(11).IsEmpty() ? null : row.Cell(10).GetString(),
-                            Archive = 0,
-                            Status = 0,
-                            AssignmentCount = 0,
-                            Role = 4,
-                            SectionId = 1,
-                        };
+                        DateOnly? ParseDate(IXLCell cell)
+                        {
+                            if (cell.IsEmpty()) return null;
+                            if (cell.DataType == XLDataType.DateTime)
+                                return DateOnly.FromDateTime(cell.GetDateTime());
+                            var text = cell.GetString().Trim();
+                            if (!DateOnly.TryParseExact(text, "dd/MM/yyyy",
+                                    CultureInfo.InvariantCulture, DateTimeStyles.None, out var d))
+                                throw new FormatException(
+                                    $"Doğum tarixi formatı yanlışdır: '{text}'. Düzgün format: gün/ay/il (məs. 05/12/2003).");
+                            return d;
+                        }
 
-                        monitors.Add(monitor);
+                        var monitors = new List<Monitor>();
+
+                        foreach (var row in worksheet.RowsUsed().Skip(1))
+                        {
+                            currentRow = row.RowNumber();
+
+                            // Tamamilə boş sətirləri atla
+                            if (row.Cell(1).IsEmpty() && row.Cell(2).IsEmpty() && row.Cell(7).IsEmpty())
+                                continue;
+
+                            string finCode = row.Cell(7).IsEmpty() ? null : row.Cell(7).GetString().Trim();
+
+                            if (!string.IsNullOrEmpty(finCode) && existingFinCodes.Contains(finCode))
+                            {
+                                return $"XƏTA: Sətir {currentRow} — '{finCode}' FİN koduna sahib istifadəçi artıq mövcuddur. İdxal dayandırıldı.";
+                            }
+
+                            string sectionName = row.Cell(10).IsEmpty() ? null : row.Cell(10).GetString().Trim();
+                            string districtName = row.Cell(11).IsEmpty() ? null : row.Cell(11).GetString().Trim();
+
+                            int? sectionId = sectionName == null ? 1 : sections.FirstOrDefault(s => s.Name == sectionName)?.Id ?? 1;
+                            int? districtId = districtName == null ? null : districts.FirstOrDefault(d => d.Name == districtName)?.Id;
+
+                            var monitor = new Monitor
+                            {
+                                Name = row.Cell(1).GetString().Trim(),
+                                Surname = row.Cell(2).GetString().Trim(),
+                                Fname = row.Cell(3).IsEmpty() ? null : row.Cell(3).GetString().Trim(),
+                                Gender = ResolveGender(row.Cell(4).GetString()),
+                                BirthDate = ParseDate(row.Cell(5)),
+                                TelIs = row.Cell(6).IsEmpty() ? null : row.Cell(6).GetString().Trim(),
+
+                                FinCode = finCode,
+                                SerialPrefix = row.Cell(8).IsEmpty() ? null : row.Cell(8).GetString().Trim(),
+                                Serial = row.Cell(9).IsEmpty() ? null : row.Cell(9).GetString().Trim(),
+
+                                SectionId = sectionId,
+                                District = districtId,
+
+                                Role = 4,
+                                Status = 0,
+                                Archive = 0,
+                                AssignmentCount = 0,
+                            };
+
+                            if (!string.IsNullOrEmpty(finCode))
+                                existingFinCodes.Add(finCode);
+
+                            monitors.Add(monitor);
+                        }
+
+                        if (monitors.Count == 0)
+                            return "XƏTA: Faylda idxal ediləcək sətir tapılmadı (başlıq sətrini silməyin, məlumat 2-ci sətirdən başlamalıdır).";
+
+                        currentRow = 0; // bazaya yazma mərhələsi
+                        await _volunteerRepository.BulkAddAsync(monitors);
+
+                        return $"{monitors.Count} könüllü uğurla idxal edildi.";
                     }
-
-                    await _volunteerRepository.BulkAddAsync(monitors);
                 }
             }
+            catch (Exception ex)
+            {
+                var detail = FlattenException(ex);
+                return currentRow > 0
+                    ? $"XƏTA: Sətir {currentRow} — {detail}"
+                    : $"XƏTA: İdxal zamanı problem yarandı — {detail}";
+            }
+        }
 
-            return "Könüllülər uğurla idxal edildi.";
+        // Bütün inner exception mesajlarını bir yerə yığır (əsl səbəb çox vaxt inner-də olur)
+        private static string FlattenException(Exception ex)
+        {
+            var messages = new List<string>();
+            for (var e = ex; e != null; e = e.InnerException)
+                messages.Add(e.Message);
+            return string.Join(" → ", messages);
         }
         public async Task<byte[]> ExportToExcelAsync(int? sectionId)
         {

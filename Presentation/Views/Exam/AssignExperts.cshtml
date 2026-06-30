@@ -38,6 +38,38 @@
 
     <form asp-action="AssignExperts" method="post">
         <input type="hidden" name="ExamId" value="@Model.ExamId" />
+        @if (Model.Seed != null && Model.Seed.Length == 3)
+
+        {
+            <input type="hidden" name="Seed[0]" value="@Model.Seed[0]" />
+            <input type="hidden" name="Seed[1]" value="@Model.Seed[1]" />
+            <input type="hidden" name="Seed[2]" value="@Model.Seed[2]" />
+
+            <div class="qab-seed-banner" style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;
+                background:#eef4ff;border:1px solid #c9ddff;border-radius:.6rem;padding:.6rem 1rem;margin-bottom:1rem;">
+                <i class="bi bi-shield-lock-fill" style="color:#2b6cff;font-size:1.1rem;"></i>
+                <span class="fw-semibold">Aktiv seed:</span>
+                <span style="display:flex;gap:.4rem;">
+                    <span class="qab-seed-chip" style="min-width:42px;text-align:center;font-weight:600;background:#fff;border:1px solid #c9ddff;border-radius:.4rem;padding:.2rem .5rem;">@Model.Seed[0]</span>
+                    <span class="qab-seed-chip" style="min-width:42px;text-align:center;font-weight:600;background:#fff;border:1px solid #c9ddff;border-radius:.4rem;padding:.2rem .5rem;">@Model.Seed[1]</span>
+                    <span class="qab-seed-chip" style="min-width:42px;text-align:center;font-weight:600;background:#fff;border:1px solid #c9ddff;border-radius:.4rem;padding:.2rem .5rem;">@Model.Seed[2]</span>
+                </span>
+                <span class="text-muted small" style="margin-left:auto;">Bu seed audit üçün qeydə alınacaq.</span>
+            </div>
+        }
+
+
+
+        else
+
+        {
+            @* Seed yoxdursa (gate-i atlamağa cəhd) — təyinata icazə vermə *@
+            <div class="qab-alert qab-alert--danger">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                Seed daxil edilməyib. Zəhmət olmasa
+                <a asp-action="Details" asp-route-id="@Model.ExamId">imtahan detallarına</a> qayıdıb 4 rəqəmi yazın.
+            </div>
+        }
 
         <div id="expertFormsContainer">
             <!-- İlk form sətri -->
@@ -50,43 +82,95 @@
                 @if (@ViewBag.Section == 2 || @ViewBag.Section == 5)
                 {
                     <div>
-                        <label class="form-label">Məntəqə</label>
-                        @if (Model.Rooms != null && Model.Rooms.Any())
-                        {
-                            <select name="Assignments[0].RoomId" class="form-select room-dropdown room-select" required>
-                                <option value="">Seçin</option>
-                                @foreach (var room in Model.Rooms)
-                                {
-                                    <option value="@room.Value">@room.Text</option>
-                                }
-                            </select>
-                        }
-                        else
-                        {
-                            <p class="text-muted">Otaq yoxdur.</p>
-                        }
+                        <label class="form-label">Təhsil müəssisəsi</label>
+                        <select name="Assignments[0].FederationId" class="form-select federation-dropdown" required>
+                            <option value="">Seçin</option>
+                            @foreach (var federation in Model.Federations)
+
+                            {
+                                <option value="@federation.Value">@federation.Text</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Fənn</label>
+                        <select name="Assignments[0].SelectedSubProfessions" class="form-select sub-profession-dropdown" required>
+                            <option value="">Seçin</option>
+                            @foreach (var sp in Model.SubProfessions)
+
+                            {
+                                <option value="@sp.Value">@sp.Text</option>
+                            }
+                        </select>
                     </div>
                 }
+
                 else if (@ViewBag.Section == 3 || @ViewBag.Section == 4 || @ViewBag.Section == 6)
+
                 {
                     <div>
                         <label class="form-label">İxtisas</label>
                         @if (Model.SubProfessions != null && Model.SubProfessions.Any())
+
                         {
-                            <select name="Assignments[0].RoomId" class="form-select" required>
+                            <select name="Assignments[0].SelectedSubProfessions" class="form-select sub-profession-dropdown" required>
                                 <option value="">Seçin</option>
                                 @foreach (var sp in Model.SubProfessions)
+
                                 {
                                     <option value="@sp.Value">@sp.Text</option>
                                 }
                             </select>
                         }
+
+                        else
+
+                        {
+                            <p class="text-muted">İxtisas yoxdur.</p>
+                        }
+                    </div>
+
+                    <div>
+                        <label class="form-label">Dərəcə</label>
+                        <select name="Assignments[0].FederationId" class="form-select federation-dropdown" required>
+                            <option value="">Seçin</option>
+                            @foreach (var federation in Model.Federations)
+
+
+
+                            {
+                                <option value="@federation.Value">@federation.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Otaq</label>
+                        @if (Model.Rooms != null && Model.Rooms.Any())
+
+                        {
+                            <select name="Assignments[0].RoomId" class="form-select room-dropdown room-select" required>
+                                <option value="">Seçin</option>
+                                @foreach (var room in Model.Rooms)
+
+                                {
+                                    <option value="@room.Value">@room.Text</option>
+                                }
+                            </select>
+                        }
+
+                        else
+
+                        {
+                            <p class="text-muted">Otaq yoxdur.</p>
+                        }
                     </div>
                 }
+
                 else
                 {
                     <div>
-                        <label class="form-label">Təhsil müəssisəsi</label>
+                        <label class="form-label">Federasiya</label>
                         <select name="Assignments[0].FederationId" class="form-select federation-dropdown" required>
                             <option value="">Seçin</option>
                             @foreach (var federation in Model.Federations)
@@ -97,7 +181,7 @@
                     </div>
 
                     <div>
-                        <label class="form-label">Fənn</label>
+                        <label class="form-label">İxtisas</label>
                         <select name="Assignments[0].SelectedSubProfessions" class="form-select sub-profession-dropdown" required>
                             <option value="">Seçin</option>
                             @foreach (var sp in Model.SubProfessions)

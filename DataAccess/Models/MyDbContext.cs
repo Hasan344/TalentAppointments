@@ -96,7 +96,7 @@ public partial class MyDbContext : DbContext
     public virtual DbSet<ExamExpert> ExamExperts { get; set; }
 
     public virtual DbSet<FinancialRate> FinancialRates { get; set; }
-
+    public DbSet<AssignmentSeedLog> AssignmentSeedLogs { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)

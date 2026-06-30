@@ -52,7 +52,6 @@ namespace ForQab.Presentation.Controllers
             return View(monitor);
         }
 
-        // GET: Volunteer/Create
         public async Task<IActionResult> Create()
         {
             var sectionId = await GetCurrentSectionIdAsync();
@@ -68,10 +67,9 @@ namespace ForQab.Presentation.Controllers
             }
             else
                 ViewBag.Building = new SelectList(_context.ExamBuildings.Where(eb => eb.SectionId == sectionId), "Id", "Name");
-            return View();
+            return View(new Monitor());
         }
 
-        // POST: Volunteer/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Monitor monitor)
@@ -227,8 +225,21 @@ namespace ForQab.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ImportFromExcel(IFormFile excelFile)
         {
-            var message = await _volunteerService.ImportFromExcelAsync(excelFile);
-            TempData["Message"] = message;
+            string message;
+            try
+            {
+                message = await _volunteerService.ImportFromExcelAsync(excelFile);
+            }
+            catch (Exception ex)  // ehtiyat şəbəkəsi (servisdən qaçan hər şey üçün)
+            {
+                message = "XƏTA: " + ex.Message;
+            }
+
+            if (message.StartsWith("XƏTA", StringComparison.OrdinalIgnoreCase))
+                TempData["ErrorMessage"] = message;
+            else
+                TempData["Message"] = message;
+
             return RedirectToAction(nameof(Index));
         }
         private async Task LoadViewData(Monitor monitor)

@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Nümayəndə təyin et";
+
     Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 
@@ -32,25 +33,40 @@
 
             @if (Model.Representatives != null && Model.Representatives.Any())
             {
-                <ul class="qab-list">
+                <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <div style="position: relative; flex: 1; min-width: 250px;">
+                        <input type="text" id="repSearchInput" class="form-control" placeholder="Ada, soyada və ya FİN-ə görə axtar..."
+                               style="padding-left: 2.3rem; border-radius: 8px; height: 38px; border: 1px solid var(--qab-border);" />
+                        <i class="bi bi-search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--qab-text-muted);"></i>
+                    </div>
+
+                    <label style="font-size:.85rem; color:var(--qab-text-muted); display:flex; align-items:center; gap:.4rem; user-select: none;">
+                        <input type="checkbox" id="selectAllReps" style="width:16px; height:16px;" />
+                        Görünənləri hamısını seç
+                    </label>
+                </div>
+
+                <ul class="qab-list" id="representativesList">
                     @foreach (var rep in Model.Representatives)
                     {
+
                         var isSelected = Model.SelectedRepresentativeIds?.Contains(rep.Id) == true;
-                        <li class="qab-list__item">
+                        <li class="qab-list__item rep-item" data-search-text="@rep.Name.ToLower() @rep.Surname.ToLower() @rep.FinCode.ToLower()">
                             <div class="qab-list__check">
                                 <input type="checkbox" name="SelectedRepresentativeIds" value="@rep.Id"
-                                       id="rep-@rep.Id" style="width:16px;height:16px;"
-                                       @(isSelected ? "checked" : "") />
+                                       id="rep-@rep.Id" class="rep-checkbox" style="width:16px;height:16px;"
+                                @(isSelected ? "checked" : "") />
                             </div>
                             <div class="qab-list__main">
-                                <label class="qab-list__name" for="rep-@rep.Id" style="cursor:pointer;">
-                                    @rep.Name @rep.Surname 
+                                <label class="qab-list__name" for="rep-@rep.Id" style="cursor:pointer; display: block; margin: 0;">
+                                    @rep.Name @rep.Surname
                                 </label>
-                                <p class="qab-list__meta">FİN: @rep.FinCode</p>
+                                <p class="qab-list__meta" style="margin: 0;">FİN: @rep.FinCode</p>
                             </div>
                         </li>
                     }
                 </ul>
+                <div id="noMatchMessage" class="qab-empty-state" style="display: none;">Axtarışa uyğun nümayəndə tapılmadı.</div>
             }
             else
             {
@@ -68,3 +84,49 @@
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("repSearchInput");
+            if (!searchInput) return;
+
+            const listItems = document.querySelectorAll(".rep-item");
+            const noMatchMessage = document.getElementById("noMatchMessage");
+            const selectAllCheckbox = document.getElementById("selectAllReps");
+
+            // Real-vaxtda axtarış funksiyası
+            searchInput.addEventListener("input", function () {
+                const query = this.value.trim().toLowerCase();
+                let hasVisibleItem = false;
+
+                listItems.forEach(item => {
+                    const searchText = item.getAttribute("data-search-text");
+                    if (searchText.includes(query)) {
+                        item.style.setProperty('display', 'flex', 'important');
+                        hasVisibleItem = true;
+                    } else {
+                        item.style.setProperty('display', 'none', 'important');
+                    }
+                });
+
+                // Əgər axtarışa uyğun element yoxdursa xəbərdarlığı göstər
+                noMatchMessage.style.display = hasVisibleItem ? "none" : "block";
+
+                // Axtarış dəyişəndə "Hamısını seç" vəziyyətini sıfırla
+                selectAllCheckbox.checked = false;
+            });
+
+            // Hamısını seç funksiyası (Yalnız görünən/filtrlənmiş elementləri seçir)
+            selectAllCheckbox.addEventListener("change", function () {
+                const isChecked = this.checked;
+                listItems.forEach(item => {
+                    if (item.style.display !== "none") {
+                        const cb = item.querySelector(".rep-checkbox");
+                        if (cb) cb.checked = isChecked;
+                    }
+                });
+            });
+        });
+    </script>
+}

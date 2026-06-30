@@ -113,11 +113,19 @@ namespace ForQab.Presentation.Controllers
             ViewBag.ExpertsWithLogs = viewModel.ExpertsWithLogs;
             ViewBag.SectionId = await GetCurrentSectionIdAsync();
             var employeeCount = _context.ExamMonitors.Where(em => em.ExamId == id).Count();
-            employeeCount+=_context.ExamExpertSubProfessions.Where(em => em.ExamId == id).Count();
+            employeeCount += _context.ExamExpertSubProfessions.Where(em => em.ExamId == id).Count();
             employeeCount += _context.ExamRepresentatives.Where(em => em.ExamId == id).Count();
 
-            ViewBag.EmployeeCount = employeeCount; 
+            ViewBag.EmployeeCount = employeeCount;
 
+            var lastExpertLog = await _context.AssignmentSeedLogs
+                                              .Where(l => l.ExamId == id && l.AssignmentType == 1)
+                                              .OrderByDescending(l => l.Id)
+                                              .FirstOrDefaultAsync();
+
+            ViewBag.LastExpertSeed = lastExpertLog == null
+                ? null
+                : new[] { lastExpertLog.Seed1, lastExpertLog.Seed2, lastExpertLog.Seed3 };
             return View(viewModel);
         }
         public async Task<IActionResult> DetailsOfAssesment(int id)
@@ -439,17 +447,25 @@ namespace ForQab.Presentation.Controllers
             await _examService.DeleteExamAsync(id);
             return RedirectToAction(nameof(Index));
         }
-        public async Task<IActionResult> AssignExperts(int id)
+        [HttpGet]
+        public async Task<IActionResult> AssignExperts(int id, int? s1, int? s2, int? s3)
         {
-            var section = await GetCurrentSectionIdAsync();
-            ViewBag.Section = section;
-            var exam = await _examService.GetExamByIdAsync(id);
-            if (exam == null)
+            // GATE: seed olmadan ekspert təyininə icazə yoxdur
+            if (s1 is null || s2 is null || s3 is null )
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Ekspert təyin etməzdən əvvəl 3 rəqəmli seed daxil edin.";
+                return RedirectToAction(nameof(Details), new { id });
             }
 
+            var section = await GetCurrentSectionIdAsync();
+            ViewBag.Section = section;
+
+            var exam = await _examService.GetExamByIdAsync(id);
+            if (exam == null)
+                return NotFound();
+
             var viewModel = await _examService.PrepareAssignExpertsViewModelAsync(exam);
+            viewModel.Seed = new[] { s1.Value, s2.Value, s3.Value};
             ViewBag.ExamName = exam.Name;
 
             return View(viewModel);
@@ -460,6 +476,9 @@ namespace ForQab.Presentation.Controllers
         {
             var section = await GetCurrentSectionIdAsync();
             ViewBag.Section = section;
+            model.UserName = User?.Identity?.Name;
+            var submittedSeed = model.Seed;   // ← qoru
+
             try
             {
                 bool success = await _examService.AssignExpertsAsync(model);
@@ -476,12 +495,12 @@ namespace ForQab.Presentation.Controllers
 
             var exam = await _examService.GetExamByIdAsync(model.ExamId);
             if (exam == null)
-            {
                 return NotFound();
-            }
 
-            model = await _examService.PrepareAssignExpertsViewModelAsync(exam);
-            return View(model);
+            var rebuilt = await _examService.PrepareAssignExpertsViewModelAsync(exam);
+            rebuilt.Seed = submittedSeed;     // ← geri yaz
+            ViewBag.ExamName = exam.Name;
+            return View(rebuilt);
         }
         [HttpGet]
         public async Task<IActionResult> AssignExpertsForMX(int examId)
@@ -582,11 +601,11 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> AssignWorkersForMX(int examId)
         {
 
-            var workerTypes = await _context.WorkerTypes 
+            var workerTypes = await _context.WorkerTypes
                 .Select(w => new SelectListItem
                 {
                     Value = w.Id.ToString(),
-                    Text = w.Name 
+                    Text = w.Name
                 })
                 .ToListAsync();
 
@@ -934,7 +953,7 @@ namespace ForQab.Presentation.Controllers
         public async Task<IActionResult> ExportToExcel(int? year)
         {
             var sectionId = await GetCurrentSectionIdAsync();
-            var exams = await _examService.GetExamsBySectionIdAsync(sectionId,null,year);
+            var exams = await _examService.GetExamsBySectionIdAsync(sectionId, null, year);
 
             var dt = new DataTable("Exams");
             dt.Columns.AddRange(new DataColumn[]
@@ -1049,40 +1068,6 @@ namespace ForQab.Presentation.Controllers
 
             return RedirectToAction("Details", new { id = model.ExamId });
         }
-        public async Task<IActionResult> AssignVolunteersForOthers(int examId)
-        {
-            var sectionId = await GetCurrentSectionIdAsync();
-            var volunteers = await _examService.GetAvailableVolunteersAsync(sectionId);
-
-            var viewModel = new AssignVolunteersToExamViewModel
-            {
-                ExamId = examId,
-                Volunteers = volunteers.Select(r => new VolunteerViewModelForAssign
-                {
-                    Id = r.Id,
-                    Name = r.Name,
-                    Surname = r.Surname,
-                    FinCode = r.FinCode
-                }).ToList()
-            };
-
-            return View(viewModel);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> AssignVolunteersForOthers(AssignVolunteersToExamViewModel model)
-        {
-            if (model.SelectedVolunteerIds == null || !model.SelectedVolunteerIds.Any())
-            {
-                ModelState.AddModelError("", "Ən azı bir könüllü seçilməlidir.");
-                return View(model);
-            }
-
-            await _examService.AssignVolunteersToExamAsync(model.ExamId, model.SelectedVolunteerIds);
-
-            return RedirectToAction("Details", new { id = model.ExamId });
-        }
-        [HttpPost]
         [HttpPost]
         public async Task<IActionResult> DeleteExperts(int examId, List<int> expertIds)
         {
@@ -1211,6 +1196,24 @@ namespace ForQab.Presentation.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> DeleteVolunteers(int examId, List<int> volunteerIds)
+        {
+            try
+            {
+                await _examService.RemoveMonitorsFromExamAsync(examId, volunteerIds);
+                return RedirectToAction("Details", new { id = examId });
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return RedirectToAction("Details", new { id = examId });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpGet]
         public async Task<IActionResult> GetExpertsByKons(bool kons)
         {
@@ -1258,11 +1261,11 @@ namespace ForQab.Presentation.Controllers
         }
         public IActionResult ExportExamData()
         {
-            return View(); 
+            return View();
         }
 
         [HttpPost]
-        
+
         public async Task<IActionResult> ExportExamData(DateOnly selectedDate)
         {
             var sectionId = await GetCurrentSectionIdAsync();
@@ -1319,7 +1322,7 @@ namespace ForQab.Presentation.Controllers
                         .FirstOrDefault(e => e.ExamId == examId && e.ExpertId == item.ExpertId);
                     if (entity != null)
                     {
-                        entity.IsAttended = item.IsAttended; 
+                        entity.IsAttended = item.IsAttended;
                     }
                     else
                     {
@@ -1403,6 +1406,66 @@ namespace ForQab.Presentation.Controllers
             {
                 return StatusCode(500, $"Rapor oluşturulurken hata: {ex.Message}");
             }
+        }
+
+        public async Task<IActionResult> AssignVolunteersForOthers(int examId)
+        {
+            var sectionId = await GetCurrentSectionIdAsync();
+            var volunteers = await _examService.GetAvailableVolunteersAsync(sectionId);
+
+            var exam = await _examService.GetExamByIdAsync(examId);
+
+            // Zaten atanmış könüllülerin ID'lerini al
+            var alreadyAssignedIds = _context.ExamMonitors
+                .Where(em => em.ExamId == examId)
+                .Select(em => em.MonitorId)
+                .ToList();
+
+            var viewModel = new AssignVolunteersToExamViewModel
+            {
+                ExamId = examId,
+                SelectedVolunteerIds = alreadyAssignedIds,
+                Volunteers = volunteers.Select(r => new VolunteerViewModelForAssign
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    Surname = r.Surname,
+                    Fname = r.Fname ?? string.Empty,
+                    FinCode = r.FinCode
+                }).ToList()
+            };
+
+            ViewBag.ExamName = exam?.Name;
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignVolunteersForOthers(AssignVolunteersToExamViewModel model)
+        {
+            if (model.SelectedVolunteerIds == null || !model.SelectedVolunteerIds.Any())
+            {
+                ModelState.AddModelError("", "Ən azı bir könüllü seçilməlidir.");
+                return View(model);
+            }
+
+            await _examService.AssignVolunteersToExamAsync(model.ExamId, model.SelectedVolunteerIds);
+
+            return RedirectToAction("Details", new { id = model.ExamId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ExportNotes(int examId)
+        {
+            var fileContents = await _examService.ExportExamNotesToWordAsync(examId);
+            return File(fileContents,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                $"İmtahan qeydləri (İmtahan Id:{examId}).docx");
+        }
+        [HttpGet]
+        public async Task<IActionResult> VerifyAssignment(int examId, byte type, int s1, int s2, int s3)
+        {
+            var result = await _examService.VerifyAssignmentAsync(examId, type, new[] { s1, s2, s3});
+            return Json(result);
         }
     }
 }

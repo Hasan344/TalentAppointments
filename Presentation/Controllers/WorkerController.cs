@@ -387,37 +387,26 @@ namespace ForQab.Presentation.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ExportContracts(List<int> selectedExpertIds, DateTime contractDate, int workerType)
+        public async Task<IActionResult> ExportContracts(List<int> selectedExpertIds, DateTime contractDate)
         {
             if (selectedExpertIds == null || !selectedExpertIds.Any())
             {
-                TempData["ErrorMessage"] = "Seçim edilməmişdir.";
+                TempData["ErrorMessage"] = "Heç bir işçi seçilməyib.";
                 return RedirectToAction(nameof(Index));
             }
 
-            var fileContent = await _workerService.ExportContractsToWordAsync(selectedExpertIds, contractDate, workerType);
-            return File(fileContent, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "İşçi müqavilələri.docx");
-        }
-        //[HttpPost]
-        //public async Task<IActionResult> ExportContract(int monitorId)
-        //{
-        //    if (monitorId <= 0)
-        //        return RedirectToAction(nameof(Index));
+            var fileContent = await _workerService.ExportContractsToWordAsync(selectedExpertIds, contractDate);
 
-        //    try
-        //    {
-        //        var bytes = await _workerService.ExportContractToWordAsync(monitorId);
-        //        return File(
-        //            bytes,
-        //            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        //            $"Mugavile_{monitorId}.docx");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        TempData["Error"] = ex.Message;
-        //        return RedirectToAction(nameof(Details), new { id = monitorId });
-        //    }
-        //}
+            if (fileContent == null || fileContent.Length == 0)
+            {
+                TempData["ErrorMessage"] = "Seçilmiş işçilərin işçi tipi üçün uyğun şablon tapılmadı və ya bütün seçimlər arxivlənmiş/deaktiv işçilərdir.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return File(fileContent,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "İşçi müqavilələri.docx");
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FetchPhoto(int id)

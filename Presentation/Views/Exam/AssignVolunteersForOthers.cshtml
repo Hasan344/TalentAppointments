@@ -7,27 +7,39 @@
 
 <h2>Könüllü təyin etmə</h2>
 
+@* Axtarış çubuğu — forma DAXİL DEYİL ki, Enter forma submit etməsin *@
+<div class="mb-3" style="max-width:420px;">
+    <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" id="volunteerSearch" class="form-control"
+               placeholder="Ad, soyad və ya ata adı ilə axtar..." autocomplete="off" />
+    </div>
+    <small class="text-muted" id="volunteerSearchCount"></small>
+</div>
+
 <form asp-action="AssignVolunteersForOthers" method="post">
     <input type="hidden" asp-for="ExamId" />
 
-    <table class="table">
+    <table class="table" id="volunteerTable">
         <thead>
             <tr>
                 <th>Seç</th>
                 <th>Ad</th>
                 <th>Soyad</th>
+                <th>Ata adı</th>
                 <th>Fin kod</th>
             </tr>
         </thead>
         <tbody>
             @for (var i = 0; i < Model.Volunteers.Count; i++)
             {
-                <tr>
+                <tr data-search="@($"{Model.Volunteers[i].Name} {Model.Volunteers[i].Surname} {Model.Volunteers[i].Fname}".ToLower())">
                     <td>
                         <input type="checkbox" name="SelectedVolunteerIds" value="@Model.Volunteers[i].Id" />
                     </td>
                     <td>@Model.Volunteers[i].Name</td>
                     <td>@Model.Volunteers[i].Surname</td>
+                    <td>@Model.Volunteers[i].Fname</td>
                     <td>@Model.Volunteers[i].FinCode</td>
                 </tr>
             }
@@ -37,3 +49,30 @@
     <button type="submit" class="btn btn-primary">Təyin et</button>
 </form>
 
+@section Scripts {
+    <script>
+        (function () {
+            const input = document.getElementById('volunteerSearch');
+            const rows = Array.from(document.querySelectorAll('#volunteerTable tbody tr'));
+            const counter = document.getElementById('volunteerSearchCount');
+
+            function applyFilter() {
+                const q = input.value.trim().toLowerCase();
+                let visible = 0;
+                rows.forEach(row => {
+                    const match = row.dataset.search.includes(q);
+                    row.style.display = match ? '' : 'none';
+                    if (match) visible++;
+                });
+                counter.textContent = q ? `${visible} nəticə tapıldı` : '';
+            }
+
+            input.addEventListener('input', applyFilter);
+
+            // Enter forma submit etməsin
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Enter') e.preventDefault();
+            });
+        })();
+    </script>
+}

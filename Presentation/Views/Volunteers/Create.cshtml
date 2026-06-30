@@ -76,24 +76,6 @@
         </div>
 
         <div class="qab-form__section">
-            <div class="qab-form__section-title">İş məlumatları</div>
-            <div class="qab-form__row">
-                <div class="qab-form__field">
-                    <label asp-for="Profession" class="form-label">Peşə</label>
-                    <input asp-for="Profession" class="form-control" />
-                </div>
-                <div class="qab-form__field">
-                    <label asp-for="Workplace" class="form-label">İş yeri</label>
-                    <input asp-for="Workplace" class="form-control" />
-                </div>
-                <div class="qab-form__field">
-                    <label asp-for="Position" class="form-label">Vəzifə</label>
-                    <input asp-for="Position" class="form-control" />
-                </div>
-            </div>
-        </div>
-
-        <div class="qab-form__section">
             <div class="qab-form__section-title">Ünvan və istiqamət</div>
             <div class="qab-form__row">
                 <div class="qab-form__field">
@@ -107,50 +89,6 @@
                     <select asp-for="District" class="form-select" asp-items="@(ViewData["District"] as SelectList)">
                         <option value="">Seçin</option>
                     </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="qab-form__section">
-            <div class="qab-form__section-title">Maliyyə məlumatları</div>
-            <div class="qab-form__row">
-                <div class="qab-form__field">
-                    <label asp-for="SSN" class="form-label">SSN</label>
-                    <input asp-for="SSN" class="form-control" />
-                </div>
-                <div class="qab-form__field">
-                    <label asp-for="Rekvizit" class="form-label">Rekvizit</label>
-                    <input asp-for="Rekvizit" class="form-control" />
-                </div>
-                <div class="qab-form__field">
-                    <label asp-for="HesablashmaH" class="form-label">Hesablaşma hesabı</label>
-                    <input asp-for="HesablashmaH" class="form-control" />
-                </div>
-                <div class="qab-form__field">
-                    <label asp-for="Voen" class="form-label">VÖEN</label>
-                    <input asp-for="Voen" class="form-control" />
-                </div>
-                <div class="qab-form__field">
-                    <label asp-for="BankFilial" class="form-label">Bank filialı</label>
-                    <input asp-for="BankFilial" class="form-control" />
-                </div>
-                <div class="qab-form__field">
-                    <label asp-for="BankFilialCode" class="form-label">Bank filial kodu</label>
-                    <input asp-for="BankFilialCode" class="form-control" />
-                </div>
-            </div>
-        </div>
-
-        <div class="qab-form__section">
-            <div class="qab-form__section-title">Müqavilə</div>
-            <div class="qab-form__row">
-                <div class="qab-form__field">
-                    <label asp-for="ContractNo" class="form-label">Müqavilə nömrəsi</label>
-                    <input asp-for="ContractNo" class="form-control" />
-                </div>
-                <div class="qab-form__field">
-                    <label asp-for="ContractDate" class="form-label">Müqavilə tarixi</label>
-                    <input asp-for="ContractDate" type="date" class="form-control" />
                 </div>
             </div>
         </div>
