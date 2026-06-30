@@ -112,7 +112,7 @@
                     <h5 class="modal-title"><i class="bi bi-archive-fill"></i> Arxivlə</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form asp-controller="Representative" asp-action="ArchiveRepresentative" method="post">
+                <form asp-controller="MinistryRepresentative" asp-action="ArchiveRepresentative" method="post">
                     @Html.AntiForgeryToken()
                     <div class="modal-body">
                         <p id="archiveOneText" class="alert alert-info mb-3"></p>
@@ -142,7 +142,7 @@
                     <h5 class="modal-title"><i class="bi bi-archive-fill"></i> Toplu Arxivləmə</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form asp-controller="Representative" asp-action="BulkArchive" method="post">
+                <form asp-controller="MinistryRepresentative" asp-action="BulkArchive" method="post">
                     @Html.AntiForgeryToken()
                     <div class="modal-body">
                         <p id="bulkArchiveCountText" class="alert alert-info mb-3"></p>

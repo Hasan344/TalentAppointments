@@ -23,6 +23,7 @@ using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
 using Justification = DocumentFormat.OpenXml.Wordprocessing.Justification;
 using DocumentFormat.OpenXml.Bibliography;
 using ForQab.Extensions;
+using static ForQab.Repository.Concrete.ExamRepository;
 
 namespace ForQab.Service
 {
@@ -160,17 +161,23 @@ namespace ForQab.Service
             var availableMonitors = role == 5
                                     ? await _monitorRepository.GetAvailableWorkersAsync(sectionId, role, (int)monitorAttribute, selectedMonitorList)
                                     : await _monitorRepository.GetAvailableMonitorsAsync(sectionId, role, (int)monitorAttribute, selectedMonitorList, monitor.District);
-
+            var busyMonitorIds = await _context.ExamMonitors
+                .Where(em => em.ExamId != examId && em.Exams.ExamDate == exam.ExamDate)
+                .Select(em => em.MonitorId)
+                .Distinct()
+                .ToListAsync();
 
             return new ChangeMonitorViewModel
             {
                 ExamId = examId,
                 CurrentMonitorId = monitorId,
-                AvailableMonitors = availableMonitors.Select(m => new SelectListItem
-                {
-                    Value = m.Id.ToString(),
-                    Text = $"{m.Name} {m.Surname} ({m.FinCode})"
-                }).ToList()
+                AvailableMonitors = availableMonitors
+                    .Where(m => !busyMonitorIds.Contains(m.Id))
+                    .Select(m => new SelectListItem
+                    {
+                        Value = m.Id.ToString(),
+                        Text = $"{m.Name} {m.Surname} ({m.FinCode})"
+                    }).ToList()
             };
         }
         public async Task<ChangeRepresentativeViewModel> GetChangeRepresentativeViewModelAsync(int examId, int representativeId)
@@ -292,16 +299,24 @@ namespace ForQab.Service
             var selectedExpertList = exam.Experts.Select(e => e.Id).ToList();
 
             var expertList = await _expertRepository.GetExpertsBySectionAndSubProfessionAsync(sectionId, (int)subProfession, selectedExpertList);
+           
+            var busyExpertIds = await _context.ExamExpertSubProfessions
+                .Where(ees => ees.ExamId != examId && ees.Exam.ExamDate == exam.ExamDate)
+                .Select(ees => ees.ExpertId)
+                .Distinct()
+                .ToListAsync();
 
             return new ChangeExpertViewModel
             {
                 ExamId = examId,
                 CurrentExpertId = expertId,
-                AvailableExperts = expertList.Select(e => new SelectListItem
-                {
-                    Value = e.Id.ToString(),
-                    Text = $"{e.Name} {e.Surname} ({e.FinCode})"
-                }).ToList()
+                AvailableExperts = expertList
+                    .Where(e => !busyExpertIds.Contains(e.Id))
+                    .Select(e => new SelectListItem
+                    {
+                        Value = e.Id.ToString(),
+                        Text = $"{e.Name} {e.Surname} ({e.FinCode})"
+                    }).ToList()
             };
         }
         public async Task<bool> ChangeMonitorAsync(ChangeMonitorViewModel model)
@@ -481,7 +496,8 @@ namespace ForQab.Service
             foreach (var assignment in model.Assignments)
             {
                 await _examRepository.AssignRandomExpertsToExamAsync(
-                    model.ExamId, assignment.NumberOfExperts, assignment.SelectedSubProfessions, assignment.FederationId, assignment.RoomId);
+                    model.ExamId, assignment.NumberOfExperts, assignment.SelectedSubProfessions,
+                    assignment.FederationId, assignment.RoomId, model.Seed, model.UserName);
             }
 
             return true;
@@ -695,7 +711,7 @@ namespace ForQab.Service
                 body.AppendChild(CreateCenteredBoldParagraph("İMTAHANDAKI İŞÇİ HEYƏTİN QEYDİYYAT VƏRƏQİ", 16));
                 body.AppendChild(CreateMixedBoldParagraph("İmtahanın adı: ", "\u00A0" + exam.Name, 14));
                 body.AppendChild(CreateMixedBoldParagraph("İmtahan binası: ", "\u00A0" + exam.ExamBuilding?.Code + " " + exam.ExamBuilding?.Name, 14));
-                body.AppendChild(CreateMixedBoldParagraph("İmtahan tarixi: ", "\u00A0" + exam.ExamDate + " Saat " + exam.StartTime, 14));
+                body.AppendChild(CreateMixedBoldParagraph("İmtahan tarixi: ", "\u00A0" + exam.ExamDate + " Saat " + exam.StartTime + " - Növbə: " + exam.Shift, 14));
 
 
                 Table table = new Table();
@@ -837,13 +853,13 @@ namespace ForQab.Service
                     body.AppendChild(CreateCenteredBoldParagraph("QABİLİYYƏT İMTAHANI KOMİSSİYASININ QEYDİYYAT VƏRƏQİ", 16));
                     body.AppendChild(CreateMixedBoldParagraph("İmtahanın adı: ", "\u00A0" + exam.Name, 14));
                     body.AppendChild(CreateMixedBoldParagraph("Qiymətləndirmə binası: ", "\u00A0" + exam.ExamBuilding?.Code + " " + exam.ExamBuilding?.Name, 14));
-                    body.AppendChild(CreateMixedBoldParagraph("Tarix: ", "\u00A0" + exam.ExamDate, 14));
+                    body.AppendChild(CreateMixedBoldParagraph("Tarix: ", "\u00A0" + exam.ExamDate + " - Növbə: " + exam.Shift, 14));
                 }
                 else
                     body.AppendChild(CreateCenteredBoldParagraph("İMTAHANDAKI EKSPERTLƏRİN QEYDİYYAT VƏRƏQİ", 16));
                 body.AppendChild(CreateMixedBoldParagraph("İmtahanın adı: ", "\u00A0" + exam.Name, 14));
                 body.AppendChild(CreateMixedBoldParagraph("İmtahan binası: ", "\u00A0" + exam.ExamBuilding?.Code + " " + exam.ExamBuilding?.Name, 14));
-                body.AppendChild(CreateMixedBoldParagraph("İmtahan tarixi: ", "\u00A0" + exam.ExamDate + " Saat " + exam.StartTime, 14));
+                body.AppendChild(CreateMixedBoldParagraph("İmtahan tarixi: ", "\u00A0" + exam.ExamDate + " Saat " + exam.StartTime + " - Növbə: " + exam.Shift, 14));
 
 
                 Table table = new Table();
@@ -910,7 +926,7 @@ namespace ForQab.Service
                 body.AppendChild(CreateCenteredBoldParagraph("İMTAHANDAKI KÖNÜLLÜLƏRİN QEYDİYYAT VƏRƏQİ", 16));
                 body.AppendChild(CreateMixedBoldParagraph("İmtahanın adı: ", "\u00A0" + exam.Name, 14));
                 body.AppendChild(CreateMixedBoldParagraph("İmtahan binası: ", "\u00A0" + exam.ExamBuilding?.Code + " " + exam.ExamBuilding?.Name, 14));
-                body.AppendChild(CreateMixedBoldParagraph("İmtahan tarixi: ", "\u00A0" + exam.ExamDate + " Saat " + exam.StartTime, 14));
+                body.AppendChild(CreateMixedBoldParagraph("İmtahan tarixi: ", "\u00A0" + exam.ExamDate + " Saat " + exam.StartTime + " - Növbə: " + exam.Shift, 14));
 
 
                 Table table = new Table();
@@ -2390,6 +2406,166 @@ namespace ForQab.Service
 
             return name;
         }
+        public async Task<byte[]> ExportExamNotesToWordAsync(int examId)
+        {
+            var exam = await _context.Exams
+                .Include(e => e.ExamBuilding)
+                .Include(e => e.Section)
+                .Include(e => e.District)
+                .FirstOrDefaultAsync(e => e.Id == examId);
 
+            if (exam == null) throw new Exception("İmtahan tapılmadı");
+
+            var notesText = string.IsNullOrWhiteSpace(exam.Notes)
+                ? "Bu imtahan üçün heç bir qeyd daxil edilməyib."
+                : exam.Notes.Trim();
+
+            using var ms = new MemoryStream();
+            using (var wordDocument = WordprocessingDocument.Create(ms, WordprocessingDocumentType.Document, true))
+            {
+                var mainPart = wordDocument.AddMainDocumentPart();
+                mainPart.Document = new Document();
+                var body = mainPart.Document.AppendChild(new Body());
+
+                // ── Başlıq ──────────────────────────────────────────────
+                body.AppendChild(CreateCenteredBoldParagraph("İMTAHAN QEYDLƏRİ", 18));
+                body.AppendChild(CreateDivider());
+                body.AppendChild(new Paragraph());
+
+                // ── Məlumat cədvəli ─────────────────────────────────────
+                var infoTable = new Table();
+                infoTable.AppendChild(new TableProperties(
+                    new TableWidth { Width = "100%", Type = TableWidthUnitValues.Pct },
+                    new TableBorders(
+                        new TopBorder { Val = BorderValues.Single, Size = 4, Color = "D9D9D9" },
+                        new BottomBorder { Val = BorderValues.Single, Size = 4, Color = "D9D9D9" },
+                        new LeftBorder { Val = BorderValues.Single, Size = 4, Color = "D9D9D9" },
+                        new RightBorder { Val = BorderValues.Single, Size = 4, Color = "D9D9D9" },
+                        new InsideHorizontalBorder { Val = BorderValues.Single, Size = 4, Color = "D9D9D9" },
+                        new InsideVerticalBorder { Val = BorderValues.Single, Size = 4, Color = "D9D9D9" }
+                    )
+                ));
+
+                infoTable.Append(CreateInfoRow("İstiqamət", exam.Section?.Name));
+                infoTable.Append(CreateInfoRow("Rayon", exam.District?.Name));
+                infoTable.Append(CreateInfoRow("İmtahan binası",
+                    $"{exam.ExamBuilding?.Code} {exam.ExamBuilding?.Name}".Trim()));
+                infoTable.Append(CreateInfoRow("İmtahan tarixi", exam.ExamDate.ToString("dd.MM.yyyy")));
+                if (exam.StartTime.HasValue)
+                    infoTable.Append(CreateInfoRow("Başlama saatı", exam.StartTime.Value.ToString(@"hh\:mm")));
+
+                body.AppendChild(infoTable);
+                body.AppendChild(new Paragraph());
+
+                // ── Qeyd başlığı ────────────────────────────────────────
+                body.AppendChild(CreateBoldParagraph("QEYDLƏR", 13));
+
+                // ── Qeyd qutusu (çoxsətirli) ────────────────────────────
+                var noteTable = new Table();
+                noteTable.AppendChild(new TableProperties(
+                    new TableWidth { Width = "100%", Type = TableWidthUnitValues.Pct },
+                    new TableBorders(
+                        new TopBorder { Val = BorderValues.Single, Size = 6, Color = "BFBFBF" },
+                        new BottomBorder { Val = BorderValues.Single, Size = 6, Color = "BFBFBF" },
+                        new LeftBorder { Val = BorderValues.Single, Size = 6, Color = "BFBFBF" },
+                        new RightBorder { Val = BorderValues.Single, Size = 6, Color = "BFBFBF" }
+                    )
+                ));
+
+                var noteCell = new TableCell(
+                    new TableCellProperties(
+                        new TableCellWidth { Type = TableWidthUnitValues.Pct, Width = "5000" },
+                        new Shading { Val = ShadingPatternValues.Clear, Color = "auto", Fill = "FBFBFB" },
+                        new TableCellMargin(
+                            new TopMargin { Width = "140", Type = TableWidthUnitValues.Dxa },
+                            new BottomMargin { Width = "140", Type = TableWidthUnitValues.Dxa },
+                            new LeftMargin { Width = "180", Type = TableWidthUnitValues.Dxa },
+                            new RightMargin { Width = "180", Type = TableWidthUnitValues.Dxa }
+                        )
+                    ),
+                    CreateMultilineParagraph(notesText, 12)
+                );
+                noteTable.Append(new TableRow(noteCell));
+                body.AppendChild(noteTable);
+
+                // ── Çap tarixi ──────────────────────────────────────────
+                body.AppendChild(new Paragraph());
+
+                // ── Səhifə (portret A4) ─────────────────────────────────
+                body.AppendChild(new SectionProperties(
+                    new PageSize { Width = 11906, Height = 16838, Orient = PageOrientationValues.Portrait },
+                    new PageMargin { Top = 1134, Right = 1134, Bottom = 1134, Left = 1134 }
+                ));
+
+                mainPart.Document.Save();
+            }
+
+            return ms.ToArray();
+        }
+        private static Paragraph CreateCenteredParagraph(string text, int fontSize)
+        {
+            return new Paragraph(
+                new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
+                new Run(
+                    new RunProperties(new FontSize { Val = (fontSize * 2).ToString() }),
+                    new Text(text) { Space = SpaceProcessingModeValues.Preserve }
+                )
+            );
+        }
+        public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId, int? roomId, int[] seed, string? userName = null)
+    => await _examRepository.AssignRandomExpertsToExamAsync(examId, numberOfExperts, selectedSubProfessions, federationId, roomId, seed, userName);
+
+        private static Paragraph CreateDivider()
+        {
+            return new Paragraph(
+                new ParagraphProperties(
+                    new ParagraphBorders(
+                        new BottomBorder { Val = BorderValues.Single, Size = 6, Color = "808080", Space = 1 }
+                    )
+                )
+            );
+        }
+
+        private static Paragraph CreateMultilineParagraph(string text, int fontSize)
+        {
+            var run = new Run(new RunProperties(new FontSize { Val = (fontSize * 2).ToString() }));
+            var lines = (text ?? string.Empty).Replace("\r\n", "\n").Replace("\r", "\n").Split('\n');
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (i > 0) run.Append(new Break());
+                run.Append(new Text(lines[i]) { Space = SpaceProcessingModeValues.Preserve });
+            }
+            return new Paragraph(run);
+        }
+
+        private static TableRow CreateInfoRow(string label, string value)
+        {
+            var labelCell = new TableCell(
+                new TableCellProperties(
+                    new TableCellWidth { Type = TableWidthUnitValues.Dxa, Width = "3000" },
+                    new Shading { Val = ShadingPatternValues.Clear, Color = "auto", Fill = "F2F2F2" },
+                    new TableCellVerticalAlignment { Val = TableVerticalAlignmentValues.Center }
+                ),
+                new Paragraph(new Run(
+                    new RunProperties(new Bold(), new FontSize { Val = "24" }),
+                    new Text(label) { Space = SpaceProcessingModeValues.Preserve }
+                ))
+            );
+
+            var valueCell = new TableCell(
+                new TableCellProperties(
+                    new TableCellWidth { Type = TableWidthUnitValues.Dxa, Width = "6000" },
+                    new TableCellVerticalAlignment { Val = TableVerticalAlignmentValues.Center }
+                ),
+                new Paragraph(new Run(
+                    new RunProperties(new FontSize { Val = "24" }),
+                    new Text(value ?? "") { Space = SpaceProcessingModeValues.Preserve }
+                ))
+            );
+
+            return new TableRow(labelCell, valueCell);
+        }
+        public Task<SeedVerifyResult> VerifyAssignmentAsync(int examId, byte assignmentType, int[] seed)
+    => _examRepository.VerifyAssignmentAsync(examId, assignmentType, seed);
     }
 }

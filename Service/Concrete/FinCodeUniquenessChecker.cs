@@ -21,7 +21,7 @@ namespace ForQab.Service.Concrete
         public async Task<bool> IsMonitorFinCodeTakenAsync(string? finCode, int? excludeId = null)
         {
             if (string.IsNullOrWhiteSpace(finCode))
-                return false; // boş FinCode unikallıq yoxlamasından kənardır (NotEmpty validator ayrıca çıxaracaq)
+                return false;
 
             var normalized = finCode.Trim();
 
@@ -37,12 +37,13 @@ namespace ForQab.Service.Concrete
                 return false;
 
             var normalized = finCode.Trim();
-
-            return await _context.Experts
+            var query = await _context.Experts
                 .AsNoTracking()
                 .AnyAsync(e => e.FinCode == normalized
                             && (excludeId == null || e.Id != excludeId.Value) && (e.SectionId != 3 && e.SectionId != 4));
+            return query;
         }
+
 
         public async Task<bool> IsRepresentativeFinCodeTakenAsync(string? finCode, int? type = null, int? excludeId = null)
         {

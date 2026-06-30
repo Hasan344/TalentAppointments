@@ -173,7 +173,7 @@
 
 <!-- Müqavilə Modal -->
 <div class="modal fade" id="contractModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content qab-page">
             <form asp-action="ExportContracts" method="post">
                 <div class="modal-header">
@@ -185,25 +185,84 @@
                         <label class="form-label">Müqavilə tarixi</label>
                         <input type="date" name="contractDate" class="form-control" required />
                     </div>
-                    <div class="qab-form__field">
-                        <label class="form-label">İşçi tipi</label>
-                        <select name="workerType" class="form-select" required>
-                            <option value="">Seçin</option>
-                            @if (ViewBag.WorkerTypes != null)
-                            {
-                                foreach (var wt in (IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)ViewBag.WorkerTypes)
+
+                    <div class="qab-alert qab-alert--info" style="margin-bottom:.75rem;font-size:.83rem;">
+                        <i class="bi bi-info-circle"></i>
+                        Müqavilə hər işçinin <strong>işçi tipinə</strong> uyğun şablonla yaradılır.
+                        Aşağıdakı siyahı yuxarıdakı filtrlərlə (Ad/Soyad, FİN, İşçi tipi, Rayon, tarix) süzülmüş işçilərdir —
+                        daha az nəticə görmək üçün əvvəlcə filtrlərdən istifadə edin.
+                    </div>
+
+                    <div class="qab-table-wrap" style="max-height:320px;">
+                        <table class="qab-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:2.5rem;"><input type="checkbox" id="selectAllWorkers" /></th>
+                                    <th>Ad Soyad</th>
+                                    <th>FİN</th>
+                                    <th>İşçi tipi</th>
+                                    <th>Rayon</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model == null || !Model.Any())
+
                                 {
-                                    <option value="@wt.Value">@wt.Text</option>
+                                    <tr>
+                                        <td colspan="5" class="text-muted" style="text-align:center;padding:1rem;">
+                                            Heç bir işçi tapılmadı. Filtrləri dəyişin və yenidən cəhd edin.
+                                        </td>
+                                    </tr>
                                 }
-                            }
-                        </select>
+
+                                else
+
+                                {
+                                    @foreach (var item in Model)
+
+                                    {
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" name="selectedExpertIds" value="@item.Id" class="worker-sel" />
+                                            </td>
+                                            <td>@item.Surname @item.Name @item.Fname</td>
+                                            <td>@item.FinCode</td>
+                                            <td>
+                                                @if (item.WorkerTypeNavigation != null)
+
+                                                {
+                                                    <span class="qab-badge qab-badge--primary" style="font-size:.72rem;">@item.WorkerTypeNavigation.Name</span>
+                                                }
+
+                                                else
+
+                                                {
+                                                    <span class="qab-badge qab-badge--neutral" style="font-size:.72rem;">—</span>
+                                                }
+                                            </td>
+                                            <td>@item.DistrictNavigation?.Name</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="qab-btn qab-btn--ghost" data-bs-dismiss="modal">Bağla</button>
-                    <button type="submit" class="qab-btn qab-btn--primary">Export et</button>
+                    <button type="submit" class="qab-btn qab-btn--primary">
+                        <i class="bi bi-file-earmark-word"></i> Export et
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('selectAllWorkers')?.addEventListener('change', function () {
+            document.querySelectorAll('.worker-sel').forEach(cb => cb.checked = this.checked);
+        });
+    </script>
+}

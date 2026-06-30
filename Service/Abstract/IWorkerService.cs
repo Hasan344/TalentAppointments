@@ -19,7 +19,7 @@ namespace ForQab.Service.Abstract
         Task<byte[]> ExportToExcelAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, DateTime? createdStartDate = null, DateTime? createdEndDate = null);
         Task<IEnumerable<Monitor>> GetMonitorLogsAsync();
         Task<IEnumerable<Monitor>> GetMonitorLogsBySupervisorIdAsync(int monitorId);
-        Task<byte[]> ExportContractsToWordAsync(List<int> selectedExpertIds, DateTime contractDate, int workerType);
-        //Task<byte[]> ExportContractToWordAsync(int monitorId);
+        Task<byte[]> ExportContractsToWordAsync(List<int> selectedExpertIds, DateTime contractDate);
+
     }
 }

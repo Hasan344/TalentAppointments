@@ -2,38 +2,130 @@
 @model AssignRepresentativesToExamViewModel
 
 @{
-    ViewData["Title"] = "Nümayəndə təyin etmə";
+    ViewData["Title"] = "Nazirlik nümayəndəsi təyin et";
+    Layout = "~/Presentation/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Nümayəndə təyin etmə</h2>
+<link rel="stylesheet" href="~/css/Exam/Common.css" asp-append-version="true" />
 
-<form asp-action="AssignMinistryRepresentatives" method="post">
-    <input type="hidden" asp-for="ExamId" />
+<div class="container qab-page">
+    <div class="qab-page-header">
+        <div class="qab-page-header__inner">
+            <div>
+                <h1 class="qab-page-header__title">
+                    <span class="qab-page-header__title-icon"><i class="bi bi-building"></i></span>
+                    Nazirlik nümayəndəsi təyin et
+                </h1>
+                <p class="qab-page-header__subtitle">İmtahan: <strong>@ViewBag.ExamName</strong></p>
+            </div>
+            <a class="qab-page-header__back" asp-action="Details" asp-route-id="@Model.ExamId">
+                <i class="bi bi-arrow-left"></i> Geri
+            </a>
+        </div>
+    </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Seç</th>
-                <th>Ad</th>
-                <th>Soyad</th>
-                <th>FinCode</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (var i = 0; i < Model.Representatives.Count; i++)
+    <form asp-action="AssignMinistryRepresentatives" method="post" class="qab-form">
+        <input type="hidden" asp-for="ExamId" />
+
+        <div class="qab-form__section">
+            <div class="qab-form__section-title">Nazirlik nümayəndələrini seçin</div>
+
+            @if (Model.Representatives != null && Model.Representatives.Any())
             {
-                <tr>
-                    <td>
-                        <input type="checkbox" name="SelectedRepresentativeIds" value="@Model.Representatives[i].Id" />
-                    </td>
-                    <td>@Model.Representatives[i].Name</td>
-                    <td>@Model.Representatives[i].Surname</td>
-                    <td>@Model.Representatives[i].FinCode</td>
-                </tr>
+                <!-- Axtarış və Filtrləmə Paneli -->
+                <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <div style="position: relative; flex: 1; min-width: 250px;">
+                        <input type="text" id="repSearchInput" class="form-control" placeholder="Ada, soyada və ya FİN-ə görə axtar..."
+                               style="padding-left: 2.3rem; border-radius: 8px; height: 38px; border: 1px solid var(--qab-border);" />
+                        <i class="bi bi-search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--qab-text-muted);"></i>
+                    </div>
+
+                    <label style="font-size:.85rem; color:var(--qab-text-muted); display:flex; align-items:center; gap:.4rem; user-select: none;">
+                        <input type="checkbox" id="selectAllReps" style="width:16px; height:16px;" />
+                        Görünənləri hamısını seç
+                    </label>
+                </div>
+
+                <ul class="qab-list" id="representativesList">
+                    @for (var i = 0; i < Model.Representatives.Count; i++)
+                    {
+                        var rep = Model.Representatives[i];
+                        var isSelected = Model.SelectedRepresentativeIds?.Contains(rep.Id) == true;
+
+                        <li class="qab-list__item rep-item" data-search-text="@rep.Name.ToLower() @rep.Surname.ToLower() @rep.FinCode.ToLower()">
+                            <div class="qab-list__check">
+                                <input type="checkbox" name="SelectedRepresentativeIds" value="@rep.Id"
+                                       id="rep-@rep.Id" class="rep-checkbox" style="width:16px;height:16px;"
+                                @(isSelected ? "checked" : "") />
+                            </div>
+                            <div class="qab-list__main">
+                                <label class="qab-list__name" for="rep-@rep.Id" style="cursor:pointer; display: block; margin: 0;">
+                                    @rep.Name @rep.Surname
+                                </label>
+                                <p class="qab-list__meta" style="margin: 0;">FİN: @rep.FinCode</p>
+                            </div>
+                        </li>
+                    }
+                </ul>
+                <!-- Axtarış nəticəsi tapılmadıqda görünəcək blok -->
+                <div id="noMatchMessage" class="qab-empty-state" style="display: none;">Axtarışa uyğun nümayəndə tapılmadı.</div>
             }
-        </tbody>
-    </table>
+            else
+            {
+                <div class="qab-empty-state">Mövcud nümayəndə yoxdur.</div>
+            }
+        </div>
 
-    <button type="submit" class="btn btn-primary">Təyin et</button>
-</form>
+        <div class="qab-form__footer">
+            <a asp-action="Details" asp-route-id="@Model.ExamId" class="qab-btn qab-btn--outline">
+                <i class="bi bi-arrow-left"></i> Ləğv et
+            </a>
+            <button type="submit" class="qab-btn qab-btn--primary">
+                <i class="bi bi-check-circle"></i> Təyin et
+            </button>
+        </div>
+    </form>
+</div>
 
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("repSearchInput");
+            if (!searchInput) return;
+
+            const listItems = document.querySelectorAll(".rep-item");
+            const noMatchMessage = document.getElementById("noMatchMessage");
+            const selectAllCheckbox = document.getElementById("selectAllReps");
+
+            // Anlıq axtarış funksiyası
+            searchInput.addEventListener("input", function () {
+                const query = this.value.trim().toLowerCase();
+                let hasVisibleItem = false;
+
+                listItems.forEach(item => {
+                    const searchText = item.getAttribute("data-search-text");
+                    if (searchText.includes(query)) {
+                        item.style.setProperty('display', 'flex', 'important');
+                        hasVisibleItem = true;
+                    } else {
+                        item.style.setProperty('display', 'none', 'important');
+                    }
+                });
+
+                noMatchMessage.style.display = hasVisibleItem ? "none" : "block";
+                selectAllCheckbox.checked = false;
+            });
+
+            // Hamısını seç funksiyası (Yalnız görünən elementləri seçir)
+            selectAllCheckbox.addEventListener("change", function () {
+                const isChecked = this.checked;
+                listItems.forEach(item => {
+                    if (item.style.display !== "none") {
+                        const cb = item.querySelector(".rep-checkbox");
+                        if (cb) cb.checked = isChecked;
+                    }
+                });
+            });
+        });
+    </script>
+}

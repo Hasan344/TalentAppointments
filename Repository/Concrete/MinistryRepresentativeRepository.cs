@@ -28,14 +28,14 @@ namespace ForQab.Repository.Concrete
         public async Task<IEnumerable<DimRepresentative>> GetAllArchivedAsync()
         {
             return await _context.DimRepresentatives
-                .Where(dr => dr.Type == 1 && dr.Archive == 1)
+                .Where(dr => dr.Type == 2 && dr.Archive == 1)
                 .ToListAsync();
         }
 
         public async Task BulkArchiveAsync(List<int> ids, string archiveReason)
         {
             var representatives = await _context.DimRepresentatives
-                .Where(dr => ids.Contains(dr.Id) && dr.Type == 1)
+                .Where(dr => ids.Contains(dr.Id) && dr.Type == 2)
                 .ToListAsync();
 
             foreach (var rep in representatives)

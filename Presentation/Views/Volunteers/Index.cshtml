@@ -11,6 +11,19 @@
     {
         <div class="qab-alert qab-alert--success"><i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]</div>
     }
+    
+    @if (TempData["ErrorMessage"] != null)
+{
+    <div class="qab-alert qab-alert--danger">
+        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
+    </div>
+}
+@if (TempData["Message"] != null)
+{
+    <div class="qab-alert qab-alert--success">
+        <i class="bi bi-check-circle-fill"></i> @TempData["Message"]
+    </div>
+}
 
     <div class="qab-page-header">
         <div class="qab-page-header__inner">

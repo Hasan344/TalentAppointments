@@ -12,6 +12,7 @@ using wp = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using pic = DocumentFormat.OpenXml.Drawing.Pictures;
 using Monitor = ForQab.DataAccess.Models.Monitor;
 using DocumentFormat.OpenXml.Bibliography;
+using ForQab.Service.Helpers;
 
 namespace ForQab.Repository.Concrete
 {
@@ -57,7 +58,7 @@ namespace ForQab.Repository.Concrete
                     {
                         var examCommission = new ExamCommission
                         {
-                            ExamId = exam.Id, 
+                            ExamId = exam.Id,
                             CommissionId = commission.Id,
                             Exam = exam,
                             Commission = commission
@@ -109,8 +110,8 @@ namespace ForQab.Repository.Concrete
         public async Task<Exam?> GetTrackedByIdAsync(int examId)
         {
             return await _context.Exams
-                .Include(e => e.Monitors)  
-                .Include(e => e.Experts)   
+                .Include(e => e.Monitors)
+                .Include(e => e.Experts)
                 .Include(e => e.Representatives)
                 .FirstOrDefaultAsync(e => e.Id == examId);
         }
@@ -131,96 +132,103 @@ namespace ForQab.Repository.Concrete
             await _context.Exams.AddAsync(exam);
             await _context.SaveChangesAsync();
         }
-        public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId, int? roomId)
+        public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId, int? roomId, int[] seed, string? userName = null)
         {
+            seed = SeededSelector.Validate(seed);
 
             var exam = await _context.Exams.Include(e => e.Experts).FirstOrDefaultAsync(e => e.Id == examId);
             if (exam == null)
-            {
                 throw new ArgumentException("İmtahan tapılmadı");
-            }
-            var federationExists = await _context.Professions.AnyAsync(p => p.Id == federationId);
-            if (!federationExists)
+
+            // Federation yalnız verilibsə (>0) yoxlanılır — Section 3/4/6 federationsuz işləyir.
+            bool hasFederation = federationId > 0;
+            int? fedToWrite = hasFederation ? federationId : (int?)null;
+
+            if (hasFederation)
             {
-                throw new ArgumentException("Müəssisə seçimi doğru deyil");
+                var federationExists = await _context.Professions.AnyAsync(p => p.Id == federationId);
+                if (!federationExists)
+                    throw new ArgumentException("Müəssisə seçimi doğru deyil");
             }
+
             if (exam.SectionId == 1)
             {
                 var roomExists = await _context.ExamRooms.AnyAsync(p => p.Id == roomId);
                 if (!roomExists)
-                {
                     throw new ArgumentException("Otaq seçimi doğru deyil.");
-                }
             }
+
             var subProfessions = await _context.SubProfessions
                 .Where(sp => selectedSubProfessions.Contains(sp.Id))
                 .ToListAsync();
 
             if (subProfessions.Count != selectedSubProfessions.Length)
-            {
                 throw new ArgumentException("İxtisas seçimi doğru deyil.");
-            }
 
             var assignedExpertIds = exam.Experts.Select(ex => ex.Id).ToList();
 
             var availableExperts = await _context.Experts
-                                    .Where(e => e.SectionId == exam.SectionId &&
-                                                e.ExpertsProfessions.Any(sp => selectedSubProfessions.Contains(sp.SubProfessionId)) &&
-                                                !assignedExpertIds.Contains(e.Id) &&
-                                                e.Archive == 0 &&
-                                                e.Status == 0 &&
-                                                e.Federation == federationId && 
-                                                !_context.ExamExpertSubProfessions
-                                         .Any(ees => ees.ExamId == examId && ees.ExpertId == e.Id)
-                                     && !_context.ExamExpertSubProfessions
-                                         .Any(ees => ees.ExpertId == e.Id && ees.Exam.ExamDate == exam.ExamDate))
-                                    .Include(e => e.Exams)
-                                    .Include(e => e.ExamExpertSubProfessions)
-                                        .ThenInclude(ees => ees.Exam)
-                                    .ToListAsync(); 
-
+                .Where(e => e.SectionId == exam.SectionId &&
+                            e.ExpertsProfessions.Any(sp => selectedSubProfessions.Contains(sp.SubProfessionId)) &&
+                            !assignedExpertIds.Contains(e.Id) &&
+                            e.Archive == 0 &&
+                            e.Status == 0 &&
+                            (!hasFederation || e.Federation == federationId) &&   // ← federation opsiyonel
+                            !_context.ExamExpertSubProfessions
+                                .Any(ees => ees.ExamId == examId && ees.ExpertId == e.Id) &&
+                            !_context.ExamExpertSubProfessions
+                                .Any(ees => ees.ExpertId == e.Id && ees.Exam.ExamDate == exam.ExamDate))
+                .Include(e => e.Exams)
+                .Include(e => e.ExamExpertSubProfessions)
+                    .ThenInclude(ees => ees.Exam)
+                .AsSplitQuery()
+                .ToListAsync();
 
             if (availableExperts.Count < numberOfExperts)
-            {
                 throw new InvalidOperationException("Yetərli sayda ekspert yoxdur.");
-            }
 
-            var selectedExperts = availableExperts.GroupBy(e => e.ThisYearAssignmentCount)
-                                                  .OrderBy(g => g.Key)
-                                                  .SelectMany(g => g.OrderBy(_ => Guid.NewGuid()))   
-                                                  .Take(numberOfExperts)
-                                                  .ToList();
-            var shuffledSubProfessions = subProfessions.OrderBy(x => Guid.NewGuid()).ToList();
+            var orderedExperts = SeededSelector.Order(availableExperts, seed, e => e.Id, e => e.ThisYearAssignmentCount);
+            var selectedExperts = orderedExperts.Take(numberOfExperts).ToList();
+            var shuffledSubProfessions = SeededSelector.Order(subProfessions, seed, sp => sp.Id, _ => 0);
+
+            // N+1 sorğularını döngüdən çıxarırıq (pre-loaded HashSet)
+            var selectedExpertIds = selectedExperts.Select(e => e.Id).ToList();
+
+            var assignedOnSameDateSet = (await _context.ExamExpertSubProfessions
+                    .Where(ees => selectedExpertIds.Contains(ees.ExpertId) && ees.Exam.ExamDate == exam.ExamDate)
+                    .Select(ees => ees.ExpertId).Distinct().ToListAsync())
+                .ToHashSet();
+
+            var existingAssignmentSet = (await _context.ExamExpertSubProfessions
+                    .Where(ees => ees.ExamId == examId)
+                    .Select(ees => new { ees.ExpertId, ees.SubProfessionId, ees.FederationId, ees.RoomId })
+                    .ToListAsync())
+                .Select(a => (a.ExpertId, (int?)a.SubProfessionId, (int?)a.FederationId, a.RoomId))
+                .ToHashSet();
+
+            var actuallyAssigned = new List<int>();
 
             for (int i = 0; i < selectedExperts.Count; i++)
             {
                 var expert = selectedExperts[i];
 
-                var isAssignedToAnotherExam = await _context.ExamExpertSubProfessions
-            .AnyAsync(ees => ees.ExpertId == expert.Id && ees.Exam.ExamDate == exam.ExamDate);
-
-                if (isAssignedToAnotherExam)
-                {
+                if (assignedOnSameDateSet.Contains(expert.Id))
                     continue;
-                }
 
                 exam.Experts.Add(expert);
+                actuallyAssigned.Add(expert.Id);
 
                 var assignedSubProfession = shuffledSubProfessions[i % shuffledSubProfessions.Count];
 
-                bool existsInDatabase = await _context.ExamExpertSubProfessions
-                    .AnyAsync(ees => ees.ExamId == examId &&
-                                     ees.ExpertId == expert.Id &&
-                                     ees.SubProfessionId == assignedSubProfession.Id &&
-                                     ees.FederationId == federationId &&
-                                     ees.RoomId == roomId);
+                bool existsInDatabase = existingAssignmentSet.Contains(
+                    (expert.Id, (int?)assignedSubProfession.Id, fedToWrite, roomId));   // ← fedToWrite
 
                 bool existsInLocal = _context.ExamExpertSubProfessions.Local
                     .Any(ees => ees.ExamId == examId &&
                                 ees.ExpertId == expert.Id &&
                                 ees.SubProfessionId == assignedSubProfession.Id &&
-                                ees.FederationId == federationId &&
-                                     ees.RoomId == roomId);
+                                ees.FederationId == fedToWrite &&                        // ← fedToWrite
+                                ees.RoomId == roomId);
 
                 if (!existsInDatabase && !existsInLocal)
                 {
@@ -229,25 +237,41 @@ namespace ForQab.Repository.Concrete
                         ExamId = examId,
                         ExpertId = expert.Id,
                         SubProfessionId = assignedSubProfession.Id,
-                        FederationId = federationId,
+                        FederationId = fedToWrite,                                       // ← fedToWrite (Section 3 → null)
                         RoomId = roomId
                     });
                 }
             }
 
+            _context.AssignmentSeedLogs.Add(new AssignmentSeedLog
+            {
+                ExamId = examId,
+                AssignmentType = 1,
+                Seed1 = seed[0],
+                Seed2 = seed[1],
+                Seed3 = seed[2],
+                NumberRequested = numberOfExperts,
+                Parameters = $"federationId={federationId};roomId={roomId};subProf={string.Join('|', selectedSubProfessions)}",
+                CandidatePool = SeededSelector.SerializePool(availableExperts, e => e.Id, e => e.ThisYearAssignmentCount),
+                SelectedIds = SeededSelector.SerializeIds(actuallyAssigned),
+                UserName = userName,
+                CreatedAt = DateTime.Now
+            });
+
             await _context.SaveChangesAsync();
         }
 
         public async Task AssignRandomMonitorsToExamAsync(
-    int examId,
-    int numberOfMonitors,
-    int? genderId,
-    DateOnly? maxDate,
-    int? roomId)
+            int examId,
+            int numberOfMonitors,
+            int? genderId,
+            DateOnly? maxDate,
+            int? roomId)
         {
             var exam = await _context.Exams
                 .Include(e => e.Monitors)
                 .Include(e => e.ExamMonitors)
+                .AsSplitQuery()                                  // ← iki koleksiyon üçün cartesian explosion-u önləyir
                 .FirstOrDefaultAsync(e => e.Id == examId);
 
             if (exam == null)
@@ -294,18 +318,27 @@ namespace ForQab.Repository.Concrete
                 }
             }
 
-                availableMonitors = availableMonitors
-                    .Where(e => e.District == exam.DistrictId)
-                    .OrderBy(e => e.ThisYearAssignmentCount)
-                    .ToList();
+            availableMonitors = availableMonitors
+                .Where(e => e.District == exam.DistrictId)
+                .OrderBy(e => e.ThisYearAssignmentCount)
+                .ToList();
+
+            // ── N+1 sorğusunu döngüdən çıxarırıq (DB SaveChanges-ə qədər dəyişmir) ──
+            // Eyni imtahan tarixində artıq təyin olunmuş nəzarətçi ID-ləri — tək sorğu.
+            var monitorIdsToCheck = availableMonitors.Select(m => m.Id).ToList();
+            var assignedMonitorIdsOnSameDate = (await _context.ExamMonitors
+                    .Where(em => monitorIdsToCheck.Contains(em.MonitorId) && em.Exams.ExamDate == exam.ExamDate)
+                    .Select(em => em.MonitorId)
+                    .Distinct()
+                    .ToListAsync())
+                .ToHashSet();
+            // ────────────────────────────────────────────────────────────────────────
 
             var selectedMonitors = new List<Monitor>();
 
             foreach (var monitor in availableMonitors)
             {
-                var isAssignedToAnotherExam = await _context.ExamMonitors
-                    .AnyAsync(em => em.MonitorId == monitor.Id &&
-                                    em.Exams.ExamDate == exam.ExamDate);
+                var isAssignedToAnotherExam = assignedMonitorIdsOnSameDate.Contains(monitor.Id);
 
                 if (!isAssignedToAnotherExam)
                 {
@@ -378,9 +411,8 @@ namespace ForQab.Repository.Concrete
 
                 foreach (var monitor in extraMonitors)
                 {
-                    var isAssignedToAnotherExam = await _context.ExamMonitors
-                        .AnyAsync(em => em.MonitorId == monitor.Id &&
-                                        em.Exams.ExamDate == exam.ExamDate);
+                    // extraMonitors zaten availableMonitors-dandır → eyni HashSet kifayətdir
+                    var isAssignedToAnotherExam = assignedMonitorIdsOnSameDate.Contains(monitor.Id);
 
                     if (!isAssignedToAnotherExam)
                     {
@@ -412,7 +444,7 @@ namespace ForQab.Repository.Concrete
 
             var allMonitors = await _context.Monitors
                 .Include(e => e.ExamMonitors)
-                    .ThenInclude(em => em.Exams)        
+                    .ThenInclude(em => em.Exams)
                 .Where(e => e.SectionId == exam.SectionId)
                 .Where(e => e.Role == 1)
                 .Where(e => e.Status == 0)
@@ -473,7 +505,7 @@ namespace ForQab.Repository.Concrete
         public async Task<Exam?> GetByIdAsync(int id)
         {
             return await _context.Exams
-                .AsNoTracking()                                                
+                .AsNoTracking()
                 .Include(e => e.Section)
                 .Include(e => e.ExamBuilding)
                 .Include(e => e.ExamCommissions)
@@ -495,7 +527,7 @@ namespace ForQab.Repository.Concrete
                         .Where(em => em.ExamId == id))
                     .ThenInclude(em => em.ExamRooms)
                 .Include(e => e.Monitors)
-                    .ThenInclude(m => m.WorkerTypeNavigation)              
+                    .ThenInclude(m => m.WorkerTypeNavigation)
                 .Include(e => e.ExamDegrees)
                     .ThenInclude(ed => ed.Degrees)
                 .Include(e => e.District)
@@ -510,11 +542,11 @@ namespace ForQab.Repository.Concrete
     int? sectionId, int type, int? year, int? examBuildingId = null)
         {
             var query = _context.Exams
-                .AsNoTracking()                                            
+                .AsNoTracking()
                 .Include(e => e.Section)
                 .Include(e => e.ExamBuilding)
                 .Include(e => e.ExamCommissions).ThenInclude(ec => ec.Commission)
-                .Include(e => e.ExamExpertSubProfessions)                       
+                .Include(e => e.ExamExpertSubProfessions)
                 .Include(e => e.District)
                 .Where(e => e.Type == type);
             // Experts və Monitors silindi — Index-də göstərilmir,
@@ -595,7 +627,7 @@ namespace ForQab.Repository.Concrete
             existingExam.DistrictId = exam.DistrictId;
             existingExam.ExamDate = exam.ExamDate;
             existingExam.burQ = exam.burQ;
-            existingExam.burK = exam.burK; 
+            existingExam.burK = exam.burK;
             existingExam.Stekan = exam.Stekan;
 
             if (existingExam.ExamCommissions != null)
@@ -779,6 +811,8 @@ namespace ForQab.Repository.Concrete
 
             var selectedWorkers = await _context.Monitors
                 .Where(r => r.ExamBuildingId == exam.ExamBuldingId)
+                .Where(r => r.Archive == 0)
+                .Where(r => r.Status == 0)
                 .ToListAsync();
 
 
@@ -806,7 +840,7 @@ namespace ForQab.Repository.Concrete
                 .Where(m => m.ExamBuildingId == exam.ExamBuldingId)
                 .ToListAsync();
 
-            
+
             foreach (var rep in selectedVolunteers)
             {
                 exam.Monitors.Add(rep);
@@ -943,7 +977,7 @@ namespace ForQab.Repository.Concrete
                     cell.Append(cellProperties);
                     return cell;
                 }
-                
+
                 FooterPart footerPart = mainPart.AddNewPart<FooterPart>();
                 string footerPartId = mainPart.GetIdOfPart(footerPart);
 
@@ -1069,7 +1103,7 @@ namespace ForQab.Repository.Concrete
                     row.Append(CreateColoredCell(exam.ExamDate.ToString("dd.MM.yyyy"), bgColor));
                     row.Append(CreateColoredCell(exam.District?.Name ?? "", bgColor));
                     row.Append(CreateColoredCell(exam.StudentCount?.ToString() ?? "", bgColor));
-                    row.Append(CreateColoredCell(exam.ExamBuilding?.Name.Count().ToString() ?? "" , bgColor));
+                    row.Append(CreateColoredCell(exam.ExamBuilding?.Name.Count().ToString() ?? "", bgColor));
                     row.Append(CreateColoredCell(role1MonitorCount.ToString() ?? "", bgColor));
                     row.Append(CreateColoredCell(role2MonitorCount.ToString() ?? "", bgColor));
                     row.Append(CreateColoredCell(role1ExpertCount.ToString() ?? "", bgColor));
@@ -1149,7 +1183,6 @@ namespace ForQab.Repository.Concrete
                 query = query.Where(e => e.ExamDate.Year == year.Value);
             }
 
-            // Section üzrə qruplaşdırmaq üçün əvvəlcə SectionId, sonra tarix sırası
             var exams = await query.OrderBy(e => e.SectionId)
                                    .ThenBy(e => e.ExamDate)
                                    .ToListAsync();
@@ -1162,23 +1195,31 @@ namespace ForQab.Repository.Concrete
                 Body body = new Body();
                 mainPart.Document.Append(body);
 
-                string[] headers = { "İmtahan Tarixi", "İstiqamət", "Təhsil səviyyəsi", "Komissiya", "İmtahan fənləri", "İmtahan keçirilən şəhər(rayon)", "İmtahan mərkəzinin adı və ünvanı"};
+                Paragraph topTitle = new Paragraph(
+    new ParagraphProperties(
+        new Justification() { Val = JustificationValues.Center },
+        new SpacingBetweenLines() { After = "200" }
+    ),
+    new Run(
+        new RunProperties(new Bold(), new FontSize() { Val = "28" }),
+        new Text("Qabiliyyət imtahanlarının 11 iyun 2026-cı il tarixinə olan qrafiki haqqında") { Space = SpaceProcessingModeValues.Preserve },
+        new Break(),
+        new Text("Məlumat")
+    )
+);
+                body.Append(topTitle);
+
+                string[] headers = { "İmtahan Tarixi", "İstiqamət", "Təhsil səviyyəsi", "Komissiya", "İmtahan fənləri", "İmtahan keçirilən şəhər(rayon)", "İmtahan mərkəzinin adı və ünvanı" };
 
                 // Hər section üçün ayrı başlıq + ayrı cədvəl
                 var sectionGroups = exams.GroupBy(e => e.SectionId);
 
-                bool isFirstSection = true;
                 foreach (var group in sectionGroups)
                 {
                     int sectionId = group.Key;
                     string sectionName = group.First().Section?.Name ?? "";
 
-                    // Hər istiqamət yeni səhifədən başlasın (ilk section istisna)
-                    if (!isFirstSection)
-                    {
-                        body.Append(new Paragraph(new Run(new Break() { Type = BreakValues.Page })));
-                    }
-                    isFirstSection = false;
+
 
                     // Section başlığı: "<İstiqamət adı> üzrə imtahanlar"
                     Paragraph sectionTitle = new Paragraph(
@@ -1246,6 +1287,7 @@ namespace ForQab.Repository.Concrete
                     body.Append(table);
                 }
 
+
                 TableCell CreateColoredCell(string text, string bgColor)
                 {
                     TableCell cell = new TableCell(new Paragraph(new Run(new Text(text))));
@@ -1287,6 +1329,16 @@ namespace ForQab.Repository.Concrete
                                         );
 
                 body.Append(sectionProps);
+                Paragraph bottomNote = new Paragraph(
+    new ParagraphProperties(
+        new SpacingBetweenLines() { Before = "200" }
+    ),
+    new Run(
+        new RunProperties(new Bold(), new FontSize() { Val = "22" }),
+        new Text("Qeyd: Qrafik mütəmadi olaraq yenilənir və digər imtahanların tarixləri də müəyyən olunduqca cədvələ əlavə ediləcək.") { Space = SpaceProcessingModeValues.Preserve }
+    )
+);
+                body.Append(bottomNote);
                 mainPart.Document.Save();
             }
 
@@ -1408,7 +1460,7 @@ namespace ForQab.Repository.Concrete
                 paragraph.Append(new Run(
                     new FieldChar() { FieldCharType = FieldCharValues.Separate }
                 ));
-                paragraph.Append(new Run(new Text("1"))); 
+                paragraph.Append(new Run(new Text("1")));
                 paragraph.Append(new Run(
                     new FieldChar() { FieldCharType = FieldCharValues.End }
                 ));
@@ -1425,6 +1477,16 @@ namespace ForQab.Repository.Concrete
 
                 body.Append(sectionProps);
                 body.Append(table);
+                Paragraph bottomNote = new Paragraph(
+    new ParagraphProperties(
+        new SpacingBetweenLines() { Before = "200" }
+    ),
+    new Run(
+        new RunProperties(new FontSize() { Val = "22" }),
+        new Text("Qeyd: Qrafik mütəmadi olaraq yenilənir və digər imtahanların tarixləri də müəyyən olunduqca cədvələ əlavə ediləcək.") { Space = SpaceProcessingModeValues.Preserve }
+    )
+);
+                body.Append(bottomNote);
                 mainPart.Document.Save();
             }
 
@@ -1444,7 +1506,7 @@ namespace ForQab.Repository.Concrete
         }
         public async Task<List<Monitor>> GetAvailableVolunteersAsync(int? sectionId)
         {
-            return await _context.Monitors.OrderBy(m => m.Surname).Where(m => m.Role == 4 && m.SectionId == sectionId).ToListAsync();
+            return await _context.Monitors.OrderBy(m => m.Surname).Where(m => m.Role == 4 && (m.SectionId == null || m.SectionId != 1)).ToListAsync();
         }
 
         public async Task AssignRepresentativesToExamAsync(int examId, List<int> selectedRepresentativeIds)
@@ -1552,7 +1614,7 @@ namespace ForQab.Repository.Concrete
 
             if (exam == null)
             {
-                throw new Exception($"İmtahan tapılmadı : {examId}");  
+                throw new Exception($"İmtahan tapılmadı : {examId}");
             }
 
             return exam;
@@ -1610,7 +1672,7 @@ namespace ForQab.Repository.Concrete
                     body.AppendChild(CreateBoldCenteredParagraph("İŞTİRAK EDƏN NƏZARƏTÇİLƏRİN QEYDİYYAT VƏRƏQİ"));
                     string logoPath = "wwwroot/img/State_Examination_Center_logo.svg.png";
                     AddImageToDocument(mainPart, logoPath);
-                    
+
                     Paragraph directionParagraph = new Paragraph(
                         new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
                         new Run(new RunProperties(new Bold(),
@@ -1859,7 +1921,7 @@ namespace ForQab.Repository.Concrete
             var element =
                 new Drawing(
                     new wp.Inline(
-                        new wp.Extent { Cx = 990000L, Cy = 792000L }, 
+                        new wp.Extent { Cx = 990000L, Cy = 792000L },
                         new wp.EffectExtent
                         {
                             LeftEdge = 0L,
@@ -2029,6 +2091,19 @@ namespace ForQab.Repository.Concrete
                 Body body = new Body();
                 mainPart.Document.Append(body);
 
+                Paragraph topTitle = new Paragraph(
+    new ParagraphProperties(
+        new Justification() { Val = JustificationValues.Center },
+        new SpacingBetweenLines() { After = "200" }
+    ),
+    new Run(
+        new RunProperties(new Bold(), new FontSize() { Val = "28" }),
+        new Text("Qabiliyyət imtahanlarının 11 iyun 2026-cı il tarixinə olan qrafiki haqqında") { Space = SpaceProcessingModeValues.Preserve },
+        new Break(),
+        new Text("Məlumat")
+    )
+);
+                body.Append(topTitle);
                 // Başlık ekleme
                 // Paragraph title = new Paragraph(new Run(new Text("Sınav Takvimi")));
                 //title.ParagraphProperties = new ParagraphProperties(new Justification() { Val = JustificationValues.Center });
@@ -2114,7 +2189,6 @@ namespace ForQab.Repository.Concrete
 
                     table.Append(row);
                 }
-
                 TableCell CreateColoredCell(string text, string bgColor)
                 {
                     TableCell cell = new TableCell(new Paragraph(new Run(new Text(text))));
@@ -2157,12 +2231,199 @@ namespace ForQab.Repository.Concrete
 
                 body.Append(sectionProps);
                 body.Append(table);
+                Paragraph bottomNote = new Paragraph(
+    new ParagraphProperties(
+        new SpacingBetweenLines() { Before = "200" }
+    ),
+    new Run(
+        new RunProperties(new Bold(), new FontSize() { Val = "22" }),
+        new Text("Qeyd: Qrafik mütəmadi olaraq yenilənir və digər imtahanların tarixləri də müəyyən olunduqca cədvələ əlavə ediləcək.") { Space = SpaceProcessingModeValues.Preserve }
+    )
+);
+                body.Append(bottomNote);
                 mainPart.Document.Save();
             }
 
             memoryStream.Position = 0;
             return memoryStream;
 
+        }
+
+        public class SeedVerifyResult
+        {
+            public bool Found { get; set; }
+            public bool SeedMatches { get; set; }
+            public bool Reproducible { get; set; }     // snapshot + seed → orijinal nəticə ilə eyni
+            public bool MatchesCurrent { get; set; }   // hazırda təyin olunanlarla eyni
+            public List<int> RecomputedIds { get; set; } = new();
+            public List<int> OriginalIds { get; set; } = new();
+            public DateTime? AssignedAt { get; set; }
+            public string? Message { get; set; }
+        }
+
+        public async Task<SeedVerifyResult> VerifyAssignmentAsync(int examId, byte assignmentType, int[] seed)
+        {
+            var log = await _context.AssignmentSeedLogs
+                .Where(l => l.ExamId == examId && l.AssignmentType == assignmentType)
+                .OrderByDescending(l => l.Id)
+                .FirstOrDefaultAsync();
+
+            if (log == null)
+                return new SeedVerifyResult { Found = false, Message = "Bu imtahan üçün seed qeydi tapılmadı." };
+
+            var seedMatches = log.Seed1 == seed[0] && log.Seed2 == seed[1]
+                           && log.Seed3 == seed[2];
+
+            var pool = SeededSelector.ParsePool(log.CandidatePool);
+            var recomputed = SeededSelector
+                .Order(pool, seed, p => p.Id, p => p.Count)
+                .Take(log.NumberRequested)
+                .Select(p => p.Id)
+                .ToList();
+
+            var original = SeededSelector.ParseIds(log.SelectedIds);
+
+            // Hazırda təyin olunanlar
+            List<int> current = assignmentType switch
+            {
+                1 => await _context.ExamExperts.Where(x => x.ExamId == examId).Select(x => x.ExpertId).ToListAsync(),
+                2 or 3 => await _context.ExamMonitors.Where(x => x.ExamId == examId).Select(x => x.MonitorId).ToListAsync(),
+                _ => new List<int>()
+            };
+
+            return new SeedVerifyResult
+            {
+                Found = true,
+                SeedMatches = seedMatches,
+                Reproducible = seedMatches && recomputed.SequenceEqual(original),
+                MatchesCurrent = original.OrderBy(x => x).SequenceEqual(current.OrderBy(x => x)),
+                RecomputedIds = recomputed,
+                OriginalIds = original,
+                AssignedAt = log.CreatedAt,
+                Message = seedMatches ? "Seed uyğun gəldi." : "Daxil edilən seed orijinaldan fərqlidir."
+            };
+        }
+
+        // old expert assignment
+        public async Task AssignRandomExpertsToExamAsync(int examId, int numberOfExperts, int[]? selectedSubProfessions, int federationId, int? roomId)
+        {
+            var exam = await _context.Exams.Include(e => e.Experts).FirstOrDefaultAsync(e => e.Id == examId);
+            if (exam == null)
+            {
+                throw new ArgumentException("İmtahan tapılmadı");
+            }
+            var federationExists = await _context.Professions.AnyAsync(p => p.Id == federationId);
+            if (!federationExists)
+            {
+                throw new ArgumentException("Müəssisə seçimi doğru deyil");
+            }
+            if (exam.SectionId == 1)
+            {
+                var roomExists = await _context.ExamRooms.AnyAsync(p => p.Id == roomId);
+                if (!roomExists)
+                {
+                    throw new ArgumentException("Otaq seçimi doğru deyil.");
+                }
+            }
+            var subProfessions = await _context.SubProfessions
+                .Where(sp => selectedSubProfessions.Contains(sp.Id))
+                .ToListAsync();
+
+            if (subProfessions.Count != selectedSubProfessions.Length)
+            {
+                throw new ArgumentException("İxtisas seçimi doğru deyil.");
+            }
+
+            var assignedExpertIds = exam.Experts.Select(ex => ex.Id).ToList();
+
+            var availableExperts = await _context.Experts
+                                    .Where(e => e.SectionId == exam.SectionId &&
+                                                e.ExpertsProfessions.Any(sp => selectedSubProfessions.Contains(sp.SubProfessionId)) &&
+                                                !assignedExpertIds.Contains(e.Id) &&
+                                                e.Archive == 0 &&
+                                                e.Status == 0 &&
+                                                e.Federation == federationId &&
+                                                !_context.ExamExpertSubProfessions
+                                         .Any(ees => ees.ExamId == examId && ees.ExpertId == e.Id)
+                                     && !_context.ExamExpertSubProfessions
+                                         .Any(ees => ees.ExpertId == e.Id && ees.Exam.ExamDate == exam.ExamDate))
+                                    .Include(e => e.Exams)
+                                    .Include(e => e.ExamExpertSubProfessions)
+                                        .ThenInclude(ees => ees.Exam)
+                                    .AsSplitQuery()                       // ← cartesian explosion-u aradan qaldırır
+                                    .ToListAsync();
+
+            if (availableExperts.Count < numberOfExperts)
+            {
+                throw new InvalidOperationException("Yetərli sayda ekspert yoxdur.");
+            }
+
+            var selectedExperts = availableExperts.GroupBy(e => e.ThisYearAssignmentCount)
+                                                  .OrderBy(g => g.Key)
+                                                  .SelectMany(g => g.OrderBy(_ => Guid.NewGuid()))
+                                                  .Take(numberOfExperts)
+                                                  .ToList();
+            var shuffledSubProfessions = subProfessions.OrderBy(x => Guid.NewGuid()).ToList();
+
+            // ── N+1 sorğularını döngüdən çıxarırıq (DB döngü boyunca dəyişmir) ──
+            var selectedExpertIds = selectedExperts.Select(e => e.Id).ToList();
+
+            // 1) Eyni imtahan tarixində artıq təyin olunmuş ekspertlər (tək sorğu)
+            var assignedOnSameDateSet = (await _context.ExamExpertSubProfessions
+                    .Where(ees => selectedExpertIds.Contains(ees.ExpertId) && ees.Exam.ExamDate == exam.ExamDate)
+                    .Select(ees => ees.ExpertId)
+                    .Distinct()
+                    .ToListAsync())
+                .ToHashSet();
+
+            // 2) Bu imtahan üçün DB-də mövcud təyinatlar (tək sorğu)
+            var existingAssignmentSet = (await _context.ExamExpertSubProfessions
+                    .Where(ees => ees.ExamId == examId)
+                    .Select(ees => new { ees.ExpertId, ees.SubProfessionId, ees.FederationId, ees.RoomId })
+                    .ToListAsync())
+                .Select(a => (a.ExpertId, (int?)a.SubProfessionId, (int?)a.FederationId, a.RoomId))
+                .ToHashSet();
+            // ───────────────────────────────────────────────────────────────────
+
+            for (int i = 0; i < selectedExperts.Count; i++)
+            {
+                var expert = selectedExperts[i];
+
+                var isAssignedToAnotherExam = assignedOnSameDateSet.Contains(expert.Id);
+
+                if (isAssignedToAnotherExam)
+                {
+                    continue;
+                }
+
+                exam.Experts.Add(expert);
+
+                var assignedSubProfession = shuffledSubProfessions[i % shuffledSubProfessions.Count];
+
+                bool existsInDatabase = existingAssignmentSet.Contains(
+                    (expert.Id, (int?)assignedSubProfession.Id, (int?)federationId, roomId));
+
+                bool existsInLocal = _context.ExamExpertSubProfessions.Local
+                    .Any(ees => ees.ExamId == examId &&
+                                ees.ExpertId == expert.Id &&
+                                ees.SubProfessionId == assignedSubProfession.Id &&
+                                ees.FederationId == federationId &&
+                                ees.RoomId == roomId);
+
+                if (!existsInDatabase && !existsInLocal)
+                {
+                    _context.ExamExpertSubProfessions.Add(new ExamExpertSubProfession
+                    {
+                        ExamId = examId,
+                        ExpertId = expert.Id,
+                        SubProfessionId = assignedSubProfession.Id,
+                        FederationId = federationId,
+                        RoomId = roomId
+                    });
+                }
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

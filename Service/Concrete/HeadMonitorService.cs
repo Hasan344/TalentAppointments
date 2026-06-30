@@ -44,13 +44,13 @@ namespace ForQab.Service
         public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId)
         {
 
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts", "ExamMonitors" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts", "ExamMonitors", "ExamMonitors.Exams" };
             var query = await _headMonitorRepository.GetAllAsync(sectionId, 1, null, includes);
             return await _headMonitorRepository.GetAllAsync(sectionId, 1, null, includes);
         }
         public async Task<IEnumerable<Monitor>> GetAllAsync(int? sectionId,string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, DateTime? createdStartDate = null, DateTime? createdEndDate = null)
         {
-            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts", "ExamMonitors" };
+            var includes = new string[] { "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section", "Contracts", "ExamMonitors", "ExamMonitors.Exams" };
 
             var query = await _headMonitorRepository.GetAllAsync(sectionId, 1, null, includes);
             if (genderId.HasValue )
@@ -104,7 +104,7 @@ namespace ForQab.Service
         "DistrictNavigation", "RoleNavigation", "GenderNavigation", "Section",
         "WorkerTypeNavigation", "ExamBuilding",
         "ExamMonitors.Exams", "ExamMonitors.ExamRooms",
-        "MonitorLogs", "Contracts", "ExamMonitors"
+        "MonitorLogs", "Contracts", "ExamMonitors", "ExamMonitors"
             };
 
             var monitor = await _headMonitorRepository.GetByIdAsync(id, null, includes);

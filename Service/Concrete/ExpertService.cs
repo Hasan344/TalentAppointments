@@ -153,7 +153,7 @@ public class ExpertService : IExpertService
     }
     public async Task<IEnumerable<Expert>> GetExpertsBySectionIdAsync(int? sectionId, string? searchName, int? genderId, string? finCode, string serial, int? district, int? startYear, int? endYear, int? federationId, int? subProfessionId, DateTime? createdStartDate = null, DateTime? createdEndDate = null)
     {
-        var includes = new string[] { "DistrictNavigation", "ExpertsProfessions.SubProfession", "Section", "GenderNavigation", "FederationNavigation", "Contracts", "ExamExpertSubProfessions" };
+        var includes = new string[] { "DistrictNavigation", "ExpertsProfessions.SubProfession", "Section", "GenderNavigation", "FederationNavigation", "Contracts", "ExamExpertSubProfessions", "ExamExpertSubProfessions.Exam" };
 
         var query = await _expertRepository.GetAllAsync(sectionId, null, includes);
 
