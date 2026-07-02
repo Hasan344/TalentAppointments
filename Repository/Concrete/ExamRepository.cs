@@ -110,6 +110,7 @@ namespace ForQab.Repository.Concrete
         public async Task<Exam?> GetTrackedByIdAsync(int examId)
         {
             return await _context.Exams
+                .AsSplitQuery()
                 .Include(e => e.Monitors)
                 .Include(e => e.Experts)
                 .Include(e => e.Representatives)
@@ -506,6 +507,7 @@ namespace ForQab.Repository.Concrete
         {
             return await _context.Exams
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(e => e.Section)
                 .Include(e => e.ExamBuilding)
                 .Include(e => e.ExamCommissions)
